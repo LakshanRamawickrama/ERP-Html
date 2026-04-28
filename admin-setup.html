@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Management - ClearERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: #6b7280;
+        }
+
+        .business-info {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+
+        .business-info h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .business-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .business-detail {
+            opacity: 0.95;
+        }
+
+        .business-detail strong {
+            display: block;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #10b981;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: #f9fafb;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #10b981;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .admin-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .admin-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .admin-card:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .admin-info {
+            flex: 1;
+        }
+
+        .admin-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .admin-details {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-danger {
+            background: white;
+            color: #dc2626;
+            border: 2px solid #fca5a5;
+        }
+
+        .btn-danger:hover {
+            background: #fee2e2;
+            border-color: #dc2626;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #10b981;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .admin-actions {
+                width: 100%;
+            }
+
+            .btn-small {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="business-management.html" class="back-link">← Back to Business Management</a>
+
+        <div class="header">
+            <h1>👥 Admin Management</h1>
+            <p>Manage administrators for your business</p>
+            
+            <div class="business-info" id="businessInfo">
+                <h3>Current Business</h3>
+                <div class="business-details">
+                    <div class="business-detail">
+                        <strong>Business Name</strong>
+                        <span id="businessName">-</span>
+                    </div>
+                    <div class="business-detail">
+                        <strong>Business Type</strong>
+                        <span id="businessType">-</span>
+                    </div>
+                    <div class="business-detail">
+                        <strong>Total Admins</strong>
+                        <span id="adminCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Business Administrators</h2>
+                <button class="btn btn-primary" onclick="openAddAdminModal()">+ Add New Admin</button>
+            </div>
+
+            <div class="admin-list" id="adminList">
+                <div class="empty-state">
+                    <div class="empty-icon">👤</div>
+                    <div class="empty-text">No administrators added yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div class="modal" id="addAdminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Administrator</h3>
+                <p class="modal-description">Create a new admin account for this business</p>
+            </div>
+
+            <form id="addAdminForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="tel" id="phone" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username *</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" id="password" required minlength="6">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Role *</label>
+                    <select id="role" required>
+                        <option value="">Select Role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddAdminModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Administrator</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let admins = [];
+        let businessData = {};
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if user is super admin
+            const currentUser = JSON.parse(localStorage.getItem('clearerp_user') || '{}');
+            if (currentUser.role !== 'Super Admin') {
+                alert('Access denied. Only Super Admin can manage administrators.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Get selected business from URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const businessId = urlParams.get('business');
+            
+            if (businessId) {
+                const businesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+                businessData = businesses.find(b => b.id === businessId) || {};
+            } else {
+                businessData = JSON.parse(localStorage.getItem('selected_business') || '{}');
+            }
+            
+            if (!businessData.id) {
+                alert('No business selected. Please select a business first.');
+                window.location.href = 'business-management.html';
+                return;
+            }
+
+            document.getElementById('businessName').textContent = businessData.name || '-';
+            document.getElementById('businessType').textContent = businessData.type || '-';
+
+            // Load admins for this business
+            loadAdmins();
+        });
+
+        function loadAdmins() {
+            const allAdmins = JSON.parse(localStorage.getItem('clearerp_admins') || '[]');
+            // Filter admins for current business
+            admins = allAdmins.filter(a => a.businessId === businessData.id);
+            document.getElementById('adminCount').textContent = admins.length;
+            renderAdmins();
+        }
+
+        function renderAdmins() {
+            const adminList = document.getElementById('adminList');
+            
+            if (admins.length === 0) {
+                adminList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👤</div>
+                        <div class="empty-text">No administrators added yet</div>
+                    </div>
+                `;
+                return;
+            }
+
+            adminList.innerHTML = admins.map((admin, index) => `
+                <div class="admin-card">
+                    <div class="admin-info">
+                        <div class="admin-name">${admin.firstName} ${admin.lastName}</div>
+                        <div class="admin-details">
+                            <span class="admin-badge">${admin.role}</span>
+                            ${admin.email} • ${admin.phone} • @${admin.username}
+                        </div>
+                    </div>
+                    <div class="admin-actions">
+                        <button class="btn btn-secondary btn-small" onclick="editAdmin(${index})">Edit</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteAdmin(${index})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddAdminModal() {
+            document.getElementById('addAdminModal').classList.add('active');
+        }
+
+        function closeAddAdminModal() {
+            document.getElementById('addAdminModal').classList.remove('active');
+            document.getElementById('addAdminForm').reset();
+        }
+
+        document.getElementById('addAdminForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const newAdmin = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value,
+                businessId: businessData.id,
+                businessName: businessData.name,
+                createdAt: new Date().toISOString()
+            };
+
+            const allAdmins = JSON.parse(localStorage.getItem('clearerp_admins') || '[]');
+            allAdmins.push(newAdmin);
+            localStorage.setItem('clearerp_admins', JSON.stringify(allAdmins));
+            
+            // Also add to users list for login
+            const users = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
+            users.push({
+                username: newAdmin.username,
+                password: newAdmin.password,
+                role: newAdmin.role,
+                businessId: businessData.id,
+                businessName: businessData.name,
+                fullName: `${newAdmin.firstName} ${newAdmin.lastName}`
+            });
+            localStorage.setItem('clearerp_users', JSON.stringify(users));
+
+            loadAdmins();
+            closeAddAdminModal();
+            
+            alert(`✅ Administrator ${newAdmin.firstName} ${newAdmin.lastName} added successfully!`);
+        });
+
+        function editAdmin(index) {
+            alert('Edit functionality coming soon!');
+        }
+
+        function deleteAdmin(index) {
+            if (confirm(`Are you sure you want to delete ${admins[index].firstName} ${admins[index].lastName}?`)) {
+                const deletedAdmin = admins[index];
+                
+                // Remove from all admins
+                const allAdmins = JSON.parse(localStorage.getItem('clearerp_admins') || '[]');
+                const updatedAdmins = allAdmins.filter(a => a.username !== deletedAdmin.username);
+                localStorage.setItem('clearerp_admins', JSON.stringify(updatedAdmins));
+                
+                // Remove from users list
+                const users = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
+                const updatedUsers = users.filter(u => u.username !== deletedAdmin.username);
+                localStorage.setItem('clearerp_users', JSON.stringify(updatedUsers));
+                
+                loadAdmins();
+                alert('✅ Administrator deleted successfully!');
+            }
+        }
+    </script>
+</body>
+</html>

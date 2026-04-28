@@ -584,32 +584,56 @@
                     <div class="error-message" id="loginError">
                         ❌ Invalid credentials. Please try again.
                     </div>
-
-                    <div class="divider">
-                        <span>Demo Credentials</span>
-                    </div>
-
-                    <div class="demo-credentials">
-                        <h4>🎯 Try Demo Accounts</h4>
-                        <div class="demo-grid">
-                            <div class="demo-card" onclick="fillCredentials('superadmin', 'admin123')">
-                                <div class="demo-card-title">🔐 SUPER ADMIN</div>
-                                <div class="demo-card-creds">superadmin / admin123</div>
-                            </div>
-                            <div class="demo-card" onclick="fillCredentials('admin', 'admin123')">
-                                <div class="demo-card-title">👤 ADMIN</div>
-                                <div class="demo-card-creds">admin / admin123</div>
-                            </div>
-                        </div>
-                    </div>
                 </form>
             </div>
         </div>
     </div>
 
     <script>
+        // Initialize mock users on page load so admin logins work
+        function initMockUsersIfNeeded() {
+            const existingUsers = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
+            const existingBusinesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+            if (existingBusinesses.length > 0 || existingUsers.length > 0) return; // already seeded
+
+            const id = (n) => 'BUS-MOCK-' + n;
+            const mockBusinesses = [
+                { id: id(1), name: 'Green Valley Retail Store', type: 'Retail', email: 'contact@greenvalley.com', phone: '+44 20 1234 5678', address: '123 High Street, London, UK, SW1A 1AA', registrationNumber: 'GB123456789', vatNumber: 'GB987654321', status: 'Active', modules: [], createdAt: new Date('2024-01-15').toISOString() },
+                { id: id(2), name: 'City Express Logistics',    type: 'Service', email: 'info@cityexpress.co.uk', phone: '+44 20 8765 4321', address: '456 Business Park, Manchester, UK, M1 2AB', registrationNumber: 'GB234567890', vatNumber: 'GB876543210', status: 'Active', modules: [], createdAt: new Date('2024-03-20').toISOString() },
+                { id: id(3), name: 'Fresh Foods Wholesale',     type: 'Wholesale', email: 'sales@freshfoods.com', phone: '+44 121 555 7890', address: '789 Industrial Estate, Birmingham, UK, B2 4QA', registrationNumber: 'GB345678901', vatNumber: 'GB765432109', status: 'Active', modules: [], createdAt: new Date('2023-11-10').toISOString() },
+                { id: id(4), name: 'Tech Solutions Ltd',        type: 'Service', email: 'hello@techsolutions.co.uk', phone: '+44 131 444 2233', address: '321 Innovation Hub, Edinburgh, UK, EH1 3EG', registrationNumber: 'GB456789012', vatNumber: 'GB654321098', status: 'Active', modules: [], createdAt: new Date('2024-02-28').toISOString() },
+                { id: id(5), name: 'Sunrise Cafe & Restaurant', type: 'Restaurant', email: 'bookings@sunrisecafe.com', phone: '+44 117 333 9988', address: '55 Market Square, Bristol, UK, BS1 1JQ', registrationNumber: 'GB567890123', vatNumber: 'GB543210987', status: 'Active', modules: [], createdAt: new Date('2024-04-05').toISOString() }
+            ];
+
+            const mockAdmins = [
+                { firstName: 'Sarah',   lastName: 'Johnson',  username: 'sarah.johnson',  password: 'admin123', email: 'sarah.johnson@greenvalley.com',   phone: '+44 7700 900123', role: 'Admin', businessId: id(1), businessName: mockBusinesses[0].name, createdAt: new Date().toISOString() },
+                { firstName: 'Michael', lastName: 'Chen',     username: 'michael.chen',   password: 'admin123', email: 'michael.chen@cityexpress.co.uk',  phone: '+44 7700 900456', role: 'Admin', businessId: id(2), businessName: mockBusinesses[1].name, createdAt: new Date().toISOString() },
+                { firstName: 'Emma',    lastName: 'Williams', username: 'emma.williams',  password: 'admin123', email: 'emma.williams@freshfoods.com',    phone: '+44 7700 900789', role: 'Admin', businessId: id(3), businessName: mockBusinesses[2].name, createdAt: new Date().toISOString() },
+                { firstName: 'David',   lastName: 'Brown',    username: 'david.brown',    password: 'admin123', email: 'david.brown@techsolutions.co.uk', phone: '+44 7700 900321', role: 'Admin', businessId: id(4), businessName: mockBusinesses[3].name, createdAt: new Date().toISOString() },
+                { firstName: 'Lisa',    lastName: 'Patel',    username: 'lisa.patel',     password: 'admin123', email: 'lisa.patel@sunrisecafe.com',      phone: '+44 7700 900654', role: 'Admin', businessId: id(5), businessName: mockBusinesses[4].name, createdAt: new Date().toISOString() }
+            ];
+
+            const mockUsers = mockAdmins.map(a => ({
+                username: a.username,
+                password: a.password,
+                role: a.role,
+                businessId: a.businessId,
+                businessName: a.businessName,
+                fullName: a.firstName + ' ' + a.lastName
+            }));
+
+            // Also add a simple "admin" account for quick access
+            mockUsers.push({ username: 'admin', password: 'admin123', role: 'Admin', businessId: id(1), businessName: mockBusinesses[0].name, fullName: 'Admin User' });
+
+            localStorage.setItem('clearerp_businesses', JSON.stringify(mockBusinesses));
+            localStorage.setItem('clearerp_admins', JSON.stringify(mockAdmins));
+            localStorage.setItem('clearerp_users', JSON.stringify(mockUsers));
+            localStorage.setItem('clearerp_setup_complete', 'true');
+        }
+
         // Check for existing session
         window.addEventListener('DOMContentLoaded', () => {
+            initMockUsersIfNeeded();
             const savedUser = localStorage.getItem('clearerp_user');
             if (savedUser) {
                 window.location.href = 'index.html';
@@ -619,22 +643,33 @@
         // Login form handler
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             
-            if ((username === 'superadmin' && password === 'admin123') || (username === 'admin' && password === 'admin123')) {
-                const currentUser = {
-                    username: username,
-                    role: username === 'superadmin' ? 'Super Admin' : 'Admin'
-                };
-                
-                localStorage.setItem('clearerp_user', JSON.stringify(currentUser));
+            // Super admin hardcoded
+            if (username === 'superadmin' && password === 'admin123') {
+                localStorage.setItem('clearerp_user', JSON.stringify({ username, role: 'Super Admin', fullName: 'Super Administrator' }));
+                localStorage.setItem('clearerp_setup_complete', 'true');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Check created users in localStorage
+            const users = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                localStorage.setItem('clearerp_user', JSON.stringify({
+                    username: user.username,
+                    role: user.role,
+                    fullName: user.fullName,
+                    businessId: user.businessId,
+                    businessName: user.businessName
+                }));
                 window.location.href = 'index.html';
             } else {
                 document.getElementById('loginError').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('loginError').style.display = 'none';
-                }, 3000);
+                setTimeout(() => document.getElementById('loginError').style.display = 'none', 3000);
             }
         });
 

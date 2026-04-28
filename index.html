@@ -124,10 +124,10 @@
         /* Table */
         .table-container { background: white; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); width: 100%; }
         .table-wrapper { overflow-x: auto; width: 100%; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1200px; table-layout: fixed; }
         thead { background: linear-gradient(180deg, #F9FAFB 0%, #F3F4F6 100%); }
-        th { padding: 14px 18px; text-align: left; font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; border-bottom: 2px solid #E5E7EB; }
-        td { padding: 16px 18px; border-top: 1px solid #F3F4F6; font-size: 13px; color: #374151; vertical-align: middle; }
+        th { padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; border-bottom: 2px solid #E5E7EB; }
+        td { padding: 12px 14px; border-top: 1px solid #F3F4F6; font-size: 12px; color: #374151; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         tbody tr { transition: all 0.2s; }
         tbody tr:hover { background: #F9FAFB; }
         
@@ -303,44 +303,449 @@
 
         const getDefaultData = () => ({
             accounting: [
-                { name: 'VAT Return Q1', category: 'Tax', amount: 5420, status: 'Paid', method: 'Bank Transfer', dueDate: '2026-04-15', reminderDate: '2026-04-10', notes: 'Q1 2026 VAT payment' },
-                { name: 'Accountant Fee March', category: 'Fees', amount: 850, status: 'Pending', method: 'Direct Debit', dueDate: '2026-05-05', reminderDate: '2026-05-01', notes: 'Monthly accounting services' },
-                { name: 'Business Loan Payment', category: 'Loan', amount: 2100, status: 'Overdue', method: 'Bank Transfer', dueDate: '2026-04-20', reminderDate: '2026-04-15', notes: 'Monthly loan installment' }
+                { 
+                    name: 'VAT Return Q1 2026', 
+                    title: 'Quarterly VAT Payment',
+                    category: 'Tax', 
+                    type: 'VAT',
+                    amount: 5420, 
+                    status: 'Paid', 
+                    paymentStatus: 'Completed',
+                    method: 'Bank Transfer', 
+                    paymentMethod: 'Bank Transfer',
+                    dueDate: '2026-04-15', 
+                    reminderDate: '2026-04-10',
+                    uploadDate: '2026-04-12',
+                    notes: 'Q1 2026 VAT payment processed',
+                    supplier: 'HMRC',
+                    vatTaxDocs: 'VAT-Q1-2026.pdf',
+                    loans: '',
+                    insurance: 'N/A',
+                    rent: '',
+                    mortgage: '',
+                    accountantFees: '',
+                    bankCharges: '£15.00',
+                    cardProcessingFees: ''
+                },
+                { 
+                    name: 'Accountant Fee March', 
+                    title: 'Monthly Accounting Services',
+                    category: 'Fees', 
+                    type: 'Professional Services',
+                    amount: 850, 
+                    status: 'Pending', 
+                    paymentStatus: 'Pending',
+                    method: 'Direct Debit', 
+                    paymentMethod: 'Direct Debit',
+                    dueDate: '2026-05-05', 
+                    reminderDate: '2026-05-01',
+                    uploadDate: '2026-04-28',
+                    notes: 'Monthly accounting services',
+                    supplier: 'ABC Accountants Ltd',
+                    vatTaxDocs: '',
+                    loans: '',
+                    insurance: '',
+                    rent: '',
+                    mortgage: '',
+                    accountantFees: '£850',
+                    bankCharges: '',
+                    cardProcessingFees: ''
+                },
+                { 
+                    name: 'Business Loan Payment', 
+                    title: 'Monthly Loan Installment',
+                    category: 'Loan', 
+                    type: 'Finance',
+                    amount: 2100, 
+                    status: 'Overdue', 
+                    paymentStatus: 'Overdue',
+                    method: 'Bank Transfer', 
+                    paymentMethod: 'Bank Transfer',
+                    dueDate: '2026-04-20', 
+                    reminderDate: '2026-04-15',
+                    uploadDate: '',
+                    notes: 'Monthly loan installment - contact bank',
+                    supplier: 'Business Bank Ltd',
+                    vatTaxDocs: '',
+                    loans: '£2,100',
+                    insurance: '',
+                    rent: '',
+                    mortgage: '',
+                    accountantFees: '',
+                    bankCharges: '',
+                    cardProcessingFees: ''
+                }
             ],
             fleet: [
-                { vehicle: 'CAR 1', reg: 'AB12 CDE', insurance: '2026-05-15', mot: '2026-06-20', roadTax: '2026-07-01', status: 'Active', notes: 'Company sedan' },
-                { vehicle: 'CAR 2', reg: 'XY34 FGH', insurance: '2026-05-10', mot: '2026-05-25', roadTax: '2026-06-15', status: 'Active', notes: 'Sales vehicle' },
-                { vehicle: 'Van', reg: 'LM56 NOP', insurance: '2026-08-30', mot: '2026-09-15', roadTax: '2026-10-01', status: 'Active', notes: 'Delivery van' }
+                { 
+                    vehicle: 'Mercedes Sprinter Van', 
+                    vehicleName: 'Delivery Van 1',
+                    reg: 'AB12 CDE', 
+                    vehicleNumber: 'AB12 CDE',
+                    insurance: '2026-05-15',
+                    insuranceRenewal: '2026-05-15',
+                    insuranceExpiry: '2026-05-15',
+                    mot: '2026-06-20',
+                    motRenewal: '2026-06-20',
+                    motDate: '2026-06-20',
+                    roadTax: '2026-07-01',
+                    roadTaxDate: '2026-07-01',
+                    deliveryDate: '2024-01-15',
+                    pacificServices: 'Full Service',
+                    status: 'Active', 
+                    notes: 'Company delivery van - main vehicle'
+                },
+                { 
+                    vehicle: 'Ford Transit', 
+                    vehicleName: 'Delivery Van 2',
+                    reg: 'XY34 FGH', 
+                    vehicleNumber: 'XY34 FGH',
+                    insurance: '2026-05-10',
+                    insuranceRenewal: '2026-05-10',
+                    insuranceExpiry: '2026-05-10',
+                    mot: '2026-05-25',
+                    motRenewal: '2026-05-25',
+                    motDate: '2026-05-25',
+                    roadTax: '2026-06-15',
+                    roadTaxDate: '2026-06-15',
+                    deliveryDate: '2023-08-20',
+                    pacificServices: 'Basic Service',
+                    status: 'Active', 
+                    notes: 'Secondary delivery vehicle'
+                },
+                { 
+                    vehicle: 'Volkswagen Caddy', 
+                    vehicleName: 'Small Van',
+                    reg: 'LM56 NOP', 
+                    vehicleNumber: 'LM56 NOP',
+                    insurance: '2026-08-30',
+                    insuranceRenewal: '2026-08-30',
+                    insuranceExpiry: '2026-08-30',
+                    mot: '2026-09-15',
+                    motRenewal: '2026-09-15',
+                    motDate: '2026-09-15',
+                    roadTax: '2026-10-01',
+                    roadTaxDate: '2026-10-01',
+                    deliveryDate: '2025-03-10',
+                    pacificServices: 'Premium Service',
+                    status: 'Active', 
+                    notes: 'Local delivery van'
+                }
             ],
             inventory: [
-                { item: 'Premium Tobacco A', category: 'Tobacco', stock: 150, supplier: 'SUP-001', status: 'In Stock', notes: 'Popular brand' },
-                { item: 'Vape Cartridge B', category: 'Vaping', stock: 25, supplier: 'SUP-002', status: 'Low Stock', notes: 'Reorder soon' },
-                { item: 'Lighter Pack', category: 'Accessories', stock: 0, supplier: 'SUP-003', status: 'Out of Stock', notes: 'Awaiting delivery' }
+                { 
+                    item: 'Premium Tobacco A', 
+                    itemName: 'Premium Tobacco Brand A',
+                    products: 'Tobacco Products',
+                    category: 'Tobacco', 
+                    stock: 150,
+                    stockLevel: 150,
+                    supplier: 'SUP-001',
+                    supplierRef: 'SUP-001',
+                    supplierName: 'Alpha Distributors',
+                    status: 'In Stock',
+                    notes: 'Popular brand - high demand'
+                },
+                { 
+                    item: 'Vape Cartridge B', 
+                    itemName: 'Vape Cartridge Type B',
+                    products: 'Vaping Products',
+                    category: 'Vaping', 
+                    stock: 25,
+                    stockLevel: 25,
+                    supplier: 'SUP-002',
+                    supplierRef: 'SUP-002',
+                    supplierName: 'Beta Wholesale',
+                    status: 'Low Stock',
+                    notes: 'Reorder soon - below minimum'
+                },
+                { 
+                    item: 'Lighter Pack', 
+                    itemName: 'Disposable Lighter Pack',
+                    products: 'Accessories',
+                    category: 'Accessories', 
+                    stock: 0,
+                    stockLevel: 0,
+                    supplier: 'SUP-003',
+                    supplierRef: 'SUP-003',
+                    supplierName: 'City Supplies Ltd',
+                    status: 'Out of Stock',
+                    notes: 'Awaiting delivery - ordered 100 units'
+                }
             ],
             suppliers: [
-                { name: 'Alpha Distributors', id: 'SUP-001', contact: 'John Smith', phone: '020 1234 5678', email: 'john@alpha.com', address: '123 Business Park, London', terms: 'Net 30', notes: 'Primary tobacco supplier' },
-                { name: 'Beta Wholesale', id: 'SUP-002', contact: 'Sarah Jones', phone: '020 8765 4321', email: 'sarah@beta.com', address: '456 Trade Centre, Manchester', terms: 'Net 15', notes: 'Vaping products' },
-                { name: 'City Supplies Ltd', id: 'SUP-003', contact: 'Mike Brown', phone: '020 5555 6666', email: 'mike@city.com', address: '789 Industrial Estate, Birmingham', terms: 'Net 45', notes: 'General supplies' }
+                { 
+                    name: 'Alpha Distributors', 
+                    supplierName: 'Alpha Distributors Ltd',
+                    id: 'SUP-001',
+                    supplierID: 'SUP-001',
+                    contact: 'John Smith', 
+                    contactDetails: 'John Smith - Sales Manager',
+                    phone: '020 1234 5678',
+                    phoneEmail: '020 1234 5678',
+                    email: 'john@alpha.com',
+                    address: '123 Business Park, London, SW1A 1AA',
+                    paymentStatus: 'Current',
+                    paymentTerms: 'Net 30',
+                    terms: 'Net 30',
+                    dueDate: '2026-05-15',
+                    documentReceipt: 'Invoice-2026-04.pdf',
+                    uploadDocs: 'Contract-Alpha.pdf',
+                    notes: 'Primary tobacco supplier - excellent service'
+                },
+                { 
+                    name: 'Beta Wholesale', 
+                    supplierName: 'Beta Wholesale Co',
+                    id: 'SUP-002',
+                    supplierID: 'SUP-002',
+                    contact: 'Sarah Jones', 
+                    contactDetails: 'Sarah Jones - Account Manager',
+                    phone: '020 8765 4321',
+                    phoneEmail: '020 8765 4321',
+                    email: 'sarah@beta.com',
+                    address: '456 Trade Centre, Manchester, M1 2AB',
+                    paymentStatus: 'Pending',
+                    paymentTerms: 'Net 15',
+                    terms: 'Net 15',
+                    dueDate: '2026-05-10',
+                    documentReceipt: 'Invoice-2026-04-B.pdf',
+                    uploadDocs: 'Agreement-Beta.pdf',
+                    notes: 'Vaping products specialist'
+                },
+                { 
+                    name: 'City Supplies Ltd', 
+                    supplierName: 'City Supplies Limited',
+                    id: 'SUP-003',
+                    supplierID: 'SUP-003',
+                    contact: 'Mike Brown', 
+                    contactDetails: 'Mike Brown - Sales Director',
+                    phone: '020 5555 6666',
+                    phoneEmail: '020 5555 6666',
+                    email: 'mike@city.com',
+                    address: '789 Industrial Estate, Birmingham, B2 4QA',
+                    paymentStatus: 'Overdue',
+                    paymentTerms: 'Net 45',
+                    terms: 'Net 45',
+                    dueDate: '2026-04-20',
+                    documentReceipt: 'Invoice-2026-03.pdf',
+                    uploadDocs: 'Terms-City.pdf',
+                    notes: 'General supplies - payment overdue'
+                }
             ],
             legal: [
-                { type: 'Licence', business: 'Main Store', issueDate: '2025-01-15', expiryDate: '2027-01-15', status: 'Valid', notes: 'Premises licence for alcohol sales' },
-                { type: 'Food Safety Cert', business: 'Main Store', issueDate: '2025-06-01', expiryDate: '2026-06-01', status: 'Expiring', notes: 'Level 2 Food Hygiene' },
-                { type: 'Change of DPS', business: 'Branch 2', issueDate: '2024-12-01', expiryDate: '2026-03-01', status: 'Expired', notes: 'Designated Premises Supervisor change' }
+                { 
+                    type: 'Licence', 
+                    documentType: 'Premises Licence',
+                    business: 'Main Store',
+                    businessName: 'Main Store - High Street',
+                    licenceApplication: 'Alcohol Sales Licence',
+                    changeOfDPS: '',
+                    premiseChanges: '',
+                    foodSafetyDocs: '',
+                    refusalLogs: '',
+                    testRecords: '',
+                    staffSheets: '',
+                    issueDate: '2025-01-15',
+                    issuedDate: '2025-01-15',
+                    expiryDate: '2027-01-15',
+                    renewalDate: '2027-01-15',
+                    uploadFile: 'Licence-Main-Store.pdf',
+                    status: 'Valid',
+                    notes: 'Premises licence for alcohol sales - valid until 2027'
+                },
+                { 
+                    type: 'Food Safety Cert', 
+                    documentType: 'Food Safety Certificate',
+                    business: 'Main Store',
+                    businessName: 'Main Store - High Street',
+                    licenceApplication: '',
+                    changeOfDPS: '',
+                    premiseChanges: '',
+                    foodSafetyDocs: 'Food-Safety-Level2.pdf',
+                    refusalLogs: '',
+                    testRecords: 'Hygiene-Test-2025.pdf',
+                    staffSheets: '',
+                    issueDate: '2025-06-01',
+                    issuedDate: '2025-06-01',
+                    expiryDate: '2026-06-01',
+                    renewalDate: '2026-06-01',
+                    uploadFile: 'Food-Safety-Cert.pdf',
+                    status: 'Expiring',
+                    notes: 'Level 2 Food Hygiene - renewal required soon'
+                },
+                { 
+                    type: 'Change of DPS', 
+                    documentType: 'DPS Change Application',
+                    business: 'Branch 2',
+                    businessName: 'Branch 2 - Market Road',
+                    licenceApplication: '',
+                    changeOfDPS: 'DPS-Change-Form.pdf',
+                    premiseChanges: '',
+                    foodSafetyDocs: '',
+                    refusalLogs: '',
+                    testRecords: '',
+                    staffSheets: '',
+                    issueDate: '2024-12-01',
+                    issuedDate: '2024-12-01',
+                    expiryDate: '2026-03-01',
+                    renewalDate: '2026-03-01',
+                    uploadFile: 'DPS-Change-2024.pdf',
+                    status: 'Expired',
+                    notes: 'Designated Premises Supervisor change - EXPIRED'
+                }
             ],
             property: [
-                { type: 'Utility', property: 'Main Store', address: '10 High Street, London', description: 'Gas Bill - March', priority: 'Medium', assignedTo: 'Finance Team', status: 'Open', notes: 'Monthly gas bill payment' },
-                { type: 'Maintenance', property: 'Branch 2', address: '25 Market Road, Manchester', description: 'HVAC Repair', priority: 'High', assignedTo: 'Maintenance Team', status: 'In Progress', notes: 'Air conditioning not working' },
-                { type: 'Waste', property: 'Warehouse', address: '50 Industrial Way, Birmingham', description: 'Waste Collection Schedule', priority: 'Low', assignedTo: 'Operations', status: 'Resolved', notes: 'Weekly collection arranged' }
+                { 
+                    type: 'Utility', 
+                    requestType: 'Utility Bill',
+                    property: 'Main Store',
+                    propertyName: 'Main Store - High Street',
+                    address: '10 High Street, London, SW1A 1AA',
+                    infoName: 'Gas Bill March 2026',
+                    description: 'Gas Bill - March 2026',
+                    utility: 'Gas',
+                    maintenance: '',
+                    waste: '',
+                    priority: 'Medium',
+                    assignedTo: 'Finance Team',
+                    assigned: 'Finance Team',
+                    status: 'Open',
+                    notes: 'Monthly gas bill payment due'
+                },
+                { 
+                    type: 'Maintenance', 
+                    requestType: 'Maintenance Request',
+                    property: 'Branch 2',
+                    propertyName: 'Branch 2 - Market Road',
+                    address: '25 Market Road, Manchester, M1 2AB',
+                    infoName: 'HVAC System Repair',
+                    description: 'HVAC Repair - Air Conditioning',
+                    utility: '',
+                    maintenance: 'HVAC Repair',
+                    waste: '',
+                    priority: 'High',
+                    assignedTo: 'Maintenance Team',
+                    assigned: 'Maintenance Team',
+                    status: 'In Progress',
+                    notes: 'Air conditioning not working - technician scheduled'
+                },
+                { 
+                    type: 'Waste', 
+                    requestType: 'Waste Management',
+                    property: 'Warehouse',
+                    propertyName: 'Warehouse - Industrial Way',
+                    address: '50 Industrial Way, Birmingham, B2 4QA',
+                    infoName: 'Weekly Waste Collection',
+                    description: 'Waste Collection Schedule',
+                    utility: '',
+                    maintenance: '',
+                    waste: 'Weekly Collection',
+                    priority: 'Low',
+                    assignedTo: 'Operations',
+                    assigned: 'Operations Team',
+                    status: 'Resolved',
+                    notes: 'Weekly collection arranged - Mondays 8am'
+                }
             ],
             hr: [
-                { name: 'Ali Hassan', role: 'Tele Agent', shiftDate: '2026-04-28', startTime: '09:00', endTime: '17:00', status: 'Scheduled', notes: 'Morning shift' },
-                { name: 'Sara Khan', role: 'Team Leader', shiftDate: '2026-04-28', startTime: '10:00', endTime: '18:00', status: 'Completed', notes: 'Supervised 5 agents' },
-                { name: 'James Lee', role: 'Manager', shiftDate: '2026-04-29', startTime: '08:00', endTime: '16:00', status: 'Scheduled', notes: 'Full day management' }
+                { 
+                    name: 'Ali Hassan',
+                    staffName: 'Ali Hassan',
+                    staffLogs: 'Staff ID: EMP001',
+                    role: 'Tele Agent',
+                    roleTeamLeader: '',
+                    shiftDate: '2026-04-28',
+                    shiftStartDate: '2026-04-28',
+                    startTime: '09:00',
+                    startEndTime: '09:00',
+                    endTime: '17:00',
+                    status: 'Scheduled',
+                    notes: 'Morning shift - customer service'
+                },
+                { 
+                    name: 'Sara Khan',
+                    staffName: 'Sara Khan',
+                    staffLogs: 'Staff ID: EMP002',
+                    role: 'Team Leader',
+                    roleTeamLeader: 'Team Leader',
+                    shiftDate: '2026-04-28',
+                    shiftStartDate: '2026-04-28',
+                    startTime: '10:00',
+                    startEndTime: '10:00',
+                    endTime: '18:00',
+                    status: 'Completed',
+                    notes: 'Supervised 5 agents - excellent performance'
+                },
+                { 
+                    name: 'James Lee',
+                    staffName: 'James Lee',
+                    staffLogs: 'Staff ID: EMP003',
+                    role: 'Manager',
+                    roleTeamLeader: '',
+                    shiftDate: '2026-04-29',
+                    shiftStartDate: '2026-04-29',
+                    startTime: '08:00',
+                    startEndTime: '08:00',
+                    endTime: '16:00',
+                    status: 'Scheduled',
+                    notes: 'Full day management - store operations'
+                }
             ],
             access: [
-                { service: 'Till System', account: '****1234', tel: '0800 123 4567', level: 'Admin', status: 'Active', notes: 'Main POS system', revealed: false, fullAccount: 'ACC-1234-5678' },
-                { service: 'PayPoint', account: '****5678', tel: '0800 765 4321', level: 'Manager', status: 'Active', notes: 'Payment terminal', revealed: false, fullAccount: 'PAY-5678-9012' },
-                { service: 'Lottery Terminal', account: '****9012', tel: '0800 555 6666', level: 'Staff', status: 'Inactive', notes: 'National lottery system', revealed: false, fullAccount: 'LOT-9012-3456' }
+                { 
+                    service: 'Till System',
+                    serviceName: 'POS Till System',
+                    tillAccount: 'ACC-1234-5678',
+                    account: '****1234',
+                    accountCredentials: 'admin@tillsystem',
+                    accountNumber: 'ACC-1234-5678',
+                    tel: '0800 123 4567',
+                    telNo: '0800 123 4567',
+                    payPoint: '',
+                    lottery: '',
+                    level: 'Admin',
+                    accessLevel: 'Administrator',
+                    status: 'Active',
+                    notes: 'Main POS system - full access',
+                    revealed: false,
+                    fullAccount: 'ACC-1234-5678'
+                },
+                { 
+                    service: 'PayPoint',
+                    serviceName: 'PayPoint Terminal',
+                    tillAccount: '',
+                    account: '****5678',
+                    accountCredentials: 'manager@paypoint',
+                    accountNumber: 'PAY-5678-9012',
+                    tel: '0800 765 4321',
+                    telNo: '0800 765 4321',
+                    payPoint: 'PAY-5678-9012',
+                    lottery: '',
+                    level: 'Manager',
+                    accessLevel: 'Manager',
+                    status: 'Active',
+                    notes: 'Payment terminal - manager access',
+                    revealed: false,
+                    fullAccount: 'PAY-5678-9012'
+                },
+                { 
+                    service: 'Lottery Terminal',
+                    serviceName: 'National Lottery System',
+                    tillAccount: '',
+                    account: '****9012',
+                    accountCredentials: 'staff@lottery',
+                    accountNumber: 'LOT-9012-3456',
+                    tel: '0800 555 6666',
+                    telNo: '0800 555 6666',
+                    payPoint: '',
+                    lottery: 'LOT-9012-3456',
+                    level: 'Staff',
+                    accessLevel: 'Staff',
+                    status: 'Inactive',
+                    notes: 'National lottery system - currently inactive',
+                    revealed: false,
+                    fullAccount: 'LOT-9012-3456'
+                }
             ],
             users: [
                 { username: 'admin', role: 'Admin', status: 'Active' },
@@ -379,34 +784,199 @@
             document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
             document.getElementById('headerUser').textContent = `${currentUser.username} (${currentUser.role})`;
             
+            // Initialize mock data for businesses if none exist
+            initializeMockBusinessData();
+            
             renderSidebar();
             showModule('dashboard');
+        }
+
+        function initializeMockBusinessData() {
+            const existingBusinesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+            
+            // Only add mock data if no businesses exist
+            if (existingBusinesses.length === 0) {
+                const mockBusinesses = [
+                    {
+                        id: 'BUS-' + Date.now() + '-1',
+                        name: 'Green Valley Retail Store',
+                        type: 'Retail',
+                        email: 'contact@greenvalley.com',
+                        phone: '+44 20 1234 5678',
+                        address: '123 High Street, London, UK, SW1A 1AA',
+                        registrationNumber: 'GB123456789',
+                        vatNumber: 'GB987654321',
+                        status: 'Active',
+                        modules: ['accounting', 'inventory', 'suppliers', 'legal'],
+                        createdAt: new Date('2024-01-15').toISOString()
+                    },
+                    {
+                        id: 'BUS-' + Date.now() + '-2',
+                        name: 'City Express Logistics',
+                        type: 'Service',
+                        email: 'info@cityexpress.co.uk',
+                        phone: '+44 20 8765 4321',
+                        address: '456 Business Park, Manchester, UK, M1 2AB',
+                        registrationNumber: 'GB234567890',
+                        vatNumber: 'GB876543210',
+                        status: 'Active',
+                        modules: ['fleet', 'accounting', 'property'],
+                        createdAt: new Date('2024-03-20').toISOString()
+                    },
+                    {
+                        id: 'BUS-' + Date.now() + '-3',
+                        name: 'Fresh Foods Wholesale',
+                        type: 'Wholesale',
+                        email: 'sales@freshfoods.com',
+                        phone: '+44 121 555 7890',
+                        address: '789 Industrial Estate, Birmingham, UK, B2 4QA',
+                        registrationNumber: 'GB345678901',
+                        vatNumber: 'GB765432109',
+                        status: 'Active',
+                        modules: ['inventory', 'suppliers', 'accounting', 'legal', 'fleet'],
+                        createdAt: new Date('2023-11-10').toISOString()
+                    },
+                    {
+                        id: 'BUS-' + Date.now() + '-4',
+                        name: 'Tech Solutions Ltd',
+                        type: 'Service',
+                        email: 'hello@techsolutions.co.uk',
+                        phone: '+44 131 444 2233',
+                        address: '321 Innovation Hub, Edinburgh, UK, EH1 3EG',
+                        registrationNumber: 'GB456789012',
+                        vatNumber: 'GB654321098',
+                        status: 'Active',
+                        modules: ['accounting', 'property', 'legal'],
+                        createdAt: new Date('2024-02-28').toISOString()
+                    },
+                    {
+                        id: 'BUS-' + Date.now() + '-5',
+                        name: 'Sunrise Cafe & Restaurant',
+                        type: 'Restaurant',
+                        email: 'bookings@sunrisecafe.com',
+                        phone: '+44 117 333 9988',
+                        address: '55 Market Square, Bristol, UK, BS1 1JQ',
+                        registrationNumber: 'GB567890123',
+                        vatNumber: 'GB543210987',
+                        status: 'Active',
+                        modules: ['accounting', 'suppliers', 'legal', 'property'],
+                        createdAt: new Date('2024-04-05').toISOString()
+                    }
+                ];
+
+                // Create mock admins for each business
+                const mockAdmins = [
+                    {
+                        firstName: 'Sarah',
+                        lastName: 'Johnson',
+                        email: 'sarah.johnson@greenvalley.com',
+                        phone: '+44 7700 900123',
+                        username: 'sarah.johnson',
+                        password: 'admin123',
+                        role: 'Admin',
+                        businessId: mockBusinesses[0].id,
+                        businessName: mockBusinesses[0].name,
+                        createdAt: new Date('2024-01-15').toISOString()
+                    },
+                    {
+                        firstName: 'Michael',
+                        lastName: 'Chen',
+                        email: 'michael.chen@cityexpress.co.uk',
+                        phone: '+44 7700 900456',
+                        username: 'michael.chen',
+                        password: 'admin123',
+                        role: 'Admin',
+                        businessId: mockBusinesses[1].id,
+                        businessName: mockBusinesses[1].name,
+                        createdAt: new Date('2024-03-20').toISOString()
+                    },
+                    {
+                        firstName: 'Emma',
+                        lastName: 'Williams',
+                        email: 'emma.williams@freshfoods.com',
+                        phone: '+44 7700 900789',
+                        username: 'emma.williams',
+                        password: 'admin123',
+                        role: 'Admin',
+                        businessId: mockBusinesses[2].id,
+                        businessName: mockBusinesses[2].name,
+                        createdAt: new Date('2023-11-10').toISOString()
+                    },
+                    {
+                        firstName: 'David',
+                        lastName: 'Brown',
+                        email: 'david.brown@techsolutions.co.uk',
+                        phone: '+44 7700 900321',
+                        username: 'david.brown',
+                        password: 'admin123',
+                        role: 'Admin',
+                        businessId: mockBusinesses[3].id,
+                        businessName: mockBusinesses[3].name,
+                        createdAt: new Date('2024-02-28').toISOString()
+                    },
+                    {
+                        firstName: 'Lisa',
+                        lastName: 'Patel',
+                        email: 'lisa.patel@sunrisecafe.com',
+                        phone: '+44 7700 900654',
+                        username: 'lisa.patel',
+                        password: 'admin123',
+                        role: 'Admin',
+                        businessId: mockBusinesses[4].id,
+                        businessName: mockBusinesses[4].name,
+                        createdAt: new Date('2024-04-05').toISOString()
+                    }
+                ];
+
+                // Save to localStorage
+                localStorage.setItem('clearerp_businesses', JSON.stringify(mockBusinesses));
+                localStorage.setItem('clearerp_admins', JSON.stringify(mockAdmins));
+                
+                // Add admins to users list for login
+                const existingUsers = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
+                const newUsers = mockAdmins.map(admin => ({
+                    username: admin.username,
+                    password: admin.password,
+                    role: admin.role,
+                    businessId: admin.businessId,
+                    businessName: admin.businessName,
+                    fullName: `${admin.firstName} ${admin.lastName}`
+                }));
+                
+                localStorage.setItem('clearerp_users', JSON.stringify([...existingUsers, ...newUsers]));
+                
+                console.log('✅ Mock business data initialized successfully!');
+            }
         }
 
         function renderSidebar() {
             const modules = [
                 { id: 'dashboard', icon: '📊', label: 'Dashboard' },
-                { id: 'accounting', icon: '🧾', label: 'Accounting' },
-                { id: 'fleet', icon: '🚚', label: 'Logistics / Fleet' },
-                { id: 'inventory', icon: '📦', label: 'Inventory' },
-                { id: 'suppliers', icon: '🤝', label: 'Supplier Management' },
-                { id: 'legal', icon: '⚖️', label: 'Legal & Compliance' },
-                { id: 'property', icon: '🏢', label: 'Property Management' },
                 { id: 'hr', icon: '👥', label: 'HR Management' },
                 { id: 'access', icon: '🔐', label: 'System Access' }
             ];
 
             if (currentUser.role === 'Super Admin') {
-                modules.push({ id: 'users', icon: '🔒', label: 'User Management' });
+                modules.splice(1, 0, { id: 'business-management', icon: '🏢', label: 'Business Management' });
             }
 
             const nav = document.getElementById('sidebarNav');
-            const navHTML = modules.map(m => `
-                <div class="nav-item ${m.id === currentModule ? 'active' : ''}" onclick="showModule('${m.id}')">
-                    <span class="icon">${m.icon}</span>
-                    <span>${m.label}</span>
-                </div>
-            `).join('');
+            const navHTML = modules.map(m => {
+                if (m.isLink) {
+                    return `
+                        <a href="${m.url}" class="nav-item" style="text-decoration: none; color: inherit;">
+                            <span class="icon">${m.icon}</span>
+                            <span>${m.label}</span>
+                        </a>
+                    `;
+                }
+                return `
+                    <div class="nav-item ${m.id === currentModule ? 'active' : ''}" onclick="showModule('${m.id}')">
+                        <span class="icon">${m.icon}</span>
+                        <span>${m.label}</span>
+                    </div>
+                `;
+            }).join('');
             
             nav.innerHTML = navHTML;
         }
@@ -424,6 +994,8 @@
             if (moduleId === 'hr') title = 'HR Management';
             if (moduleId === 'access') title = 'System Access';
             if (moduleId === 'users') title = 'User Management';
+            if (moduleId === 'business-management') title = 'Business Management';
+            if (moduleId === 'business-profile') title = 'Business Profile';
             
             document.getElementById('pageTitle').textContent = title;
             renderSidebar();
@@ -431,6 +1003,10 @@
             
             if (moduleId === 'dashboard') {
                 renderDashboard();
+            } else if (moduleId === 'business-management') {
+                renderBusinessManagement();
+            } else if (moduleId === 'business-profile') {
+                renderBusinessProfile();
             } else {
                 renderModule(moduleId);
             }
@@ -693,6 +1269,1660 @@
             const notes = document.getElementById('quickNotes').value;
             localStorage.setItem('clearerp_notes', notes);
         }
+
+        function renderBusinessManagement() {
+            const businesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+            const admins = JSON.parse(localStorage.getItem('clearerp_admins') || '[]');
+            
+            document.getElementById('mainContent').innerHTML = `
+                <div class="module-header">
+                    <input type="text" class="search-bar" placeholder="Search businesses..." onkeyup="handleBusinessSearch(event)">
+                    <div class="module-actions">
+                        <button class="btn-primary" onclick="openAddBusinessModal()">+ Add New Business</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        ${renderBusinessTable(businesses, admins)}
+                    </div>
+                </div>
+
+                <!-- Add Business Modal -->
+                <div class="drawer-overlay" id="businessModalOverlay" onclick="closeAddBusinessModal()" style="display: none;"></div>
+                <div class="drawer" id="businessModal" style="display: none; transform: translateX(100%);">
+                    <button class="drawer-close" onclick="closeAddBusinessModal()">&times;</button>
+                    <div class="drawer-body" style="padding: 40px; overflow-y: auto;">
+                        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Add New Business</h2>
+                        <p style="color: #6b7280; margin-bottom: 32px;">Create a new business profile</p>
+                        
+                        <form id="addBusinessForm" onsubmit="handleAddBusiness(event)">
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">📋 Business Information</h3>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Business Name *</label>
+                                    <input type="text" id="businessName" placeholder="e.g. ABC Trading Ltd" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Business Type *</label>
+                                    <select id="businessType" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                        <option value="">Select Type</option>
+                                        <option value="Retail">Retail Store</option>
+                                        <option value="Wholesale">Wholesale</option>
+                                        <option value="Restaurant">Restaurant / Cafe</option>
+                                        <option value="Service">Service Business</option>
+                                        <option value="Manufacturing">Manufacturing</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Contact Email *</label>
+                                    <input type="email" id="businessEmail" placeholder="contact@business.com" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Contact Phone *</label>
+                                    <input type="tel" id="businessPhone" placeholder="+44 20 1234 5678" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Business Address *</label>
+                                <textarea id="businessAddress" rows="2" placeholder="Full business address" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;"></textarea>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Registration Number</label>
+                                    <input type="text" id="registrationNumber" placeholder="Company registration" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">VAT Number</label>
+                                    <input type="text" id="vatNumber" placeholder="VAT registration" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                            </div>
+
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">👤 Primary Administrator</h3>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Admin Full Name *</label>
+                                    <input type="text" id="adminName" placeholder="e.g. John Smith" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Admin Email *</label>
+                                    <input type="email" id="adminEmail" placeholder="admin@business.com" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Username *</label>
+                                    <input type="text" id="adminUsername" placeholder="username" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Password *</label>
+                                    <input type="password" id="adminPassword" placeholder="Min 6 characters" required minlength="6" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px;">
+                                </div>
+                            </div>
+
+                            <div style="background: #f0fdf4; border: 1px solid #10b981; border-radius: 10px; padding: 12px; margin-bottom: 24px;">
+                                <div style="font-size: 13px; color: #059669; line-height: 1.6;">
+                                    <strong>ℹ️ Note:</strong> This admin will be able to login and manage this business. You can add more admins later from the "Manage Admins" option.
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 32px;">
+                                <button type="button" class="btn-secondary" onclick="closeAddBusinessModal()" style="flex: 1; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-weight: 600; cursor: pointer;">Cancel</button>
+                                <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Create Business & Admin</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBusinessTable(businesses, admins) {
+            if (businesses.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏢</div>
+                        <div class="empty-state-text">No businesses yet. Click "Add New Business" to create one.</div>
+                    </div>
+                `;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th style="width: 20%;">Business Name</th>';
+            html += '<th style="width: 12%;">Type</th>';
+            html += '<th style="width: 18%;">Email</th>';
+            html += '<th style="width: 14%;">Phone</th>';
+            html += '<th style="width: 22%;">Address</th>';
+            html += '<th style="width: 6%;">Admins</th>';
+            html += '<th style="width: 8%;">Status</th>';
+            html += '</tr></thead><tbody>';
+
+            businesses.forEach((business) => {
+                const businessAdmins = admins.filter(a => a.businessId === business.id);
+                html += '<tr>';
+                html += `<td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${business.name}"><span style="color: #10b981; font-weight: 600; cursor: pointer; text-decoration: underline;" onclick="viewBusinessProfile('${business.id}')">${business.name}</span></td>`;
+                html += `<td style="white-space: nowrap;">${business.type}</td>`;
+                html += `<td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${business.email}">${business.email}</td>`;
+                html += `<td style="white-space: nowrap;">${business.phone}</td>`;
+                html += `<td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${business.address}">${business.address}</td>`;
+                html += `<td style="text-align: center;">${businessAdmins.length}</td>`;
+                html += `<td style="white-space: nowrap;">${getBadge(business.status)}</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function renderBusinessCards(businesses, admins) {
+            if (businesses.length === 0) {
+                return `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">🏢</div>
+                        <div class="empty-state-text">No businesses yet. Click "Add New Business" to create one.</div>
+                    </div>
+                `;
+            }
+
+            return businesses.map((business, index) => {
+                const businessAdmins = admins.filter(a => a.businessId === business.id);
+                return `
+                    <div class="card" style="padding: 24px; transition: all 0.3s; cursor: pointer;" 
+                         onclick="viewBusinessProfile('${business.id}')"
+                         onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';" 
+                         onmouseout="this.style.transform=''; this.style.boxShadow='';">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px;">🏢</div>
+                        
+                        <div style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 4px; cursor: pointer; text-decoration: underline;" onclick="event.stopPropagation(); viewBusinessProfile('${business.id}')">${business.name}</div>
+                        <div style="font-size: 13px; color: #6b7280; background: #f9fafb; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 16px;">${business.type}</div>
+                        
+                        <div style="font-size: 13px; color: #6b7280; line-height: 1.8; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">📧 ${business.email}</div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">📞 ${business.phone}</div>
+                            <div style="display: flex; align-items: center; gap: 8px;">📍 ${business.address.substring(0, 40)}${business.address.length > 40 ? '...' : ''}</div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 20px; font-weight: 700; color: #10b981;">${businessAdmins.length}</div>
+                                <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Admins</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 20px; font-weight: 700; color: #10b981;">${business.modules?.length || 0}</div>
+                                <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Modules</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-primary" onclick="event.stopPropagation(); viewBusinessProfile('${business.id}')" style="flex: 1;">View Details</button>
+                            <button class="btn-edit" onclick="event.stopPropagation(); manageBusiness('${business.id}')">Admins</button>
+                            <button class="btn-delete" onclick="event.stopPropagation(); deleteBusiness(${index})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewBusinessProfile(businessId) {
+            // Store the selected business ID
+            localStorage.setItem('selected_business_id', businessId);
+            // Navigate to business profile
+            showModule('business-profile');
+        }
+
+        function openAddBusinessModal() {
+            document.getElementById('businessModalOverlay').style.display = 'block';
+            document.getElementById('businessModal').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('businessModal').style.transform = 'translateX(0)';
+            }, 10);
+        }
+
+        function closeAddBusinessModal() {
+            document.getElementById('businessModal').style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.getElementById('businessModalOverlay').style.display = 'none';
+                document.getElementById('businessModal').style.display = 'none';
+                document.getElementById('addBusinessForm').reset();
+            }, 300);
+        }
+
+        function handleAddBusiness(event) {
+            event.preventDefault();
+            
+            const newBusiness = {
+                id: 'BUS-' + Date.now(),
+                name: document.getElementById('businessName').value,
+                type: document.getElementById('businessType').value,
+                email: document.getElementById('businessEmail').value,
+                phone: document.getElementById('businessPhone').value,
+                address: document.getElementById('businessAddress').value,
+                registrationNumber: document.getElementById('registrationNumber').value,
+                vatNumber: document.getElementById('vatNumber').value,
+                status: 'Active',
+                modules: [],
+                createdAt: new Date().toISOString()
+            };
+
+            // Create primary admin
+            const adminName = document.getElementById('adminName').value;
+            const newAdmin = {
+                firstName: adminName.split(' ')[0] || adminName,
+                lastName: adminName.split(' ').slice(1).join(' ') || '',
+                email: document.getElementById('adminEmail').value,
+                phone: '',
+                username: document.getElementById('adminUsername').value,
+                password: document.getElementById('adminPassword').value,
+                role: 'Admin',
+                businessId: newBusiness.id,
+                businessName: newBusiness.name,
+                createdAt: new Date().toISOString()
+            };
+
+            // Save business
+            const businesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+            businesses.push(newBusiness);
+            localStorage.setItem('clearerp_businesses', JSON.stringify(businesses));
+            
+            // Save admin
+            const admins = JSON.parse(localStorage.getItem('clearerp_admins') || '[]');
+            admins.push(newAdmin);
+            localStorage.setItem('clearerp_admins', JSON.stringify(admins));
+            
+            // Add to users list for login
+            const users = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
+            users.push({
+                username: newAdmin.username,
+                password: newAdmin.password,
+                role: newAdmin.role,
+                businessId: newBusiness.id,
+                businessName: newBusiness.name,
+                fullName: adminName
+            });
+            localStorage.setItem('clearerp_users', JSON.stringify(users));
+            
+            closeAddBusinessModal();
+            showToast(`✅ Business "${newBusiness.name}" and admin "${adminName}" created successfully!`);
+            renderBusinessManagement();
+        }
+
+        function manageBusiness(businessId) {
+            const businesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+            const business = businesses.find(b => b.id === businessId);
+            if (business) {
+                localStorage.setItem('selected_business', JSON.stringify(business));
+                window.location.href = 'admin-setup.html?business=' + businessId;
+            }
+        }
+
+        function deleteBusiness(businessId) {
+            const businesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+            const business = businesses.find(b => b.id === businessId);
+            
+            if (!business) {
+                showToast('❌ Business not found!');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete "${business.name}"? This will also delete all associated admins.`)) {
+                // Remove business
+                const updatedBusinesses = businesses.filter(b => b.id !== businessId);
+                localStorage.setItem('clearerp_businesses', JSON.stringify(updatedBusinesses));
+                
+                // Remove associated admins
+                const admins = JSON.parse(localStorage.getItem('clearerp_admins') || '[]');
+                const updatedAdmins = admins.filter(a => a.businessId !== businessId);
+                localStorage.setItem('clearerp_admins', JSON.stringify(updatedAdmins));
+                
+                // Remove associated users
+                const users = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
+                const updatedUsers = users.filter(u => u.businessId !== businessId);
+                localStorage.setItem('clearerp_users', JSON.stringify(updatedUsers));
+                
+                showToast('✅ Business deleted successfully!');
+                renderBusinessManagement();
+            }
+        }
+
+        function handleBusinessSearch(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const businesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+            const admins = JSON.parse(localStorage.getItem('clearerp_admins') || '[]');
+            
+            const filtered = businesses.filter(b => 
+                b.name.toLowerCase().includes(searchTerm) ||
+                b.type.toLowerCase().includes(searchTerm) ||
+                b.email.toLowerCase().includes(searchTerm) ||
+                b.phone.toLowerCase().includes(searchTerm) ||
+                b.address.toLowerCase().includes(searchTerm)
+            );
+            
+            // Update the table with filtered results
+            const tableContainer = document.querySelector('.table-container .table-wrapper');
+            if (tableContainer) {
+                tableContainer.innerHTML = renderBusinessTable(filtered, admins);
+            }
+        }
+
+        function renderBusinessProfile() {
+            const canEdit = currentUser.role === 'Admin' || currentUser.role === 'Super Admin';
+            
+            // Get selected business if viewing from Business Management
+            const selectedBusinessId = localStorage.getItem('selected_business_id');
+            let selectedBusiness = null;
+            
+            if (selectedBusinessId) {
+                const businesses = JSON.parse(localStorage.getItem('clearerp_businesses') || '[]');
+                selectedBusiness = businesses.find(b => b.id === selectedBusinessId);
+            }
+            
+            // Collect all data
+            const allData = {
+                accounting: data.accounting || [],
+                fleet: data.fleet || [],
+                inventory: data.inventory || [],
+                suppliers: data.suppliers || [],
+                legal: data.legal || [],
+                property: data.property || [],
+                hr: data.hr || [],
+                access: data.access || []
+            };
+            
+            // Show business info header if viewing specific business
+            const businessHeader = selectedBusiness ? `
+                <div style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">🏢 ${selectedBusiness.name}</h3>
+                        <div style="font-size: 11px; opacity: 0.9; display: flex; gap: 16px;">
+                            <span>${selectedBusiness.type}</span>
+                            <span>${selectedBusiness.email}</span>
+                            <span>${selectedBusiness.phone}</span>
+                        </div>
+                    </div>
+                    <button class="btn-edit" onclick="clearBusinessSelection()" style="padding: 8px 16px; background: white; color: #0891b2; border: none; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer;">
+                        ← Back to All Businesses
+                    </button>
+                </div>
+            ` : '';
+            
+            document.getElementById('mainContent').innerHTML = `
+                ${businessHeader}
+
+                <!-- Comprehensive Module Grid - 2 Columns -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                    ${renderDetailedModule('accounting', '📊', 'Accounting', allData.accounting)}
+                    ${renderDetailedModule('fleet', '🚚', 'Logistics / Fleet', allData.fleet)}
+                    ${renderDetailedModule('inventory', '📦', 'Inventory', allData.inventory)}
+                    ${renderDetailedModule('suppliers', '🤝', 'Supplier Management', allData.suppliers)}
+                    ${renderDetailedModule('legal', '⚖️', 'Legal & Compliance', allData.legal)}
+                    ${renderDetailedModule('property', '🏢', 'Property Management', allData.property)}
+                    ${renderDetailedModule('hr', '👥', 'HR Management', allData.hr)}
+                    ${renderDetailedModule('access', '🔐', 'System Access', allData.access)}
+                </div>
+            `;
+        }
+
+        function renderDetailedModule(moduleId, icon, title, records) {
+            const canEdit = currentUser.role === 'Admin' || currentUser.role === 'Super Admin';
+            return `
+                <div style="background: white; padding: 16px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #10b981;">
+                        <h3 style="font-size: 14px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 18px;">${icon}</span> ${title}
+                        </h3>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: #10b981; color: white; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;">${records.length}</span>
+                            ${canEdit ? `<button onclick="toggleModuleForm('${moduleId}')" style="background: #10b981; color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer;">+ Add</button>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Inline Add Form (hidden by default) -->
+                    ${canEdit ? `
+                    <div id="form-${moduleId}" style="display: none; background: #f0fdf4; border: 1px solid #10b981; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+                        <div style="font-size: 12px; font-weight: 700; color: #059669; margin-bottom: 10px;">Add New Record</div>
+                        ${getModuleFormHTML(moduleId)}
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button onclick="saveModuleRecord('${moduleId}')" style="flex: 1; background: linear-gradient(135deg, #059669, #10b981); color: white; border: none; border-radius: 6px; padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">Save</button>
+                            <button onclick="toggleModuleForm('${moduleId}')" style="flex: 1; background: white; color: #374151; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px; font-size: 12px; cursor: pointer;">Cancel</button>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div id="records-${moduleId}" style="max-height: 380px; overflow-y: auto;">
+                        ${renderDetailedRecords(moduleId, records)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleModuleForm(moduleId) {
+            const form = document.getElementById('form-' + moduleId);
+            if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveModuleRecord(moduleId) {
+            const formEl = document.getElementById('form-' + moduleId);
+            const inputs = formEl.querySelectorAll('input, select, textarea');
+            const record = {};
+            inputs.forEach(input => {
+                if (input.name) record[input.name] = input.value;
+            });
+
+            if (!data[moduleId]) data[moduleId] = [];
+            data[moduleId].push(record);
+            saveData();
+
+            // Re-render just this module's records
+            document.getElementById('records-' + moduleId).innerHTML = renderDetailedRecords(moduleId, data[moduleId]);
+            toggleModuleForm(moduleId);
+            // Reset form
+            inputs.forEach(input => input.value = '');
+            showToast('✅ Record added successfully!');
+        }
+
+        function getModuleFormHTML(moduleId) {
+            const inp = (name, placeholder, type='text') =>
+                `<input name="${name}" type="${type}" placeholder="${placeholder}" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; margin-bottom:6px; box-sizing:border-box;">`;
+            const sel = (name, options) =>
+                `<select name="${name}" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; margin-bottom:6px; box-sizing:border-box;">${options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`;
+            const row2 = (...fields) =>
+                `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">${fields.join('')}</div>`;
+
+            if (moduleId === 'accounting') return `
+                ${row2(inp('name','Name / Title'), inp('category','Category / Type'))}
+                ${row2(inp('amount','Amount','number'), sel('status',['Pending','Paid','Overdue']))}
+                ${row2(sel('method',['Bank Transfer','Direct Debit','Cash','Card']), inp('dueDate','Due Date','date'))}
+                ${row2(inp('reminderDate','Reminder Date','date'), inp('uploadDate','Upload Date','date'))}
+                <input name="notes" placeholder="Notes" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; box-sizing:border-box;">
+            `;
+            if (moduleId === 'fleet') return `
+                ${row2(inp('vehicle','Vehicle Name'), inp('reg','Registration Number'))}
+                ${row2(inp('insurance','Insurance Expiry','date'), inp('mot','MOT Date','date'))}
+                ${row2(inp('roadTax','Road Tax Date','date'), inp('deliveryDate','Delivery Date','date'))}
+                ${row2(sel('status',['Active','Inactive','Under Repair']), inp('notes','Notes'))}
+            `;
+            if (moduleId === 'inventory') return `
+                ${row2(inp('item','Item Name'), inp('category','Category'))}
+                ${row2(inp('stock','Stock Level','number'), inp('supplier','Supplier Ref'))}
+                ${row2(inp('supplierName','Supplier Name'), sel('status',['In Stock','Low Stock','Out of Stock']))}
+                <input name="notes" placeholder="Notes" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; box-sizing:border-box;">
+            `;
+            if (moduleId === 'suppliers') return `
+                ${row2(inp('name','Supplier Name'), inp('id','Supplier ID'))}
+                ${row2(inp('contact','Contact Person'), inp('phone','Phone / Email'))}
+                <input name="address" placeholder="Address" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; margin-bottom:6px; box-sizing:border-box;">
+                ${row2(sel('paymentStatus',['Current','Pending','Overdue']), sel('terms',['Net 15','Net 30','Net 45','Net 60']))}
+                ${row2(inp('dueDate','Due Date','date'), inp('uploadDocs','Upload Docs'))}
+                <input name="notes" placeholder="Notes" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; box-sizing:border-box;">
+            `;
+            if (moduleId === 'legal') return `
+                ${row2(sel('type',['Licence','Food Safety Cert','Change of DPS','Premises Changes','Refusal Logs','Temp Records','Staff Sheets']), inp('business','Business Name'))}
+                ${row2(inp('issueDate','Issue Date','date'), inp('expiryDate','Expiry Date','date'))}
+                ${row2(sel('status',['Valid','Expiring','Expired']), inp('uploadFile','Upload File'))}
+                <input name="notes" placeholder="Notes" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; box-sizing:border-box;">
+            `;
+            if (moduleId === 'property') return `
+                ${row2(sel('type',['Utility','Maintenance','Waste','Insurance','Internet']), inp('property','Property Name'))}
+                <input name="address" placeholder="Address" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; margin-bottom:6px; box-sizing:border-box;">
+                ${row2(inp('description','Description'), sel('priority',['Low','Medium','High']))}
+                ${row2(inp('assignedTo','Assigned To'), sel('status',['Open','In Progress','Resolved']))}
+                <input name="notes" placeholder="Notes" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; box-sizing:border-box;">
+            `;
+            if (moduleId === 'hr') return `
+                ${row2(inp('name','Staff Name'), sel('role',['Tele Agent','Team Leader','Manager','Supervisor','Staff']))}
+                ${row2(inp('shiftDate','Shift Date','date'), inp('startTime','Start Time','time'))}
+                ${row2(inp('endTime','End Time','time'), sel('status',['Scheduled','Completed','Absent','Late']))}
+                <input name="notes" placeholder="Notes" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; box-sizing:border-box;">
+            `;
+            if (moduleId === 'access') return `
+                ${row2(inp('service','Service Name'), inp('accountNumber','Account Number'))}
+                ${row2(inp('accountCredentials','Account Credentials'), inp('tel','Tel No'))}
+                ${row2(sel('level',['Admin','Manager','Staff']), sel('status',['Active','Inactive']))}
+                <input name="notes" placeholder="Notes" style="width:100%; padding:7px 10px; border:1px solid #d1fae5; border-radius:6px; font-size:11px; box-sizing:border-box;">
+            `;
+            return '';
+        }
+
+        function renderDetailedRecords(moduleId, records) {
+            if (records.length === 0) {
+                return `
+                    <div style="text-align: center; padding: 30px 20px; color: #9ca3af; border: 2px dashed #e5e7eb; border-radius: 8px;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">�</div>
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 6px;">No details added yet</div>
+                        <div style="font-size: 11px; color: #9ca3af; margin-bottom: 12px;">Click "+ Add" above to fill in the details</div>
+                    </div>
+                `;
+            }
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+            
+            records.forEach((record, index) => {
+                html += `<div style="padding: 12px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #10b981;">`;
+                html += renderRecordFields(moduleId, record, index);
+                html += `</div>`;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+
+        function renderRecordFields(moduleId, record, index) {
+            let html = '';
+            
+            if (moduleId === 'accounting') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Name:</strong> ${record.name || 'N/A'}</div>
+                        <div><strong>Title:</strong> ${record.title || 'N/A'}</div>
+                        <div><strong>Category:</strong> ${record.category || 'N/A'}</div>
+                        <div><strong>Type:</strong> ${record.type || 'N/A'}</div>
+                        <div><strong>Amount:</strong> £${record.amount || 0}</div>
+                        <div><strong>Status:</strong> ${getBadge(record.status || 'N/A')}</div>
+                        <div><strong>Payment Method:</strong> ${record.paymentMethod || 'N/A'}</div>
+                        <div><strong>Due Date:</strong> ${record.dueDate || 'N/A'}</div>
+                        <div><strong>Reminder Date:</strong> ${record.reminderDate || 'N/A'}</div>
+                        <div><strong>Upload Date:</strong> ${record.uploadDate || 'N/A'}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (moduleId === 'fleet') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Vehicle:</strong> ${record.vehicle || 'N/A'}</div>
+                        <div><strong>Vehicle Name:</strong> ${record.vehicleName || 'N/A'}</div>
+                        <div><strong>Registration:</strong> ${record.reg || 'N/A'}</div>
+                        <div><strong>Vehicle Number:</strong> ${record.vehicleNumber || 'N/A'}</div>
+                        <div><strong>Insurance:</strong> ${record.insurance || 'N/A'}</div>
+                        <div><strong>Insurance Expiry:</strong> ${record.insuranceExpiry || 'N/A'}</div>
+                        <div><strong>MOT:</strong> ${record.mot || 'N/A'}</div>
+                        <div><strong>MOT Date:</strong> ${record.motDate || 'N/A'}</div>
+                        <div><strong>Road Tax:</strong> ${record.roadTax || 'N/A'}</div>
+                        <div><strong>Road Tax Date:</strong> ${record.roadTaxDate || 'N/A'}</div>
+                        <div><strong>Delivery Date:</strong> ${record.deliveryDate || 'N/A'}</div>
+                        <div><strong>Status:</strong> ${getBadge(record.status || 'N/A')}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (moduleId === 'inventory') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Item:</strong> ${record.item || 'N/A'}</div>
+                        <div><strong>Item Name:</strong> ${record.itemName || 'N/A'}</div>
+                        <div><strong>Products:</strong> ${record.products || 'N/A'}</div>
+                        <div><strong>Category:</strong> ${record.category || 'N/A'}</div>
+                        <div><strong>Stock:</strong> ${record.stock || 0}</div>
+                        <div><strong>Stock Level:</strong> ${record.stockLevel || 0}</div>
+                        <div><strong>Supplier:</strong> ${record.supplier || 'N/A'}</div>
+                        <div><strong>Supplier Name:</strong> ${record.supplierName || 'N/A'}</div>
+                        <div><strong>Status:</strong> ${getBadge(record.status || 'N/A')}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (moduleId === 'suppliers') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Supplier Name:</strong> ${record.supplierName || record.name || 'N/A'}</div>
+                        <div><strong>Supplier ID:</strong> ${record.supplierID || record.id || 'N/A'}</div>
+                        <div><strong>Contact:</strong> ${record.contact || 'N/A'}</div>
+                        <div><strong>Contact Details:</strong> ${record.contactDetails || 'N/A'}</div>
+                        <div><strong>Phone:</strong> ${record.phone || 'N/A'}</div>
+                        <div><strong>Email:</strong> ${record.email || 'N/A'}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Address:</strong> ${record.address || 'N/A'}</div>
+                        <div><strong>Payment Status:</strong> ${record.paymentStatus || 'N/A'}</div>
+                        <div><strong>Payment Terms:</strong> ${record.paymentTerms || record.terms || 'N/A'}</div>
+                        <div><strong>Due Date:</strong> ${record.dueDate || 'N/A'}</div>
+                        <div><strong>Upload Docs:</strong> ${record.uploadDocs || 'N/A'}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (moduleId === 'legal') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Type:</strong> ${record.type || 'N/A'}</div>
+                        <div><strong>Document Type:</strong> ${record.documentType || 'N/A'}</div>
+                        <div><strong>Business:</strong> ${record.business || 'N/A'}</div>
+                        <div><strong>Business Name:</strong> ${record.businessName || 'N/A'}</div>
+                        <div><strong>Issue Date:</strong> ${record.issueDate || record.issuedDate || 'N/A'}</div>
+                        <div><strong>Expiry Date:</strong> ${record.expiryDate || record.renewalDate || 'N/A'}</div>
+                        <div><strong>Upload File:</strong> ${record.uploadFile || 'N/A'}</div>
+                        <div><strong>Status:</strong> ${getBadge(record.status || 'N/A')}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (moduleId === 'property') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Type:</strong> ${record.type || 'N/A'}</div>
+                        <div><strong>Request Type:</strong> ${record.requestType || 'N/A'}</div>
+                        <div><strong>Property:</strong> ${record.property || 'N/A'}</div>
+                        <div><strong>Property Name:</strong> ${record.propertyName || 'N/A'}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Address:</strong> ${record.address || 'N/A'}</div>
+                        <div><strong>Info Name:</strong> ${record.infoName || 'N/A'}</div>
+                        <div><strong>Description:</strong> ${record.description || 'N/A'}</div>
+                        <div><strong>Priority:</strong> ${record.priority || 'N/A'}</div>
+                        <div><strong>Assigned To:</strong> ${record.assignedTo || record.assigned || 'N/A'}</div>
+                        <div><strong>Status:</strong> ${getBadge(record.status || 'N/A')}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (moduleId === 'hr') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Staff Name:</strong> ${record.staffName || record.name || 'N/A'}</div>
+                        <div><strong>Staff Logs:</strong> ${record.staffLogs || 'N/A'}</div>
+                        <div><strong>Role:</strong> ${record.role || 'N/A'}</div>
+                        <div><strong>Team Leader:</strong> ${record.roleTeamLeader || 'N/A'}</div>
+                        <div><strong>Shift Date:</strong> ${record.shiftDate || record.shiftStartDate || 'N/A'}</div>
+                        <div><strong>Start Time:</strong> ${record.startTime || record.startEndTime || 'N/A'}</div>
+                        <div><strong>End Time:</strong> ${record.endTime || 'N/A'}</div>
+                        <div><strong>Status:</strong> ${getBadge(record.status || 'N/A')}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            } else if (moduleId === 'access') {
+                html += `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                        <div><strong>Service:</strong> ${record.service || 'N/A'}</div>
+                        <div><strong>Service Name:</strong> ${record.serviceName || 'N/A'}</div>
+                        <div><strong>Till Account:</strong> ${record.tillAccount || 'N/A'}</div>
+                        <div><strong>Account:</strong> ${record.account || 'N/A'}</div>
+                        <div><strong>Account Number:</strong> ${record.accountNumber || 'N/A'}</div>
+                        <div><strong>Account Credentials:</strong> ${record.accountCredentials || 'N/A'}</div>
+                        <div><strong>Tel:</strong> ${record.tel || record.telNo || 'N/A'}</div>
+                        <div><strong>Access Level:</strong> ${record.accessLevel || record.level || 'N/A'}</div>
+                        <div><strong>Status:</strong> ${getBadge(record.status || 'N/A')}</div>
+                        <div style="grid-column: 1 / -1;"><strong>Notes:</strong> ${record.notes || 'N/A'}</div>
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+
+        function clearBusinessSelection() {
+            localStorage.removeItem('selected_business_id');
+            showModule('business-management');
+        }
+
+        function renderUnifiedDataView(allData, canEdit) {
+            let html = '';
+            
+            // Accounting Section
+            html += `
+                <div style="margin-bottom: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">
+                        <span style="font-size: 22px;">📊</span> Accounting & Finance
+                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-left: auto;">${allData.accounting.length} records</span>
+                    </h3>
+                    ${renderUnifiedTable('accounting', allData.accounting, canEdit)}
+                </div>
+            `;
+            
+            // Fleet Section
+            html += `
+                <div style="margin-bottom: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">
+                        <span style="font-size: 22px;">🚚</span> Logistics & Fleet
+                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-left: auto;">${allData.fleet.length} records</span>
+                    </h3>
+                    ${renderUnifiedTable('fleet', allData.fleet, canEdit)}
+                </div>
+            `;
+            
+            // Inventory Section
+            html += `
+                <div style="margin-bottom: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">
+                        <span style="font-size: 22px;">📦</span> Inventory Management
+                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-left: auto;">${allData.inventory.length} records</span>
+                    </h3>
+                    ${renderUnifiedTable('inventory', allData.inventory, canEdit)}
+                </div>
+            `;
+            
+            // Suppliers Section
+            html += `
+                <div style="margin-bottom: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">
+                        <span style="font-size: 22px;">🤝</span> Supplier Management
+                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-left: auto;">${allData.suppliers.length} records</span>
+                    </h3>
+                    ${renderUnifiedTable('suppliers', allData.suppliers, canEdit)}
+                </div>
+            `;
+            
+            // Legal Section
+            html += `
+                <div style="margin-bottom: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">
+                        <span style="font-size: 22px;">⚖️</span> Legal & Compliance
+                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-left: auto;">${allData.legal.length} records</span>
+                    </h3>
+                    ${renderUnifiedTable('legal', allData.legal, canEdit)}
+                </div>
+            `;
+            
+            // Property Section
+            html += `
+                <div style="margin-bottom: 0;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb;">
+                        <span style="font-size: 22px;">🏢</span> Property Management
+                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-left: auto;">${allData.property.length} records</span>
+                    </h3>
+                    ${renderUnifiedTable('property', allData.property, canEdit)}
+                </div>
+            `;
+            
+            return html;
+        }
+
+        function renderUnifiedTable(moduleId, records, canEdit) {
+            if (records.length === 0) {
+                return `
+                    <div style="text-align: center; padding: 32px; background: #f9fafb; border-radius: 10px; color: #9ca3af;">
+                        <div style="font-size: 36px; margin-bottom: 8px;">📭</div>
+                        <div style="font-size: 14px;">No records yet</div>
+                    </div>
+                `;
+            }
+            
+            let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; font-size: 13px;"><thead style="background: #f9fafb;"><tr>';
+            
+            // Headers based on module
+            const headers = {
+                accounting: ['Name', 'Category', 'Amount', 'Status', 'Due Date', 'Actions'],
+                fleet: ['Vehicle', 'Reg Number', 'Insurance', 'MOT', 'Status', 'Actions'],
+                inventory: ['Item', 'Category', 'Stock', 'Supplier', 'Status', 'Actions'],
+                suppliers: ['Name', 'ID', 'Contact', 'Phone', 'Email', 'Actions'],
+                legal: ['Type', 'Business', 'Issue Date', 'Expiry', 'Status', 'Actions'],
+                property: ['Type', 'Property', 'Description', 'Priority', 'Status', 'Actions']
+            };
+            
+            headers[moduleId].forEach(h => html += `<th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 2px solid #e5e7eb;">${h}</th>`);
+            html += '</tr></thead><tbody>';
+            
+            records.forEach((record, index) => {
+                let rowClass = '';
+                
+                // Highlight expiring/expired
+                if (moduleId === 'fleet') {
+                    const motDays = Math.floor((new Date(record.mot) - new Date()) / (1000 * 60 * 60 * 24));
+                    const insDays = Math.floor((new Date(record.insurance) - new Date()) / (1000 * 60 * 60 * 24));
+                    if (motDays <= 30 || insDays <= 30) rowClass = 'style="background: #fef3c7;"';
+                    if (motDays < 0 || insDays < 0) rowClass = 'style="background: #fee2e2;"';
+                }
+                
+                if (moduleId === 'legal') {
+                    const days = Math.floor((new Date(record.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    if (days <= 30 && days > 0) rowClass = 'style="background: #fef3c7;"';
+                    if (days < 0) rowClass = 'style="background: #fee2e2;"';
+                }
+                
+                html += `<tr ${rowClass}>`;
+                
+                // Render cells
+                if (moduleId === 'accounting') {
+                    html += `
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.name}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.category}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">£${record.amount}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${getBadge(record.status)}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.dueDate || '-'}</td>
+                    `;
+                } else if (moduleId === 'fleet') {
+                    html += `
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.vehicle}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.reg}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.insurance || '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.mot || '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${getBadge(record.status)}</td>
+                    `;
+                } else if (moduleId === 'inventory') {
+                    html += `
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.item}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.category}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.stock}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.supplier || '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${getBadge(record.status)}</td>
+                    `;
+                } else if (moduleId === 'suppliers') {
+                    html += `
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.name}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.id || '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.contact}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.phone || '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.email || '-'}</td>
+                    `;
+                } else if (moduleId === 'legal') {
+                    html += `
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.type}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.business}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.issueDate || '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.expiryDate || '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${getBadge(record.status)}</td>
+                    `;
+                } else if (moduleId === 'property') {
+                    html += `
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.type}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.property}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${record.description ? (record.description.substring(0, 40) + '...') : '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${getBadge(record.priority)}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">${getBadge(record.status)}</td>
+                    `;
+                }
+                
+                // Actions
+                html += `<td style="padding: 12px; border-bottom: 1px solid #f3f4f6;">
+                    ${canEdit ? `<button class="btn-delete" onclick="deleteRecord('${moduleId}', ${index})" style="padding: 6px 12px; font-size: 12px;">Delete</button>` : '-'}
+                </td>`;
+                
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        function renderProfileSection(moduleId, icon, title) {
+            return `
+                <div style="margin-bottom: 32px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="font-size: 20px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">${icon}</span> ${title}
+                        </h3>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            ${renderProfileTable(moduleId)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleUnifiedForm() {
+            const form = document.getElementById('unified-form');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        function getUnifiedFormHTML() {
+            return `
+                <style>
+                    .unified-form-section { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 2px solid #e5e7eb; }
+                    .unified-form-section:last-child { border-bottom: none; margin-bottom: 0; }
+                    .unified-form-section h3 { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+                    .unified-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+                    .unified-form-group { display: flex; flex-direction: column; }
+                    .unified-form-group label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+                    .unified-form-group input, .unified-form-group select, .unified-form-group textarea { padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+                    .unified-form-group input:focus, .unified-form-group select:focus, .unified-form-group textarea:focus { outline: none; border-color: #10b981; }
+                    .unified-form-full { grid-column: 1 / -1; }
+                    .unified-form-actions { display: flex; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e7eb; }
+                </style>
+
+                <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 24px; color: #111827;">📝 Add Complete Business Entry</h2>
+                <p style="color: #6b7280; margin-bottom: 32px; font-size: 14px;">Fill in the relevant sections below. You can fill all sections or just the ones you need.</p>
+
+                <form onsubmit="handleUnifiedSubmit(event)">
+                    
+                    <!-- Accounting Section -->
+                    <div class="unified-form-section">
+                        <h3><span style="font-size: 24px;">📊</span> Accounting & Finance</h3>
+                        <div class="unified-form-grid">
+                            <div class="unified-form-group">
+                                <label>Name / Title</label>
+                                <input type="text" name="accounting_name" placeholder="e.g. Supplier Payment">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Category</label>
+                                <select name="accounting_category">
+                                    <option value="">Select Category</option>
+                                    <option value="Profit & Loss">Profit & Loss</option>
+                                    <option value="Supplier Payment">Supplier Payment</option>
+                                    <option value="VAT Tax">VAT / Tax</option>
+                                    <option value="Loan">Loan</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Rent Mortgage">Rent / Mortgage</option>
+                                    <option value="Accountant Fee">Accountant Fee</option>
+                                    <option value="Bank Charge">Bank Charges</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Amount</label>
+                                <input type="number" name="accounting_amount" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Payment Status</label>
+                                <select name="accounting_status">
+                                    <option value="">Select Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Overdue">Overdue</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Payment Method</label>
+                                <select name="accounting_method">
+                                    <option value="">Select Method</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Card">Card</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Direct Debit">Direct Debit</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Due Date</label>
+                                <input type="date" name="accounting_dueDate">
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Notes</label>
+                                <textarea name="accounting_notes" rows="2" placeholder="Additional details..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fleet Section -->
+                    <div class="unified-form-section">
+                        <h3><span style="font-size: 24px;">🚚</span> Logistics & Fleet</h3>
+                        <div class="unified-form-grid">
+                            <div class="unified-form-group">
+                                <label>Vehicle Name</label>
+                                <input type="text" name="fleet_vehicle" placeholder="e.g. CAR 1">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Vehicle Number / Plate</label>
+                                <input type="text" name="fleet_reg" placeholder="e.g. ABC-1234">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Insurance Expiry Date</label>
+                                <input type="date" name="fleet_insurance">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>MOT Expiry Date</label>
+                                <input type="date" name="fleet_mot">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Road Tax Expiry Date</label>
+                                <input type="date" name="fleet_roadTax">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Status</label>
+                                <select name="fleet_status">
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="In Service">In Service / Maintenance</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Sold">Sold / Disposed</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Notes / Remarks</label>
+                                <textarea name="fleet_notes" rows="2" placeholder="Additional information..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Section -->
+                    <div class="unified-form-section">
+                        <h3><span style="font-size: 24px;">📦</span> Inventory Management</h3>
+                        <div class="unified-form-grid">
+                            <div class="unified-form-group">
+                                <label>Item Name / Product Name</label>
+                                <input type="text" name="inventory_item" placeholder="e.g. Milk Packet 1L">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Category</label>
+                                <select name="inventory_category">
+                                    <option value="">Select Category</option>
+                                    <option value="Food & Beverages">Food & Beverages</option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Stationery">Stationery</option>
+                                    <option value="Cleaning">Cleaning Supplies</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Household">Household Items</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Current Stock Level</label>
+                                <input type="number" name="inventory_stock" min="0" placeholder="e.g. 150">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Supplier Reference</label>
+                                <input type="text" name="inventory_supplier" placeholder="e.g. SUP-0456">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Status</label>
+                                <select name="inventory_status">
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active (In Stock)</option>
+                                    <option value="Low Stock">Low Stock</option>
+                                    <option value="Out of Stock">Out of Stock</option>
+                                    <option value="Discontinued">Discontinued</option>
+                                    <option value="Incoming">Incoming Stock</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Notes / Description</label>
+                                <textarea name="inventory_notes" rows="2" placeholder="Product description..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suppliers Section -->
+                    <div class="unified-form-section">
+                        <h3><span style="font-size: 24px;">🤝</span> Supplier Management</h3>
+                        <div class="unified-form-grid">
+                            <div class="unified-form-group">
+                                <label>Supplier Name</label>
+                                <input type="text" name="suppliers_name" placeholder="e.g. ABC Distributors">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Supplier ID</label>
+                                <input type="text" name="suppliers_id" placeholder="e.g. SUP-0045">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Contact Person</label>
+                                <input type="text" name="suppliers_contact" placeholder="e.g. John Smith">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" name="suppliers_phone" placeholder="e.g. +44 20 1234 5678">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Email Address</label>
+                                <input type="email" name="suppliers_email" placeholder="e.g. contact@supplier.com">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Payment Terms</label>
+                                <select name="suppliers_terms">
+                                    <option value="">Select Payment Terms</option>
+                                    <option value="Net 7">Net 7 days</option>
+                                    <option value="Net 15">Net 15 days</option>
+                                    <option value="Net 30">Net 30 days</option>
+                                    <option value="Net 45">Net 45 days</option>
+                                    <option value="Net 60">Net 60 days</option>
+                                    <option value="Immediate">Immediate / Cash on Delivery</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Address</label>
+                                <textarea name="suppliers_address" rows="2" placeholder="Full address of the supplier"></textarea>
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Notes / Remarks</label>
+                                <textarea name="suppliers_notes" rows="2" placeholder="Additional information..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legal Section -->
+                    <div class="unified-form-section">
+                        <h3><span style="font-size: 24px;">⚖️</span> Legal & Compliance</h3>
+                        <div class="unified-form-grid">
+                            <div class="unified-form-group">
+                                <label>Document Type</label>
+                                <select name="legal_type">
+                                    <option value="">Select Document Type</option>
+                                    <option value="Licence Application">Licence Application</option>
+                                    <option value="Change of DPS">Change of DPS</option>
+                                    <option value="Change of Premises">Change of Premises Slip</option>
+                                    <option value="Food Safety">Food Safety Certificate</option>
+                                    <option value="Refusal Log">Refusal Log</option>
+                                    <option value="Temp Record">Temperature Record</option>
+                                    <option value="Shift Sheet">Shift Sheet</option>
+                                    <option value="Insurance">Insurance Certificate</option>
+                                    <option value="Business Licence">Business Licence Renewal</option>
+                                    <option value="Other">Other Compliance Document</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Business Name</label>
+                                <input type="text" name="legal_business" placeholder="e.g. Main Store">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Issue Date</label>
+                                <input type="date" name="legal_issueDate">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Expiry Date</label>
+                                <input type="date" name="legal_expiryDate">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Status</label>
+                                <select name="legal_status">
+                                    <option value="">Select Status</option>
+                                    <option value="Valid">Active / Valid</option>
+                                    <option value="Pending">Pending Approval</option>
+                                    <option value="Expired">Expired</option>
+                                    <option value="Renewal Due">Renewal Due</option>
+                                    <option value="Rejected">Rejected / Refused</option>
+                                    <option value="Submitted">Submitted</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Notes / Remarks</label>
+                                <textarea name="legal_notes" rows="2" placeholder="Additional details, reference number..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Section -->
+                    <div class="unified-form-section">
+                        <h3><span style="font-size: 24px;">🏢</span> Property Management</h3>
+                        <div class="unified-form-grid">
+                            <div class="unified-form-group">
+                                <label>Request Type</label>
+                                <select name="property_type">
+                                    <option value="">Select Type</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Utility">Utility (Electric, Gas, Water)</option>
+                                    <option value="Waste">Waste Management</option>
+                                    <option value="Internet">Internet / Broadband</option>
+                                    <option value="Insurance">Property Insurance</option>
+                                    <option value="Rent">Rent / Mortgage</option>
+                                    <option value="Repairs">Repairs</option>
+                                    <option value="Cleaning">Cleaning Services</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Property Name</label>
+                                <input type="text" name="property_property" placeholder="e.g. Main Store">
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Property Address</label>
+                                <textarea name="property_address" rows="2" placeholder="Full address of the property"></textarea>
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Description / Issue Details</label>
+                                <textarea name="property_description" rows="2" placeholder="Describe the request, issue, or maintenance needed"></textarea>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Priority Level</label>
+                                <select name="property_priority">
+                                    <option value="">Select Priority</option>
+                                    <option value="High">High (Urgent)</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Assigned To</label>
+                                <input type="text" name="property_assignedTo" placeholder="e.g. Maintenance Team">
+                            </div>
+                            <div class="unified-form-group">
+                                <label>Status</label>
+                                <select name="property_status">
+                                    <option value="">Select Status</option>
+                                    <option value="Open">Open</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="unified-form-group unified-form-full">
+                                <label>Additional Notes</label>
+                                <textarea name="property_notes" rows="2" placeholder="Any additional information..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="unified-form-actions">
+                        <button type="submit" class="btn-primary" style="flex: 1; padding: 14px; font-size: 15px;">💾 Save All Entries</button>
+                        <button type="button" class="btn-edit" onclick="toggleUnifiedForm()" style="padding: 14px 24px; font-size: 15px;">Cancel</button>
+                    </div>
+                </form>
+            `;
+        }
+
+        function handleUnifiedSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            let addedCount = 0;
+
+            // Process each module
+            const modules = ['accounting', 'fleet', 'inventory', 'suppliers', 'legal', 'property'];
+            
+            modules.forEach(module => {
+                const record = {};
+                let hasData = false;
+
+                // Collect fields for this module
+                formData.forEach((value, key) => {
+                    if (key.startsWith(module + '_') && value.trim() !== '') {
+                        const fieldName = key.replace(module + '_', '');
+                        record[fieldName] = value;
+                        hasData = true;
+                    }
+                });
+
+                // Add record if it has data
+                if (hasData) {
+                    data[module].push(record);
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                saveData();
+                toggleUnifiedForm();
+                event.target.reset();
+                showToast(`✅ Successfully added ${addedCount} record(s)!`);
+                renderBusinessProfile();
+            } else {
+                alert('⚠️ Please fill in at least one section before saving.');
+            }
+        }
+
+        function toggleInlineForm(moduleId) {
+            const form = document.getElementById(`form-${moduleId}`);
+            if (form.style.display === 'none') {
+                // Hide all other forms first
+                document.querySelectorAll('[id^="form-"]').forEach(f => f.style.display = 'none');
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        function getInlineFormHTML(moduleId) {
+            const formStyles = `
+                <style>
+                    .inline-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+                    .inline-form-group { display: flex; flex-direction: column; }
+                    .inline-form-group label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+                    .inline-form-group input, .inline-form-group select, .inline-form-group textarea { padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+                    .inline-form-group input:focus, .inline-form-group select:focus, .inline-form-group textarea:focus { outline: none; border-color: #10b981; }
+                    .inline-form-full { grid-column: 1 / -1; }
+                    .inline-form-actions { display: flex; gap: 10px; margin-top: 16px; }
+                </style>
+            `;
+
+            if (moduleId === 'accounting') {
+                return formStyles + `
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111827;">Add Accounting Entry</h4>
+                    <form onsubmit="handleInlineSubmit(event, 'accounting')">
+                        <div class="inline-form-grid">
+                            <div class="inline-form-group">
+                                <label>Name / Title *</label>
+                                <input type="text" name="name" required placeholder="e.g. Supplier Payment">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Category *</label>
+                                <select name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Profit & Loss">Profit & Loss</option>
+                                    <option value="Supplier Payment">Supplier Payment</option>
+                                    <option value="VAT Tax">VAT / Tax</option>
+                                    <option value="Loan">Loan</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Rent Mortgage">Rent / Mortgage</option>
+                                    <option value="Accountant Fee">Accountant Fee</option>
+                                    <option value="Bank Charge">Bank Charges</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Amount *</label>
+                                <input type="number" name="amount" step="0.01" required placeholder="0.00">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Payment Status</label>
+                                <select name="status">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Overdue">Overdue</option>
+                                    <option value="Partial">Partial Payment</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Payment Method</label>
+                                <select name="method">
+                                    <option value="">Select Method</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Card">Card</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Direct Debit">Direct Debit</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Due Date</label>
+                                <input type="date" name="dueDate">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Reminder Date</label>
+                                <input type="date" name="reminderDate">
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Notes</label>
+                                <textarea name="notes" rows="3" placeholder="Additional details..."></textarea>
+                            </div>
+                        </div>
+                        <div class="inline-form-actions">
+                            <button type="submit" class="btn-primary">Save Entry</button>
+                            <button type="button" class="btn-edit" onclick="toggleInlineForm('accounting')">Cancel</button>
+                        </div>
+                    </form>
+                `;
+            } else if (moduleId === 'fleet') {
+                return formStyles + `
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111827;">Add Vehicle / Fleet Entry</h4>
+                    <form onsubmit="handleInlineSubmit(event, 'fleet')">
+                        <div class="inline-form-grid">
+                            <div class="inline-form-group">
+                                <label>Vehicle Name *</label>
+                                <input type="text" name="vehicle" required placeholder="e.g. CAR 1">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Vehicle Number / Plate *</label>
+                                <input type="text" name="reg" required placeholder="e.g. ABC-1234">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Insurance Expiry Date</label>
+                                <input type="date" name="insurance">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>MOT Expiry Date</label>
+                                <input type="date" name="mot">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Road Tax Expiry Date</label>
+                                <input type="date" name="roadTax">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Status *</label>
+                                <select name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="In Service">In Service / Maintenance</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Sold">Sold / Disposed</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Notes / Remarks</label>
+                                <textarea name="notes" rows="3" placeholder="Additional information..."></textarea>
+                            </div>
+                        </div>
+                        <div class="inline-form-actions">
+                            <button type="submit" class="btn-primary">Save Vehicle</button>
+                            <button type="button" class="btn-edit" onclick="toggleInlineForm('fleet')">Cancel</button>
+                        </div>
+                    </form>
+                `;
+            } else if (moduleId === 'inventory') {
+                return formStyles + `
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111827;">Add Inventory Item</h4>
+                    <form onsubmit="handleInlineSubmit(event, 'inventory')">
+                        <div class="inline-form-grid">
+                            <div class="inline-form-group">
+                                <label>Item Name / Product Name *</label>
+                                <input type="text" name="item" required placeholder="e.g. Milk Packet 1L">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Category *</label>
+                                <select name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Food & Beverages">Food & Beverages</option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Stationery">Stationery</option>
+                                    <option value="Cleaning">Cleaning Supplies</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Household">Household Items</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Current Stock Level *</label>
+                                <input type="number" name="stock" min="0" required placeholder="e.g. 150">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Supplier Reference</label>
+                                <input type="text" name="supplier" placeholder="e.g. SUP-0456">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Status *</label>
+                                <select name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active (In Stock)</option>
+                                    <option value="Low Stock">Low Stock</option>
+                                    <option value="Out of Stock">Out of Stock</option>
+                                    <option value="Discontinued">Discontinued</option>
+                                    <option value="Incoming">Incoming Stock</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Notes / Description</label>
+                                <textarea name="notes" rows="3" placeholder="Product description..."></textarea>
+                            </div>
+                        </div>
+                        <div class="inline-form-actions">
+                            <button type="submit" class="btn-primary">Save Item</button>
+                            <button type="button" class="btn-edit" onclick="toggleInlineForm('inventory')">Cancel</button>
+                        </div>
+                    </form>
+                `;
+            } else if (moduleId === 'suppliers') {
+                return formStyles + `
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111827;">Add New Supplier</h4>
+                    <form onsubmit="handleInlineSubmit(event, 'suppliers')">
+                        <div class="inline-form-grid">
+                            <div class="inline-form-group">
+                                <label>Supplier Name *</label>
+                                <input type="text" name="name" required placeholder="e.g. ABC Distributors">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Supplier ID</label>
+                                <input type="text" name="id" placeholder="e.g. SUP-0045">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Contact Person *</label>
+                                <input type="text" name="contact" required placeholder="e.g. John Smith">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" name="phone" placeholder="e.g. +44 20 1234 5678">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Email Address</label>
+                                <input type="email" name="email" placeholder="e.g. contact@supplier.com">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Payment Terms</label>
+                                <select name="terms">
+                                    <option value="">Select Payment Terms</option>
+                                    <option value="Net 7">Net 7 days</option>
+                                    <option value="Net 15">Net 15 days</option>
+                                    <option value="Net 30">Net 30 days</option>
+                                    <option value="Net 45">Net 45 days</option>
+                                    <option value="Net 60">Net 60 days</option>
+                                    <option value="Immediate">Immediate / Cash on Delivery</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Address</label>
+                                <textarea name="address" rows="2" placeholder="Full address of the supplier"></textarea>
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Notes / Remarks</label>
+                                <textarea name="notes" rows="2" placeholder="Additional information..."></textarea>
+                            </div>
+                        </div>
+                        <div class="inline-form-actions">
+                            <button type="submit" class="btn-primary">Save Supplier</button>
+                            <button type="button" class="btn-edit" onclick="toggleInlineForm('suppliers')">Cancel</button>
+                        </div>
+                    </form>
+                `;
+            } else if (moduleId === 'legal') {
+                return formStyles + `
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111827;">Add Legal / Compliance Document</h4>
+                    <form onsubmit="handleInlineSubmit(event, 'legal')">
+                        <div class="inline-form-grid">
+                            <div class="inline-form-group">
+                                <label>Document Type *</label>
+                                <select name="type" required>
+                                    <option value="">Select Document Type</option>
+                                    <option value="Licence Application">Licence Application</option>
+                                    <option value="Change of DPS">Change of DPS</option>
+                                    <option value="Change of Premises">Change of Premises Slip</option>
+                                    <option value="Food Safety">Food Safety Certificate</option>
+                                    <option value="Refusal Log">Refusal Log</option>
+                                    <option value="Temp Record">Temperature Record</option>
+                                    <option value="Shift Sheet">Shift Sheet</option>
+                                    <option value="Insurance">Insurance Certificate</option>
+                                    <option value="Business Licence">Business Licence Renewal</option>
+                                    <option value="Other">Other Compliance Document</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Business Name *</label>
+                                <input type="text" name="business" required placeholder="e.g. Main Store">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Issue Date</label>
+                                <input type="date" name="issueDate">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Expiry Date *</label>
+                                <input type="date" name="expiryDate" required>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Status *</label>
+                                <select name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="Valid">Active / Valid</option>
+                                    <option value="Pending">Pending Approval</option>
+                                    <option value="Expired">Expired</option>
+                                    <option value="Renewal Due">Renewal Due</option>
+                                    <option value="Rejected">Rejected / Refused</option>
+                                    <option value="Submitted">Submitted</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Notes / Remarks</label>
+                                <textarea name="notes" rows="3" placeholder="Additional details, reference number..."></textarea>
+                            </div>
+                        </div>
+                        <div class="inline-form-actions">
+                            <button type="submit" class="btn-primary">Save Document</button>
+                            <button type="button" class="btn-edit" onclick="toggleInlineForm('legal')">Cancel</button>
+                        </div>
+                    </form>
+                `;
+            } else if (moduleId === 'property') {
+                return formStyles + `
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111827;">Add Property Request / Issue</h4>
+                    <form onsubmit="handleInlineSubmit(event, 'property')">
+                        <div class="inline-form-grid">
+                            <div class="inline-form-group">
+                                <label>Request Type *</label>
+                                <select name="type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Utility">Utility (Electric, Gas, Water)</option>
+                                    <option value="Waste">Waste Management</option>
+                                    <option value="Internet">Internet / Broadband</option>
+                                    <option value="Insurance">Property Insurance</option>
+                                    <option value="Rent">Rent / Mortgage</option>
+                                    <option value="Repairs">Repairs</option>
+                                    <option value="Cleaning">Cleaning Services</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Property Name *</label>
+                                <input type="text" name="property" required placeholder="e.g. Main Store">
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Property Address *</label>
+                                <textarea name="address" rows="2" required placeholder="Full address of the property"></textarea>
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Description / Issue Details *</label>
+                                <textarea name="description" rows="2" required placeholder="Describe the request, issue, or maintenance needed"></textarea>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Priority Level *</label>
+                                <select name="priority" required>
+                                    <option value="">Select Priority</option>
+                                    <option value="High">High (Urgent)</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Assigned To</label>
+                                <input type="text" name="assignedTo" placeholder="e.g. Maintenance Team">
+                            </div>
+                            <div class="inline-form-group">
+                                <label>Status *</label>
+                                <select name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="Open">Open</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="inline-form-group inline-form-full">
+                                <label>Additional Notes</label>
+                                <textarea name="notes" rows="2" placeholder="Any additional information..."></textarea>
+                            </div>
+                        </div>
+                        <div class="inline-form-actions">
+                            <button type="submit" class="btn-primary">Save Request</button>
+                            <button type="button" class="btn-edit" onclick="toggleInlineForm('property')">Cancel</button>
+                        </div>
+                    </form>
+                `;
+            }
+            return '';
+        }
+
+        function handleInlineSubmit(event, moduleId) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const newRecord = {};
+            
+            formData.forEach((value, key) => {
+                newRecord[key] = value;
+            });
+            
+            // Add to data
+            data[moduleId].push(newRecord);
+            saveData();
+            
+            // Hide form and refresh view
+            toggleInlineForm(moduleId);
+            event.target.reset();
+            showToast('✅ Record added successfully!');
+            renderBusinessProfile();
+        }
+
 
         function renderModule(moduleId) {
             const canDelete = currentUser.role === 'Super Admin';
