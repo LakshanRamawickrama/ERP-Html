@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounting - Add New Entry</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      padding: 0;
+      margin: 0;
+    }
+    .form-header {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+    }
+    .form-header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+    .form-body {
+      padding: 30px;
+      background: #f8fafc;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+      background: white;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+    }
+    .note {
+      font-size: 13px;
+      color: #64748b;
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-header">
+    <h1>📊 Accounting Module</h1>
+    <p>Add New Financial Entry (P&L, Payments, VAT, Loans, etc.)</p>
+  </div>
+
+  <div class="form-body">
+    <form id="accountingForm">
+      <div class="form-grid">
+
+        <!-- Basic Info -->
+        <div class="form-group">
+          <label>Name / Title *</label>
+          <input type="text" id="title" placeholder="e.g. Supplier Payment - March 2026" required>
+        </div>
+
+        <div class="form-group">
+          <label>Category / Type *</label>
+          <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="Profit & Loss">Profit & Loss Statement</option>
+            <option value="Supplier Payment">Supplier Payment</option>
+            <option value="VAT Tax">VAT / Tax</option>
+            <option value="Loan">Loan / Development Loan</option>
+            <option value="Insurance">Insurance</option>
+            <option value="Rent Mortgage">Rent / Mortgage</option>
+            <option value="Accountant Fee">Accountant Fee</option>
+            <option value="Bank Charge">Bank Charges</option>
+            <option value="Card Processing">Card Processing (Dojo)</option>
+            <option value="Sales Report">Sales Report</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Financial Fields -->
+        <div class="form-group">
+          <label>Amount *</label>
+          <input type="number" id="amount" step="0.01" placeholder="0.00" required>
+        </div>
+
+        <div class="form-group">
+          <label>Payment Status</label>
+          <select id="paymentStatus">
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="Overdue">Overdue</option>
+            <option value="Partial">Partial Payment</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select id="paymentMethod">
+            <option value="">Select Method</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card (Dojo)</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Direct Debit">Direct Debit</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Dates -->
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="dueDate">
+        </div>
+
+        <div class="form-group">
+          <label>Reminder Date</label>
+          <input type="date" id="reminderDate">
+        </div>
+
+        <!-- Extra Fields -->
+        <div class="form-group full-width">
+          <label>Description / Notes</label>
+          <textarea id="notes" rows="3" placeholder="Additional details, reference number, invoice number, etc."></textarea>
+        </div>
+
+        <!-- File Upload -->
+        <div class="form-group full-width">
+          <label>Upload Documents (Invoice, Receipt, Statement, etc.)</label>
+          <input type="file" id="documents" accept=".pdf,.jpg,.jpeg,.png" multiple>
+          <small style="color:#64748b; margin-top:5px; display:block;">You can upload multiple files (PDF, Image)</small>
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn">Save Accounting Entry</button>
+      
+      <div class="note">
+        This entry will appear in Profit & Loss, Supplier Payments, VAT/Tax tracking, and Reminders.
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('accountingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collect form data
+      const newRecord = {
+        name: document.getElementById('title').value,
+        category: document.getElementById('category').value,
+        amount: parseFloat(document.getElementById('amount').value) || 0,
+        status: document.getElementById('paymentStatus').value,
+        method: document.getElementById('paymentMethod').value,
+        dueDate: document.getElementById('dueDate').value,
+        reminderDate: document.getElementById('reminderDate').value,
+        notes: document.getElementById('notes').value
+      };
+      
+      // Save to localStorage
+      try {
+        const data = JSON.parse(localStorage.getItem('clearerp_data')) || { accounting: [] };
+        if (!data.accounting) data.accounting = [];
+        data.accounting.push(newRecord);
+        localStorage.setItem('clearerp_data', JSON.stringify(data));
+        
+        // Notify parent window (works for both drawer iframe and new tab)
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'dataUpdated', module: 'accounting' }, '*');
+        } else if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'dataUpdated', module: 'accounting' }, '*');
+        }
+        
+        this.reset();
+      } catch (error) {
+        alert('❌ Error saving data: ' + error.message);
+      }
+    });
+  </script>
+
+</body>
+</html>

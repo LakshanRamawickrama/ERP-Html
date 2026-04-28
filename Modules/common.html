@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Common Add Form Template</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      padding: 30px;
+    }
+    .form-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .form-header {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+    }
+    .form-header h1 { font-size: 24px; margin-bottom: 8px; }
+    .form-header p { opacity: 0.9; font-size: 15px; }
+
+    .form-body { padding: 30px; }
+    .section {
+      margin-bottom: 32px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e40af;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e0e7ff;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .full-width { grid-column: 1 / -1; }
+    .btn {
+      margin-top: 20px;
+      padding: 14px 28px;
+      background: #1e40af;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn:hover { background: #1e3a8a; }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <div class="form-header">
+      <h1 id="moduleTitle">Module Name - Add New Entry</h1>
+      <p>Common Add Form Structure</p>
+    </div>
+
+    <div class="form-body">
+      <form id="commonForm">
+
+        <!-- A · Basic Info -->
+        <div class="section">
+          <div class="section-title">A · Basic Info</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Name / Title *</label>
+              <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+              <label>Category / Type</label>
+              <select id="category">
+                <option value="">Select Type</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label>Description</label>
+              <textarea id="description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- B · Contact / Reference -->
+        <div class="section">
+          <div class="section-title">B · Contact / Reference</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="phone">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="email">
+            </div>
+            <div class="form-group full-width">
+              <label>Address</label>
+              <textarea id="address" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Reference ID</label>
+              <input type="text" id="refId">
+            </div>
+          </div>
+        </div>
+
+        <!-- C · Dates & Reminders -->
+        <div class="section">
+          <div class="section-title">C · Dates & Reminders</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Due Date</label>
+              <input type="date" id="dueDate">
+            </div>
+            <div class="form-group">
+              <label>Reminder Date</label>
+              <input type="date" id="reminderDate">
+            </div>
+            <div class="form-group">
+              <label>Expiry Date</label>
+              <input type="date" id="expiryDate">
+            </div>
+          </div>
+        </div>
+
+        <!-- D · Financial -->
+        <div class="section">
+          <div class="section-title">D · Financial</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" id="amount" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label>Payment Status</label>
+              <select id="paymentStatus">
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+                <option value="Overdue">Overdue</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Payment Method</label>
+              <select id="paymentMethod">
+                <option value="">Select Method</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- E · File Upload + Notes -->
+        <div class="section">
+          <div class="section-title">E · File Upload & Notes</div>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Upload Documents (PDF / Image)</label>
+              <input type="file" id="documents" accept=".pdf,.jpg,.jpeg,.png" multiple>
+            </div>
+            <div class="form-group full-width">
+              <label>Notes</label>
+              <textarea id="notes" rows="4"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn">Save Entry</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('commonForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('✅ Entry saved successfully using Common Form Structure!');
+      // this.reset();   // Uncomment if you want to reset form after submit
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legal & Compliance - Add Document</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      padding: 0;
+      margin: 0;
+    }
+    .form-header {
+      background: linear-gradient(135deg, #334155, #64748b);
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+    }
+    .form-header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+    .form-body {
+      padding: 30px;
+      background: #f8fafc;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: white;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #475569;
+      box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.15);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #334155, #64748b);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #1e293b, #475569);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(51, 65, 85, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-header">
+    <h1>⚖️ Legal & Compliance</h1>
+    <p>Add New License, Certificate or Compliance Document</p>
+  </div>
+
+  <div class="form-body">
+    <form id="legalForm">
+      <div class="form-grid">
+
+        <!-- Document Type -->
+        <div class="form-group">
+          <label>Document Type *</label>
+          <select id="documentType" required>
+            <option value="">Select Document Type</option>
+            <option value="Licence Application">Licence Application</option>
+            <option value="Change of DPS">Change of DPS</option>
+            <option value="Change of Premises">Change of Premises Slip</option>
+            <option value="Food Safety">Food Safety Certificate</option>
+            <option value="Food Statement Agency">Food Statement Agency Form</option>
+            <option value="Refusal Log">Refusal Log</option>
+            <option value="Temp Record">Temperature Record</option>
+            <option value="Shift Sheet">Shift Sheet</option>
+            <option value="Insurance">Insurance Certificate</option>
+            <option value="Business Licence">Business Licence Renewal</option>
+            <option value="Other">Other Compliance Document</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Business Name *</label>
+          <input type="text" id="businessName" placeholder="e.g. Business Name (Retail)" required>
+        </div>
+
+        <!-- Dates -->
+        <div class="form-group">
+          <label>Issue Date</label>
+          <input type="date" id="issueDate">
+        </div>
+
+        <div class="form-group">
+          <label>Expiry Date *</label>
+          <input type="date" id="expiryDate" required>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label>Status *</label>
+          <select id="status" required>
+            <option value="">Select Status</option>
+            <option value="Valid">Active / Valid</option>
+            <option value="Pending">Pending Approval</option>
+            <option value="Expired">Expired</option>
+            <option value="Renewal Due">Renewal Due</option>
+            <option value="Rejected">Rejected / Refused</option>
+            <option value="Submitted">Submitted</option>
+          </select>
+        </div>
+
+        <!-- File Upload -->
+        <div class="form-group full-width">
+          <label>Upload File (PDF, Scanned Copy, Photo) *</label>
+          <input type="file" id="uploadFile" accept=".pdf,.jpg,.jpeg,.png" required>
+          <small style="color:#64748b; margin-top:5px; display:block;">
+            Upload the official document, certificate, or scanned copy
+          </small>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width">
+          <label>Notes / Remarks</label>
+          <textarea id="notes" rows="4" placeholder="Additional details, reference number, authority name, conditions, renewal reminders, etc."></textarea>
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn">Save Compliance Document</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('legalForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collect form data
+      const newRecord = {
+        type: document.getElementById('documentType').value,
+        business: document.getElementById('businessName').value,
+        issueDate: document.getElementById('issueDate').value,
+        expiryDate: document.getElementById('expiryDate').value,
+        status: document.getElementById('status').value,
+        notes: document.getElementById('notes').value
+      };
+      
+      // Save to localStorage
+      try {
+        const data = JSON.parse(localStorage.getItem('clearerp_data')) || { legal: [] };
+        if (!data.legal) data.legal = [];
+        data.legal.push(newRecord);
+        localStorage.setItem('clearerp_data', JSON.stringify(data));
+        
+        // Notify parent window (works for both drawer iframe and new tab)
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'dataUpdated', module: 'legal' }, '*');
+        } else if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'dataUpdated', module: 'legal' }, '*');
+        }
+        
+        this.reset();
+      } catch (error) {
+        alert('❌ Error saving data: ' + error.message);
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property Management - Add Request</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      padding: 0;
+      margin: 0;
+    }
+    .form-header {
+      background: linear-gradient(135deg, #0891b2, #06b6d4);
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+    }
+    .form-header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+    .form-body {
+      padding: 30px;
+      background: #f8fafc;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: white;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #0891b2;
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.15);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #0891b2, #06b6d4);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #0e7490, #0891b2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-header">
+    <h1>🏢 Property Management</h1>
+    <p>Add New Property Request / Issue</p>
+  </div>
+
+  <div class="form-body">
+    <form id="propertyForm">
+      <div class="form-grid">
+
+        <!-- Request Type -->
+        <div class="form-group">
+          <label>Request Type *</label>
+          <select id="requestType" required>
+            <option value="">Select Type</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Utility">Utility (Electric, Gas, Water)</option>
+            <option value="Waste">Waste Management</option>
+            <option value="Internet">Internet / Broadband</option>
+            <option value="Insurance">Property Insurance</option>
+            <option value="Rent">Rent / Mortgage</option>
+            <option value="Repairs">Repairs</option>
+            <option value="Cleaning">Cleaning Services</option>
+            <option value="Security">Security</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Property Name *</label>
+          <input type="text" id="propertyName" placeholder="e.g. Main Store, Branch 2, Warehouse" required>
+        </div>
+
+        <!-- Address -->
+        <div class="form-group full-width">
+          <label>Property Address *</label>
+          <textarea id="address" rows="2" placeholder="Full address of the property" required></textarea>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group full-width">
+          <label>Description / Issue Details *</label>
+          <textarea id="description" rows="3" placeholder="Describe the request, issue, or maintenance needed" required></textarea>
+        </div>
+
+        <!-- Priority & Assignment -->
+        <div class="form-group">
+          <label>Priority Level *</label>
+          <select id="priority" required>
+            <option value="">Select Priority</option>
+            <option value="High">High (Urgent)</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Assigned To</label>
+          <input type="text" id="assignedTo" placeholder="e.g. Maintenance Team, Finance Team">
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label>Status *</label>
+          <select id="status" required>
+            <option value="">Select Status</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Pending">Pending</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width">
+          <label>Additional Notes</label>
+          <textarea id="notes" rows="4" placeholder="Any additional information, vendor details, scheduled dates, etc."></textarea>
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn">Save Property Request</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('propertyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collect form data
+      const newRecord = {
+        type: document.getElementById('requestType').value,
+        property: document.getElementById('propertyName').value,
+        address: document.getElementById('address').value,
+        description: document.getElementById('description').value,
+        priority: document.getElementById('priority').value,
+        assignedTo: document.getElementById('assignedTo').value,
+        status: document.getElementById('status').value,
+        notes: document.getElementById('notes').value
+      };
+      
+      // Save to localStorage
+      try {
+        const data = JSON.parse(localStorage.getItem('clearerp_data')) || { property: [] };
+        if (!data.property) data.property = [];
+        data.property.push(newRecord);
+        localStorage.setItem('clearerp_data', JSON.stringify(data));
+        
+        // Notify parent window (works for both drawer iframe and new tab)
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'dataUpdated', module: 'property' }, '*');
+        } else if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'dataUpdated', module: 'property' }, '*');
+        }
+        
+        this.reset();
+      } catch (error) {
+        alert('❌ Error saving data: ' + error.message);
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Management - Add New Supplier</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      padding: 0;
+      margin: 0;
+    }
+    .form-header {
+      background: linear-gradient(135deg, #c026d3, #db2777);
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+    }
+    .form-header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+    .form-body {
+      padding: 30px;
+      background: #f8fafc;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: white;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #c026d3;
+      box-shadow: 0 0 0 3px rgba(192, 38, 211, 0.15);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #c026d3, #db2777);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #a21caf, #be185d);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(192, 38, 211, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-header">
+    <h1>🤝 Supplier Management</h1>
+    <p>Add New Supplier & Payment Details</p>
+  </div>
+
+  <div class="form-body">
+    <form id="supplierForm">
+      <div class="form-grid">
+
+        <!-- Basic Information -->
+        <div class="form-group">
+          <label>Supplier Name *</label>
+          <input type="text" id="supplierName" placeholder="e.g. ABC Distributors" required>
+        </div>
+
+        <div class="form-group">
+          <label>Supplier ID</label>
+          <input type="text" id="supplierID" placeholder="e.g. SUP-0045">
+        </div>
+
+        <div class="form-group">
+          <label>Contact Person *</label>
+          <input type="text" id="contactPerson" placeholder="e.g. Mr. Kamal Perera" required>
+        </div>
+
+        <!-- Contact Details -->
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="phone" placeholder="e.g. +94 77 123 4567">
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="e.g. kamal@abcdistributors.lk">
+        </div>
+
+        <!-- Address -->
+        <div class="form-group full-width">
+          <label>Address</label>
+          <textarea id="address" rows="2" placeholder="Full address of the supplier"></textarea>
+        </div>
+
+        <!-- Payment Information -->
+        <div class="form-group">
+          <label>Payment Terms</label>
+          <select id="paymentTerms">
+            <option value="">Select Payment Terms</option>
+            <option value="Net 7">Net 7 days</option>
+            <option value="Net 15">Net 15 days</option>
+            <option value="Net 30">Net 30 days</option>
+            <option value="Net 45">Net 45 days</option>
+            <option value="Net 60">Net 60 days</option>
+            <option value="Immediate">Immediate / Cash on Delivery</option>
+            <option value="Custom">Custom Terms</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width">
+          <label>Notes / Remarks</label>
+          <textarea id="notes" rows="3" placeholder="Additional information, special conditions, preferred contact time, etc."></textarea>
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn">Save Supplier</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('supplierForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collect form data
+      const newRecord = {
+        name: document.getElementById('supplierName').value,
+        id: document.getElementById('supplierID').value,
+        contact: document.getElementById('contactPerson').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        address: document.getElementById('address').value,
+        terms: document.getElementById('paymentTerms').value,
+        notes: document.getElementById('notes').value
+      };
+      
+      // Save to localStorage
+      try {
+        const data = JSON.parse(localStorage.getItem('clearerp_data')) || { suppliers: [] };
+        if (!data.suppliers) data.suppliers = [];
+        data.suppliers.push(newRecord);
+        localStorage.setItem('clearerp_data', JSON.stringify(data));
+        
+        // Notify parent window (works for both drawer iframe and new tab)
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'dataUpdated', module: 'suppliers' }, '*');
+        } else if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'dataUpdated', module: 'suppliers' }, '*');
+        }
+        
+        this.reset();
+      } catch (error) {
+        alert('❌ Error saving data: ' + error.message);
+      }
+    });
+  </script>
+
+</body>
+</html>

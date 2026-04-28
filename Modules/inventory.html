@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory - Add New Item</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      padding: 0;
+      margin: 0;
+    }
+    .form-header {
+      background: linear-gradient(135deg, #d97706, #fbbf24);
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+    }
+    .form-header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+    .form-body {
+      padding: 30px;
+      background: #f8fafc;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: white;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #d97706, #fbbf24);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #b45309, #f59e0b);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4);
+    }
+    .note {
+      font-size: 13px;
+      color: #64748b;
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-header">
+    <h1>📦 Inventory Management</h1>
+    <p>Add New Item / Product to Stock</p>
+  </div>
+
+  <div class="form-body">
+    <form id="inventoryForm">
+      <div class="form-grid">
+
+        <!-- Basic Information -->
+        <div class="form-group">
+          <label>Item Name / Product Name *</label>
+          <input type="text" id="itemName" placeholder="e.g. Milk Packet 1L" required>
+        </div>
+
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="Food & Beverages">Food & Beverages</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Stationery">Stationery</option>
+            <option value="Cleaning">Cleaning Supplies</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Household">Household Items</option>
+            <option value="Beverages">Beverages</option>
+            <option value="Snacks">Snacks</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Stock Information -->
+        <div class="form-group">
+          <label>Current Stock Level *</label>
+          <input type="number" id="stockLevel" min="0" placeholder="e.g. 150" required>
+        </div>
+
+        <div class="form-group">
+          <label>Supplier Reference</label>
+          <input type="text" id="supplierRef" placeholder="e.g. SUP-0456 or Supplier ID">
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label>Status *</label>
+          <select id="status" required>
+            <option value="">Select Status</option>
+            <option value="Active">Active (In Stock)</option>
+            <option value="Low Stock">Low Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
+            <option value="Discontinued">Discontinued</option>
+            <option value="Incoming">Incoming Stock</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width">
+          <label>Notes / Description</label>
+          <textarea id="notes" rows="4" placeholder="Product description, reorder level, expiry information, location in store, etc."></textarea>
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn">Save Item to Inventory</button>
+      
+      <div class="note">
+        This item will be added to stock with current quantity and supplier reference.
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('inventoryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collect form data
+      const newRecord = {
+        item: document.getElementById('itemName').value,
+        category: document.getElementById('category').value,
+        stock: parseInt(document.getElementById('stockLevel').value) || 0,
+        supplier: document.getElementById('supplierRef').value,
+        status: document.getElementById('status').value,
+        notes: document.getElementById('notes').value
+      };
+      
+      // Save to localStorage
+      try {
+        const data = JSON.parse(localStorage.getItem('clearerp_data')) || { inventory: [] };
+        if (!data.inventory) data.inventory = [];
+        data.inventory.push(newRecord);
+        localStorage.setItem('clearerp_data', JSON.stringify(data));
+        
+        // Notify parent window (works for both drawer iframe and new tab)
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'dataUpdated', module: 'inventory' }, '*');
+        } else if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'dataUpdated', module: 'inventory' }, '*');
+        }
+        
+        this.reset();
+      } catch (error) {
+        alert('❌ Error saving data: ' + error.message);
+      }
+    });
+  </script>
+
+</body>
+</html>
