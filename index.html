@@ -9,29 +9,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', system-ui, sans-serif; background: #F8FAFC; color: #1F2937; }
         
-        /* Login */
-        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
-        .login-box { background: white; padding: 48px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 420px; }
-        
-        @media (max-width: 768px) {
-            .login-box { padding: 32px 24px; }
-        }
-        .login-logo h1 { font-size: 32px; color: #4F46E5; font-weight: 700; text-align: center; margin-bottom: 8px; }
-        .login-logo p { color: #6B7280; margin-top: 8px; text-align: center; font-size: 15px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #374151; font-size: 14px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.2s; background: #F9FAFB; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); background: white; }
-        .form-group textarea { min-height: 80px; font-family: inherit; resize: vertical; }
-        .btn-login { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); }
-        .btn-login:active { transform: translateY(0); }
-        .login-hint { margin-top: 24px; padding: 16px; background: #F3F4F6; border-radius: 10px; font-size: 13px; color: #6B7280; line-height: 1.6; }
-        .error-message { color: #DC2626; font-size: 14px; margin-top: 12px; display: none; background: #FEE2E2; padding: 10px; border-radius: 8px; }
-        
         /* App Layout */
-        .app-container { display: none; }
-        .app-container.active { display: flex; }
+        .app-container { display: flex; }
         
         /* Sidebar */
         .sidebar { width: 70px; background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%); height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; box-shadow: 4px 0 24px rgba(0,0,0,0.12); z-index: 100; transition: width 0.3s ease; overflow: hidden; }
@@ -47,17 +26,17 @@
         .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
         .nav-item { padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: #94A3B8; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; margin: 3px 10px; border-radius: 8px; white-space: nowrap; position: relative; }
         .nav-item:hover { background: rgba(255,255,255,0.08); color: #E2E8F0; }
-        .nav-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .nav-item.active { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
         .nav-item .icon { font-size: 18px; min-width: 18px; text-align: center; }
         .nav-item span:not(.icon) { opacity: 0; transition: opacity 0.3s ease; }
         .sidebar:hover .nav-item span:not(.icon) { opacity: 1; }
         .sidebar-user { padding: 16px 16px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); min-height: 70px; }
         .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 38px; height: 38px; min-width: 38px; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+        .user-avatar { width: 38px; height: 38px; min-width: 38px; border-radius: 10px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
         .user-details { flex: 1; min-width: 0; opacity: 0; transition: opacity 0.3s ease; }
         .sidebar:hover .user-details { opacity: 1; }
         .user-name { font-size: 13px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .user-role { font-size: 10px; color: white; background: rgba(102, 126, 234, 0.3); padding: 3px 8px; border-radius: 5px; display: inline-block; margin-top: 3px; font-weight: 500; }
+        .user-role { font-size: 10px; color: white; background: rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 5px; display: inline-block; margin-top: 3px; font-weight: 500; }
         
         /* Mobile Sidebar */
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; }
@@ -129,11 +108,11 @@
         .search-bar { padding: 10px 14px; border: 2px solid #E5E7EB; border-radius: 8px; width: 100%; max-width: 400px; font-size: 13px; background: white; transition: all 0.2s; }
         .search-bar:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .module-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn-primary { padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+        .btn-primary { padding: 10px 20px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
         .btn-primary:active { transform: translateY(0); }
-        .btn-export { padding: 10px 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-        .btn-export:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+        .btn-export { padding: 10px 20px; background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3); }
+        .btn-export:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4); }
         
         @media (max-width: 640px) {
             .module-header { flex-direction: column; align-items: stretch; }
@@ -245,33 +224,6 @@
 </head>
 <body>
 
-    <!-- Login Screen -->
-    <div class="login-container" id="loginScreen">
-        <div class="login-box">
-            <div class="login-logo">
-                <h1>ClearERP</h1>
-                <p>Business Management System</p>
-            </div>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="username" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" class="btn-login">Login</button>
-                <div class="error-message" id="loginError">Invalid credentials</div>
-            </form>
-            <div class="login-hint">
-                <strong>Demo Credentials:</strong><br>
-                Super Admin: superadmin / admin123<br>
-                Admin: admin / admin123
-            </div>
-        </div>
-    </div>
-
     <!-- Main App -->
     <div class="app-container" id="appContainer">
         <!-- Sidebar Overlay for Mobile -->
@@ -280,7 +232,7 @@
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-logo">
-                <div class="sidebar-logo-icon">📊</div>
+                <div class="sidebar-logo-icon">💵</div>
                 <div>
                     <h2>ClearERP</h2>
                     <span>Business Management</span>
@@ -404,49 +356,21 @@
             if (savedUser) {
                 try {
                     currentUser = JSON.parse(savedUser);
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('appContainer').classList.add('active');
                     initApp();
                 } catch (e) {
                     localStorage.removeItem('clearerp_user');
+                    window.location.href = 'login.html';
                 }
-            }
-        });
-
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            if ((username === 'superadmin' && password === 'admin123') || (username === 'admin' && password === 'admin123')) {
-                currentUser = {
-                    username: username,
-                    role: username === 'superadmin' ? 'Super Admin' : 'Admin'
-                };
-                
-                // Save session to localStorage
-                localStorage.setItem('clearerp_user', JSON.stringify(currentUser));
-                
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('appContainer').classList.add('active');
-                initApp();
             } else {
-                document.getElementById('loginError').style.display = 'block';
+                // No session, redirect to login
+                window.location.href = 'login.html';
             }
         });
 
         function logout() {
             currentUser = null;
-            
-            // Clear session from localStorage
             localStorage.removeItem('clearerp_user');
-            
-            document.getElementById('appContainer').classList.remove('active');
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginError').style.display = 'none';
+            window.location.href = 'login.html';
         }
 
         function initApp() {
@@ -606,12 +530,12 @@
                             <div class="card" style="min-height: 75px; padding: 10px;">
                                 <div style="font-size: 18px; margin-bottom: 2px;">👥</div>
                                 <div style="font-size: 9px; color: #6B7280; margin-bottom: 3px;">Today's Shifts</div>
-                                <div style="font-size: 22px; font-weight: 700; color: #059669;">${todayShifts}</div>
+                                <div style="font-size: 22px; font-weight: 700; color: #10b981;">${todayShifts}</div>
                             </div>
                             <div class="card" style="min-height: 75px; padding: 10px;">
                                 <div style="font-size: 18px; margin-bottom: 2px;">🤝</div>
                                 <div style="font-size: 9px; color: #6B7280; margin-bottom: 3px;">Active Suppliers</div>
-                                <div style="font-size: 22px; font-weight: 700; color: #4F46E5;">${activeSuppliers}</div>
+                                <div style="font-size: 22px; font-weight: 700; color: #10b981;">${activeSuppliers}</div>
                             </div>
                         </div>
                     </div>
@@ -623,7 +547,7 @@
                         <div class="card" style="padding: 14px;">
                             <h3 style="font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #111827;">📅 ${monthNames[now.getMonth()]} ${now.getFullYear()}</h3>
                             <div style="text-align: center; margin-bottom: 8px;">
-                                <div style="font-size: 36px; font-weight: 700; color: #4F46E5; line-height: 1;">${now.getDate()}</div>
+                                <div style="font-size: 36px; font-weight: 700; color: #10b981; line-height: 1;">${now.getDate()}</div>
                                 <div style="font-size: 12px; color: #6B7280; margin-top: 3px;">${dayNames[now.getDay()]}</div>
                             </div>
                             <div style="background: #F9FAFB; padding: 8px; border-radius: 6px; font-size: 10px;">
@@ -646,7 +570,7 @@
                         </div>
                         
                         <!-- Business Info Card -->
-                        <div class="card" style="padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <div class="card" style="padding: 14px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;">
                             <h3 style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">🏢 ClearERP Business</h3>
                             <div style="font-size: 11px; line-height: 1.6; opacity: 0.95;">
                                 <div style="margin-bottom: 5px;"><strong>System:</strong> ClearERP v1.0</div>
@@ -743,7 +667,7 @@
                             <div style="font-weight: 600; color: #111827; margin-bottom: 2px;">${p.name}</div>
                             <div style="color: #6B7280; font-size: 9px;">${p.dueDate}</div>
                         </div>
-                        <div style="font-weight: 700; color: ${p.status === 'Paid' ? '#059669' : p.status === 'Overdue' ? '#DC2626' : '#D97706'};">£${p.amount}</div>
+                        <div style="font-weight: 700; color: ${p.status === 'Paid' ? '#10b981' : p.status === 'Overdue' ? '#DC2626' : '#D97706'};">£${p.amount}</div>
                     </div>
                 </div>
             `).join('');
