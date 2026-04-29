@@ -261,7 +261,86 @@
     }
     .empty-state i { font-size: 40px; margin-bottom: 12px; display: block; }
 
-    /* ── Dashboard inner tabs ── */
+    /* Document upload */
+    .document-upload-area {
+      border: 2px dashed #c8d0d8;
+      border-radius: 8px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #fafbfc;
+    }
+    .document-upload-area:hover,
+    .document-upload-area.dragover {
+      border-color: #2c3e50;
+      background: #f0f3f6;
+    }
+    .doc-upload-icon {
+      font-size: 28px;
+      color: #aab4be;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .doc-upload-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+    }
+    .doc-upload-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+    .doc-preview-box {
+      display: flex;
+      align-items: center;
+      background: #f0f4f8;
+      border: 1px solid #d0dae4;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13.5px;
+    }
+    /* KPI pills inside filter bar */
+    .kpi-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: white;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+    .kpi-pill .kpi-pill-label {
+      opacity: 0.85;
+      font-weight: 400;
+    }
+    .kpi-pill strong {
+      font-weight: 700;
+    }
+
+    /* Records tab summary cards */
+    .rec-summary-card {
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .rec-summary-card::after {
+      content: '';
+      position: absolute;
+      right: -12px;
+      bottom: -12px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    .rec-sum-label { font-size: 11.5px; opacity: 0.88; margin-bottom: 4px; }
+    .rec-sum-value { font-size: 18px; font-weight: 700; }
+
     .dash-tab { animation: fadeIn 0.15s ease; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
 
@@ -316,85 +395,11 @@
     <!-- ══════════════ DASHBOARD (single page with all tabs) ══════════════ -->
     <div id="dashboard" class="section active p-4">
 
-      <!-- ── Stat Cards Row ── -->
-      <div class="row g-3 mb-3">
-        <div class="col">
-          <div class="stat-card income">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stat-value" id="db-total-income">$0.00</div>
-                <div class="stat-label">Total Income</div>
-              </div>
-              <i class="fas fa-arrow-down stat-icon"></i>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="stat-card expense">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stat-value" id="db-total-expense">$0.00</div>
-                <div class="stat-label">Total Expenses</div>
-              </div>
-              <i class="fas fa-arrow-up stat-icon"></i>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="stat-card pending">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stat-value" id="db-pending-amount">$0.00</div>
-                <div class="stat-label">Pending Payments</div>
-              </div>
-              <i class="fas fa-clock stat-icon"></i>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="stat-card total">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stat-value" id="db-net">$0.00</div>
-                <div class="stat-label">Net Balance</div>
-              </div>
-              <i class="fas fa-wallet stat-icon"></i>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="stat-card" style="background:linear-gradient(135deg,#6c3483,#8e44ad)">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stat-value" id="db-overdue-count">0</div>
-                <div class="stat-label">Overdue Records</div>
-              </div>
-              <i class="fas fa-triangle-exclamation stat-icon"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- ── Inner Tabs ── -->
       <ul class="nav nav-tabs mb-3" id="dashTabs">
         <li class="nav-item">
-          <a class="nav-link active" href="#" onclick="switchTab('tab-overview')" id="tab-overview-link">
-            <i class="fas fa-chart-pie me-1"></i>Overview
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" onclick="switchTab('tab-records')" id="tab-records-link">
+          <a class="nav-link active" href="#" onclick="switchTab('tab-records')" id="tab-records-link">
             <i class="fas fa-receipt me-1"></i>All Records
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" onclick="switchTab('tab-income')" id="tab-income-link">
-            <i class="fas fa-arrow-trend-up me-1"></i>Income
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" onclick="switchTab('tab-expenses')" id="tab-expenses-link">
-            <i class="fas fa-arrow-trend-down me-1"></i>Expenses
           </a>
         </li>
         <li class="nav-item">
@@ -404,66 +409,54 @@
         </li>
       </ul>
 
-      <!-- ── TAB: Overview ── -->
-      <div id="tab-overview" class="dash-tab">
-        <div class="row g-3">
-          <!-- Recent Transactions -->
-          <div class="col-lg-7">
-            <div class="card h-100">
-              <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0"><i class="fas fa-receipt me-2 text-secondary"></i>Recent Transactions</h6>
-                <a href="#" class="text-muted" style="font-size:13px" onclick="switchTab('tab-records')">View All →</a>
-              </div>
-              <div class="card-body p-0">
-                <table class="table mb-0">
-                  <thead><tr>
-                    <th class="ps-3">Title</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Due Date</th>
-                  </tr></thead>
-                  <tbody id="recent-tbody">
-                    <tr><td colspan="5" class="text-center py-4 text-muted">No records yet</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <!-- Upcoming Reminders -->
-          <div class="col-lg-5">
-            <div class="card h-100">
-              <div class="card-header bg-white py-3">
-                <h6 class="mb-0"><i class="fas fa-bell me-2 text-warning"></i>Upcoming Reminders</h6>
-              </div>
-              <div class="card-body" id="db-reminders">
-                <div class="empty-state">
-                  <i class="fas fa-bell-slash"></i>No upcoming reminders
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- ── TAB: All Records ── -->
-      <div id="tab-records" class="dash-tab" style="display:none">
-        <!-- Filter bar -->
-        <div class="filter-bar d-flex flex-wrap gap-2 align-items-center">
-          <input type="text" id="searchInput" class="form-control" style="max-width:220px;font-size:13px" placeholder="Search records...">
-          <select id="filterCategory" class="form-select" style="max-width:150px;font-size:13px" onchange="renderTable()">
+      <div id="tab-records" class="dash-tab">
+
+        <!-- Filter bar with inline KPI stats -->
+        <div class="filter-bar d-flex flex-wrap gap-2 align-items-center mb-3">
+          <input type="text" id="searchInput" class="form-control" style="max-width:200px;font-size:13px" placeholder="Search records...">
+          <select id="filterCategory" class="form-select" style="max-width:140px;font-size:13px" onchange="renderTable()">
             <option value="">All Categories</option>
             <option value="Income">Income</option>
             <option value="Expense">Expense</option>
           </select>
-          <select id="filterStatus" class="form-select" style="max-width:170px;font-size:13px" onchange="renderTable()">
+          <select id="filterStatus" class="form-select" style="max-width:150px;font-size:13px" onchange="renderTable()">
             <option value="">All Statuses</option>
             <option value="Paid">Paid</option>
             <option value="Pending">Pending</option>
             <option value="Overdue">Overdue</option>
           </select>
           <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()"><i class="fas fa-rotate-left me-1"></i>Reset</button>
-          <div class="ms-auto text-muted" style="font-size:13px"><span id="record-count">0</span> records</div>
+          <span class="text-muted" style="font-size:13px"><span id="record-count">0</span> records</span>
+
+          <!-- KPI pills pushed to the right -->
+          <div class="ms-auto d-flex gap-2 flex-wrap">
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">
+              <i class="fas fa-arrow-down"></i>
+              <span class="kpi-pill-label">Income</span>
+              <strong id="rs-income">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#c0392b,#e74c3c)">
+              <i class="fas fa-arrow-up"></i>
+              <span class="kpi-pill-label">Expenses</span>
+              <strong id="rs-expense">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#d35400,#e67e22)">
+              <i class="fas fa-clock"></i>
+              <span class="kpi-pill-label">Pending</span>
+              <strong id="rs-pending">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#2c3e50,#34495e)">
+              <i class="fas fa-wallet"></i>
+              <span class="kpi-pill-label">Net</span>
+              <strong id="rs-net">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#6c3483,#8e44ad)">
+              <i class="fas fa-triangle-exclamation"></i>
+              <span class="kpi-pill-label">Overdue</span>
+              <strong id="rs-overdue">0</strong>
+            </div>
+          </div>
         </div>
         <div class="card">
           <div class="card-body p-0">
@@ -486,64 +479,6 @@
                     <i class="fas fa-receipt d-block mb-2" style="font-size:28px;opacity:.4"></i>
                     No accounting records yet. Click <strong>Add Record</strong> to get started.
                   </td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── TAB: Income ── -->
-      <div id="tab-income" class="dash-tab" style="display:none">
-        <div class="card">
-          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="fas fa-arrow-trend-up me-2 text-success"></i>Income Records</h6>
-            <span class="badge bg-success" id="income-total-badge">$0.00 Total</span>
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead><tr>
-                  <th class="ps-3">#</th>
-                  <th>Title</th>
-                  <th>Amount</th>
-                  <th>Payment Status</th>
-                  <th>Payment Method</th>
-                  <th>Due Date</th>
-                  <th>Notes</th>
-                  <th>Actions</th>
-                </tr></thead>
-                <tbody id="income-tbody">
-                  <tr><td colspan="8" class="text-center py-4 text-muted">No income records</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── TAB: Expenses ── -->
-      <div id="tab-expenses" class="dash-tab" style="display:none">
-        <div class="card">
-          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="fas fa-arrow-trend-down me-2 text-danger"></i>Expense Records</h6>
-            <span class="badge bg-danger" id="expense-total-badge">$0.00 Total</span>
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead><tr>
-                  <th class="ps-3">#</th>
-                  <th>Title</th>
-                  <th>Amount</th>
-                  <th>Payment Status</th>
-                  <th>Payment Method</th>
-                  <th>Due Date</th>
-                  <th>Notes</th>
-                  <th>Actions</th>
-                </tr></thead>
-                <tbody id="expense-tbody">
-                  <tr><td colspan="8" class="text-center py-4 text-muted">No expense records</td></tr>
                 </tbody>
               </table>
             </div>
@@ -651,8 +586,25 @@
             <textarea id="rec-notes" class="form-control" rows="3" placeholder="Additional notes..."></textarea>
           </div>
           <div class="col-12">
-            <label class="form-label">Document (file name/reference)</label>
-            <input type="text" id="rec-document" class="form-control" placeholder="e.g. invoice_001.pdf">
+            <label class="form-label">Document Upload</label>
+            <div class="document-upload-area" id="doc-upload-area" onclick="document.getElementById('rec-document-file').click()">
+              <i class="fas fa-cloud-upload-alt doc-upload-icon"></i>
+              <div class="doc-upload-text">Click to upload or drag & drop</div>
+              <div class="doc-upload-hint">PDF, DOC, DOCX, XLS, XLSX, PNG, JPG (max 10MB)</div>
+            </div>
+            <input type="file" id="rec-document-file" style="display:none"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.txt"
+              onchange="handleDocUpload(this)">
+            <div id="doc-preview" style="display:none" class="doc-preview-box mt-2">
+              <i class="fas fa-paperclip me-2 text-muted"></i>
+              <span id="doc-filename" class="text-truncate"></span>
+              <span id="doc-filesize" class="text-muted ms-2" style="font-size:12px"></span>
+              <button type="button" class="btn btn-sm btn-link text-danger ms-auto p-0" onclick="clearDocUpload()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <!-- hidden field keeps the name for saving -->
+            <input type="hidden" id="rec-document">
           </div>
         </div>
       </div>
@@ -708,15 +660,10 @@ function switchTab(tabId) {
   const link = document.getElementById(tabId + '-link');
   if (link) link.classList.add('active');
 
-  if (tabId === 'tab-overview')   renderDashboard();
   if (tabId === 'tab-records')    renderTable();
-  if (tabId === 'tab-income')     renderCategoryTable('income');
-  if (tabId === 'tab-expenses')   renderCategoryTable('expense');
   if (tabId === 'tab-reminders')  renderReminders();
   return false;
 }
-
-// ══════════════ MODAL ══════════════
 function openAddModal() {
   editingId = null;
   document.getElementById('modalTitle').textContent = 'Add Accounting Record';
@@ -727,6 +674,7 @@ function openAddModal() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  clearDocUpload();
   new bootstrap.Modal(document.getElementById('recordModal')).show();
 }
 
@@ -746,6 +694,15 @@ function openEditModal(id) {
   document.getElementById('rec-reminder-date').value   = rec.reminder_date;
   document.getElementById('rec-notes').value           = rec.notes;
   document.getElementById('rec-document').value        = rec.document;
+  // Restore document preview if record has one
+  if (rec.document) {
+    document.getElementById('doc-filename').textContent = rec.document;
+    document.getElementById('doc-filesize').textContent = '';
+    document.getElementById('doc-preview').style.display = 'flex';
+    document.getElementById('doc-upload-area').style.display = 'none';
+  } else {
+    clearDocUpload();
+  }
   new bootstrap.Modal(document.getElementById('recordModal')).show();
 }
 
@@ -856,6 +813,18 @@ function renderTable() {
     return matchSearch && matchCat && matchSt;
   });
 
+  // Update summary cards
+  const totalIncome  = records.filter(r=>r.category==='Income').reduce((s,r)=>s+r.amount,0);
+  const totalExpense = records.filter(r=>r.category==='Expense').reduce((s,r)=>s+r.amount,0);
+  const totalPending = records.filter(r=>r.payment_status==='Pending'||r.payment_status==='Overdue').reduce((s,r)=>s+r.amount,0);
+  const net          = totalIncome - totalExpense;
+  const overdueCount = records.filter(r=>r.payment_status==='Overdue').length;
+  document.getElementById('rs-income').textContent  = fmtAmt(totalIncome);
+  document.getElementById('rs-expense').textContent = fmtAmt(totalExpense);
+  document.getElementById('rs-pending').textContent = fmtAmt(totalPending);
+  document.getElementById('rs-net').textContent     = fmtAmt(net);
+  document.getElementById('rs-overdue').textContent = overdueCount;
+
   const tbody = document.getElementById('records-tbody');
   document.getElementById('record-count').textContent = filtered.length;
 
@@ -863,7 +832,6 @@ function renderTable() {
     tbody.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-muted">
       <i class="fas fa-search d-block mb-2" style="font-size:24px;opacity:.4"></i>No records match your filters
     </td></tr>`;
-    updateSummaryBadges();
     return;
   }
 
@@ -885,102 +853,20 @@ function renderTable() {
       </td>
     </tr>
   `).join('');
-
-  updateSummaryBadges();
 }
 
 function updateSummaryBadges() {
-  // Stat cards at top of dashboard are updated via renderDashboard()
-  renderDashboard();
+  // KPI pills are updated inside renderTable() — nothing extra needed here
 }
 
 function renderCategoryTable(type) {
-  const isIncome = type === 'income';
-  const catVal   = isIncome ? 'Income' : 'Expense';
-  const filtered = records.filter(r => r.category === catVal);
-  const total    = filtered.reduce((s,r) => s+r.amount, 0);
-  const tbodyId  = isIncome ? 'income-tbody' : 'expense-tbody';
-  const badgeId  = isIncome ? 'income-total-badge' : 'expense-total-badge';
-
-  document.getElementById(badgeId).textContent = `${fmtAmt(total)} Total`;
-
-  const tbody = document.getElementById(tbodyId);
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No ${catVal.toLowerCase()} records yet</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = filtered.map((r, i) => `
-    <tr>
-      <td class="ps-3">${i+1}</td>
-      <td><strong>${esc(r.title)}</strong><br><small class="text-muted">${esc(r.company_id)}</small></td>
-      <td><strong>${fmtAmt(r.amount)}</strong></td>
-      <td>${statusBadge(r.payment_status)}</td>
-      <td>${r.payment_method||'—'}</td>
-      <td>${dueDateDisplay(r.due_date, r.payment_status)}</td>
-      <td style="max-width:160px"><span style="font-size:12px;color:#666">${esc(r.notes||'')||'—'}</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline-secondary me-1" onclick="viewRecord(${r.id})"><i class="fas fa-eye"></i></button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord(${r.id})"><i class="fas fa-trash"></i></button>
-      </td>
-    </tr>
-  `).join('');
+  // Income/Expense tabs removed — no-op
 }
 
 function renderDashboard() {
-  const totalIncome  = records.filter(r=>r.category==='Income').reduce((s,r)=>s+r.amount,0);
-  const totalExpense = records.filter(r=>r.category==='Expense').reduce((s,r)=>s+r.amount,0);
-  const pending      = records.filter(r=>r.payment_status==='Pending'||r.payment_status==='Overdue').reduce((s,r)=>s+r.amount,0);
-  const net          = totalIncome - totalExpense;
-  const overdueCount = records.filter(r=>r.payment_status==='Overdue').length;
-
-  document.getElementById('db-total-income').textContent  = fmtAmt(totalIncome);
-  document.getElementById('db-total-expense').textContent = fmtAmt(totalExpense);
-  document.getElementById('db-pending-amount').textContent= fmtAmt(pending);
-  document.getElementById('db-net').textContent           = fmtAmt(net);
-  document.getElementById('db-overdue-count').textContent = overdueCount;
-
-  // Recent 5 records
-  const recent = [...records].sort((a,b)=>b.id-a.id).slice(0,5);
-  const rtbody = document.getElementById('recent-tbody');
-  if (recent.length === 0) {
-    rtbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No records yet</td></tr>`;
-  } else {
-    rtbody.innerHTML = recent.map(r=>`
-      <tr>
-        <td class="ps-3"><strong>${esc(r.title)}</strong></td>
-        <td>${categoryBadge(r.category)}</td>
-        <td>${fmtAmt(r.amount)}</td>
-        <td>${statusBadge(r.payment_status)}</td>
-        <td style="font-size:12px">${fmtDate(r.due_date)}</td>
-      </tr>
-    `).join('');
-  }
-
-  // Upcoming reminders
-  const today = new Date(); today.setHours(0,0,0,0);
-  const in7   = new Date(today); in7.setDate(in7.getDate()+7);
-  const upcoming = records.filter(r => {
-    if (!r.reminder_date || r.payment_status === 'Paid') return false;
-    const rd = new Date(r.reminder_date);
-    return rd >= today && rd <= in7;
-  }).sort((a,b)=>new Date(a.reminder_date)-new Date(b.reminder_date));
-
-  const remDiv = document.getElementById('db-reminders');
-  if (upcoming.length === 0) {
-    remDiv.innerHTML = `<div class="empty-state"><i class="fas fa-bell-slash"></i>No upcoming reminders</div>`;
-  } else {
-    remDiv.innerHTML = upcoming.map(r=>`
-      <div class="reminder-item">
-        <div class="reminder-dot" style="background:${r.category==='Income'?'#27ae60':'#e74c3c'}"></div>
-        <div class="flex-grow-1">
-          <div style="font-size:13.5px;font-weight:500">${esc(r.title)}</div>
-          <div style="font-size:12px;color:#888">${fmtAmt(r.amount)} · ${r.reminder_date}</div>
-        </div>
-        ${statusBadge(r.payment_status)}
-      </div>
-    `).join('');
-  }
+  // Dashboard no longer has its own stat cards — renderTable() handles the KPI pills
 }
+
 
 function renderReminders() {
   const today = new Date(); today.setHours(0,0,0,0);
@@ -1020,16 +906,14 @@ function renderReminders() {
 }
 
 function refreshAll() {
-  renderDashboard();
-  // Re-render whichever inner tab is currently visible
-  const activeTab = document.querySelector('.dash-tab[style*="block"]');
-  if (activeTab) {
-    const id = activeTab.id;
-    if (id === 'tab-records')   renderTable();
-    if (id === 'tab-income')    renderCategoryTable('income');
-    if (id === 'tab-expenses')  renderCategoryTable('expense');
-    if (id === 'tab-reminders') renderReminders();
-  }
+  // Find the active tab by checking which one is visible
+  const allTabs = document.querySelectorAll('.dash-tab');
+  let activeTabId = 'tab-records'; // default
+  allTabs.forEach(t => {
+    if (t.style.display !== 'none') activeTabId = t.id;
+  });
+  if (activeTabId === 'tab-records')   renderTable();
+  if (activeTabId === 'tab-reminders') renderReminders();
 }
 
 function clearFilters() {
@@ -1078,7 +962,57 @@ function dueDateDisplay(due, status) {
   return `<span style="font-size:13px">${fmtDate(due)}</span>${extra}`;
 }
 
-// ══════════════ SEARCH LIVE ══════════════
+// ══════════════ DOCUMENT UPLOAD ══════════════
+function handleDocUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    alert('File is too large. Maximum size is 10MB.');
+    input.value = '';
+    return;
+  }
+  document.getElementById('rec-document').value = file.name;
+  document.getElementById('doc-filename').textContent = file.name;
+  document.getElementById('doc-filesize').textContent = formatFileSize(file.size);
+  document.getElementById('doc-preview').style.display = 'flex';
+  document.getElementById('doc-upload-area').style.display = 'none';
+}
+
+function clearDocUpload() {
+  document.getElementById('rec-document-file').value = '';
+  document.getElementById('rec-document').value = '';
+  document.getElementById('doc-preview').style.display = 'none';
+  document.getElementById('doc-upload-area').style.display = 'block';
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// Drag & drop support
+document.addEventListener('DOMContentLoaded', () => {
+  const area = document.getElementById('doc-upload-area');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+  area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+  area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const input = document.getElementById('rec-document-file');
+      // Create a DataTransfer to assign the dropped file to the input
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      handleDocUpload(input);
+    }
+  });
+});
+
+
 document.getElementById('searchInput').addEventListener('input', renderTable);
 
 // ══════════════ INIT ══════════════
@@ -1099,7 +1033,7 @@ window.onload = () => {
   ];
 
   showSection('dashboard');
-  switchTab('tab-overview');
+  switchTab('tab-records');
 };
 </script>
 </body>
