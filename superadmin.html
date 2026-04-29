@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Super Admin - Business Central</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  
+
   <style>
     body {
       background-color: #f8f9fa;
@@ -26,31 +27,43 @@
       width: 70px;
       display: flex;
       flex-direction: column;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
       z-index: 100;
       transition: width 0.3s ease;
       overflow: hidden;
     }
-    .sidebar:hover { width: 240px; }
+
+    .sidebar:hover {
+      width: 240px;
+    }
 
     /* Logo area */
     .sidebar-brand {
       padding: 20px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
       gap: 10px;
       white-space: nowrap;
       min-height: 70px;
     }
+
     .sidebar-brand-icon {
       font-size: 20px;
       min-width: 38px;
       text-align: center;
       color: #ecf0f1;
     }
-    .sidebar-brand-text { opacity: 0; transition: opacity 0.3s ease; }
-    .sidebar:hover .sidebar-brand-text { opacity: 1; }
+
+    .sidebar-brand-text {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar:hover .sidebar-brand-text {
+      opacity: 1;
+    }
+
     .sidebar-brand-text h5 {
       color: white;
       font-size: 16px;
@@ -58,9 +71,10 @@
       margin: 0;
       line-height: 1.2;
     }
+
     .sidebar-brand-text small {
       font-size: 11px;
-      color: rgba(236,240,241,0.7);
+      color: rgba(236, 240, 241, 0.7);
       display: block;
       margin-top: 2px;
     }
@@ -74,8 +88,15 @@
       list-style: none;
       margin: 0;
     }
-    .sidebar-nav-list::-webkit-scrollbar { width: 4px; }
-    .sidebar-nav-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+    .sidebar-nav-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-nav-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
 
     .nav-link {
       color: #bdc3c7;
@@ -91,20 +112,27 @@
       transition: background-color 0.2s, color 0.2s;
       text-decoration: none;
     }
-    .nav-link:hover, .nav-link.active {
+
+    .nav-link:hover,
+    .nav-link.active {
       background-color: #34495e;
       color: white;
     }
+
     .nav-link .nav-icon {
       font-size: 16px;
       min-width: 18px;
       text-align: center;
     }
+
     .nav-link .nav-label {
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    .sidebar:hover .nav-link .nav-label { opacity: 1; }
+
+    .sidebar:hover .nav-link .nav-label {
+      opacity: 1;
+    }
 
     /* Main content offset */
     .main-wrapper {
@@ -120,16 +148,26 @@
       border-bottom: 1px solid #e0e0e0;
       padding: 12px 25px;
     }
+
     .card {
       border: 1px solid #e0e0e0;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
-    .section { display: none; }
-    .section.active { display: block; }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
 
     /* Custom Multi-Select */
-    .multi-select-container { position: relative; }
+    .multi-select-container {
+      position: relative;
+    }
+
     .multi-select-box {
       border: 1px solid #ced4da;
       border-radius: 6px;
@@ -143,6 +181,7 @@
       align-items: center;
       font-size: 14px;
     }
+
     .selected-item {
       background-color: #e9ecef;
       padding: 3px 8px;
@@ -152,7 +191,12 @@
       align-items: center;
       gap: 5px;
     }
-    .remove-item { color: #dc3545; cursor: pointer; font-weight: bold; }
+
+    .remove-item {
+      color: #dc3545;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
     .multi-select-dropdown {
       position: absolute;
@@ -165,16 +209,23 @@
       max-height: 220px;
       overflow-y: auto;
       z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       display: none;
     }
-    .multi-select-dropdown.show { display: block; }
+
+    .multi-select-dropdown.show {
+      display: block;
+    }
+
     .dropdown-item {
       padding: 8px 12px;
       cursor: pointer;
       font-size: 14px;
     }
-    .dropdown-item:hover { background-color: #f8f9fa; }
+
+    .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
 
     table th {
       background-color: #f8f9fa;
@@ -182,9 +233,11 @@
       color: #555;
       font-size: 14px;
     }
+
     table td {
       font-size: 14px;
     }
+
     .btn-minimal {
       background-color: #2c3e50;
       color: white;
@@ -192,71 +245,82 @@
       border-radius: 6px;
       padding: 10px 20px;
     }
-    .btn-minimal:hover { background-color: #34495e; }
+
+    .btn-minimal:hover {
+      background-color: #34495e;
+    }
 
     .form-label {
       font-size: 13.5px;
       margin-bottom: 5px;
     }
-    .form-control, .form-select {
+
+    .form-control,
+    .form-select {
       font-size: 14px;
     }
 
     /* Logistics Alerts Styling */
-    .alert-card { border-left: 4px solid #ef4444; background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
-    .alert-card.warning { border-left-color: #f59e0b; background: #fffbeb; }
+    .alert-card {
+      border-left: 4px solid #ef4444;
+      background: #fef2f2;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
 
+    .alert-card.warning {
+      border-left-color: #f59e0b;
+      background: #fffbeb;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
-    <div class="sidebar-brand-text">
-      <h5>Business Central</h5>
-      <small>Super Admin</small>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+      <div class="sidebar-brand-text">
+        <h5>Business Central</h5>
+        <small>Super Admin</small>
+      </div>
     </div>
-  </div>
 
     <li><a href="superadmin.html" class="nav-link active">
-      <i class="fas fa-shield-alt nav-icon"></i>
-      <span class="nav-label">Admin Panel</span>
-    </a></li>
+        <i class="fas fa-shield-alt nav-icon"></i>
+        <span class="nav-label">Admin Panel</span>
+      </a></li>
     <li><a href="supplier.html" class="nav-link">
-      <i class="fas fa-truck-loading nav-icon"></i>
-      <span class="nav-label">Suppliers</span>
-    </a></li>
+        <i class="fas fa-truck-loading nav-icon"></i>
+        <span class="nav-label">Suppliers</span>
+      </a></li>
     <li><a href="accounting.html" class="nav-link">
       <i class="fas fa-file-invoice-dollar nav-icon"></i>
       <span class="nav-label">Accounting</span>
     </a></li>
-    <li><a href="inventory_management.html" class="nav-link">
-      <i class="fas fa-boxes nav-icon"></i>
-      <span class="nav-label">Inventory Management</span>
-    </a></li>
-    <li><a href="system_access.html" class="nav-link">
-      <i class="fas fa-key nav-icon"></i>
-      <span class="nav-label">System Access</span>
-    </a></li>
     <li><a href="fleet_management.html" class="nav-link">
-      <i class="fas fa-truck nav-icon"></i>
-      <span class="nav-label">Fleet Management</span>
-    </a></li>
-  </ul>
-</div>
+        <i class="fas fa-truck nav-icon"></i>
+        <span class="nav-label">Fleet Management</span>
+      </a></li>
+    <li><a href="legal_compliance.html" class="nav-link">
+        <i class="fas fa-gavel nav-icon"></i>
+        <span class="nav-label">Legal & Compliance</span>
+      </a></li>
+    </ul>
+  </div>
 
-<!-- Main Content -->
-<div class="main-wrapper">
-  <div class="flex-grow-1">
-    <div class="topbar d-flex justify-content-between align-items-center">
-      <h5 class="mb-0 fw-medium" id="page-title">All Businesses</h5>
-    </div>
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <div class="flex-grow-1">
+      <div class="topbar d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-medium" id="page-title">All Businesses</h5>
+      </div>
 
-    <!-- Dashboard -->
-    <div id="dashboard" class="section p-4">
-      <h4>Welcome to Super Admin Dashboard</h4>
+      <!-- Dashboard -->
+      <div id="dashboard" class="section p-4">
+        <h4>Welcome to Super Admin Dashboard</h4>
         <div class="row g-4 mb-4">
           <div class="col-md-3">
             <div class="card p-3 shadow-sm border-0">
@@ -289,233 +353,234 @@
             </div>
           </div>
         </div>
-    </div>
-
-    <!-- All Businesses Section -->
-    <div id="businesses" class="section active p-4">
-      <div class="row g-4">
-        <!-- Add New Business Form -->
-        <div class="col-lg-5">
-          <div class="card h-100">
-            <div class="card-header bg-white py-3">
-              <h5 class="mb-0">Add New Business</h5>
-            </div>
-            <div class="card-body p-4">
-              <form id="businessForm">
-                <div class="mb-3">
-                  <label class="form-label">Business Name</label>
-                  <input type="text" class="form-control" id="bizName" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Company House Number</label>
-                  <input type="text" class="form-control" id="bizOwner" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Address</label>
-                  <input type="text" class="form-control" id="bizAddress" required>
-                </div>
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" id="bizEmail" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="bizPhone">
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Category / Type</label>
-                  <input type="text" class="form-control" id="bizType" placeholder="IT Services, Retail, etc." required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Description</label>
-                  <textarea class="form-control" id="bizDescription" rows="2"></textarea>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Assigned User</label>
-                  <select class="form-select" id="bizAssignedUser">
-                    <option value="">Select User</option>
-                  </select>
-                </div>
-                <button type="button" onclick="addNewBusiness()" class="btn btn-minimal w-100 py-3 mt-2">
-                  Add Business
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- Businesses List -->
-        <div class="col-lg-7">
-          <div class="card h-100">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">All Businesses</h5>
-              <span class="badge bg-secondary" id="business-count">0</span>
-            </div>
-            <div class="card-body p-0" style="max-height: 75vh; overflow-y: auto;">
-              <table class="table table-striped mb-0" id="businessTable">
-                <thead>
-                  <tr>
-                    <th>Business Name</th>
-                    <th>Company No.</th>
-                    <th>Type</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
 
-    <!-- Create User Section -->
-    <div id="create-user" class="section p-4">
-      <div class="row justify-content-center">
-        <div class="col-xl-8">
-          <div class="card">
-            <div class="card-header bg-white py-3">
-              <h5 class="mb-0">Create New User</h5>
-            </div>
-            <div class="card-body p-4">
-              <form id="createUserForm">
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="name" required>
+      <!-- All Businesses Section -->
+      <div id="businesses" class="section active p-4">
+        <div class="row g-4">
+          <!-- Add New Business Form -->
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Add New Business</h5>
+              </div>
+              <div class="card-body p-4">
+                <form id="businessForm">
+                  <div class="mb-3">
+                    <label class="form-label">Business Name</label>
+                    <input type="text" class="form-control" id="bizName" required>
                   </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-control" id="email" required>
+                  <div class="mb-3">
+                    <label class="form-label">Company House Number</label>
+                    <input type="text" class="form-control" id="bizOwner" required>
                   </div>
-                </div>
-
-                <div class="row g-3 mt-2">
-                  <div class="col-md-6">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" required>
+                  <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" id="bizAddress" required>
                   </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" required>
-                  </div>
-                </div>
-
-                <div class="mb-3 mt-3">
-                  <label class="form-label">Assign Businesses (Multiple)</label>
-                  <div class="multi-select-container">
-                    <div class="multi-select-box" id="selectBox" onclick="toggleDropdown()">
-                      <span class="text-muted" id="placeholder">Select businesses...</span>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-control" id="bizEmail" required>
                     </div>
-                    <div class="multi-select-dropdown" id="dropdown"></div>
+                    <div class="col-md-6">
+                      <label class="form-label">Phone Number</label>
+                      <input type="tel" class="form-control" id="bizPhone">
+                    </div>
                   </div>
-                </div>
-
-                <div class="mb-4">
-                  <label class="form-label">Role</label>
-                  <div class="input-group">
-                    <select class="form-select" id="role">
-                      <option value="Admin">Admin</option>
+                  <div class="mb-3">
+                    <label class="form-label">Category / Type</label>
+                    <input type="text" class="form-control" id="bizType" placeholder="IT Services, Retail, etc."
+                      required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="bizDescription" rows="2"></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Assigned User</label>
+                    <select class="form-select" id="bizAssignedUser">
+                      <option value="">Select User</option>
                     </select>
-                    <button type="button" class="btn btn-outline-secondary" onclick="addNewRole()">+ Role</button>
                   </div>
-                </div>
+                  <button type="button" onclick="addNewBusiness()" class="btn btn-minimal w-100 py-3 mt-2">
+                    Add Business
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
 
-                <button type="button" onclick="createNewUser()" class="btn btn-minimal w-100 py-3">
-                  Create User
-                </button>
-              </form>
+          <!-- Businesses List -->
+          <div class="col-lg-7">
+            <div class="card h-100">
+              <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">All Businesses</h5>
+                <span class="badge bg-secondary" id="business-count">0</span>
+              </div>
+              <div class="card-body p-0" style="max-height: 75vh; overflow-y: auto;">
+                <table class="table table-striped mb-0" id="businessTable">
+                  <thead>
+                    <tr>
+                      <th>Business Name</th>
+                      <th>Company No.</th>
+                      <th>Type</th>
+                      <th>Email</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Manage Users Section -->
-    <div id="users" class="section p-4">
-      <h5 class="mb-4">Manage Users</h5>
-      <div class="card">
-        <div class="card-body p-0">
-          <table class="table table-striped mb-0" id="usersTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Businesses</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <!-- Create User Section -->
+      <div id="create-user" class="section p-4">
+        <div class="row justify-content-center">
+          <div class="col-xl-8">
+            <div class="card">
+              <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Create New User</h5>
+              </div>
+              <div class="card-body p-4">
+                <form id="createUserForm">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Full Name</label>
+                      <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Email Address</label>
+                      <input type="email" class="form-control" id="email" required>
+                    </div>
+                  </div>
+
+                  <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                      <label class="form-label">Password</label>
+                      <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Confirm Password</label>
+                      <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                  </div>
+
+                  <div class="mb-3 mt-3">
+                    <label class="form-label">Assign Businesses (Multiple)</label>
+                    <div class="multi-select-container">
+                      <div class="multi-select-box" id="selectBox" onclick="toggleDropdown()">
+                        <span class="text-muted" id="placeholder">Select businesses...</span>
+                      </div>
+                      <div class="multi-select-dropdown" id="dropdown"></div>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">Role</label>
+                    <div class="input-group">
+                      <select class="form-select" id="role">
+                        <option value="Admin">Admin</option>
+                      </select>
+                      <button type="button" class="btn btn-outline-secondary" onclick="addNewRole()">+ Role</button>
+                    </div>
+                  </div>
+
+                  <button type="button" onclick="createNewUser()" class="btn btn-minimal w-100 py-3">
+                    Create User
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Manage Users Section -->
+      <div id="users" class="section p-4">
+        <h5 class="mb-4">Manage Users</h5>
+        <div class="card">
+          <div class="card-body p-0">
+            <table class="table table-striped mb-0" id="usersTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Businesses</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
-
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// ==================== DATA STORAGE ====================
-let businesses = [];
-let users = [];
-let availableBusinesses = [];
-let selectedBusinessesForUser = [];
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ==================== DATA STORAGE ====================
+    let businesses = [];
+    let users = [];
+    let availableBusinesses = [];
+    let selectedBusinessesForUser = [];
 
-// ==================== BUSINESS FUNCTIONS ====================
-function addNewBusiness() {
-  const name = document.getElementById('bizName').value.trim();
-  const owner = document.getElementById('bizOwner').value.trim();   // Company House Number
-  const address = document.getElementById('bizAddress').value.trim();
-  const email = document.getElementById('bizEmail').value.trim();
-  const type = document.getElementById('bizType').value.trim();
-  const phone = document.getElementById('bizPhone').value.trim();
-  const description = document.getElementById('bizDescription').value.trim();
+    // ==================== BUSINESS FUNCTIONS ====================
+    function addNewBusiness() {
+      const name = document.getElementById('bizName').value.trim();
+      const owner = document.getElementById('bizOwner').value.trim();   // Company House Number
+      const address = document.getElementById('bizAddress').value.trim();
+      const email = document.getElementById('bizEmail').value.trim();
+      const type = document.getElementById('bizType').value.trim();
+      const phone = document.getElementById('bizPhone').value.trim();
+      const description = document.getElementById('bizDescription').value.trim();
 
-  if (!name || !owner || !address || !email || !type) {
-    alert("Please fill all required fields");
-    return;
-  }
+      if (!name || !owner || !address || !email || !type) {
+        alert("Please fill all required fields");
+        return;
+      }
 
-  const newBiz = {
-    id: Date.now(),
-    name,
-    companyNo: owner,
-    address,
-    email,
-    type,
-    phone: phone || 'N/A',
-    description: description || 'No description',
-    createdDate: new Date().toISOString().split('T')[0]
-  };
+      const newBiz = {
+        id: Date.now(),
+        name,
+        companyNo: owner,
+        address,
+        email,
+        type,
+        phone: phone || 'N/A',
+        description: description || 'No description',
+        createdDate: new Date().toISOString().split('T')[0]
+      };
 
-  businesses.push(newBiz);
-  availableBusinesses.push(name);
+      businesses.push(newBiz);
+      availableBusinesses.push(name);
 
-  alert(`Business "${name}" added successfully!`);
-  document.getElementById('businessForm').reset();
-  renderBusinessTable();
-  updateDashboard();
-}
+      alert(`Business "${name}" added successfully!`);
+      document.getElementById('businessForm').reset();
+      renderBusinessTable();
+      updateDashboard();
+    }
 
-function renderBusinessTable() {
-  const tbody = document.querySelector('#businessTable tbody');
-  tbody.innerHTML = '';
+    function renderBusinessTable() {
+      const tbody = document.querySelector('#businessTable tbody');
+      tbody.innerHTML = '';
 
-  if (businesses.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No businesses added yet.</td></tr>`;
-    document.getElementById('business-count').textContent = 0;
-    return;
-  }
+      if (businesses.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No businesses added yet.</td></tr>`;
+        document.getElementById('business-count').textContent = 0;
+        return;
+      }
 
-  businesses.forEach(biz => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
+      businesses.forEach(biz => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
       <td><strong>${biz.name}</strong></td>
       <td>${biz.companyNo}</td>
       <td>${biz.type}</td>
@@ -525,146 +590,146 @@ function renderBusinessTable() {
         <button class="btn btn-sm btn-outline-danger" onclick="deleteBusiness(${biz.id})">Delete</button>
       </td>
     `;
-    tbody.appendChild(row);
-  });
+        tbody.appendChild(row);
+      });
 
-  document.getElementById('business-count').textContent = businesses.length;
-}
+      document.getElementById('business-count').textContent = businesses.length;
+    }
 
-function viewBusiness(id) {
-  const biz = businesses.find(b => b.id === id);
-  if (biz) {
-    alert(`Business Details:\n\nName: ${biz.name}\nCompany No: ${biz.companyNo}\nAddress: ${biz.address}\nEmail: ${biz.email}\nType: ${biz.type}\nPhone: ${biz.phone}`);
-  }
-}
+    function viewBusiness(id) {
+      const biz = businesses.find(b => b.id === id);
+      if (biz) {
+        alert(`Business Details:\n\nName: ${biz.name}\nCompany No: ${biz.companyNo}\nAddress: ${biz.address}\nEmail: ${biz.email}\nType: ${biz.type}\nPhone: ${biz.phone}`);
+      }
+    }
 
-function deleteBusiness(id) {
-  if (confirm("Delete this business?")) {
-    businesses = businesses.filter(b => b.id !== id);
-    renderBusinessTable();
-    updateDashboard();
-  }
-}
+    function deleteBusiness(id) {
+      if (confirm("Delete this business?")) {
+        businesses = businesses.filter(b => b.id !== id);
+        renderBusinessTable();
+        updateDashboard();
+      }
+    }
 
-// ==================== USER FUNCTIONS ====================
-function toggleDropdown() {
-  const dropdown = document.getElementById('dropdown');
-  dropdown.classList.toggle('show');
-  renderBusinessDropdown();
-}
+    // ==================== USER FUNCTIONS ====================
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown');
+      dropdown.classList.toggle('show');
+      renderBusinessDropdown();
+    }
 
-function renderBusinessDropdown() {
-  const dropdown = document.getElementById('dropdown');
-  dropdown.innerHTML = '';
+    function renderBusinessDropdown() {
+      const dropdown = document.getElementById('dropdown');
+      dropdown.innerHTML = '';
 
-  availableBusinesses.forEach(biz => {
-    const isSelected = selectedBusinessesForUser.includes(biz);
-    const div = document.createElement('div');
-    div.className = 'dropdown-item';
-    div.innerHTML = `
+      availableBusinesses.forEach(biz => {
+        const isSelected = selectedBusinessesForUser.includes(biz);
+        const div = document.createElement('div');
+        div.className = 'dropdown-item';
+        div.innerHTML = `
       <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleUserBusiness('${biz}', this.checked)">
       ${biz}
     `;
-    dropdown.appendChild(div);
-  });
-}
+        dropdown.appendChild(div);
+      });
+    }
 
-function toggleUserBusiness(biz, checked) {
-  if (checked) {
-    if (!selectedBusinessesForUser.includes(biz)) selectedBusinessesForUser.push(biz);
-  } else {
-    selectedBusinessesForUser = selectedBusinessesForUser.filter(b => b !== biz);
-  }
-  renderSelectedBusinesses();
-}
+    function toggleUserBusiness(biz, checked) {
+      if (checked) {
+        if (!selectedBusinessesForUser.includes(biz)) selectedBusinessesForUser.push(biz);
+      } else {
+        selectedBusinessesForUser = selectedBusinessesForUser.filter(b => b !== biz);
+      }
+      renderSelectedBusinesses();
+    }
 
-function renderSelectedBusinesses() {
-  const box = document.getElementById('selectBox');
-  box.innerHTML = '';
+    function renderSelectedBusinesses() {
+      const box = document.getElementById('selectBox');
+      box.innerHTML = '';
 
-  if (selectedBusinessesForUser.length === 0) {
-    box.innerHTML = `<span class="text-muted">Select businesses...</span>`;
-    return;
-  }
+      if (selectedBusinessesForUser.length === 0) {
+        box.innerHTML = `<span class="text-muted">Select businesses...</span>`;
+        return;
+      }
 
-  selectedBusinessesForUser.forEach((biz, index) => {
-    const item = document.createElement('div');
-    item.className = 'selected-item';
-    item.innerHTML = `${biz} <span class="remove-item" onclick="removeSelectedBusiness(${index}); event.stopImmediatePropagation();">×</span>`;
-    box.appendChild(item);
-  });
-}
+      selectedBusinessesForUser.forEach((biz, index) => {
+        const item = document.createElement('div');
+        item.className = 'selected-item';
+        item.innerHTML = `${biz} <span class="remove-item" onclick="removeSelectedBusiness(${index}); event.stopImmediatePropagation();">×</span>`;
+        box.appendChild(item);
+      });
+    }
 
-function removeSelectedBusiness(index) {
-  selectedBusinessesForUser.splice(index, 1);
-  renderSelectedBusinesses();
-}
+    function removeSelectedBusiness(index) {
+      selectedBusinessesForUser.splice(index, 1);
+      renderSelectedBusinesses();
+    }
 
-function addNewRole() {
-  const role = prompt("Enter new role name:");
-  if (role && role.trim()) {
-    const select = document.getElementById('role');
-    const opt = document.createElement('option');
-    opt.value = role.trim();
-    opt.textContent = role.trim();
-    select.appendChild(opt);
-    select.value = role.trim();
-  }
-}
+    function addNewRole() {
+      const role = prompt("Enter new role name:");
+      if (role && role.trim()) {
+        const select = document.getElementById('role');
+        const opt = document.createElement('option');
+        opt.value = role.trim();
+        opt.textContent = role.trim();
+        select.appendChild(opt);
+        select.value = role.trim();
+      }
+    }
 
-function createNewUser() {
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  const role = document.getElementById('role').value;
+    function createNewUser() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const role = document.getElementById('role').value;
 
-  if (!name || !email || !password || !confirmPassword) {
-    alert("Please fill all fields");
-    return;
-  }
-  if (password !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
-  }
-  if (selectedBusinessesForUser.length === 0) {
-    alert("Please assign at least one business");
-    return;
-  }
+      if (!name || !email || !password || !confirmPassword) {
+        alert("Please fill all fields");
+        return;
+      }
+      if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+      if (selectedBusinessesForUser.length === 0) {
+        alert("Please assign at least one business");
+        return;
+      }
 
-  const newUser = {
-    id: Date.now(),
-    name,
-    email,
-    role,
-    businesses: [...selectedBusinessesForUser],
-    createdDate: new Date().toISOString().split('T')[0]
-  };
+      const newUser = {
+        id: Date.now(),
+        name,
+        email,
+        role,
+        businesses: [...selectedBusinessesForUser],
+        createdDate: new Date().toISOString().split('T')[0]
+      };
 
-  users.push(newUser);
-  alert(`User "${name}" created successfully!`);
+      users.push(newUser);
+      alert(`User "${name}" created successfully!`);
 
-  document.getElementById('createUserForm').reset();
-  selectedBusinessesForUser = [];
-  renderSelectedBusinesses();
+      document.getElementById('createUserForm').reset();
+      selectedBusinessesForUser = [];
+      renderSelectedBusinesses();
 
-  showSection('users');
-  renderUsersTable();
-  updateDashboard();
-}
+      showSection('users');
+      renderUsersTable();
+      updateDashboard();
+    }
 
-function renderUsersTable() {
-  const tbody = document.querySelector('#usersTable tbody');
-  tbody.innerHTML = '';
+    function renderUsersTable() {
+      const tbody = document.querySelector('#usersTable tbody');
+      tbody.innerHTML = '';
 
-  if (users.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No users created yet</td></tr>`;
-    return;
-  }
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No users created yet</td></tr>`;
+        return;
+      }
 
-  users.forEach(user => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
       <td>${user.name}</td>
       <td>${user.email}</td>
       <td><span class="badge bg-secondary">${user.role}</span></td>
@@ -672,53 +737,54 @@ function renderUsersTable() {
       <td>${user.createdDate}</td>
       <td><button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})">Delete</button></td>
     `;
-    tbody.appendChild(tr);
-  });
-}
+        tbody.appendChild(tr);
+      });
+    }
 
-function deleteUser(id) {
-  if (confirm("Delete this user?")) {
-    users = users.filter(u => u.id !== id);
-    renderUsersTable();
-    updateDashboard();
-  }
-}
+    function deleteUser(id) {
+      if (confirm("Delete this user?")) {
+        users = users.filter(u => u.id !== id);
+        renderUsersTable();
+        updateDashboard();
+      }
+    }
 
-// ==================== COMMON FUNCTIONS ====================
-function showSection(sectionId) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById(sectionId).classList.add('active');
+    // ==================== COMMON FUNCTIONS ====================
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
 
-  // Update active nav link
-  document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-  const activeLink = document.querySelector(`.nav-link[onclick="showSection('${sectionId}')"]`);
-  if (activeLink) activeLink.classList.add('active');
+      // Update active nav link
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      const activeLink = document.querySelector(`.nav-link[onclick="showSection('${sectionId}')"]`);
+      if (activeLink) activeLink.classList.add('active');
 
-  document.getElementById('page-title').textContent = 
-    sectionId === 'dashboard' ? 'Dashboard' :
-    sectionId === 'businesses' ? 'All Businesses' :
-    sectionId === 'create-user' ? 'Create New User' : 'Manage Users';
-}
+      document.getElementById('page-title').textContent =
+        sectionId === 'dashboard' ? 'Dashboard' :
+          sectionId === 'businesses' ? 'All Businesses' :
+            sectionId === 'create-user' ? 'Create New User' : 'Manage Users';
+    }
 
-function updateDashboard() {
-  document.getElementById('total-businesses').textContent = businesses.length;
-  document.getElementById('total-users').textContent = users.length;
-}
+    function updateDashboard() {
+      document.getElementById('total-businesses').textContent = businesses.length;
+      document.getElementById('total-users').textContent = users.length;
+    }
 
-// Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  if (!document.querySelector('.multi-select-container').contains(e.target)) {
-    document.getElementById('dropdown').classList.remove('show');
-  }
-});
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!document.querySelector('.multi-select-container').contains(e.target)) {
+        document.getElementById('dropdown').classList.remove('show');
+      }
+    });
 
-// Initialize
-window.onload = () => {
-  renderBusinessTable();
-  updateDashboard();
-  showSection('businesses');
-};
-</script>
+    // Initialize
+    window.onload = () => {
+      renderBusinessTable();
+      updateDashboard();
+      showSection('businesses');
+    };
+  </script>
 
 </body>
+
 </html>

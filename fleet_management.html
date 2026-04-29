@@ -225,17 +225,51 @@
         }
 
         /* Wide View Logic */
-        .view-section.wide .form-col { display: none; }
-        .view-section.wide .table-col { width: 100%; flex: 0 0 100%; max-width: 100%; }
-        .extra-col { display: none; }
-        .view-section.wide .extra-col { display: table-cell; }
+        .view-section.wide .form-col {
+            display: none;
+        }
+
+        .view-section.wide .table-col {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .extra-col {
+            display: none;
+        }
+
+        .view-section.wide .extra-col {
+            display: table-cell;
+        }
 
         /* Reminders / Alerts */
-        .reminder-card { border-left: 4px solid #ef4444; background-color: #fef2f2; }
-        .reminder-soon { border-left-color: #f59e0b; background-color: #fffbeb; }
-        .alert-indicator { font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
-        .alert-expired { background: #fee2e2; color: #b91c1c; }
-        .alert-pending { background: #fef3c7; color: #92400e; }
+        .reminder-card {
+            border-left: 4px solid #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .reminder-soon {
+            border-left-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+
+        .alert-indicator {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .alert-expired {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .alert-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
 
         .form-label {
             font-size: 12px;
@@ -286,6 +320,10 @@
             <li><a href="fleet_management.html" class="nav-link active">
                     <i class="fas fa-truck nav-icon"></i>
                     <span class="nav-label">Fleet Management</span>
+                </a></li>
+            <li><a href="legal_compliance.html" class="nav-link">
+                    <i class="fas fa-gavel nav-icon"></i>
+                    <span class="nav-label">Legal & Compliance</span>
                 </a></li>
         </ul>
     </div>
@@ -371,7 +409,8 @@
                                         <td>2026-12-01</td>
                                         <td class="extra-col text-muted small">Standard company van</td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -392,7 +431,8 @@
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label">Select Vehicle</label>
-                                        <select class="form-select form-select-sm" id="dVehicle" onchange="updateVehicleNumber()">
+                                        <select class="form-select form-select-sm" id="dVehicle"
+                                            onchange="updateVehicleNumber()">
                                             <option value="">Select...</option>
                                             <option value="CAR 1">CAR 1</option>
                                             <option value="CAR 2">CAR 2</option>
@@ -400,7 +440,8 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Vehicle Number</label>
-                                        <input type="text" class="form-control form-control-sm" id="dVehicleNum" readonly placeholder="Auto-populated">
+                                        <input type="text" class="form-control form-control-sm" id="dVehicleNum"
+                                            readonly placeholder="Auto-populated">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Delivery Date</label>
@@ -408,15 +449,18 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Delivery Address</label>
-                                        <input type="text" class="form-control form-control-sm" id="dAddress" placeholder="123 Street, City">
+                                        <input type="text" class="form-control form-control-sm" id="dAddress"
+                                            placeholder="123 Street, City">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Delivery Place Contact Name</label>
-                                        <input type="text" class="form-control form-control-sm" id="dContactName" placeholder="e.g. John Smith">
+                                        <input type="text" class="form-control form-control-sm" id="dContactName"
+                                            placeholder="e.g. John Smith">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Delivery Place Contact</label>
-                                        <input type="tel" class="form-control form-control-sm" id="dContact" placeholder="e.g. +44 123 456 789">
+                                        <input type="tel" class="form-control form-control-sm" id="dContact"
+                                            placeholder="e.g. +44 123 456 789">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Delivery Status</label>
@@ -441,7 +485,8 @@
                     <div class="card h-100">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <span>Delivery Tracking History</span>
-                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('deliveries')">
+                            <button class="btn btn-sm btn-outline-secondary py-0"
+                                onclick="toggleWideView('deliveries')">
                                 <i class="fas fa-expand-alt me-1"></i> Wide View
                             </button>
                         </div>
@@ -462,7 +507,8 @@
                                     <tr>
                                         <td>2026-04-29</td>
                                         <td><strong>CAR 1</strong><br><small>ABC-1234</small></td>
-                                        <td>Central Warehouse, London<br><small class="text-muted">John Doe | +44 7700 900077</small></td>
+                                        <td>Central Warehouse, London<br><small class="text-muted">John Doe | +44 7700
+                                                900077</small></td>
                                         <td class="extra-col">#DEL-9982</td>
                                         <td class="extra-col text-muted">M. Ross</td>
                                         <td>Urgent delivery</td>
@@ -487,18 +533,21 @@
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label">Service Provider</label>
-                                        <input type="text" class="form-control form-control-sm" id="pProvider" placeholder="DHL, FedEx..." required>
+                                        <input type="text" class="form-control form-control-sm" id="pProvider"
+                                            placeholder="DHL, FedEx..." required>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Assigned Vehicle</label>
-                                        <select class="form-select form-select-sm" id="pVehicle" onchange="updateParcelVehicleNumber()">
+                                        <select class="form-select form-select-sm" id="pVehicle"
+                                            onchange="updateParcelVehicleNumber()">
                                             <option value="">Select...</option>
                                             <option value="CAR 1">CAR 1</option>
                                         </select>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Vehicle Number</label>
-                                        <input type="text" class="form-control form-control-sm" id="pVehicleNum" readonly placeholder="Auto-populated">
+                                        <input type="text" class="form-control form-control-sm" id="pVehicleNum"
+                                            readonly placeholder="Auto-populated">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Service Date</label>
@@ -506,15 +555,18 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Service Area / Address</label>
-                                        <input type="text" class="form-control form-control-sm" id="pAddress" placeholder="Coverage Area">
+                                        <input type="text" class="form-control form-control-sm" id="pAddress"
+                                            placeholder="Coverage Area">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Contact Name</label>
-                                        <input type="text" class="form-control form-control-sm" id="pContactName" placeholder="Partner Contact">
+                                        <input type="text" class="form-control form-control-sm" id="pContactName"
+                                            placeholder="Partner Contact">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Contact Number</label>
-                                        <input type="tel" class="form-control form-control-sm" id="pContact" placeholder="Partner Phone">
+                                        <input type="tel" class="form-control form-control-sm" id="pContact"
+                                            placeholder="Partner Phone">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Agreement Status</label>
@@ -559,7 +611,8 @@
                                     <tr>
                                         <td><strong>DHL Express</strong></td>
                                         <td><strong>CAR 1</strong><br><small>ABC-1234</small></td>
-                                        <td>City Central Area<br><small class="text-muted">Sarah Jones | +44 20 7946 0001</small></td>
+                                        <td>City Central Area<br><small class="text-muted">Sarah Jones | +44 20 7946
+                                                0001</small></td>
                                         <td class="extra-col">TBD</td>
                                         <td>Daily pickup</td>
                                         <td><span class="status-badge bg-active">Active</span></td>
@@ -684,7 +737,7 @@
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
             </tr>`;
             document.getElementById('vTable').insertAdjacentHTML('afterbegin', row);
-            
+
             // Add to select dropdowns
             vehicleData[name] = num;
             const selects = ['dVehicle', 'pVehicle'];
