@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Management - Business Central</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 70px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      z-index: 100;
+      transition: width 0.3s ease;
+      overflow: hidden;
+    }
+    .sidebar:hover { width: 240px; }
+
+    .sidebar-brand {
+      padding: 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      min-height: 70px;
+    }
+    .sidebar-brand-icon {
+      font-size: 20px;
+      min-width: 38px;
+      text-align: center;
+      color: #ecf0f1;
+    }
+    .sidebar-brand-text { opacity: 0; transition: opacity 0.3s ease; }
+    .sidebar:hover .sidebar-brand-text { opacity: 1; }
+    .sidebar-brand-text h5 {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .sidebar-brand-text small {
+      font-size: 11px;
+      color: rgba(236,240,241,0.7);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .sidebar-nav-list {
+      flex: 1;
+      padding: 16px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      list-style: none;
+      margin: 0;
+    }
+
+    .nav-link {
+      color: #bdc3c7;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 8px;
+      margin: 3px 10px;
+      white-space: nowrap;
+      transition: background-color 0.2s, color 0.2s;
+      text-decoration: none;
+    }
+    .nav-link:hover, .nav-link.active {
+      background-color: #34495e;
+      color: white;
+    }
+    .nav-link .nav-icon {
+      font-size: 16px;
+      min-width: 18px;
+      text-align: center;
+    }
+    .nav-link .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar:hover .nav-link .nav-label { opacity: 1; }
+
+    /* Main content offset */
+    .main-wrapper {
+      margin-left: 70px;
+      transition: margin-left 0.3s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background-color: white;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 12px 25px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Tabs */
+    #supplierTabs .nav-link {
+      color: #555;
+      font-size: 13.5px;
+      padding: 8px 16px;
+      border-radius: 6px 6px 0 0;
+    }
+    #supplierTabs .nav-link.active {
+      color: #2c3e50;
+      font-weight: 600;
+      background: white;
+      border-color: #dee2e6 #dee2e6 white;
+    }
+
+    /* KPI Pills */
+    .filter-bar {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+    }
+    .kpi-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: white;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+    .kpi-pill .kpi-pill-label { opacity: 0.85; font-weight: 400; }
+    .kpi-pill strong { font-weight: 700; }
+
+    /* Tables */
+    table th {
+      background-color: #f8f9fa;
+      font-weight: 500;
+      color: #555;
+      font-size: 13px;
+    }
+    table td { font-size: 13.5px; vertical-align: middle; }
+
+    .btn-minimal {
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+    .btn-minimal:hover { background-color: #34495e; color: white; }
+
+    /* Status Badges */
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-paid { background: #d1e7dd; color: #0f5132; }
+    .status-pending { background: #fff3cd; color: #664d03; }
+    .status-overdue { background: #f8d7da; color: #842029; }
+
+    /* Document Upload */
+    .document-upload-area {
+      border: 2px dashed #c8d0d8;
+      border-radius: 8px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafbfc;
+    }
+    .document-upload-area:hover, .document-upload-area.dragover {
+      border-color: #2c3e50;
+      background: #f0f3f6;
+    }
+    .doc-preview-box {
+      display: flex;
+      align-items: center;
+      background: #f0f4f8;
+      border: 1px solid #d0dae4;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+    <div class="sidebar-brand-text">
+      <h5>Business Central</h5>
+      <small>Suppliers Module</small>
+    </div>
+  </div>
+
+    <li><a href="superadmin.html" class="nav-link">
+      <i class="fas fa-shield-alt nav-icon"></i>
+      <span class="nav-label">Admin Panel</span>
+    </a></li>
+    <li><a href="supplier.html" class="nav-link active">
+      <i class="fas fa-truck-loading nav-icon"></i>
+      <span class="nav-label">Suppliers</span>
+    </a></li>
+    <li><a href="accounting.html" class="nav-link">
+      <i class="fas fa-file-invoice-dollar nav-icon"></i>
+      <span class="nav-label">Accounting</span>
+    </a></li>
+    <li><a href="fleet_management.html" class="nav-link">
+      <i class="fas fa-truck nav-icon"></i>
+      <span class="nav-label">Fleet Management</span>
+    </a></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-wrapper">
+  <div class="topbar d-flex justify-content-between align-items-center">
+    <h5 class="mb-0 fw-medium">Supplier Management</h5>
+    <button class="btn btn-minimal btn" onclick="openAddSupplier()">
+      <i class="fas fa-plus me-2"></i>Add Supplier
+    </button>
+  </div>
+
+  <div id="main-content" class="p-4">
+    <!-- Supplier Directory View -->
+    <div id="tab-directory" class="tab-content-item">
+      <div class="filter-bar d-flex flex-wrap gap-2 align-items-center">
+        <input type="text" id="searchInput" class="form-control" style="max-width:200px; font-size:13px" placeholder="Search suppliers..." onkeyup="filterSuppliers()">
+        <select id="statusFilter" class="form-select" style="max-width:150px; font-size:13px" onchange="filterSuppliers()">
+          <option value="All">All Statuses</option>
+          <option value="Paid">Paid</option>
+          <option value="Pending">Pending</option>
+          <option value="Overdue">Overdue</option>
+        </select>
+        <span class="text-muted ms-2" style="font-size:13px"><span id="record-count">0</span> records</span>
+
+        <div class="ms-auto d-flex gap-2 flex-wrap">
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">
+            <span class="kpi-pill-label">Active</span>
+            <strong id="kpi-active">0</strong>
+          </div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#d35400,#e67e22)">
+            <span class="kpi-pill-label">Pending</span>
+            <strong id="kpi-pending">0</strong>
+          </div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#c0392b,#e74c3c)">
+            <span class="kpi-pill-label">Overdue</span>
+            <strong id="kpi-overdue">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0" id="suppliersTable">
+              <thead>
+                <tr>
+                  <th class="ps-3">Name / ID</th>
+                  <th>Contact Person</th>
+                  <th>Phone / Email</th>
+                  <th>Payment</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th class="text-end pe-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Supplier Modal (Add/Edit) -->
+<div class="modal fade" id="supplierModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #2c3e50; color: white;">
+        <h5 class="modal-title" id="modalTitle" style="font-size: 16px;">Add New Supplier</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="supplierForm">
+          <input type="hidden" id="supplierIdx">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Supplier Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="f-supplier_name" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Supplier ID <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="f-supplier_id" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Company ID</label>
+              <input type="text" class="form-control" id="f-company_id">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Contact Person</label>
+              <input type="text" class="form-control" id="f-contact_person">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-control" id="f-phone">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="f-email">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address</label>
+              <input type="text" class="form-control" id="f-address">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Payment Status</label>
+              <select class="form-select" id="f-payment_status">
+                <option value="Paid">Paid</option>
+                <option value="Pending">Pending</option>
+                <option value="Overdue">Overdue</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Due Date</label>
+              <input type="date" class="form-control" id="f-due_date">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">System Status</label>
+              <select class="form-select" id="f-status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Notes</label>
+              <textarea class="form-control" id="f-notes" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Upload Document</label>
+              <div class="document-upload-area" id="doc-upload-area" onclick="document.getElementById('f-document-file').click()">
+                <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-muted"></i>
+                <div class="doc-upload-text">Click to upload or drag & drop</div>
+                <div class="text-muted small">PDF, JPG, PNG, DOCX (max 10MB)</div>
+              </div>
+              <input type="file" id="f-document-file" style="display:none" onchange="handleDocUpload(this)">
+              <div id="doc-preview" style="display:none" class="doc-preview-box mt-2">
+                <i class="fas fa-paperclip me-2"></i>
+                <span id="doc-filename" class="text-truncate"></span>
+                <button type="button" class="btn btn-sm btn-link text-danger ms-auto p-0" onclick="clearDocUpload()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <input type="hidden" id="f-document">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-minimal" onclick="saveSupplier()">Save Supplier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let suppliers = JSON.parse(localStorage.getItem('erp_suppliers')) || [
+  { id: 1, supplier_name: 'Apex Solutions', supplier_id: 'SUP-001', contact_person: 'John Doe', phone: '0712345678', email: 'john@apex.com', payment_status: 'Paid', due_date: '2026-05-10', status: 'Active', document: '' },
+  { id: 2, supplier_name: 'Global Logistics', supplier_id: 'SUP-002', contact_person: 'Sarah Smith', phone: '0798765432', email: 'sarah@global.com', payment_status: 'Pending', due_date: '2026-04-30', status: 'Active', document: '' }
+];
+
+const modal = new bootstrap.Modal(document.getElementById('supplierModal'));
+
+// ── Tab Switcher removed as only one view remains ──
+function switchTab(tabId) {
+  // Logic removed
+}
+
+// ── Render ──
+function renderSuppliers(data = suppliers) {
+  const tbody = document.querySelector('#suppliersTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  data.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="ps-3"><strong>${s.supplier_name}</strong><br><small class="text-muted">${s.supplier_id}</small></td>
+      <td>${s.contact_person || '—'}</td>
+      <td>${s.phone || '—'}<br><small class="text-muted">${s.email || ''}</small></td>
+      <td><span class="badge-status status-${s.payment_status.toLowerCase()}">${s.payment_status}</span></td>
+      <td>${s.due_date || '—'}</td>
+      <td><span class="badge bg-light text-dark border">${s.status}</span></td>
+      <td class="text-end pe-3">
+        ${s.document ? `<button class="btn btn-sm btn-outline-info me-1" onclick="alert('Viewing: ${s.document}')" title="View Document"><i class="fas fa-file-alt"></i></button>` : ''}
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="editSupplier(${s.id})" title="Edit"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  updateStats();
+  const recordCountEl = document.getElementById('record-count');
+  if (recordCountEl) recordCountEl.textContent = data.length;
+}
+
+function updateStats() {
+  const stats = {
+    pending: suppliers.filter(s => s.payment_status === 'Pending').length,
+    overdue: suppliers.filter(s => s.payment_status === 'Overdue').length,
+    active: suppliers.filter(s => s.status === 'Active').length
+  };
+
+  const kpiMap = {
+    'kpi-active': stats.active,
+    'kpi-pending': stats.pending,
+    'kpi-overdue': stats.overdue
+  };
+
+  Object.keys(kpiMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = kpiMap[id];
+  });
+}
+
+function filterSuppliers() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const s = document.getElementById('statusFilter').value;
+  const filtered = suppliers.filter(item => (item.supplier_name.toLowerCase().includes(q) || item.supplier_id.toLowerCase().includes(q)) && (s === 'All' || item.payment_status === s));
+  renderSuppliers(filtered);
+}
+
+// ── CRUD ──
+function openAddSupplier() {
+  document.getElementById('modalTitle').textContent = "Add New Supplier";
+  document.getElementById('supplierIdx').value = "";
+  document.getElementById('supplierForm').reset();
+  clearDocUpload();
+  modal.show();
+}
+
+function editSupplier(id) {
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('modalTitle').textContent = "Edit Supplier";
+  document.getElementById('supplierIdx').value = s.id;
+  document.getElementById('f-supplier_name').value = s.supplier_name;
+  document.getElementById('f-supplier_id').value = s.supplier_id;
+  document.getElementById('f-payment_status').value = s.payment_status;
+  document.getElementById('f-due_date').value = s.due_date;
+  document.getElementById('f-status').value = s.status;
+  if (s.document) {
+    document.getElementById('f-document').value = s.document;
+    document.getElementById('doc-filename').textContent = s.document;
+    document.getElementById('doc-preview').style.display = 'flex';
+    document.getElementById('doc-upload-area').style.display = 'none';
+  } else { clearDocUpload(); }
+  modal.show();
+}
+
+function saveSupplier() {
+  const id = document.getElementById('supplierIdx').value;
+  const data = {
+    supplier_name: document.getElementById('f-supplier_name').value,
+    supplier_id: document.getElementById('f-supplier_id').value,
+    payment_status: document.getElementById('f-payment_status').value,
+    due_date: document.getElementById('f-due_date').value,
+    status: document.getElementById('f-status').value,
+    document: document.getElementById('f-document').value
+  };
+  if (id) {
+    const idx = suppliers.findIndex(x => x.id == id);
+    suppliers[idx] = { ...suppliers[idx], ...data };
+  } else {
+    suppliers.unshift({ id: Date.now(), ...data });
+  }
+  localStorage.setItem('erp_suppliers', JSON.stringify(suppliers));
+  renderSuppliers();
+  modal.hide();
+}
+
+function deleteSupplier(id) {
+  if (confirm("Delete?")) {
+    suppliers = suppliers.filter(x => x.id !== id);
+    localStorage.setItem('erp_suppliers', JSON.stringify(suppliers));
+    renderSuppliers();
+  }
+}
+
+function handleDocUpload(i) {
+  if (i.files[0]) {
+    document.getElementById('f-document').value = i.files[0].name;
+    document.getElementById('doc-filename').textContent = i.files[0].name;
+    document.getElementById('doc-preview').style.display = 'flex';
+    document.getElementById('doc-upload-area').style.display = 'none';
+  }
+}
+
+function clearDocUpload() {
+  document.getElementById('f-document-file').value = "";
+  document.getElementById('f-document').value = "";
+  document.getElementById('doc-preview').style.display = 'none';
+  document.getElementById('doc-upload-area').style.display = 'block';
+}
+
+window.onload = () => { renderSuppliers(); };
+</script>
+</body>
+</html>
