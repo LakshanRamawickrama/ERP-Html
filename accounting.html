@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounting Module - Business Central</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 70px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      z-index: 100;
+      transition: width 0.3s ease;
+      overflow: hidden;
+    }
+    .sidebar:hover { width: 240px; }
+
+    .sidebar-brand {
+      padding: 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      min-height: 70px;
+    }
+    .sidebar-brand-icon {
+      font-size: 20px;
+      min-width: 38px;
+      text-align: center;
+      color: #ecf0f1;
+    }
+    .sidebar-brand-text { opacity: 0; transition: opacity 0.3s ease; }
+    .sidebar:hover .sidebar-brand-text { opacity: 1; }
+    .sidebar-brand-text h5 {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .sidebar-brand-text small {
+      font-size: 11px;
+      color: rgba(236,240,241,0.7);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .sidebar-nav-list {
+      flex: 1;
+      padding: 16px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      list-style: none;
+      margin: 0;
+    }
+    .sidebar-nav-list::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+    .nav-link {
+      color: #bdc3c7;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 8px;
+      margin: 3px 10px;
+      white-space: nowrap;
+      transition: background-color 0.2s, color 0.2s;
+      text-decoration: none;
+    }
+    .nav-link:hover, .nav-link.active {
+      background-color: #34495e;
+      color: white;
+    }
+    .nav-link .nav-icon {
+      font-size: 16px;
+      min-width: 18px;
+      text-align: center;
+    }
+    .nav-link .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar:hover .nav-link .nav-label { opacity: 1; }
+
+    .nav-section-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.3);
+      padding: 10px 18px 4px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar:hover .nav-section-title { opacity: 1; }
+
+    /* Main content */
+    .main-wrapper {
+      margin-left: 70px;
+      transition: margin-left 0.3s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background-color: white;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 12px 25px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Stat Cards */
+    .stat-card {
+      border-radius: 10px;
+      padding: 22px 20px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    .stat-card .stat-icon {
+      font-size: 28px;
+      opacity: 0.85;
+    }
+    .stat-card .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 6px 0 2px;
+    }
+    .stat-card .stat-label {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .stat-card.income  { background: linear-gradient(135deg,#27ae60,#2ecc71); }
+    .stat-card.expense { background: linear-gradient(135deg,#c0392b,#e74c3c); }
+    .stat-card.pending { background: linear-gradient(135deg,#d35400,#e67e22); }
+    .stat-card.total   { background: linear-gradient(135deg,#2c3e50,#34495e); }
+
+    /* Table */
+    table th {
+      background-color: #f8f9fa;
+      font-weight: 500;
+      color: #555;
+      font-size: 13px;
+    }
+    table td { font-size: 13.5px; vertical-align: middle; }
+
+    .btn-minimal {
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+    .btn-minimal:hover { background-color: #34495e; color: white; }
+
+    .form-label { font-size: 13.5px; margin-bottom: 5px; }
+    .form-control, .form-select { font-size: 14px; }
+
+    /* Badge styles */
+    .badge-income  { background:#d4edda; color:#155724; }
+    .badge-expense { background:#f8d7da; color:#721c24; }
+    .badge-paid    { background:#d4edda; color:#155724; }
+    .badge-pending { background:#fff3cd; color:#856404; }
+    .badge-overdue { background:#f8d7da; color:#721c24; }
+
+    .category-badge, .status-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+    }
+
+    /* Modal tweaks */
+    .modal-header { background: #2c3e50; color: white; }
+    .modal-header .btn-close { filter: invert(1); }
+    .modal-title { font-size: 16px; }
+
+    /* Due reminder badge */
+    .due-soon { color: #d35400; font-weight: 600; font-size: 12px; }
+    .overdue  { color: #c0392b; font-weight: 600; font-size: 12px; }
+
+    /* Chart bar visual */
+    .mini-bar { height: 6px; border-radius: 3px; background:#e0e0e0; }
+    .mini-bar-fill { height: 100%; border-radius: 3px; }
+
+    /* Reminder section */
+    .reminder-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .reminder-item:last-child { border-bottom: none; }
+    .reminder-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: #aaa;
+    }
+    .empty-state i { font-size: 40px; margin-bottom: 12px; display: block; }
+
+    /* Document upload */
+    .document-upload-area {
+      border: 2px dashed #c8d0d8;
+      border-radius: 8px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #fafbfc;
+    }
+    .document-upload-area:hover,
+    .document-upload-area.dragover {
+      border-color: #2c3e50;
+      background: #f0f3f6;
+    }
+    .doc-upload-icon {
+      font-size: 28px;
+      color: #aab4be;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .doc-upload-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+    }
+    .doc-upload-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+    .doc-preview-box {
+      display: flex;
+      align-items: center;
+      background: #f0f4f8;
+      border: 1px solid #d0dae4;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13.5px;
+    }
+    /* KPI pills inside filter bar */
+    .kpi-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: white;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+    .kpi-pill .kpi-pill-label {
+      opacity: 0.85;
+      font-weight: 400;
+    }
+    .kpi-pill strong {
+      font-weight: 700;
+    }
+
+    /* Records tab summary cards */
+    .rec-summary-card {
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .rec-summary-card::after {
+      content: '';
+      position: absolute;
+      right: -12px;
+      bottom: -12px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    .rec-sum-label { font-size: 11.5px; opacity: 0.88; margin-bottom: 4px; }
+    .rec-sum-value { font-size: 18px; font-weight: 700; }
+
+    .dash-tab { animation: fadeIn 0.15s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+    #dashTabs .nav-link {
+      color: #555;
+      font-size: 13.5px;
+      padding: 8px 16px;
+      border-radius: 6px 6px 0 0;
+    }
+    #dashTabs .nav-link.active {
+      color: #2c3e50;
+      font-weight: 600;
+      background: white;
+      border-color: #dee2e6 #dee2e6 white;
+    }
+    #dashTabs .nav-link:hover:not(.active) { background: #f0f0f0; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+    <div class="sidebar-brand-text">
+      <h5>Business Central</h5>
+      <small>Accounting Module</small>
+    </div>
+  </div>
+
+  <ul class="sidebar-nav-list">
+    <li class="nav-section-title">Main</li>
+    <li><a href="#" class="nav-link active" onclick="showSection('dashboard')">
+      <i class="fas fa-tachometer-alt nav-icon"></i>
+      <span class="nav-label">Dashboard</span>
+    </a></li>
+  </ul>
+</div>
+
+<!-- ══════════════ MAIN WRAPPER ══════════════ -->
+<div class="main-wrapper">
+  <div class="flex-grow-1">
+
+    <!-- Topbar -->
+    <div class="topbar d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-medium">Accounting Dashboard</h5>
+      <button class="btn-minimal btn" onclick="openAddModal()">
+        <i class="fas fa-plus me-2"></i>Add Record
+      </button>
+    </div>
+
+    <!-- ══════════════ DASHBOARD (single page with all tabs) ══════════════ -->
+    <div id="dashboard" class="section active p-4">
+
+      <!-- ── Inner Tabs ── -->
+      <ul class="nav nav-tabs mb-3" id="dashTabs">
+        <li class="nav-item">
+          <a class="nav-link active" href="#" onclick="switchTab('tab-records')" id="tab-records-link">
+            <i class="fas fa-receipt me-1"></i>All Records
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="switchTab('tab-reminders')" id="tab-reminders-link">
+            <i class="fas fa-bell me-1"></i>Reminders
+          </a>
+        </li>
+      </ul>
+
+      <!-- ── TAB: All Records ── -->
+      <div id="tab-records" class="dash-tab">
+
+        <!-- Filter bar with inline KPI stats -->
+        <div class="filter-bar d-flex flex-wrap gap-2 align-items-center mb-3">
+          <input type="text" id="searchInput" class="form-control" style="max-width:200px;font-size:13px" placeholder="Search records...">
+          <select id="filterCategory" class="form-select" style="max-width:140px;font-size:13px" onchange="renderTable()">
+            <option value="">All Categories</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+          </select>
+          <select id="filterStatus" class="form-select" style="max-width:150px;font-size:13px" onchange="renderTable()">
+            <option value="">All Statuses</option>
+            <option value="Paid">Paid</option>
+            <option value="Pending">Pending</option>
+            <option value="Overdue">Overdue</option>
+          </select>
+          <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()"><i class="fas fa-rotate-left me-1"></i>Reset</button>
+          <span class="text-muted" style="font-size:13px"><span id="record-count">0</span> records</span>
+
+          <!-- KPI pills pushed to the right -->
+          <div class="ms-auto d-flex gap-2 flex-wrap">
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">
+              <i class="fas fa-arrow-down"></i>
+              <span class="kpi-pill-label">Income</span>
+              <strong id="rs-income">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#c0392b,#e74c3c)">
+              <i class="fas fa-arrow-up"></i>
+              <span class="kpi-pill-label">Expenses</span>
+              <strong id="rs-expense">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#d35400,#e67e22)">
+              <i class="fas fa-clock"></i>
+              <span class="kpi-pill-label">Pending</span>
+              <strong id="rs-pending">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#2c3e50,#34495e)">
+              <i class="fas fa-wallet"></i>
+              <span class="kpi-pill-label">Net</span>
+              <strong id="rs-net">$0.00</strong>
+            </div>
+            <div class="kpi-pill" style="background:linear-gradient(135deg,#6c3483,#8e44ad)">
+              <i class="fas fa-triangle-exclamation"></i>
+              <span class="kpi-pill-label">Overdue</span>
+              <strong id="rs-overdue">0</strong>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr>
+                  <th class="ps-3">#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Payment Status</th>
+                  <th>Payment Method</th>
+                  <th>Due Date</th>
+                  <th>Reminder</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr></thead>
+                <tbody id="records-tbody">
+                  <tr><td colspan="10" class="text-center py-5 text-muted">
+                    <i class="fas fa-receipt d-block mb-2" style="font-size:28px;opacity:.4"></i>
+                    No accounting records yet. Click <strong>Add Record</strong> to get started.
+                  </td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: Reminders ── -->
+      <div id="tab-reminders" class="dash-tab" style="display:none">
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header bg-white py-3">
+                <h6 class="mb-0 text-danger"><i class="fas fa-triangle-exclamation me-2"></i>Overdue Payments</h6>
+              </div>
+              <div class="card-body" id="overdue-list">
+                <div class="empty-state"><i class="fas fa-check-circle text-success"></i>No overdue payments</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header bg-white py-3">
+                <h6 class="mb-0 text-warning"><i class="fas fa-bell me-2"></i>Due Soon (Next 7 Days)</h6>
+              </div>
+              <div class="card-body" id="dueSoon-list">
+                <div class="empty-state"><i class="fas fa-calendar-check"></i>No upcoming dues</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+  </div><!-- /flex-grow-1 -->
+</div><!-- /main-wrapper -->
+
+
+<!-- ══════════════ ADD / EDIT MODAL ══════════════ -->
+<div class="modal fade" id="recordModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Add Accounting Record</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="rec-id">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Company ID <span class="text-danger">*</span></label>
+            <input type="text" id="rec-company" class="form-control" placeholder="e.g. COMP-001">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Title <span class="text-danger">*</span></label>
+            <input type="text" id="rec-title" class="form-control" placeholder="Record title">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Category <span class="text-danger">*</span></label>
+            <select id="rec-category" class="form-select">
+              <option value="">Select category</option>
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" id="rec-amount" class="form-control" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Payment Status <span class="text-danger">*</span></label>
+            <select id="rec-payment-status" class="form-select">
+              <option value="">Select status</option>
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
+              <option value="Overdue">Overdue</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Payment Method</label>
+            <select id="rec-payment-method" class="form-select">
+              <option value="">Select method</option>
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Cheque">Cheque</option>
+              <option value="Online Payment">Online Payment</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Due Date</label>
+            <input type="date" id="rec-due-date" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Reminder Date</label>
+            <input type="date" id="rec-reminder-date" class="form-control">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Notes</label>
+            <textarea id="rec-notes" class="form-control" rows="3" placeholder="Additional notes..."></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Document Upload</label>
+            <div class="document-upload-area" id="doc-upload-area" onclick="document.getElementById('rec-document-file').click()">
+              <i class="fas fa-cloud-upload-alt doc-upload-icon"></i>
+              <div class="doc-upload-text">Click to upload or drag & drop</div>
+              <div class="doc-upload-hint">PDF, DOC, DOCX, XLS, XLSX, PNG, JPG (max 10MB)</div>
+            </div>
+            <input type="file" id="rec-document-file" style="display:none"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.txt"
+              onchange="handleDocUpload(this)">
+            <div id="doc-preview" style="display:none" class="doc-preview-box mt-2">
+              <i class="fas fa-paperclip me-2 text-muted"></i>
+              <span id="doc-filename" class="text-truncate"></span>
+              <span id="doc-filesize" class="text-muted ms-2" style="font-size:12px"></span>
+              <button type="button" class="btn btn-sm btn-link text-danger ms-auto p-0" onclick="clearDocUpload()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <!-- hidden field keeps the name for saving -->
+            <input type="hidden" id="rec-document">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-minimal btn" onclick="saveRecord()">
+          <i class="fas fa-save me-2"></i>Save Record
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-file-invoice me-2"></i>Record Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="view-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ══════════════ DATA STORE ══════════════
+let records = [];
+let editingId = null;
+
+// ══════════════ NAVIGATION ══════════════
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const link = document.querySelector(`.nav-link[onclick="showSection('${id}')"]`);
+  if (link) link.classList.add('active');
+  renderDashboard();
+}
+
+// ── Inner tab switcher ──
+function switchTab(tabId) {
+  document.querySelectorAll('.dash-tab').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('#dashTabs .nav-link').forEach(l => l.classList.remove('active'));
+  const tab = document.getElementById(tabId);
+  if (tab) tab.style.display = 'block';
+  const link = document.getElementById(tabId + '-link');
+  if (link) link.classList.add('active');
+
+  if (tabId === 'tab-records')    renderTable();
+  if (tabId === 'tab-reminders')  renderReminders();
+  return false;
+}
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add Accounting Record';
+  document.getElementById('recordForm') && document.getElementById('recordForm').reset();
+  ['rec-id','rec-company','rec-title','rec-category','rec-amount',
+   'rec-payment-status','rec-payment-method','rec-due-date',
+   'rec-reminder-date','rec-notes','rec-document'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  clearDocUpload();
+  new bootstrap.Modal(document.getElementById('recordModal')).show();
+}
+
+function openEditModal(id) {
+  const rec = records.find(r => r.id === id);
+  if (!rec) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Accounting Record';
+  document.getElementById('rec-id').value              = rec.id;
+  document.getElementById('rec-company').value         = rec.company_id;
+  document.getElementById('rec-title').value           = rec.title;
+  document.getElementById('rec-category').value        = rec.category;
+  document.getElementById('rec-amount').value          = rec.amount;
+  document.getElementById('rec-payment-status').value  = rec.payment_status;
+  document.getElementById('rec-payment-method').value  = rec.payment_method;
+  document.getElementById('rec-due-date').value        = rec.due_date;
+  document.getElementById('rec-reminder-date').value   = rec.reminder_date;
+  document.getElementById('rec-notes').value           = rec.notes;
+  document.getElementById('rec-document').value        = rec.document;
+  // Restore document preview if record has one
+  if (rec.document) {
+    document.getElementById('doc-filename').textContent = rec.document;
+    document.getElementById('doc-filesize').textContent = '';
+    document.getElementById('doc-preview').style.display = 'flex';
+    document.getElementById('doc-upload-area').style.display = 'none';
+  } else {
+    clearDocUpload();
+  }
+  new bootstrap.Modal(document.getElementById('recordModal')).show();
+}
+
+function saveRecord() {
+  const company_id      = document.getElementById('rec-company').value.trim();
+  const title           = document.getElementById('rec-title').value.trim();
+  const category        = document.getElementById('rec-category').value;
+  const amount          = parseFloat(document.getElementById('rec-amount').value);
+  const payment_status  = document.getElementById('rec-payment-status').value;
+  const payment_method  = document.getElementById('rec-payment-method').value;
+  const due_date        = document.getElementById('rec-due-date').value;
+  const reminder_date   = document.getElementById('rec-reminder-date').value;
+  const notes           = document.getElementById('rec-notes').value.trim();
+  const document_ref    = document.getElementById('rec-document').value.trim();
+
+  if (!company_id || !title || !category || isNaN(amount) || !payment_status) {
+    alert('Please fill all required fields (Company ID, Title, Category, Amount, Payment Status).');
+    return;
+  }
+
+  const now = new Date().toISOString();
+
+  if (editingId) {
+    const idx = records.findIndex(r => r.id === editingId);
+    records[idx] = { ...records[idx], company_id, title, category, amount, payment_status,
+      payment_method, due_date, reminder_date, notes, document: document_ref, updated_at: now };
+  } else {
+    records.push({
+      id: Date.now(), company_id, title, category, amount, payment_status,
+      payment_method, due_date, reminder_date, notes, document: document_ref,
+      created_at: now, updated_at: now
+    });
+  }
+
+  bootstrap.Modal.getInstance(document.getElementById('recordModal')).hide();
+  refreshAll();
+  alert(`Record "${title}" ${editingId ? 'updated' : 'added'} successfully!`);
+}
+
+function deleteRecord(id) {
+  const rec = records.find(r => r.id === id);
+  if (!rec) return;
+  if (confirm(`Delete "${rec.title}"?`)) {
+    records = records.filter(r => r.id !== id);
+    refreshAll();
+  }
+}
+
+function viewRecord(id) {
+  const rec = records.find(r => r.id === id);
+  if (!rec) return;
+  const catBadge = categoryBadge(rec.category);
+  const stBadge  = statusBadge(rec.payment_status);
+  document.getElementById('view-body').innerHTML = `
+    <div class="row g-3">
+      <div class="col-md-6"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Company ID</small><strong>${esc(rec.company_id)}</strong>
+      </div></div>
+      <div class="col-md-6"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Title</small><strong>${esc(rec.title)}</strong>
+      </div></div>
+      <div class="col-md-4"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Category</small>${catBadge}
+      </div></div>
+      <div class="col-md-4"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Amount</small><strong class="fs-5">${fmtAmt(rec.amount)}</strong>
+      </div></div>
+      <div class="col-md-4"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Payment Status</small>${stBadge}
+      </div></div>
+      <div class="col-md-4"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Payment Method</small>${esc(rec.payment_method)||'—'}
+      </div></div>
+      <div class="col-md-4"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Due Date</small>${fmtDate(rec.due_date)}
+      </div></div>
+      <div class="col-md-4"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Reminder Date</small>${fmtDate(rec.reminder_date)}
+      </div></div>
+      <div class="col-12"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Notes</small>${esc(rec.notes)||'—'}
+      </div></div>
+      <div class="col-md-6"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Document</small>
+        ${rec.document ? `<i class="fas fa-paperclip me-1"></i>${esc(rec.document)}` : '—'}
+      </div></div>
+      <div class="col-md-6"><div class="card p-3">
+        <small class="text-muted d-block mb-1">Created At</small>${fmtDatetime(rec.created_at)}
+      </div></div>
+    </div>
+  `;
+  new bootstrap.Modal(document.getElementById('viewModal')).show();
+}
+
+// ══════════════ RENDER FUNCTIONS ══════════════
+function renderTable() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const catF   = document.getElementById('filterCategory').value;
+  const stF    = document.getElementById('filterStatus').value;
+
+  let filtered = records.filter(r => {
+    const matchSearch = !search ||
+      r.title.toLowerCase().includes(search) ||
+      r.company_id.toLowerCase().includes(search) ||
+      (r.notes||'').toLowerCase().includes(search);
+    const matchCat = !catF || r.category === catF;
+    const matchSt  = !stF  || r.payment_status === stF;
+    return matchSearch && matchCat && matchSt;
+  });
+
+  // Update summary cards
+  const totalIncome  = records.filter(r=>r.category==='Income').reduce((s,r)=>s+r.amount,0);
+  const totalExpense = records.filter(r=>r.category==='Expense').reduce((s,r)=>s+r.amount,0);
+  const totalPending = records.filter(r=>r.payment_status==='Pending'||r.payment_status==='Overdue').reduce((s,r)=>s+r.amount,0);
+  const net          = totalIncome - totalExpense;
+  const overdueCount = records.filter(r=>r.payment_status==='Overdue').length;
+  document.getElementById('rs-income').textContent  = fmtAmt(totalIncome);
+  document.getElementById('rs-expense').textContent = fmtAmt(totalExpense);
+  document.getElementById('rs-pending').textContent = fmtAmt(totalPending);
+  document.getElementById('rs-net').textContent     = fmtAmt(net);
+  document.getElementById('rs-overdue').textContent = overdueCount;
+
+  const tbody = document.getElementById('records-tbody');
+  document.getElementById('record-count').textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-muted">
+      <i class="fas fa-search d-block mb-2" style="font-size:24px;opacity:.4"></i>No records match your filters
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((r, i) => `
+    <tr>
+      <td class="ps-3 text-muted">${i + 1}</td>
+      <td><strong>${esc(r.title)}</strong><br><small class="text-muted">${esc(r.company_id)}</small></td>
+      <td>${categoryBadge(r.category)}</td>
+      <td><strong>${fmtAmt(r.amount)}</strong></td>
+      <td>${statusBadge(r.payment_status)}</td>
+      <td>${r.payment_method ? `<span class="text-muted">${esc(r.payment_method)}</span>` : '—'}</td>
+      <td>${dueDateDisplay(r.due_date, r.payment_status)}</td>
+      <td>${r.reminder_date ? `<span class="text-muted" style="font-size:12px">${r.reminder_date}</span>` : '—'}</td>
+      <td style="max-width:140px"><span class="text-truncate d-block" style="font-size:12px;color:#666" title="${esc(r.notes||'')}">${esc(r.notes||'')|| '—'}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="viewRecord(${r.id})" title="View"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${r.id})" title="Edit"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord(${r.id})" title="Delete"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateSummaryBadges() {
+  // KPI pills are updated inside renderTable() — nothing extra needed here
+}
+
+function renderCategoryTable(type) {
+  // Income/Expense tabs removed — no-op
+}
+
+function renderDashboard() {
+  // Dashboard no longer has its own stat cards — renderTable() handles the KPI pills
+}
+
+
+function renderReminders() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const in7   = new Date(today); in7.setDate(in7.getDate()+7);
+
+  const overdue  = records.filter(r => r.payment_status === 'Overdue' ||
+    (r.due_date && new Date(r.due_date) < today && r.payment_status !== 'Paid'));
+  const dueSoon  = records.filter(r => {
+    if (!r.due_date || r.payment_status === 'Paid' || r.payment_status === 'Overdue') return false;
+    const d = new Date(r.due_date);
+    return d >= today && d <= in7;
+  });
+
+  const renderList = (items, containerId, emptyMsg) => {
+    const el = document.getElementById(containerId);
+    if (items.length === 0) {
+      el.innerHTML = `<div class="empty-state" style="padding:30px 0"><i class="fas fa-check-circle text-success" style="font-size:28px"></i><div style="margin-top:8px;font-size:13px">${emptyMsg}</div></div>`;
+      return;
+    }
+    el.innerHTML = items.map(r=>`
+      <div class="reminder-item">
+        <div class="reminder-dot" style="background:${r.category==='Income'?'#27ae60':'#e74c3c'}"></div>
+        <div class="flex-grow-1">
+          <div style="font-size:13.5px;font-weight:500">${esc(r.title)}</div>
+          <div style="font-size:12px;color:#888">${r.company_id} · ${fmtAmt(r.amount)}</div>
+        </div>
+        <div class="text-end">
+          ${statusBadge(r.payment_status)}
+          <div style="font-size:11px;color:#999;margin-top:2px">${fmtDate(r.due_date)}</div>
+        </div>
+      </div>
+    `).join('');
+  };
+
+  renderList(overdue, 'overdue-list', 'No overdue payments — all caught up!');
+  renderList(dueSoon, 'dueSoon-list', 'No upcoming dues in the next 7 days');
+}
+
+function refreshAll() {
+  // Find the active tab by checking which one is visible
+  const allTabs = document.querySelectorAll('.dash-tab');
+  let activeTabId = 'tab-records'; // default
+  allTabs.forEach(t => {
+    if (t.style.display !== 'none') activeTabId = t.id;
+  });
+  if (activeTabId === 'tab-records')   renderTable();
+  if (activeTabId === 'tab-reminders') renderReminders();
+}
+
+function clearFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterCategory').value = '';
+  document.getElementById('filterStatus').value = '';
+  renderTable();
+}
+
+// ══════════════ HELPERS ══════════════
+function fmtAmt(v) {
+  return '$' + (v||0).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function fmtDatetime(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-GB');
+}
+function esc(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function categoryBadge(cat) {
+  const cls = cat === 'Income' ? 'badge-income' : 'badge-expense';
+  const icon= cat === 'Income' ? 'fa-arrow-down' : 'fa-arrow-up';
+  return `<span class="category-badge ${cls}"><i class="fas ${icon} me-1"></i>${cat}</span>`;
+}
+function statusBadge(st) {
+  const map = { Paid:'badge-paid', Pending:'badge-pending', Overdue:'badge-overdue' };
+  const icon= { Paid:'fa-check-circle', Pending:'fa-clock', Overdue:'fa-exclamation-circle' };
+  return `<span class="status-badge ${map[st]||''}"><i class="fas ${icon[st]||'fa-circle'} me-1"></i>${st||'—'}</span>`;
+}
+function dueDateDisplay(due, status) {
+  if (!due) return '—';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d     = new Date(due+'T00:00:00');
+  const diff  = Math.ceil((d-today)/(1000*60*60*24));
+  let extra   = '';
+  if (status !== 'Paid') {
+    if (diff < 0)       extra = `<br><span class="overdue"><i class="fas fa-exclamation-triangle me-1"></i>Overdue by ${Math.abs(diff)}d</span>`;
+    else if (diff <= 7) extra = `<br><span class="due-soon"><i class="fas fa-clock me-1"></i>Due in ${diff}d</span>`;
+  }
+  return `<span style="font-size:13px">${fmtDate(due)}</span>${extra}`;
+}
+
+// ══════════════ DOCUMENT UPLOAD ══════════════
+function handleDocUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    alert('File is too large. Maximum size is 10MB.');
+    input.value = '';
+    return;
+  }
+  document.getElementById('rec-document').value = file.name;
+  document.getElementById('doc-filename').textContent = file.name;
+  document.getElementById('doc-filesize').textContent = formatFileSize(file.size);
+  document.getElementById('doc-preview').style.display = 'flex';
+  document.getElementById('doc-upload-area').style.display = 'none';
+}
+
+function clearDocUpload() {
+  document.getElementById('rec-document-file').value = '';
+  document.getElementById('rec-document').value = '';
+  document.getElementById('doc-preview').style.display = 'none';
+  document.getElementById('doc-upload-area').style.display = 'block';
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// Drag & drop support
+document.addEventListener('DOMContentLoaded', () => {
+  const area = document.getElementById('doc-upload-area');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+  area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+  area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const input = document.getElementById('rec-document-file');
+      // Create a DataTransfer to assign the dropped file to the input
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      handleDocUpload(input);
+    }
+  });
+});
+
+
+document.getElementById('searchInput').addEventListener('input', renderTable);
+
+// ══════════════ INIT ══════════════
+window.onload = () => {
+  // Seed sample data
+  const now = new Date().toISOString();
+  const today = new Date();
+  const f = (d) => d.toISOString().split('T')[0];
+  const addDays = (n) => { const d=new Date(today); d.setDate(d.getDate()+n); return f(d); };
+
+  records = [
+    { id:1, company_id:'COMP-001', title:'Client Payment - Project Alpha', category:'Income',  amount:4500.00, payment_status:'Paid',    payment_method:'Bank Transfer', due_date:addDays(-5),  reminder_date:addDays(-8),  notes:'Full project payment received', document:'invoice_001.pdf',    created_at:now, updated_at:now },
+    { id:2, company_id:'COMP-001', title:'Office Rent - May',              category:'Expense', amount:1200.00, payment_status:'Paid',    payment_method:'Bank Transfer', due_date:addDays(-2),  reminder_date:addDays(-5),  notes:'Monthly office rent',           document:'rent_may.pdf',       created_at:now, updated_at:now },
+    { id:3, company_id:'COMP-002', title:'Consulting Fee - Q2',            category:'Income',  amount:3200.00, payment_status:'Pending', payment_method:'Online Payment',due_date:addDays(4),   reminder_date:addDays(2),   notes:'Awaiting client confirmation',  document:'',                   created_at:now, updated_at:now },
+    { id:4, company_id:'COMP-001', title:'Software Subscription',          category:'Expense', amount:199.00,  payment_status:'Pending', payment_method:'Credit Card',   due_date:addDays(3),   reminder_date:addDays(1),   notes:'Annual SaaS tools renewal',     document:'subscription.pdf',   created_at:now, updated_at:now },
+    { id:5, company_id:'COMP-003', title:'Freelance Design Work',          category:'Income',  amount:800.00,  payment_status:'Overdue', payment_method:'Cash',          due_date:addDays(-10), reminder_date:addDays(-12), notes:'Follow up with client',         document:'',                   created_at:now, updated_at:now },
+    { id:6, company_id:'COMP-002', title:'Equipment Purchase',             category:'Expense', amount:2350.00, payment_status:'Paid',    payment_method:'Cheque',        due_date:addDays(-15), reminder_date:addDays(-18), notes:'New laptop for team',           document:'equip_receipt.pdf',  created_at:now, updated_at:now },
+  ];
+
+  showSection('dashboard');
+  switchTab('tab-records');
+};
+</script>
+</body>
+</html>
