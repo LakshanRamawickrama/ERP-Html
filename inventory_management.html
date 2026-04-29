@@ -145,9 +145,8 @@
 
         <!-- Tab Toggle Views -->
         <div class="nav-tabs-custom">
-            <button class="tab-btn active" id="tab-stock" onclick="switchView('stock')">Current Stock</button>
-            <button class="tab-btn" id="tab-in" onclick="switchView('in')">Stock In</button>
-            <button class="tab-btn" id="tab-out" onclick="switchView('out')">Stock Out</button>
+            <button class="tab-btn active" id="tab-stock" onclick="switchView('stock')">Master Inventory</button>
+            <button class="tab-btn" id="tab-move" onclick="switchView('move')">Stock Movements (In/Out)</button>
         </div>
 
         <!-- 1. STOCK INVENTORY VIEW -->
@@ -222,72 +221,63 @@
             </div>
         </div>
 
-        <!-- 2. STOCK IN VIEW -->
-        <div id="view-in" class="view-section">
+        <!-- 2. STOCK MOVEMENTS VIEW -->
+        <div id="view-move" class="view-section">
             <div class="row g-4">
                 <div class="col-lg-4 form-col">
                     <div class="card">
-                        <div class="card-header py-3"><i class="fas fa-arrow-down me-2"></i>Record Stock In</div>
+                        <div class="card-header py-3"><i class="fas fa-exchange-alt me-2"></i>Log Stock Movement</div>
                         <div class="card-body">
-                            <form id="stockInForm">
+                            <form id="moveForm">
                                 <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Select Item</label><select class="form-select form-select-sm" id="inItem"><option>Milk Packet 1L</option></select></div>
-                                    <div class="col-12"><label class="form-label">Quantity Added</label><input type="number" class="form-control form-control-sm" id="inQty" required></div>
-                                    <div class="col-12"><label class="form-label">Supplier Ref</label><input type="text" class="form-control form-control-sm" id="inRef" placeholder="INV-2024-01"></div>
-                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="inNotes" rows="2"></textarea></div>
-                                </div>
-                                <button type="submit" class="btn btn-minimal w-100 mt-3">Log Stock In</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-8 table-col">
-                    <div class="card h-100">
-                        <div class="card-header py-3">Stock Intake History</div>
-                        <div class="card-body p-0">
-                            <table class="table table-sm table-striped mb-0">
-                                <thead class="table-light"><tr><th>Date</th><th>Item</th><th>Qty</th><th>Reference</th><th>Status</th></tr></thead>
-                                <tbody id="inTable"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. STOCK OUT VIEW -->
-        <div id="view-out" class="view-section">
-            <div class="row g-4">
-                <div class="col-lg-4 form-col">
-                    <div class="card">
-                        <div class="card-header py-3"><i class="fas fa-arrow-up me-2"></i>Record Dispatch (Stock Out)</div>
-                        <div class="card-body">
-                            <form id="stockOutForm">
-                                <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Select Item</label><select class="form-select form-select-sm" id="outItem"><option>Milk Packet 1L</option></select></div>
-                                    <div class="col-12"><label class="form-label">Quantity Removed</label><input type="number" class="form-control form-control-sm" id="outQty" required></div>
-                                    <div class="col-12"><label class="form-label">Reason</label>
-                                        <select class="form-select form-select-sm" id="outReason">
-                                            <option>Sale</option>
-                                            <option>Damaged</option>
-                                            <option>Expired</option>
-                                            <option>Internal Use</option>
+                                    <div class="col-12"><label class="form-label">Select Item *</label>
+                                        <select class="form-select form-select-sm" id="mItem" required>
+                                            <option value="">Choose item...</option>
+                                            <option>Milk Packet 1L</option>
                                         </select>
                                     </div>
-                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="outNotes" rows="2"></textarea></div>
+                                    <div class="col-12"><label class="form-label">Movement Type *</label>
+                                        <div class="d-flex gap-3 mt-1">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="mType" id="typeIn" value="IN" checked>
+                                                <label class="form-check-label small" for="typeIn">Stock In (+)</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="mType" id="typeOut" value="OUT">
+                                                <label class="form-check-label small" for="typeOut">Stock Out (-)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Quantity *</label><input type="number" class="form-control form-control-sm" id="mQty" min="1" required></div>
+                                    <div class="col-12"><label class="form-label">Reference / Reason</label><input type="text" class="form-control form-control-sm" id="mRef" placeholder="Invoice # or Sale Ref"></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="mNotes" rows="2"></textarea></div>
                                 </div>
-                                <button type="submit" class="btn btn-minimal w-100 mt-3">Log Dispatch</button>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Record Movement</button>
                             </form>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-8 table-col">
                     <div class="card h-100">
-                        <div class="card-header py-3">Dispatch History</div>
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Transaction History (All Movements)</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('move')"><i class="fas fa-expand-alt me-1"></i> Wide View</button>
+                        </div>
                         <div class="card-body p-0">
-                            <table class="table table-sm table-striped mb-0">
-                                <thead class="table-light"><tr><th>Date</th><th>Item</th><th>Qty</th><th>Reason</th><th>Status</th></tr></thead>
-                                <tbody id="outTable"></tbody>
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Item</th>
+                                        <th>Type</th>
+                                        <th>Qty</th>
+                                        <th class="extra-col">Reference</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="moveTable">
+                                    <!-- Logged Movements -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -383,17 +373,12 @@
             </tr>`;
             document.getElementById('stockTable').insertAdjacentHTML('afterbegin', row);
 
-            document.getElementById('stockTable').insertAdjacentHTML('afterbegin', row);
-
-            // Add to Stock In/Out dropdowns
-            const inSelect = document.getElementById('inItem');
-            const outSelect = document.getElementById('outItem');
-            [inSelect, outSelect].forEach(sel => {
-                const opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                sel.appendChild(opt);
-            });
+            // Add to Stock Movement dropdown
+            const moveSelect = document.getElementById('mItem');
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            moveSelect.appendChild(opt);
 
             // Handle New Category Persistence
             if (document.getElementById('itemCat').value === 'ADD_NEW') {
@@ -410,17 +395,31 @@
             this.reset();
         });
 
-        document.getElementById('stockInForm').addEventListener('submit', function(e) {
+        // Movement Handler
+        document.getElementById('moveForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const row = `<tr><td>${new Date().toLocaleDateString()}</td><td>${document.getElementById('inItem').value}</td><td>+${document.getElementById('inQty').value}</td><td>${document.getElementById('inRef').value}</td><td><span class="status-badge bg-active">Received</span></td></tr>`;
-            document.getElementById('inTable').insertAdjacentHTML('afterbegin', row);
-            this.reset();
-        });
+            const item = document.getElementById('mItem').value;
+            const type = document.querySelector('input[name="mType"]:checked').value;
+            const qty = document.getElementById('mQty').value;
+            const ref = document.getElementById('mRef').value || 'N/A';
+            const notes = document.getElementById('mNotes').value || '-';
+            const date = new Date().toLocaleDateString();
 
-        document.getElementById('stockOutForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const row = `<tr><td>${new Date().toLocaleDateString()}</td><td>${document.getElementById('outItem').value}</td><td>-${document.getElementById('outQty').value}</td><td>${document.getElementById('outReason').value}</td><td><span class="status-badge bg-active">Dispatched</span></td></tr>`;
-            document.getElementById('outTable').insertAdjacentHTML('afterbegin', row);
+            const typeBadge = type === 'IN' 
+                ? '<span class="status-badge bg-active text-success"><i class="fas fa-plus me-1"></i> Stock In</span>'
+                : '<span class="status-badge bg-out text-danger"><i class="fas fa-minus me-1"></i> Stock Out</span>';
+
+            const row = `<tr>
+                <td>${date}</td>
+                <td><strong>${item}</strong></td>
+                <td>${typeBadge}</td>
+                <td><strong>${qty}</strong></td>
+                <td class="extra-col">${ref}</td>
+                <td>${notes}</td>
+            </tr>`;
+            
+            document.getElementById('moveTable').insertAdjacentHTML('afterbegin', row);
+            alert('Movement recorded successfully!');
             this.reset();
         });
     </script>
