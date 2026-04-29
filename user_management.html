@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Business Central</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0; width: 70px;
+            display: flex; flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100; transition: width 0.3s ease; overflow: hidden;
+        }
+        .sidebar:hover { width: 240px; }
+        .sidebar-brand {
+            padding: 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; gap: 10px; white-space: nowrap; min-height: 70px;
+        }
+        .sidebar-brand-icon { font-size: 20px; min-width: 38px; text-align: center; color: #ecf0f1; }
+        .sidebar-brand-text { opacity: 0; transition: opacity 0.3s ease; }
+        .sidebar:hover .sidebar-brand-text { opacity: 1; }
+        .sidebar-brand-text h5 { color: white; font-size: 16px; font-weight: 600; margin: 0; }
+
+        .sidebar-nav-list { flex: 1; padding: 16px 0; list-style: none; margin: 0; }
+        .nav-link {
+            color: #bdc3c7; padding: 10px 16px; font-size: 14px; font-weight: 500;
+            display: flex; align-items: center; gap: 12px; border-radius: 8px;
+            margin: 3px 10px; white-space: nowrap; transition: 0.2s; text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active { background-color: #34495e; color: white; }
+        .nav-link .nav-icon { font-size: 16px; min-width: 18px; text-align: center; }
+        .nav-label { opacity: 0; transition: opacity 0.3s ease; }
+        .sidebar:hover .nav-label { opacity: 1; }
+
+        .main-wrapper { margin-left: 70px; transition: margin-left 0.3s ease; min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { background-color: white; border-bottom: 1px solid #e0e0e0; padding: 15px 25px; position: sticky; top: 0; z-index: 50; }
+
+        /* Tabs */
+        .nav-tabs-custom { border-bottom: 1px solid #e0e0e0; background: white; padding: 0 25px; display: flex; gap: 20px; }
+        .tab-btn {
+            padding: 15px 5px; font-size: 14px; font-weight: 600; color: #666;
+            border: none; background: none; cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .tab-btn:hover { color: #2c3e50; }
+        .tab-btn.active { color: #2c3e50; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #2c3e50; border-radius: 3px 3px 0 0;
+        }
+
+        .card { border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 24px; }
+        .card-header { font-weight: 600; border-bottom: 1px solid #f0f0f0; background-color: #fff !important; }
+
+        .btn-minimal { background-color: #2c3e50; color: white; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; }
+        .btn-minimal:hover { background-color: #34495e; }
+
+        .view-section { display: none; padding: 24px; }
+        .view-section.active { display: block; }
+
+        /* Custom Multi-Select */
+        .multi-select-container { position: relative; }
+        .multi-select-box {
+            border: 1px solid #ced4da; border-radius: 6px; padding: 8px 12px; min-height: 40px; background: white; cursor: pointer;
+            display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-size: 13px;
+        }
+        .selected-item { background-color: #e9ecef; padding: 2px 8px; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .remove-item { color: #dc3545; cursor: pointer; font-weight: bold; }
+        .multi-select-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ced4da; border-radius: 6px;
+            max-height: 200px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none;
+        }
+        .multi-select-dropdown.show { display: block; }
+        .dropdown-item { padding: 8px 12px; cursor: pointer; font-size: 13px; }
+        .dropdown-item:hover { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text"><h5>Business Central</h5><small>Super Admin</small></div>
+        </div>
+        <ul class="sidebar-nav-list">
+            <li><a href="superadmin.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
+            <li><a href="user_management.html" class="nav-link active"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
+        </ul>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">User Management</h4>
+            <p class="text-muted small mb-0">Create and Manage ERP Access Roles</p>
+        </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-list" onclick="switchView('list')">All Users</button>
+            <button class="tab-btn" id="tab-create" onclick="switchView('create')">Create New User</button>
+        </div>
+
+        <!-- 1. USER LIST VIEW -->
+        <div id="view-list" class="view-section active">
+            <div class="card">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <span>Registered ERP Users</span>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Search users...">
+                        <button class="btn btn-minimal py-1" onclick="switchView('create')">+ Add User</button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Assigned Businesses</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr>
+                                <td><strong>John Doe</strong></td>
+                                <td>john@example.com</td>
+                                <td><span class="badge bg-secondary">Admin</span></td>
+                                <td>Main Store, Warehouse A</td>
+                                <td>2024-04-29</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. CREATE USER VIEW -->
+        <div id="view-create" class="view-section">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header py-3">👤 Create New ERP User</div>
+                        <div class="card-body p-4">
+                            <form id="createUserForm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Full Name *</label>
+                                        <input type="text" class="form-control" id="userName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email Address *</label>
+                                        <input type="email" class="form-control" id="userEmail" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Password *</label>
+                                        <input type="password" class="form-control" id="userPass" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Confirm Password *</label>
+                                        <input type="password" class="form-control" id="userConfirm" required>
+                                    </div>
+                                    
+                                    <div class="col-12 mt-3">
+                                        <label class="form-label">Assign Businesses (Multiple) *</label>
+                                        <div class="multi-select-container">
+                                            <div class="multi-select-box" id="selectBox" onclick="toggleDropdown()">
+                                                <span class="text-muted" id="placeholder">Select businesses...</span>
+                                            </div>
+                                            <div class="multi-select-dropdown" id="dropdown">
+                                                <div class="dropdown-item" onclick="toggleBiz('Main Store')">Main Store</div>
+                                                <div class="dropdown-item" onclick="toggleBiz('Warehouse A')">Warehouse A</div>
+                                                <div class="dropdown-item" onclick="toggleBiz('Express Branch')">Express Branch</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-3">
+                                        <label class="form-label">User Role *</label>
+                                        <div class="input-group">
+                                            <select class="form-select" id="userRole">
+                                                <option value="Admin">Admin</option>
+                                                <option value="Manager">Manager</option>
+                                                <option value="Staff">Staff</option>
+                                            </select>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="addNewRole()">+ Role</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 py-3 mt-4">Create Access User</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedBiz = [];
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
+
+        function toggleDropdown() {
+            document.getElementById('dropdown').classList.toggle('show');
+        }
+
+        function toggleBiz(biz) {
+            if (selectedBiz.includes(biz)) {
+                selectedBiz = selectedBiz.filter(b => b !== biz);
+            } else {
+                selectedBiz.push(biz);
+            }
+            renderSelected();
+        }
+
+        function renderSelected() {
+            const box = document.getElementById('selectBox');
+            box.innerHTML = '';
+            if (selectedBiz.length === 0) {
+                box.innerHTML = '<span class="text-muted">Select businesses...</span>';
+                return;
+            }
+            selectedBiz.forEach(b => {
+                const item = document.createElement('div');
+                item.className = 'selected-item';
+                item.innerHTML = `${b} <span class="remove-item" onclick="event.stopPropagation(); toggleBiz('${b}')">×</span>`;
+                box.appendChild(item);
+            });
+        }
+
+        function addNewRole() {
+            const role = prompt("Enter new role name:");
+            if (role) {
+                const sel = document.getElementById('userRole');
+                const opt = document.createElement('option');
+                opt.value = role; opt.textContent = role;
+                sel.appendChild(opt);
+                sel.value = role;
+            }
+        }
+
+        document.getElementById('createUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (document.getElementById('userPass').value !== document.getElementById('userConfirm').value) {
+                alert("Passwords do not match!"); return;
+            }
+            if (selectedBiz.length === 0) {
+                alert("Assign at least one business!"); return;
+            }
+
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const role = document.getElementById('userRole').value;
+            const date = new Date().toISOString().split('T')[0];
+
+            const row = `<tr>
+                <td><strong>${name}</strong></td>
+                <td>${email}</td>
+                <td><span class="badge bg-secondary">${role}</span></td>
+                <td>${selectedBiz.join(', ')}</td>
+                <td>${date}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+            document.getElementById('usersTable').insertAdjacentHTML('afterbegin', row);
+            alert('User created successfully!');
+            this.reset();
+            selectedBiz = [];
+            renderSelected();
+            switchView('list');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!document.querySelector('.multi-select-container').contains(e.target)) {
+                document.getElementById('dropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

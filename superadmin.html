@@ -288,27 +288,13 @@
       </div>
     </div>
 
-    <li><a href="superadmin.html" class="nav-link active">
-        <i class="fas fa-shield-alt nav-icon"></i>
-        <span class="nav-label">Admin Panel</span>
-      </a></li>
-    <li><a href="supplier.html" class="nav-link">
-        <i class="fas fa-truck-loading nav-icon"></i>
-        <span class="nav-label">Suppliers</span>
-      </a></li>
-    <li><a href="accounting.html" class="nav-link">
-      <i class="fas fa-file-invoice-dollar nav-icon"></i>
-      <span class="nav-label">Accounting</span>
-    </a></li>
-    <li><a href="fleet_management.html" class="nav-link">
-        <i class="fas fa-truck nav-icon"></i>
-        <span class="nav-label">Fleet Management</span>
-      </a></li>
-    <li><a href="legal_compliance.html" class="nav-link">
-        <i class="fas fa-gavel nav-icon"></i>
-        <span class="nav-label">Legal & Compliance</span>
-      </a></li>
-    </ul>
+        <ul class="sidebar-nav-list">
+            <li><a href="superadmin.html" class="nav-link active"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
+        </ul>
   </div>
 
   <!-- Main Content -->
@@ -437,89 +423,7 @@
         </div>
       </div>
 
-      <!-- Create User Section -->
-      <div id="create-user" class="section p-4">
-        <div class="row justify-content-center">
-          <div class="col-xl-8">
-            <div class="card">
-              <div class="card-header bg-white py-3">
-                <h5 class="mb-0">Create New User</h5>
-              </div>
-              <div class="card-body p-4">
-                <form id="createUserForm">
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <label class="form-label">Full Name</label>
-                      <input type="text" class="form-control" id="name" required>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Email Address</label>
-                      <input type="email" class="form-control" id="email" required>
-                    </div>
-                  </div>
 
-                  <div class="row g-3 mt-2">
-                    <div class="col-md-6">
-                      <label class="form-label">Password</label>
-                      <input type="password" class="form-control" id="password" required>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Confirm Password</label>
-                      <input type="password" class="form-control" id="confirmPassword" required>
-                    </div>
-                  </div>
-
-                  <div class="mb-3 mt-3">
-                    <label class="form-label">Assign Businesses (Multiple)</label>
-                    <div class="multi-select-container">
-                      <div class="multi-select-box" id="selectBox" onclick="toggleDropdown()">
-                        <span class="text-muted" id="placeholder">Select businesses...</span>
-                      </div>
-                      <div class="multi-select-dropdown" id="dropdown"></div>
-                    </div>
-                  </div>
-
-                  <div class="mb-4">
-                    <label class="form-label">Role</label>
-                    <div class="input-group">
-                      <select class="form-select" id="role">
-                        <option value="Admin">Admin</option>
-                      </select>
-                      <button type="button" class="btn btn-outline-secondary" onclick="addNewRole()">+ Role</button>
-                    </div>
-                  </div>
-
-                  <button type="button" onclick="createNewUser()" class="btn btn-minimal w-100 py-3">
-                    Create User
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Manage Users Section -->
-      <div id="users" class="section p-4">
-        <h5 class="mb-4">Manage Users</h5>
-        <div class="card">
-          <div class="card-body p-0">
-            <table class="table table-striped mb-0" id="usersTable">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Businesses</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
 
     </div>
   </div>
@@ -611,158 +515,15 @@
       }
     }
 
-    // ==================== USER FUNCTIONS ====================
-    function toggleDropdown() {
-      const dropdown = document.getElementById('dropdown');
-      dropdown.classList.toggle('show');
-      renderBusinessDropdown();
-    }
 
-    function renderBusinessDropdown() {
-      const dropdown = document.getElementById('dropdown');
-      dropdown.innerHTML = '';
-
-      availableBusinesses.forEach(biz => {
-        const isSelected = selectedBusinessesForUser.includes(biz);
-        const div = document.createElement('div');
-        div.className = 'dropdown-item';
-        div.innerHTML = `
-      <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleUserBusiness('${biz}', this.checked)">
-      ${biz}
-    `;
-        dropdown.appendChild(div);
-      });
-    }
-
-    function toggleUserBusiness(biz, checked) {
-      if (checked) {
-        if (!selectedBusinessesForUser.includes(biz)) selectedBusinessesForUser.push(biz);
-      } else {
-        selectedBusinessesForUser = selectedBusinessesForUser.filter(b => b !== biz);
-      }
-      renderSelectedBusinesses();
-    }
-
-    function renderSelectedBusinesses() {
-      const box = document.getElementById('selectBox');
-      box.innerHTML = '';
-
-      if (selectedBusinessesForUser.length === 0) {
-        box.innerHTML = `<span class="text-muted">Select businesses...</span>`;
-        return;
-      }
-
-      selectedBusinessesForUser.forEach((biz, index) => {
-        const item = document.createElement('div');
-        item.className = 'selected-item';
-        item.innerHTML = `${biz} <span class="remove-item" onclick="removeSelectedBusiness(${index}); event.stopImmediatePropagation();">×</span>`;
-        box.appendChild(item);
-      });
-    }
-
-    function removeSelectedBusiness(index) {
-      selectedBusinessesForUser.splice(index, 1);
-      renderSelectedBusinesses();
-    }
-
-    function addNewRole() {
-      const role = prompt("Enter new role name:");
-      if (role && role.trim()) {
-        const select = document.getElementById('role');
-        const opt = document.createElement('option');
-        opt.value = role.trim();
-        opt.textContent = role.trim();
-        select.appendChild(opt);
-        select.value = role.trim();
-      }
-    }
-
-    function createNewUser() {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const role = document.getElementById('role').value;
-
-      if (!name || !email || !password || !confirmPassword) {
-        alert("Please fill all fields");
-        return;
-      }
-      if (password !== confirmPassword) {
-        alert("Passwords do not match!");
-        return;
-      }
-      if (selectedBusinessesForUser.length === 0) {
-        alert("Please assign at least one business");
-        return;
-      }
-
-      const newUser = {
-        id: Date.now(),
-        name,
-        email,
-        role,
-        businesses: [...selectedBusinessesForUser],
-        createdDate: new Date().toISOString().split('T')[0]
-      };
-
-      users.push(newUser);
-      alert(`User "${name}" created successfully!`);
-
-      document.getElementById('createUserForm').reset();
-      selectedBusinessesForUser = [];
-      renderSelectedBusinesses();
-
-      showSection('users');
-      renderUsersTable();
-      updateDashboard();
-    }
-
-    function renderUsersTable() {
-      const tbody = document.querySelector('#usersTable tbody');
-      tbody.innerHTML = '';
-
-      if (users.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No users created yet</td></tr>`;
-        return;
-      }
-
-      users.forEach(user => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-      <td>${user.name}</td>
-      <td>${user.email}</td>
-      <td><span class="badge bg-secondary">${user.role}</span></td>
-      <td>${user.businesses.join(', ')}</td>
-      <td>${user.createdDate}</td>
-      <td><button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})">Delete</button></td>
-    `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function deleteUser(id) {
-      if (confirm("Delete this user?")) {
-        users = users.filter(u => u.id !== id);
-        renderUsersTable();
-        updateDashboard();
-      }
-    }
 
     // ==================== COMMON FUNCTIONS ====================
     function showSection(sectionId) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.getElementById(sectionId).classList.add('active');
 
-      // Update active nav link
-      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-      const activeLink = document.querySelector(`.nav-link[onclick="showSection('${sectionId}')"]`);
-      if (activeLink) activeLink.classList.add('active');
-
       document.getElementById('page-title').textContent =
-        sectionId === 'dashboard' ? 'Dashboard' :
-          sectionId === 'businesses' ? 'All Businesses' :
-            sectionId === 'create-user' ? 'Create New User' : 'Manage Users';
+        sectionId === 'dashboard' ? 'Dashboard' : 'All Businesses';
     }
 
     function updateDashboard() {
