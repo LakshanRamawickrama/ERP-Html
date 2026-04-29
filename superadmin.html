@@ -201,6 +201,11 @@
     .form-control, .form-select {
       font-size: 14px;
     }
+
+    /* Logistics Alerts Styling */
+    .alert-card { border-left: 4px solid #ef4444; background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+    .alert-card.warning { border-left-color: #f59e0b; background: #fffbeb; }
+
   </style>
 </head>
 <body>
@@ -232,6 +237,10 @@
       <i class="fas fa-users nav-icon"></i>
       <span class="nav-label">Manage Users</span>
     </a></li>
+    <li><a href="fleet_management.html" class="nav-link">
+      <i class="fas fa-truck nav-icon"></i>
+      <span class="nav-label">Fleet Management</span>
+    </a></li>
   </ul>
 </div>
 
@@ -245,20 +254,38 @@
     <!-- Dashboard -->
     <div id="dashboard" class="section p-4">
       <h4>Welcome to Super Admin Dashboard</h4>
-      <div class="row g-4 mt-3">
-        <div class="col-md-3">
-          <div class="card p-4 text-center">
-            <h3 id="total-businesses">0</h3>
-            <p class="text-muted mb-0">Total Businesses</p>
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-0">
+              <p class="text-muted small mb-1">Total Businesses</p>
+              <h3 class="mb-0 fw-bold" id="business-count">0</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-0">
+              <p class="text-muted small mb-1">Active Users</p>
+              <h3 class="mb-0 fw-bold">12</h3>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card p-3 shadow-sm border-0">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <p class="text-muted small mb-0">Logistics Alerts</p>
+                <a href="fleet_management.html" class="text-decoration-none small">View Fleet</a>
+              </div>
+              <div id="dashboard-logistics-alerts">
+                <div class="alert-card warning d-flex align-items-center gap-2 py-2">
+                  <i class="fas fa-exclamation-triangle text-warning"></i>
+                  <span class="small fw-medium">CAR 1: Insurance expiring in 12 days</span>
+                </div>
+                <div class="alert-card d-flex align-items-center gap-2 py-2 mb-0">
+                  <i class="fas fa-exclamation-circle text-danger"></i>
+                  <span class="small fw-medium">CAR 2: MOT Expired (2026-04-10)</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="card p-4 text-center">
-            <h3 id="total-users">0</h3>
-            <p class="text-muted mb-0">Total Users</p>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- All Businesses Section -->
@@ -425,6 +452,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </div>
 

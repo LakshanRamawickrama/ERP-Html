@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics / Fleet Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 70px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 240px;
+        }
+
+        .sidebar-brand {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            min-height: 70px;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 20px;
+            min-width: 38px;
+            text-align: center;
+            color: #ecf0f1;
+        }
+
+        .sidebar-brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-brand-text {
+            opacity: 1;
+        }
+
+        .sidebar-brand-text h5 {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-nav-list {
+            flex: 1;
+            padding: 16px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .nav-link {
+            color: #bdc3c7;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin: 3px 10px;
+            white-space: nowrap;
+            transition: 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #34495e;
+            color: white;
+        }
+
+        .nav-link .nav-icon {
+            font-size: 16px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-link .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .nav-link .nav-label {
+            opacity: 1;
+        }
+
+        .main-wrapper {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* Tabs */
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            padding: 0 25px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fff !important;
+        }
+
+        .btn-minimal {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-minimal:hover {
+            background-color: #34495e;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .bg-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .bg-maintenance {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .view-section {
+            display: none;
+            padding: 24px;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* Wide View Logic */
+        .view-section.wide .form-col { display: none; }
+        .view-section.wide .table-col { width: 100%; flex: 0 0 100%; max-width: 100%; }
+        .extra-col { display: none; }
+        .view-section.wide .extra-col { display: table-cell; }
+
+        /* Reminders / Alerts */
+        .reminder-card { border-left: 4px solid #ef4444; background-color: #fef2f2; }
+        .reminder-soon { border-left-color: #f59e0b; background-color: #fffbeb; }
+        .alert-indicator { font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
+        .alert-expired { background: #fee2e2; color: #b91c1c; }
+        .alert-pending { background: #fef3c7; color: #92400e; }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text">
+                <h5>Business Central</h5>
+                <small>Super Admin</small>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav-list">
+            <li><a href="superadmin.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt nav-icon"></i>
+                    <span class="nav-label">Dashboard</span>
+                </a></li>
+            <li><a href="superadmin.html" class="nav-link">
+                    <i class="fas fa-user-plus nav-icon"></i>
+                    <span class="nav-label">Create User</span>
+                </a></li>
+            <li><a href="superadmin.html" class="nav-link">
+                    <i class="fas fa-briefcase nav-icon"></i>
+                    <span class="nav-label">All Businesses</span>
+                </a></li>
+            <li><a href="superadmin.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span class="nav-label">Manage Users</span>
+                </a></li>
+            <li><a href="fleet_management.html" class="nav-link active">
+                    <i class="fas fa-truck nav-icon"></i>
+                    <span class="nav-label">Fleet Management</span>
+                </a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">Logistics / Fleet Management</h4>
+            <p class="text-muted small mb-0">Unified Module for Vehicles, Deliveries, and Parcels</p>
+        </div>
+
+        <!-- Reminders Panel -->
+        <div class="px-4 pt-3" id="reminders-container">
+            <div class="row g-3" id="reminders-list">
+                <!-- Dynamic Reminders Here -->
+            </div>
+        </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-vehicles" onclick="switchView('vehicles')">Vehicle Fleet</button>
+            <button class="tab-btn" id="tab-deliveries" onclick="switchView('deliveries')">Delivery Tracking</button>
+            <button class="tab-btn" id="tab-parcels" onclick="switchView('parcels')">Parcel Services</button>
+        </div>
+
+        <!-- 1. VEHICLES VIEW -->
+        <div id="view-vehicles" class="view-section active">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-plus-circle me-2"></i>Register Vehicle</div>
+                        <div class="card-body">
+                            <form id="vehicleForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Vehicle Name</label><input type="text"
+                                            class="form-control form-control-sm" id="vName" placeholder="CAR 1"
+                                            required></div>
+                                    <div class="col-12"><label class="form-label">Plate Number</label><input type="text"
+                                            class="form-control form-control-sm" id="vNum" placeholder="ABC-1234"
+                                            required></div>
+                                    <div class="col-6"><label class="form-label">Insurance Exp.</label><input
+                                            type="date" class="form-control form-control-sm" id="vIns"></div>
+                                    <div class="col-6"><label class="form-label">MOT Date</label><input type="date"
+                                            class="form-control form-control-sm" id="vMot"></div>
+                                    <div class="col-6"><label class="form-label">Road Tax Date</label><input type="date"
+                                            class="form-control form-control-sm" id="vTax"></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea
+                                            class="form-control form-control-sm" id="vNotes" rows="2"></textarea></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Save Vehicle</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Fleet Inventory (Vehicles)</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('vehicles')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Vehicle</th>
+                                        <th>Number</th>
+                                        <th>Insurance</th>
+                                        <th>MOT</th>
+                                        <th>Tax</th>
+                                        <th class="extra-col">Notes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vTable">
+                                    <tr>
+                                        <td><strong>CAR 1</strong></td>
+                                        <td>ABC-1234</td>
+                                        <td>2026-05-12</td>
+                                        <td>2026-06-10</td>
+                                        <td>2026-12-01</td>
+                                        <td class="extra-col text-muted small">Standard company van</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. DELIVERIES VIEW -->
+        <div id="view-deliveries" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-truck-loading me-2"></i>New Delivery Entry</div>
+                        <div class="card-body">
+                            <form id="deliveryForm">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Select Vehicle</label>
+                                        <select class="form-select form-select-sm" id="dVehicle" onchange="updateVehicleNumber()">
+                                            <option value="">Select...</option>
+                                            <option value="CAR 1">CAR 1</option>
+                                            <option value="CAR 2">CAR 2</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Vehicle Number</label>
+                                        <input type="text" class="form-control form-control-sm" id="dVehicleNum" readonly placeholder="Auto-populated">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Delivery Date</label>
+                                        <input type="date" class="form-control form-control-sm" id="dDate" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Delivery Address</label>
+                                        <input type="text" class="form-control form-control-sm" id="dAddress" placeholder="123 Street, City">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Delivery Place Contact Name</label>
+                                        <input type="text" class="form-control form-control-sm" id="dContactName" placeholder="e.g. John Smith">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Delivery Place Contact</label>
+                                        <input type="tel" class="form-control form-control-sm" id="dContact" placeholder="e.g. +44 123 456 789">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Delivery Status</label>
+                                        <select class="form-select form-select-sm" id="dStatus">
+                                            <option>Pending</option>
+                                            <option>In Transit</option>
+                                            <option>Delivered</option>
+                                            <option>Cancelled</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Notes</label>
+                                        <textarea class="form-control form-control-sm" id="dNotes" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Log Delivery</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Delivery Tracking History</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('deliveries')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Vehicle</th>
+                                        <th>Address / Contact</th>
+                                        <th class="extra-col">Tracking ID</th>
+                                        <th class="extra-col">Driver</th>
+                                        <th>Notes</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dTable">
+                                    <tr>
+                                        <td>2026-04-29</td>
+                                        <td><strong>CAR 1</strong><br><small>ABC-1234</small></td>
+                                        <td>Central Warehouse, London<br><small class="text-muted">John Doe | +44 7700 900077</small></td>
+                                        <td class="extra-col">#DEL-9982</td>
+                                        <td class="extra-col text-muted">M. Ross</td>
+                                        <td>Urgent delivery</td>
+                                        <td><span class="status-badge bg-active">Scheduled</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. PARCEL SERVICES VIEW -->
+        <div id="view-parcels" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-box-open me-2"></i>Manage Parcel Service</div>
+                        <div class="card-body">
+                            <form id="parcelForm">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Service Provider</label>
+                                        <input type="text" class="form-control form-control-sm" id="pProvider" placeholder="DHL, FedEx..." required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Assigned Vehicle</label>
+                                        <select class="form-select form-select-sm" id="pVehicle" onchange="updateParcelVehicleNumber()">
+                                            <option value="">Select...</option>
+                                            <option value="CAR 1">CAR 1</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Vehicle Number</label>
+                                        <input type="text" class="form-control form-control-sm" id="pVehicleNum" readonly placeholder="Auto-populated">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Service Date</label>
+                                        <input type="date" class="form-control form-control-sm" id="pDate">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Service Area / Address</label>
+                                        <input type="text" class="form-control form-control-sm" id="pAddress" placeholder="Coverage Area">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Contact Name</label>
+                                        <input type="text" class="form-control form-control-sm" id="pContactName" placeholder="Partner Contact">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Contact Number</label>
+                                        <input type="tel" class="form-control form-control-sm" id="pContact" placeholder="Partner Phone">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Agreement Status</label>
+                                        <select class="form-select form-select-sm" id="pStatus">
+                                            <option>Active</option>
+                                            <option>Pending</option>
+                                            <option>Expired</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Notes</label>
+                                        <textarea class="form-control form-control-sm" id="pNotes" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Register Service
+                                    Partner</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Parcel Service Partners</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('parcels')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Provider</th>
+                                        <th>Vehicle</th>
+                                        <th>Area / Contact</th>
+                                        <th class="extra-col">ID</th>
+                                        <th>Notes</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pTable">
+                                    <tr>
+                                        <td><strong>DHL Express</strong></td>
+                                        <td><strong>CAR 1</strong><br><small>ABC-1234</small></td>
+                                        <td>City Central Area<br><small class="text-muted">Sarah Jones | +44 20 7946 0001</small></td>
+                                        <td class="extra-col">TBD</td>
+                                        <td>Daily pickup</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const vehicleData = {
+            "CAR 1": "ABC-1234",
+            "CAR 2": "WP-BC-5678"
+        };
+
+        // Initial scan
+        checkReminders();
+
+        function checkReminders() {
+            const container = document.getElementById('reminders-list');
+            container.innerHTML = ''; // Clear
+            const today = new Date();
+            const soonThreshold = 30; // 30 days
+
+            // Scan static vehicles (for demo) + any added ones
+            // In a real app, this would iterate over an array
+            const vehicles = [
+                { name: 'CAR 1', num: 'ABC-1234', ins: '2026-05-12', mot: '2026-04-10', tax: '2026-12-01' }
+            ];
+
+            vehicles.forEach(v => {
+                const dates = [
+                    { type: 'Insurance', val: v.ins },
+                    { type: 'MOT', val: v.mot },
+                    { type: 'Road Tax', val: v.tax }
+                ];
+
+                dates.forEach(d => {
+                    if (!d.val) return;
+                    const dateObj = new Date(d.val);
+                    const diffTime = dateObj - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays <= 0) {
+                        addReminderUI(v.name, d.type, 'Expired', 'reminder-card');
+                    } else if (diffDays <= soonThreshold) {
+                        addReminderUI(v.name, d.type, `Expiring in ${diffDays} days`, 'reminder-soon');
+                    }
+                });
+            });
+        }
+
+        function addReminderUI(vName, type, status, className) {
+            const html = `<div class="col-md-4">
+                <div class="card ${className} p-2 shadow-sm border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-exclamation-triangle ${className === 'reminder-card' ? 'text-danger' : 'text-warning'}"></i>
+                        <div style="line-height: 1.2;">
+                            <div class="fw-bold small">${vName} - ${type}</div>
+                            <div class="text-muted" style="font-size: 11px;">${status}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            document.getElementById('reminders-list').insertAdjacentHTML('beforeend', html);
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => {
+                v.classList.remove('active');
+                v.classList.remove('wide');
+            });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
+
+        function toggleWideView(viewId) {
+            const section = document.getElementById('view-' + viewId);
+            section.classList.toggle('wide');
+            const btn = section.querySelector('.card-header button');
+            if (section.classList.contains('wide')) {
+                btn.innerHTML = '<i class="fas fa-compress-alt me-1"></i> Standard View';
+            } else {
+                btn.innerHTML = '<i class="fas fa-expand-alt me-1"></i> Wide View';
+            }
+        }
+
+        function updateVehicleNumber() {
+            const vehicle = document.getElementById('dVehicle').value;
+            document.getElementById('dVehicleNum').value = vehicleData[vehicle] || "";
+        }
+
+        function updateParcelVehicleNumber() {
+            const vehicle = document.getElementById('pVehicle').value;
+            document.getElementById('pVehicleNum').value = vehicleData[vehicle] || "";
+        }
+
+        // Vehicle Handler
+        document.getElementById('vehicleForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('vName').value;
+            const num = document.getElementById('vNum').value;
+            const ins = document.getElementById('vIns').value || '-';
+            const mot = document.getElementById('vMot').value || '-';
+            const tax = document.getElementById('vTax').value || '-';
+            const notes = document.getElementById('vNotes').value || '-';
+
+            const row = `<tr>
+                <td><strong>${name}</strong></td>
+                <td>${num}</td>
+                <td>${ins}</td>
+                <td>${mot}</td>
+                <td>${tax}</td>
+                <td class="extra-col text-muted small">${notes}</td>
+                <td><span class="status-badge bg-active">Active</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+            document.getElementById('vTable').insertAdjacentHTML('afterbegin', row);
+            
+            // Add to select dropdowns
+            vehicleData[name] = num;
+            const selects = ['dVehicle', 'pVehicle'];
+            selects.forEach(id => {
+                const sel = document.getElementById(id);
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                sel.appendChild(opt);
+            });
+
+            alert('Vehicle saved!');
+            this.reset();
+        });
+
+        // Delivery Handler
+        document.getElementById('deliveryForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const date = document.getElementById('dDate').value;
+            const vehicle = document.getElementById('dVehicle').value;
+            const num = document.getElementById('dVehicleNum').value;
+            const address = document.getElementById('dAddress').value;
+            const contactName = document.getElementById('dContactName').value || 'N/A';
+            const contact = document.getElementById('dContact').value || 'N/A';
+            const status = document.getElementById('dStatus').value;
+            const notes = document.getElementById('dNotes').value;
+
+            const row = `<tr>
+                <td>${date}</td>
+                <td><strong>${vehicle}</strong><br><small>${num}</small></td>
+                <td>${address}<br><small class="text-muted">${contactName} | ${contact}</small></td>
+                <td>${notes}</td>
+                <td><span class="status-badge bg-active">${status}</span></td>
+            </tr>`;
+            document.getElementById('dTable').insertAdjacentHTML('afterbegin', row);
+            alert('Delivery logged!');
+            this.reset();
+            document.getElementById('dVehicleNum').value = "";
+        });
+
+        // Parcel Handler
+        document.getElementById('parcelForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const provider = document.getElementById('pProvider').value;
+            const vehicle = document.getElementById('pVehicle').value;
+            const num = document.getElementById('pVehicleNum').value;
+            const address = document.getElementById('pAddress').value || 'N/A';
+            const contactName = document.getElementById('pContactName').value || 'N/A';
+            const contact = document.getElementById('pContact').value || 'N/A';
+            const status = document.getElementById('pStatus').value;
+            const notes = document.getElementById('pNotes').value;
+
+            const row = `<tr>
+                <td><strong>${provider}</strong></td>
+                <td><strong>${vehicle}</strong><br><small>${num}</small></td>
+                <td>${address}<br><small class="text-muted">${contactName} | ${contact}</small></td>
+                <td>${notes}</td>
+                <td><span class="status-badge bg-active">${status}</span></td>
+            </tr>`;
+            document.getElementById('pTable').insertAdjacentHTML('afterbegin', row);
+            alert('Service Partner saved!');
+            this.reset();
+            document.getElementById('pVehicleNum').value = "";
+        });
+    </script>
+
+</body>
+
+</html>
