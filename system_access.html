@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Access & Credentials</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0; width: 70px;
+            display: flex; flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100; transition: width 0.3s ease; overflow: hidden;
+        }
+        .sidebar:hover { width: 240px; }
+        .sidebar-brand {
+            padding: 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; gap: 10px; white-space: nowrap; min-height: 70px;
+        }
+        .sidebar-brand-icon { font-size: 20px; min-width: 38px; text-align: center; color: #ecf0f1; }
+        .sidebar-brand-text { opacity: 0; transition: opacity 0.3s ease; }
+        .sidebar:hover .sidebar-brand-text { opacity: 1; }
+        .sidebar-brand-text h5 { color: white; font-size: 16px; font-weight: 600; margin: 0; }
+
+        .sidebar-nav-list { flex: 1; padding: 16px 0; list-style: none; margin: 0; }
+        .nav-link {
+            color: #bdc3c7; padding: 10px 16px; font-size: 14px; font-weight: 500;
+            display: flex; align-items: center; gap: 12px; border-radius: 8px;
+            margin: 3px 10px; white-space: nowrap; transition: 0.2s; text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active { background-color: #34495e; color: white; }
+        .nav-link .nav-icon { font-size: 16px; min-width: 18px; text-align: center; }
+        .nav-label { opacity: 0; transition: opacity 0.3s ease; }
+        .sidebar:hover .nav-label { opacity: 1; }
+
+        .main-wrapper { margin-left: 70px; transition: margin-left 0.3s ease; min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { background-color: white; border-bottom: 1px solid #e0e0e0; padding: 15px 25px; position: sticky; top: 0; z-index: 50; }
+
+        /* Tabs */
+        .nav-tabs-custom { border-bottom: 1px solid #e0e0e0; background: white; padding: 0 25px; display: flex; gap: 20px; }
+        .tab-btn {
+            padding: 15px 5px; font-size: 14px; font-weight: 600; color: #666;
+            border: none; background: none; cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .tab-btn:hover { color: #2c3e50; }
+        .tab-btn.active { color: #2c3e50; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #2c3e50; border-radius: 3px 3px 0 0;
+        }
+
+        .card { border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 24px; }
+        .card-header { font-weight: 600; border-bottom: 1px solid #f0f0f0; background-color: #fff !important; }
+
+        .btn-minimal { background-color: #2c3e50; color: white; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; }
+        .btn-minimal:hover { background-color: #34495e; }
+
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .bg-active { background-color: #d1fae5; color: #065f46; }
+        .bg-inactive { background-color: #f3f4f6; color: #374151; }
+        .bg-expired { background-color: #fee2e2; color: #b91c1c; }
+
+        .view-section { display: none; padding: 24px; }
+        .view-section.active { display: block; }
+
+        /* Wide View Logic */
+        .view-section.wide .form-col { display: none; }
+        .view-section.wide .table-col { width: 100%; flex: 0 0 100%; max-width: 100%; }
+        .extra-col { display: none; }
+        .view-section.wide .extra-col { display: table-cell; }
+
+        /* Alerts */
+        .reminder-card { border-left: 4px solid #ef4444; background-color: #fef2f2; }
+        .reminder-pending { border-left-color: #f59e0b; background-color: #fffbeb; }
+
+        .form-label { font-size: 12px; font-weight: 700; color: #555; }
+        .form-control-sm, .form-select-sm { font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text"><h5>Business Central</h5><small>Super Admin</small></div>
+        </div>
+        <ul class="sidebar-nav-list">
+            <li><a href="superadmin.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
+            <li><a href="superadmin.html" class="nav-link"><i class="fas fa-user-plus nav-icon"></i><span class="nav-label">Create User</span></a></li>
+            <li><a href="superadmin.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">All Businesses</span></a></li>
+            <li><a href="superadmin.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">Manage Users</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link active"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
+        </ul>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">System Access & Credentials</h4>
+            <p class="text-muted small mb-0">Securely Manage Tills, PayPoint, and Service Logins</p>
+        </div>
+
+        <!-- Reminders Panel -->
+        <div class="px-4 pt-3" id="reminders-container">
+            <div class="row g-3" id="reminders-list">
+                <!-- Dynamic Access Alerts -->
+            </div>
+        </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-access" onclick="switchView('access')">Credentials Repository</button>
+            <button class="tab-btn" id="tab-services" onclick="switchView('services')">Service Logins</button>
+        </div>
+
+        <!-- 1. ACCESS REPOSITORY VIEW -->
+        <div id="view-access" class="view-section active">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3">🔐 Add New Credential</div>
+                        <div class="card-body">
+                            <form id="accessForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Service Name *</label>
+                                        <select class="form-select form-select-sm" id="sName" required>
+                                            <option value="">Select Service</option>
+                                            <option>Till Access</option>
+                                            <option>PayPoint</option>
+                                            <option>PayZone</option>
+                                            <option>Lottery</option>
+                                            <option>Parcel Services</option>
+                                            <option>Card Processing (Dojo)</option>
+                                            <option>Utility Bill Portal</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Account / Username *</label><input type="text" class="form-control form-control-sm" id="sAccount" placeholder="Login ID or Username" required></div>
+                                    <div class="col-12"><label class="form-label">Password / PIN</label><input type="password" class="form-control form-control-sm" id="sPass" placeholder="••••••••"></div>
+                                    <div class="col-6"><label class="form-label">Access Level</label>
+                                        <select class="form-select form-select-sm" id="sLevel">
+                                            <option>Admin</option>
+                                            <option>Full Access</option>
+                                            <option>Manager</option>
+                                            <option>Operator</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="sStatus">
+                                            <option>Active</option>
+                                            <option>Inactive</option>
+                                            <option>Pending Renewal</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Support Tel No</label><input type="tel" class="form-control form-control-sm" id="sTel" placeholder="+94 11 ..."></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="sNotes" rows="3" placeholder="URL, Renewal dates, etc."></textarea></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Save Access Details</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Credential Inventory</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('access')"><i class="fas fa-expand-alt me-1"></i> Wide View</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr><th>Service</th><th>Account / ID</th><th>Level</th><th>Status</th><th class="extra-col">Support No</th><th class="extra-col">Notes</th><th>Action</th></tr>
+                                </thead>
+                                <tbody id="accessTable">
+                                    <tr>
+                                        <td><strong>Till Access</strong></td>
+                                        <td>Till-Main-01</td>
+                                        <td>Manager</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td class="extra-col">+94 11 234 5678</td>
+                                        <td class="extra-col text-muted small">Main counter till login</td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => { v.classList.remove('active'); v.classList.remove('wide'); });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
+
+        function toggleWideView(viewId) {
+            const section = document.getElementById('view-' + viewId);
+            section.classList.toggle('wide');
+            const btn = section.querySelector('.card-header button');
+            if (section.classList.contains('wide')) { btn.innerHTML = '<i class="fas fa-compress-alt me-1"></i> Standard View'; }
+            else { btn.innerHTML = '<i class="fas fa-expand-alt me-1"></i> Wide View'; }
+        }
+
+        // Form Handler
+        document.getElementById('accessForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const service = document.getElementById('sName').value;
+            const account = document.getElementById('sAccount').value;
+            const level = document.getElementById('sLevel').value;
+            const status = document.getElementById('sStatus').value;
+            const tel = document.getElementById('sTel').value || '-';
+            const notes = document.getElementById('sNotes').value || '-';
+
+            const row = `<tr>
+                <td><strong>${service}</strong></td>
+                <td>${account}</td>
+                <td>${level}</td>
+                <td><span class="status-badge bg-active">${status}</span></td>
+                <td class="extra-col">${tel}</td>
+                <td class="extra-col text-muted small">${notes}</td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+            </tr>`;
+            document.getElementById('accessTable').insertAdjacentHTML('afterbegin', row);
+            alert('Credential saved securely!');
+            this.reset();
+        });
+
+        // Reminders Check
+        checkAccessAlerts();
+        function checkAccessAlerts() {
+            const container = document.getElementById('reminders-list');
+            container.innerHTML = '';
+            // Mock alerts
+            const alerts = [
+                { name: 'PayPoint Portal', msg: 'Password expires in 5 days', type: 'reminder-pending' },
+                { name: 'Lottery Terminal', msg: 'System Maintenance Scheduled', type: 'reminder-pending' }
+            ];
+            alerts.forEach(a => {
+                const html = `<div class="col-md-4"><div class="card ${a.type} p-2 shadow-sm border-0"><div class="d-flex align-items-center gap-2"><i class="fas fa-shield-alt ${a.type === 'reminder-card' ? 'text-danger' : 'text-warning'}"></i><div><div class="fw-bold small">${a.name}</div><div class="text-muted" style="font-size: 11px;">${a.msg}</div></div></div></div></div>`;
+                document.getElementById('reminders-list').insertAdjacentHTML('beforeend', html);
+            });
+        }
+    </script>
+</body>
+</html>
