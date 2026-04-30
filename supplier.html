@@ -259,6 +259,7 @@
         .form-select-sm {
             font-size: 13px;
         }
+
         /* Custom Modal */
         .modal-overlay {
             display: none;
@@ -385,7 +386,8 @@
             <div class="row g-4">
                 <div class="col-lg-4 form-col">
                     <div class="card">
-                        <div class="card-header py-3"><i id="suppFormIcon" class="fas fa-plus-circle me-2"></i><span id="suppFormTitle">Add New Supplier</span></div>
+                        <div class="card-header py-3"><i id="suppFormIcon" class="fas fa-plus-circle me-2"></i><span
+                                id="suppFormTitle">Add New Supplier</span></div>
                         <div class="card-body">
                             <form id="supplierForm">
                                 <div class="row g-3">
@@ -424,9 +426,15 @@
                                             <option value="On Hold">On Hold</option>
                                         </select>
                                     </div>
+                                    <div class="col-12"><label class="form-label">Notes</label>
+                                        <textarea class="form-control form-control-sm" id="sNotes" rows="2" placeholder="Payment terms, delivery preferences, etc."></textarea>
+                                    </div>
                                 </div>
-                                <button type="submit" id="suppSubmitBtn" class="btn btn-minimal w-100 mt-3">Register Supplier</button>
-                                <button type="button" id="cancelSuppEdit" class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;" onclick="resetSupplierForm()">Cancel Edit</button>
+                                <button type="submit" id="suppSubmitBtn" class="btn btn-minimal w-100 mt-3">Register
+                                    Supplier</button>
+                                <button type="button" id="cancelSuppEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetSupplierForm()">Cancel Edit</button>
                             </form>
                         </div>
                     </div>
@@ -448,6 +456,7 @@
                                         <th>Email</th>
                                         <th class="extra-col">Phone</th>
                                         <th class="extra-col">Address</th>
+                                        <th class="extra-col">Notes</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -462,10 +471,14 @@
                                         <td class="td-s-email">contact@global.com</td>
                                         <td class="td-s-phone extra-col">+44 20 7123 4567</td>
                                         <td class="td-s-address extra-col text-muted small">123 Logistics Way, London</td>
+                                        <td class="td-s-notes extra-col text-muted small">Primary carrier for London region</td>
                                         <td class="td-s-status"><span class="status-badge bg-active">Active</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('supp-101')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('supp-101')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editSupplier('supp-101')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteSupplier('supp-101')"><i
+                                                    class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="supp-102">
@@ -476,11 +489,15 @@
                                         <td class="td-s-cat">Office Supplies</td>
                                         <td class="td-s-email">sales@prime.com</td>
                                         <td class="td-s-phone extra-col">+44 20 8987 6543</td>
-                                        <td class="td-s-address extra-col text-muted small">45 Stationery Road, Manchester</td>
+                                        <td class="td-s-address extra-col text-muted small">45 Stationery Road,
+                                            Manchester</td>
                                         <td class="td-s-status"><span class="status-badge bg-active">Active</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('supp-102')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('supp-102')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editSupplier('supp-102')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteSupplier('supp-102')"><i
+                                                    class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="supp-103">
@@ -492,10 +509,14 @@
                                         <td class="td-s-email">support@techconnect.com</td>
                                         <td class="td-s-phone extra-col">+1 415 555 0123</td>
                                         <td class="td-s-address extra-col text-muted small">Silicon Valley, CA, USA</td>
-                                        <td class="td-s-status"><span class="status-badge bg-inactive">On Hold</span></td>
+                                        <td class="td-s-status"><span class="status-badge bg-inactive">On Hold</span>
+                                        </td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('supp-103')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('supp-103')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editSupplier('supp-103')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteSupplier('supp-103')"><i
+                                                    class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -511,7 +532,8 @@
             <div class="row g-4">
                 <div class="col-lg-4 form-col">
                     <div class="card">
-                        <div class="card-header py-3"><i id="orderFormIcon" class="fas fa-shopping-cart me-2"></i><span id="orderFormTitle">New Purchase Order</span></div>
+                        <div class="card-header py-3"><i id="orderFormIcon" class="fas fa-shopping-cart me-2"></i><span
+                                id="orderFormTitle">New Purchase Order</span></div>
                         <div class="card-body">
                             <form id="orderForm">
                                 <div class="row g-3">
@@ -530,6 +552,26 @@
                                     <div class="col-12"><label class="form-label">Order Amount ($)</label><input
                                             type="number" class="form-control form-control-sm" id="oAmount" step="0.01"
                                             required></div>
+                                    <div class="col-12">
+                                        <label class="form-label">Product Details</label>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <select class="form-select form-select-sm" id="oProdCat">
+                                                    <option value="" disabled selected>Category</option>
+                                                    <option>Electronics</option>
+                                                    <option>Stationery</option>
+                                                    <option>Services</option>
+                                                    <option>Logistics</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control form-control-sm" id="oQty" placeholder="Qty">
+                                            </div>
+                                            <div class="col-12">
+                                                <input type="text" class="form-control form-control-sm" id="oProdName" placeholder="Product Name (e.g. Paper Reams)">
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-12"><label class="form-label">Delivery Due</label><input type="date"
                                             class="form-control form-control-sm" id="oDue" required></div>
                                     <div class="col-12"><label class="form-label">Status</label>
@@ -540,8 +582,11 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" id="orderSubmitBtn" class="btn btn-minimal w-100 mt-3">Create PO</button>
-                                <button type="button" id="cancelOrderEdit" class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;" onclick="resetOrderForm()">Cancel Edit</button>
+                                <button type="submit" id="orderSubmitBtn" class="btn btn-minimal w-100 mt-3">Create
+                                    PO</button>
+                                <button type="button" id="cancelOrderEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetOrderForm()">Cancel Edit</button>
                             </form>
                         </div>
                     </div>
@@ -560,6 +605,7 @@
                                     <tr>
                                         <th>PO #</th>
                                         <th>Supplier</th>
+                                        <th>Product / Qty</th>
                                         <th>Amount</th>
                                         <th>Due Date</th>
                                         <th class="extra-col">Created</th>
@@ -571,14 +617,18 @@
                                     <tr id="po-501">
                                         <td class="td-o-num"><strong>PO-2024-501</strong></td>
                                         <td class="td-o-supp">Prime Office Supplies</td>
+                                        <td class="td-o-prod">Stationery (10 Units)</td>
                                         <td class="td-o-amount" data-val="450.00">$450.00</td>
                                         <td class="td-o-due">2026-05-10</td>
                                         <td class="td-o-date extra-col">2026-04-28</td>
                                         <td class="td-o-status"><span class="status-badge bg-active">Pending</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-501')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-501')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-501')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteOrder('po-501')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-print"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="po-502">
@@ -589,9 +639,12 @@
                                         <td class="td-o-date extra-col">2026-04-30</td>
                                         <td class="td-o-status"><span class="status-badge bg-pending">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-502')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-502')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-502')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteOrder('po-502')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-print"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -700,18 +753,16 @@
             const name = row.querySelector('.td-s-display-name').innerText.trim();
             const cat = row.querySelector('.td-s-cat').innerText.trim();
             const email = row.querySelector('.td-s-email').innerText.trim();
-            const phone = row.querySelector('.td-s-phone').innerText.trim();
-            const address = row.querySelector('.td-s-address').innerText.trim();
-            const status = row.querySelector('.td-s-status span').innerText.trim();
+            document.getElementById('sPhone').value = row.querySelector('.td-s-phone').innerText;
+            document.getElementById('sAddress').value = row.querySelector('.td-s-address').innerText;
+            document.getElementById('sNotes').value = row.querySelector('.td-s-notes').innerText;
+            document.getElementById('sStatus').value = row.querySelector('.td-s-status').innerText.trim();
 
             document.getElementById('editSuppId').value = id;
             document.getElementById('sID').value = sid;
             document.getElementById('sName').value = name;
             document.getElementById('sCat').value = cat;
             document.getElementById('sEmail').value = email;
-            document.getElementById('sPhone').value = phone === '-' ? '' : phone;
-            document.getElementById('sAddress').value = address === '-' ? '' : address;
-            document.getElementById('sStatus').value = status;
 
             document.getElementById('suppFormTitle').innerText = 'Edit Supplier';
             document.getElementById('suppFormIcon').className = 'fas fa-edit me-2';
@@ -723,55 +774,38 @@
         document.getElementById('supplierForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const editId = document.getElementById('editSuppId').value;
-            const sid = document.getElementById('sID').value;
+            const id = document.getElementById('sID').value;
             const name = document.getElementById('sName').value;
             const cat = document.getElementById('sCat').value;
             const email = document.getElementById('sEmail').value;
             const phone = document.getElementById('sPhone').value || '-';
             const address = document.getElementById('sAddress').value || '-';
             const status = document.getElementById('sStatus').value;
-
-            const statusClass = status === 'Active' ? 'bg-active' : 'bg-inactive';
+            const notes = document.getElementById('sNotes').value || '-';
 
             if (editId) {
                 const row = document.getElementById(editId);
-                row.innerHTML = `
-                    <td class="td-s-name">
-                        <span class="text-muted small d-block td-s-id">${sid}</span>
-                        <strong class="td-s-display-name">${name}</strong>
-                    </td>
+                row.querySelector('.td-s-display-name').innerText = name;
+                row.querySelector('.td-s-cat').innerText = cat;
+                row.querySelector('.td-s-email').innerText = email;
+                row.querySelector('.td-s-phone').innerText = phone || '-';
+                row.querySelector('.td-s-address').innerText = address || '-';
+                row.querySelector('.td-s-notes').innerText = notes;
+                row.querySelector('.td-s-status').innerHTML = `<span class="status-badge bg-${status.toLowerCase().replace(' ', '-')}">${status}</span>`;
+                alert('Supplier updated successfully!');
+            } else {
+                const newId = 'supp-' + Date.now();
+                const row = `<tr id="${newId}">
+                    <td class="td-s-name"><span class="text-muted small d-block td-s-id">${id}</span><strong class="td-s-display-name">${name}</strong></td>
                     <td class="td-s-cat">${cat}</td>
                     <td class="td-s-email">${email}</td>
-                    <td class="td-s-phone extra-col">${phone}</td>
-                    <td class="td-s-address extra-col text-muted small">${address}</td>
-                    <td class="td-s-status"><span class="status-badge ${statusClass}">${status}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('${editId}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('${editId}')"><i class="fas fa-trash"></i></button>
-                    </td>
-                `;
-                openModal({ title: 'Success', body: 'Supplier information updated!' });
-            } else {
-                const rid = 'supp-' + Date.now();
-                const row = `
-                    <tr id="${rid}">
-                        <td class="td-s-name">
-                            <span class="text-muted small d-block td-s-id">${sid}</span>
-                            <strong class="td-s-display-name">${name}</strong>
-                        </td>
-                        <td class="td-s-cat">${cat}</td>
-                        <td class="td-s-email">${email}</td>
-                        <td class="td-s-phone extra-col">${phone}</td>
-                        <td class="td-s-address extra-col text-muted small">${address}</td>
-                        <td class="td-s-status"><span class="status-badge ${statusClass}">${status}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('${rid}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('${rid}')"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                    <td class="td-s-phone extra-col">${phone || '-'}</td>
+                    <td class="td-s-address extra-col text-muted small">${address || '-'}</td>
+                    <td class="td-s-notes extra-col text-muted small">${notes}</td>
+                    <td class="td-s-status"><span class="status-badge bg-${status.toLowerCase().replace(' ', '-')}">${status}</span></td>
+                    <td><button class="btn btn-sm btn-outline-dark" onclick="editSupplier('${newId}')"><i class="fas fa-edit"></i></button></td>
+                </tr>`;
                 document.getElementById('supplierTable').insertAdjacentHTML('afterbegin', row);
-                openModal({ title: 'Success', body: 'Supplier registered with ID: ' + sid });
                 nextSuppId++;
             }
 
@@ -813,6 +847,17 @@
             document.getElementById('oDue').value = due;
             document.getElementById('oStatus').value = status;
 
+            // Extract product and qty from the hidden or visible text
+            const prodCell = row.querySelector('.td-o-prod');
+            if (prodCell) {
+                const text = prodCell.innerText;
+                const match = text.match(/(.*) \((\d+)\)/);
+                if (match) {
+                    document.getElementById('oProdName').value = match[1];
+                    document.getElementById('oQty').value = match[2];
+                }
+            }
+
             document.getElementById('orderFormTitle').innerText = 'Edit Purchase Order';
             document.getElementById('orderFormIcon').className = 'fas fa-edit me-2';
             document.getElementById('orderSubmitBtn').innerText = 'Update Order';
@@ -844,6 +889,8 @@
             const amount = parseFloat(document.getElementById('oAmount').value);
             const due = document.getElementById('oDue').value;
             const status = document.getElementById('oStatus').value;
+            const prod = document.getElementById('oProdName').value || 'Item';
+            const qty = document.getElementById('oQty').value || '1';
             const date = new Date().toISOString().split('T')[0];
 
             const statusClass = status === 'Paid' ? 'bg-active' : (status === 'Overdue' ? 'bg-overdue' : 'bg-pending');
@@ -853,6 +900,7 @@
                 row.innerHTML = `
                     <td class="td-o-num"><strong>${num}</strong></td>
                     <td class="td-o-supp">${supplier}</td>
+                    <td class="td-o-prod">${prod} (${qty})</td>
                     <td class="td-o-amount" data-val="${amount}">$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td class="td-o-due">${due}</td>
                     <td class="td-o-date extra-col">${date}</td>
@@ -870,6 +918,7 @@
                     <tr id="${rid}">
                         <td class="td-o-num"><strong>${num}</strong></td>
                         <td class="td-o-supp">${supplier}</td>
+                        <td class="td-o-prod">${prod} (${qty})</td>
                         <td class="td-o-amount" data-val="${amount}">$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td class="td-o-due">${due}</td>
                         <td class="td-o-date extra-col">${date}</td>
