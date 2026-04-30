@@ -291,17 +291,28 @@
             </div>
         </div>
         <ul class="sidebar-nav-list">
-            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
-            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a></li>
-            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
-            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
-            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
-            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
-            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span class="nav-label">Suppliers</span></a></li>
-            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a></li>
-            <li><a href="legal_compliance.html" class="nav-link active"><i class="fas fa-gavel nav-icon"></i><span class="nav-label">Legal & Compliance</span></a></li>
-            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span class="nav-label">Property Management</span></a></li>
-            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span class="nav-label">Reports</span></a></li>
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span
+                        class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span
+                        class="nav-label">Business Management</span></a></li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span
+                        class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+                        class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+                        class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+                        class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span
+                        class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span
+                        class="nav-label">Accounting</span></a></li>
+            <li><a href="legal_compliance.html" class="nav-link active"><i class="fas fa-gavel nav-icon"></i><span
+                        class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span
+                        class="nav-label">Property Management</span></a></li>
+            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+                        class="nav-label">Reports</span></a></li>
         </ul>
     </div>
 
@@ -315,7 +326,6 @@
         <!-- Tab Toggle Views -->
         <div class="nav-tabs-custom">
             <button class="tab-btn active" id="tab-docs" onclick="switchView('docs')">Document Registry</button>
-            <button class="tab-btn" id="tab-tasks" onclick="switchView('tasks')">Compliance Tasks</button>
             <!-- KPI pills pushed to the right -->
             <div class="ms-auto d-flex align-items-center gap-2 flex-wrap py-1" id="kpi-list">
                 <div class="reminder-pill expired">
@@ -334,20 +344,36 @@
                         <div class="card-body">
                             <form id="docForm">
                                 <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Document Title</label><input type="text" class="form-control form-control-sm" id="docTitle" placeholder="Trade License" required></div>
+                                    <div class="col-12"><label class="form-label">Document Title</label><input
+                                            type="text" class="form-control form-control-sm" id="docTitle"
+                                            placeholder="Trade License" required></div>
                                     <div class="col-12"><label class="form-label">Document Type</label>
                                         <select class="form-select form-select-sm" id="docType" required>
-                                            <option>License</option>
-                                            <option>Permit</option>
-                                            <option>Insurance</option>
-                                            <option>Tax Document</option>
-                                            <option>Other</option>
+                                            <option>License Applications</option>
+                                            <option>Change of DPS</option>
+                                            <option>Change of Premisses Slip</option>
+                                            <option>Food Statement Agency Forms</option>
+                                            <option>Refusal Logs</option>
+                                            <option>Temp Records</option>
+                                            <option>Shift Sheets</option>
                                         </select>
                                     </div>
-                                    <div class="col-12"><label class="form-label">Issuing Authority</label><input type="text" class="form-control form-control-sm" id="docAuth" required></div>
-                                    <div class="col-6"><label class="form-label">Issue Date</label><input type="date" class="form-control form-control-sm" id="docIssue"></div>
-                                    <div class="col-6"><label class="form-label">Expiry Date</label><input type="date" class="form-control form-control-sm" id="docExpiry" required></div>
-                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="docNotes" rows="2"></textarea></div>
+                                    <div class="col-12"><label class="form-label">Issuing Authority</label><input
+                                            type="text" class="form-control form-control-sm" id="docAuth" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Document Drop Box</label>
+                                        <div class="upload-box p-3 text-center border border-dashed rounded bg-light"
+                                            style="border-style: dashed !important; cursor: pointer;"
+                                            onclick="document.getElementById('docFile').click()">
+                                            <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-muted"></i>
+                                            <p class="small mb-0 text-muted">Click or Drag & Drop File Here</p>
+                                            <input type="file" id="docFile" hidden>
+                                        </div>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea
+                                            class="form-control form-control-sm" id="docNotes" rows="2"></textarea>
+                                    </div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Save Document</button>
                             </form>
@@ -368,8 +394,8 @@
                                     <tr>
                                         <th>Title</th>
                                         <th>Type</th>
-                                        <th>Expiry Date</th>
                                         <th class="extra-col">Authority</th>
+                                        <th>Document</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -378,26 +404,32 @@
                                     <tr>
                                         <td><strong>Trade License</strong></td>
                                         <td>License</td>
-                                        <td>2027-12-31</td>
                                         <td class="extra-col">City Council</td>
+                                        <td><span class="badge bg-light text-dark border"><i
+                                                    class="fas fa-file-pdf me-1"></i>license_2024.pdf</span></td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-eye"></i></button></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Public Liability Insurance</strong></td>
                                         <td>Insurance</td>
-                                        <td>2026-06-15</td>
                                         <td class="extra-col">AXA Insurance</td>
+                                        <td><span class="badge bg-light text-dark border"><i
+                                                    class="fas fa-file-shield me-1"></i>ins_axa.pdf</span></td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-eye"></i></button></td>
                                     </tr>
                                     <tr>
                                         <td><strong>GDPR Compliance Cert</strong></td>
                                         <td>Permit</td>
-                                        <td>2025-01-10</td>
                                         <td class="extra-col">ICO Office</td>
+                                        <td><span class="badge bg-light text-dark border"><i
+                                                    class="fas fa-file-contract me-1"></i>gdpr_cert.pdf</span></td>
                                         <td><span class="status-badge bg-expired">Expired</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-eye"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -407,67 +439,7 @@
             </div>
         </div>
 
-        <!-- 2. COMPLIANCE TASKS VIEW -->
-        <div id="view-tasks" class="view-section">
-            <div class="row g-4">
-                <div class="col-lg-4 form-col">
-                    <div class="card">
-                        <div class="card-header py-3"><i class="fas fa-tasks me-2"></i>New Compliance Task</div>
-                        <div class="card-body">
-                            <form id="taskForm">
-                                <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Task Description</label><input type="text" class="form-control form-control-sm" id="taskDesc" required></div>
-                                    <div class="col-12"><label class="form-label">Priority</label>
-                                        <select class="form-select form-select-sm" id="taskPrio">
-                                            <option>High</option>
-                                            <option>Medium</option>
-                                            <option>Low</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12"><label class="form-label">Due Date</label><input type="date" class="form-control form-control-sm" id="taskDue" required></div>
-                                    <div class="col-12"><label class="form-label">Assigned To</label><input type="text" class="form-control form-control-sm" id="taskAssignee"></div>
-                                </div>
-                                <button type="submit" class="btn btn-minimal w-100 mt-3">Create Task</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-8 table-col">
-                    <div class="card h-100">
-                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <span>Compliance Action Tracker</span>
-                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('tasks')">
-                                <i class="fas fa-expand-alt me-1"></i> Wide View
-                            </button>
-                        </div>
-                        <div class="card-body p-0">
-                            <table class="table table-sm table-striped mb-0 align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Task</th>
-                                        <th>Priority</th>
-                                        <th>Due Date</th>
-                                        <th class="extra-col">Assignee</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tasksTable">
-                                    <tr>
-                                        <td><strong>Annual Audit Preparation</strong></td>
-                                        <td><span class="status-badge bg-overdue">High</span></td>
-                                        <td>2026-05-15</td>
-                                        <td class="extra-col">Sarah Jenkins</td>
-                                        <td><span class="status-badge bg-pending">Pending</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i></button></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Policy Review - HR</strong></td>
-                                        <td><span class="status-badge bg-pending">Medium</span></td>
-                                        <td>2026-06-01</td>
-                                        <td class="extra-col">Mark Ross</td>
-                                        <td><span class="status-badge bg-pending">Pending</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i></button></td>
+                                                    class="fas fa-check"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -507,52 +479,24 @@
             e.preventDefault();
             const title = document.getElementById('docTitle').value;
             const type = document.getElementById('docType').value;
-            const expiry = document.getElementById('docExpiry').value;
             const auth = document.getElementById('docAuth').value;
+            const fileInput = document.getElementById('docFile');
+            const fileName = fileInput.files[0] ? fileInput.files[0].name : 'uploaded_document.pdf';
             const notes = document.getElementById('docNotes').value || '-';
-
-            const expiryDate = new Date(expiry);
-            const isExpired = expiryDate < new Date();
-            if (isExpired) expiredCount++;
-
-            const statusClass = isExpired ? 'bg-expired' : 'bg-active';
-            const statusText = isExpired ? 'Expired' : 'Active';
 
             const row = `<tr>
                 <td><strong>${title}</strong></td>
                 <td>${type}</td>
-                <td>${expiry}</td>
                 <td class="extra-col">${auth}</td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td><span class="badge bg-light text-dark border"><i class="fas fa-file-upload me-1"></i>${fileName}</span></td>
+                <td><span class="status-badge bg-active">Active</span></td>
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
             </tr>`;
             document.getElementById('docsTable').insertAdjacentHTML('afterbegin', row);
-            document.getElementById('kpi-expired').textContent = expiredCount;
-            alert('Document registered!');
+            alert('Document registered successfully!');
             this.reset();
         });
 
-        document.getElementById('taskForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const desc = document.getElementById('taskDesc').value;
-            const prio = document.getElementById('taskPrio').value;
-            const due = document.getElementById('taskDue').value;
-            const assignee = document.getElementById('taskAssignee').value || 'Unassigned';
-
-            const prioClass = prio === 'High' ? 'bg-overdue' : (prio === 'Medium' ? 'bg-pending' : 'bg-active');
-
-            const row = `<tr>
-                <td><strong>${desc}</strong></td>
-                <td><span class="status-badge ${prioClass}">${prio}</span></td>
-                <td>${due}</td>
-                <td class="extra-col">${assignee}</td>
-                <td><span class="status-badge bg-pending">Pending</span></td>
-                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i></button></td>
-            </tr>`;
-            document.getElementById('tasksTable').insertAdjacentHTML('afterbegin', row);
-            alert('Compliance task created!');
-            this.reset();
-        });
     </script>
 
 </body>

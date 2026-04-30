@@ -350,6 +350,14 @@
                                     <div class="col-12"><label class="form-label">Notes</label><textarea
                                             class="form-control form-control-sm" id="aNotes" rows="2"
                                             placeholder="Specific instructions or property details"></textarea></div>
+                                    <div class="col-12">
+                                        <label class="form-label">Asset Documents (Manuals/Warranties)</label>
+                                        <div class="upload-box p-3 text-center border border-dashed rounded bg-light" style="border-style: dashed !important; cursor: pointer;" onclick="document.getElementById('aFile').click()">
+                                            <i class="fas fa-file-contract fa-2x mb-2 text-muted"></i>
+                                            <p class="small mb-0 text-muted">Click or Drag & Drop Manual/Warranty</p>
+                                            <input type="file" id="aFile" hidden>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Register Asset</button>
                             </form>
@@ -371,6 +379,7 @@
                                         <th>Asset</th>
                                         <th>Location</th>
                                         <th>Type</th>
+                                        <th>Document</th>
                                         <th class="extra-col">Assigned Person</th>
                                         <th class="extra-col">Contact</th>
                                         <th>Status</th>
@@ -382,6 +391,7 @@
                                         <td><strong>Main Office HVAC</strong></td>
                                         <td>Floor 1, West Wing</td>
                                         <td>HVAC</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="fas fa-file-pdf me-1"></i>hvac_manual.pdf</span></td>
                                         <td class="extra-col">Robert Chen</td>
                                         <td class="extra-col">+1 234-567-890</td>
                                         <td><span class="status-badge bg-active">Operational</span></td>
@@ -392,6 +402,7 @@
                                         <td><strong>Elevator A</strong></td>
                                         <td>Main Lobby</td>
                                         <td>Mechanical</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="fas fa-file-contract me-1"></i>safety_cert.pdf</span></td>
                                         <td class="extra-col">Sarah Jenkins</td>
                                         <td class="extra-col">+1 234-999-888</td>
                                         <td><span class="status-badge bg-active">Operational</span></td>
@@ -679,22 +690,25 @@
         document.getElementById('assetForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const name = document.getElementById('aName').value;
-            const loc = document.getElementById('aLoc').value;
+            const location = document.getElementById('aLoc').value;
             const type = document.getElementById('aType').value;
             const person = document.getElementById('aPerson').value || 'Unassigned';
             const contact = document.getElementById('aContact').value || '-';
+            const fileInput = document.getElementById('aFile');
+            const fileName = fileInput.files[0] ? fileInput.files[0].name : 'manual.pdf';
 
             const row = `<tr>
                 <td><strong>${name}</strong></td>
-                <td>${loc}</td>
+                <td>${location}</td>
                 <td>${type}</td>
+                <td><span class="badge bg-light text-dark border"><i class="fas fa-file-pdf me-1"></i>${fileName}</span></td>
                 <td class="extra-col">${person}</td>
                 <td class="extra-col">${contact}</td>
                 <td><span class="status-badge bg-active">Operational</span></td>
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
             </tr>`;
             document.getElementById('assetTable').insertAdjacentHTML('afterbegin', row);
-            alert('Asset registered!');
+            alert('Property asset registered!');
             this.reset();
         });
 
