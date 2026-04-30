@@ -320,8 +320,9 @@
                                             <option>IT Infrastructure</option>
                                         </select>
                                     </div>
-                                    <div class="col-12"><label class="form-label">Last Service Date</label><input type="date" class="form-control form-control-sm" id="aLastService"></div>
-                                    <div class="col-12"><label class="form-label">Next Service Due</label><input type="date" class="form-control form-control-sm" id="aNextService"></div>
+                                    <div class="col-12"><label class="form-label">Assigned Person</label><input type="text" class="form-control form-control-sm" id="aPerson" placeholder="Name of responsible person"></div>
+                                    <div class="col-12"><label class="form-label">Contact Number</label><input type="text" class="form-control form-control-sm" id="aContact" placeholder="+1 (555) 000-0000"></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="aNotes" rows="2" placeholder="Specific instructions or property details"></textarea></div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Register Asset</button>
                             </form>
@@ -343,7 +344,8 @@
                                         <th>Asset</th>
                                         <th>Location</th>
                                         <th>Type</th>
-                                        <th class="extra-col">Next Service</th>
+                                        <th class="extra-col">Assigned Person</th>
+                                        <th class="extra-col">Contact</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -353,7 +355,8 @@
                                         <td><strong>Main Office HVAC</strong></td>
                                         <td>Floor 1, West Wing</td>
                                         <td>HVAC</td>
-                                        <td class="extra-col">2026-10-01</td>
+                                        <td class="extra-col">Robert Chen</td>
+                                        <td class="extra-col">+1 234-567-890</td>
                                         <td><span class="status-badge bg-active">Operational</span></td>
                                         <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
                                     </tr>
@@ -361,7 +364,8 @@
                                         <td><strong>Elevator A</strong></td>
                                         <td>Main Lobby</td>
                                         <td>Mechanical</td>
-                                        <td class="extra-col">2026-08-15</td>
+                                        <td class="extra-col">Sarah Jenkins</td>
+                                        <td class="extra-col">+1 234-999-888</td>
                                         <td><span class="status-badge bg-active">Operational</span></td>
                                         <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
                                     </tr>
@@ -369,7 +373,8 @@
                                         <td><strong>Fire Suppression System</strong></td>
                                         <td>Server Room</td>
                                         <td>Safety</td>
-                                        <td class="extra-col">2026-12-20</td>
+                                        <td class="extra-col">Safety Team</td>
+                                        <td class="extra-col">Emergency Ext 9</td>
                                         <td><span class="status-badge bg-active">Operational</span></td>
                                         <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
                                     </tr>
@@ -391,7 +396,22 @@
                             <form id="requestForm">
                                 <div class="row g-3">
                                     <div class="col-12"><label class="form-label">Issue Description</label><input type="text" class="form-control form-control-sm" id="rDesc" placeholder="e.g. Broken window" required></div>
-                                    <div class="col-12"><label class="form-label">Asset / Location</label><input type="text" class="form-control form-control-sm" id="rAsset" required></div>
+                                    <div class="col-12"><label class="form-label">Request Date</label><input type="date" class="form-control form-control-sm" id="rDate" required></div>
+                                    <div class="col-12"><label class="form-label">Select Asset (Property or Vehicle)</label>
+                                        <select class="form-select form-select-sm" id="rAsset" required>
+                                            <option value="">Choose asset...</option>
+                                            <optgroup label="Property Assets">
+                                                <option>Main Office HVAC</option>
+                                                <option>Elevator A</option>
+                                                <option>Fire Suppression System</option>
+                                            </optgroup>
+                                            <optgroup label="Vehicle Fleet">
+                                                <option>CAR 1 (ABC-1234)</option>
+                                                <option>TRUCK 2 (DEF-5678)</option>
+                                                <option>VAN 3 (GHI-9012)</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
                                     <div class="col-12"><label class="form-label">Priority</label>
                                         <select class="form-select form-select-sm" id="rPrio">
                                             <option>Urgent</option>
@@ -399,7 +419,8 @@
                                             <option>Low</option>
                                         </select>
                                     </div>
-                                    <div class="col-12"><label class="form-label">Assigned Technician</label><input type="text" class="form-control form-control-sm" id="rTech"></div>
+                                    <div class="col-12"><label class="form-label">Assigned Technician</label><input type="text" class="form-control form-control-sm" id="rTech" placeholder="Name of technician"></div>
+                                    <div class="col-12"><label class="form-label">Request Notes</label><textarea class="form-control form-control-sm" id="rNotes" rows="2" placeholder="Describe specific details of the issue"></textarea></div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Log Request</button>
                             </form>
@@ -483,13 +504,15 @@
             const name = document.getElementById('aName').value;
             const loc = document.getElementById('aLoc').value;
             const type = document.getElementById('aType').value;
-            const next = document.getElementById('aNextService').value || '-';
+            const person = document.getElementById('aPerson').value || 'Unassigned';
+            const contact = document.getElementById('aContact').value || '-';
 
             const row = `<tr>
                 <td><strong>${name}</strong></td>
                 <td>${loc}</td>
                 <td>${type}</td>
-                <td class="extra-col">${next}</td>
+                <td class="extra-col">${person}</td>
+                <td class="extra-col">${contact}</td>
                 <td><span class="status-badge bg-active">Operational</span></td>
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
             </tr>`;
@@ -504,13 +527,14 @@
             const asset = document.getElementById('rAsset').value;
             const prio = document.getElementById('rPrio').value;
             const tech = document.getElementById('rTech').value || 'Unassigned';
-            const date = new Date().toISOString().split('T')[0];
+            const notes = document.getElementById('rNotes').value || '-';
+            const date = document.getElementById('rDate').value || new Date().toISOString().split('T')[0];
 
             const prioClass = prio === 'Urgent' ? 'bg-urgent' : (prio === 'Medium' ? 'bg-pending' : 'bg-active');
 
             const row = `<tr>
                 <td>${date}</td>
-                <td><strong>${desc}</strong></td>
+                <td><strong>${desc}</strong><br><small class="text-muted">${notes}</small></td>
                 <td><span class="status-badge ${prioClass}">${prio}</span></td>
                 <td class="extra-col">${asset}</td>
                 <td class="extra-col">${tech}</td>
@@ -521,6 +545,8 @@
             alert('Maintenance request logged!');
             this.reset();
         });
+        // Set default date for request form
+        document.getElementById('rDate').value = new Date().toISOString().split('T')[0];
     </script>
 
 </body>
