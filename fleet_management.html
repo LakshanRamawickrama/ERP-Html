@@ -371,12 +371,20 @@
                                             <option value="Zenith Logistics Hub">Zenith Logistics Hub</option>
                                         </select>
                                     </div>
+                                    <!-- Insurance Row -->
                                     <div class="col-6"><label class="form-label">Insurance Exp.</label><input
                                             type="date" class="form-control form-control-sm" id="vIns"></div>
+                                    <div class="col-6"><label class="form-label">Insurance Doc</label><input type="file" class="form-control form-control-sm" id="vInsDoc" accept=".pdf,.jpg,.png"></div>
+                                    
+                                    <!-- MOT Row -->
                                     <div class="col-6"><label class="form-label">MOT Date</label><input type="date"
                                             class="form-control form-control-sm" id="vMot"></div>
+                                    <div class="col-6"><label class="form-label">MOT Doc</label><input type="file" class="form-control form-control-sm" id="vMotDoc" accept=".pdf,.jpg,.png"></div>
+                                    
+                                    <!-- Tax Row -->
                                     <div class="col-6"><label class="form-label">Road Tax Date</label><input type="date"
                                             class="form-control form-control-sm" id="vTax"></div>
+                                    <div class="col-6"><label class="form-label">Tax Doc</label><input type="file" class="form-control form-control-sm" id="vTaxDoc" accept=".pdf,.jpg,.png"></div>
                                     <div class="col-12"><label class="form-label">Notes</label><textarea
                                             class="form-control form-control-sm" id="vNotes" rows="2"></textarea></div>
                                 </div>
@@ -403,6 +411,7 @@
                                         <th>Insurance</th>
                                         <th>MOT</th>
                                         <th>Tax</th>
+                                        <th>Documents</th>
                                         <th class="extra-col">Notes</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -416,6 +425,11 @@
                                         <td>2026-05-12</td>
                                         <td>2026-06-10</td>
                                         <td>2026-12-01</td>
+                                        <td>
+                                            <i class="fas fa-file-pdf text-danger me-1" title="Insurance"></i>
+                                            <i class="fas fa-file-pdf text-danger me-1" title="MOT"></i>
+                                            <i class="fas fa-file-pdf text-danger" title="Tax"></i>
+                                        </td>
                                         <td class="extra-col text-muted small">Standard company van</td>
                                         <td><span class="status-badge bg-active">Active</span></td>
                                         <td><button class="btn btn-sm btn-outline-dark"><i
@@ -725,11 +739,20 @@
             const name = document.getElementById('vName').value;
             const num = document.getElementById('vNum').value;
             const biz = document.getElementById('vBiz').value;
-            const ins = document.getElementById('vIns').value || '-';
             const mot = document.getElementById('vMot').value || '-';
             const tax = document.getElementById('vTax').value || '-';
             const notes = document.getElementById('vNotes').value || '-';
             
+            const insFile = document.getElementById('vInsDoc').files[0];
+            const motFile = document.getElementById('vMotDoc').files[0];
+            const taxFile = document.getElementById('vTaxDoc').files[0];
+
+            const docsHtml = `
+                ${insFile ? '<i class="fas fa-file-pdf text-danger me-1" title="Insurance"></i>' : ''}
+                ${motFile ? '<i class="fas fa-file-pdf text-danger me-1" title="MOT"></i>' : ''}
+                ${taxFile ? '<i class="fas fa-file-pdf text-danger" title="Tax"></i>' : ''}
+            ` || '-';
+
             const row = `<tr>
                 <td><strong>${name}</strong></td>
                 <td>${num}</td>
@@ -737,6 +760,7 @@
                 <td>${ins}</td>
                 <td>${mot}</td>
                 <td>${tax}</td>
+                <td>${docsHtml}</td>
                 <td class="extra-col text-muted small">${notes}</td>
                 <td><span class="status-badge bg-active">Active</span></td>
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
