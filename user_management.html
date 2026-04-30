@@ -690,8 +690,8 @@
         }
 
         // GLOBAL ROLE & PERMISSION STORE
+        // GLOBAL ROLE & PERMISSION STORE
         let rolePermissions = {
-            'Super Admin': ['All Modules'],
             'Admin': ['Dashboard', 'Business Management', 'User Management', 'Fleet Management', 'Accounting', 'Reports']
         };
 
@@ -944,7 +944,6 @@
 
             // Map default roles to their scopes for display
             const defaultScopes = {
-                'Super Admin': 'All Entities',
                 'Admin': 'All Entities'
             };
 
@@ -958,8 +957,8 @@
                     <td><strong>${displayName}</strong></td>
                     <td><span class="text-truncate d-inline-block" style="max-width: 250px;">${modules.join(', ')}</span></td>
                     <td class="extra-col">${business || 'See Role Name'}</td>
-                    <td><span class="status-badge bg-active">${role === 'Super Admin' ? 'Global' : 'Active'}</span></td>
-                    <td><button class="btn btn-sm btn-outline-dark"><i class="${role === 'Super Admin' ? 'fas fa-lock' : 'fas fa-edit'}"></i></button></td>
+                    <td><span class="status-badge bg-active">Active</span></td>
+                    <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             });
