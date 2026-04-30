@@ -312,6 +312,7 @@
                 Inventory</button>
             <button class="tab-btn" id="tab-requests" onclick="switchView('requests')">Maintenance Requests</button>
             <button class="tab-btn" id="tab-waste" onclick="switchView('waste')">Waste Collection</button>
+            <button class="tab-btn" id="tab-licence" onclick="switchView('licence')">Licences</button>
         </div>
 
         <!-- 1. PROPERTY INVENTORY VIEW -->
@@ -576,6 +577,80 @@
                 </div>
             </div>
         </div>
+        <!-- 4. LICENCE VIEW -->
+        <div id="view-licence" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-id-card me-2"></i>New Licence Registry</div>
+                        <div class="card-body">
+                            <form id="licenceForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Licence Type</label><input type="text"
+                                            class="form-control form-control-sm" id="lType"
+                                            placeholder="e.g. HMO Licence" required></div>
+                                    <div class="col-12"><label class="form-label">Business Name</label><input type="text"
+                                            class="form-control form-control-sm" id="lBusName"
+                                            placeholder="e.g. Property Central Ltd" required></div>
+                                    <div class="col-6"><label class="form-label">Issue Date</label><input type="date"
+                                            class="form-control form-control-sm" id="lIssue" required></div>
+                                    <div class="col-6"><label class="form-label">Expiry Date</label><input type="date"
+                                            class="form-control form-control-sm" id="lExpiry" required></div>
+                                    <div class="col-12"><label class="form-label">Issuing Authority</label><input
+                                            type="text" class="form-control form-control-sm" id="lAuth"
+                                            placeholder="e.g. Local City Council" required></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="lStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Expired">Expired</option>
+                                            <option value="Pending">Pending</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Upload Document</label><input
+                                            type="file" class="form-control form-control-sm" id="lDoc"></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Register Licence</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Licence & Permit Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('licence')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Licence / Business</th>
+                                        <th>Authority</th>
+                                        <th>Expiry</th>
+                                        <th class="extra-col">Issue Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="licenceTable">
+                                    <tr>
+                                        <td><strong>Trade Licence 2024</strong><br><small class="text-muted">Property Management Div</small></td>
+                                        <td>City Planning Dept</td>
+                                        <td>2025-05-20</td>
+                                        <td class="extra-col">2024-05-20</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                     class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -672,6 +747,31 @@
             alert('Waste collection scheduled!');
             this.reset();
             document.getElementById('wDate').value = today;
+        });
+
+        // Licence Form Handler
+        document.getElementById('licenceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const type = document.getElementById('lType').value;
+            const bus = document.getElementById('lBusName').value;
+            const issue = document.getElementById('lIssue').value;
+            const expiry = document.getElementById('lExpiry').value;
+            const auth = document.getElementById('lAuth').value;
+            const status = document.getElementById('lStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : (status === 'Expired' ? 'bg-urgent' : 'bg-pending');
+
+            const row = `<tr>
+                <td><strong>${type}</strong><br><small class="text-muted">${bus}</small></td>
+                <td>${auth}</td>
+                <td>${expiry}</td>
+                <td class="extra-col">${issue}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+            document.getElementById('licenceTable').insertAdjacentHTML('afterbegin', row);
+            alert('Licence registered!');
+            this.reset();
         });
     </script>
 
