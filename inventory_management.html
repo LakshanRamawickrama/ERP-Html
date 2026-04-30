@@ -177,11 +177,11 @@
                                             <input type="text" class="form-control d-none" id="newCatInput" placeholder="Enter category name">
                                         </div>
                                     </div>
-                                    <div class="col-6"><label class="form-label">Stock Level</label><input type="number" class="form-control form-control-sm" id="itemQty" value="0"></div>
-                                    <div class="col-6"><label class="form-label">Reorder Level</label><input type="number" class="form-control form-control-sm" id="itemMin" value="10"></div>
+                                    <div class="col-6"><label class="form-label">Stock Level</label><input type="number" class="form-control form-control-sm" id="itemQty" value="0" oninput="autoUpdateStatus()"></div>
+                                    <div class="col-6"><label class="form-label">Reorder Level</label><input type="number" class="form-control form-control-sm" id="itemMin" value="10" oninput="autoUpdateStatus()"></div>
                                     <div class="col-12"><label class="form-label">Supplier Ref</label><input type="text" class="form-control form-control-sm" id="itemSupplier" placeholder="SUP-0456"></div>
-                                    <div class="col-12"><label class="form-label">Status *</label>
-                                        <select class="form-select form-select-sm" id="itemStatus" required>
+                                    <div class="col-12"><label class="form-label">Status (Auto-filled)</label>
+                                        <select class="form-select form-select-sm" id="itemStatus" required disabled style="background-color: #f1f3f5; cursor: not-allowed;">
                                             <option value="Active">Active (In Stock)</option>
                                             <option value="Low Stock">Low Stock</option>
                                             <option value="Out of Stock">Out of Stock</option>
@@ -302,6 +302,20 @@
             document.getElementById('tab-' + viewId).classList.add('active');
         }
 
+        function autoUpdateStatus() {
+            const qty = parseInt(document.getElementById('itemQty').value) || 0;
+            const min = parseInt(document.getElementById('itemMin').value) || 0;
+            const statusSelect = document.getElementById('itemStatus');
+
+            if (qty === 0) {
+                statusSelect.value = "Out of Stock";
+            } else if (qty <= min) {
+                statusSelect.value = "Low Stock";
+            } else {
+                statusSelect.value = "Active";
+            }
+        }
+
         function toggleWideView(viewId) {
             const section = document.getElementById('view-' + viewId);
             section.classList.toggle('wide');
@@ -314,6 +328,7 @@
         }
 
         // Reminder Logic
+        autoUpdateStatus();
         checkInventoryAlerts();
         function checkInventoryAlerts() {
             const container = document.getElementById('reminders-list');
@@ -402,6 +417,11 @@
 
             alert('Item added to Inventory!');
             this.reset();
+            autoUpdateStatus();
+        });
+
+        document.getElementById('stockForm').addEventListener('reset', function() {
+            setTimeout(autoUpdateStatus, 10);
         });
 
         // Movement Handler
