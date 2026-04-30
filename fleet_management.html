@@ -361,6 +361,16 @@
                                     <div class="col-12"><label class="form-label">Plate Number</label><input type="text"
                                             class="form-control form-control-sm" id="vNum" placeholder="ABC-1234"
                                             required></div>
+                                    <div class="col-12">
+                                        <label class="form-label">Assigned Business</label>
+                                        <select class="form-select form-select-sm" id="vBiz" required>
+                                            <option value="" selected disabled>Select Business...</option>
+                                            <option value="Main Retail Store">Main Retail Store</option>
+                                            <option value="Logistics Hub">Logistics Hub</option>
+                                            <option value="Whiterock Retail Ltd">Whiterock Retail Ltd</option>
+                                            <option value="Zenith Logistics Hub">Zenith Logistics Hub</option>
+                                        </select>
+                                    </div>
                                     <div class="col-6"><label class="form-label">Insurance Exp.</label><input
                                             type="date" class="form-control form-control-sm" id="vIns"></div>
                                     <div class="col-6"><label class="form-label">MOT Date</label><input type="date"
@@ -389,6 +399,7 @@
                                     <tr>
                                         <th>Vehicle</th>
                                         <th>Number</th>
+                                        <th>Business</th>
                                         <th>Insurance</th>
                                         <th>MOT</th>
                                         <th>Tax</th>
@@ -401,6 +412,7 @@
                                     <tr>
                                         <td><strong>CAR 1</strong></td>
                                         <td>ABC-1234</td>
+                                        <td><span class="badge bg-light text-dark border">Main Retail Store</span></td>
                                         <td>2026-05-12</td>
                                         <td>2026-06-10</td>
                                         <td>2026-12-01</td>
@@ -712,14 +724,16 @@
             e.preventDefault();
             const name = document.getElementById('vName').value;
             const num = document.getElementById('vNum').value;
+            const biz = document.getElementById('vBiz').value;
             const ins = document.getElementById('vIns').value || '-';
             const mot = document.getElementById('vMot').value || '-';
             const tax = document.getElementById('vTax').value || '-';
             const notes = document.getElementById('vNotes').value || '-';
-
+            
             const row = `<tr>
                 <td><strong>${name}</strong></td>
                 <td>${num}</td>
+                <td><span class="badge bg-light text-dark border">${biz}</span></td>
                 <td>${ins}</td>
                 <td>${mot}</td>
                 <td>${tax}</td>
