@@ -372,6 +372,23 @@
             margin-top: 10px;
             font-size: 13px;
         }
+
+        /* Bank Details Toggle Animation */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-down {
+            animation: fadeInDown 0.3s ease-out;
+        }
     </style>
 </head>
 
@@ -424,6 +441,7 @@
         <div class="nav-tabs-custom">
             <button class="tab-btn active" id="tab-records" onclick="switchView('records')">Financial Records</button>
             <button class="tab-btn" id="tab-invoices" onclick="switchView('invoices')">Invoices</button>
+            <button class="tab-btn" id="tab-bank" onclick="switchView('bank')">Bank Details</button>
             <div class="ms-auto d-flex align-items-center gap-2 flex-wrap py-1" id="kpi-list">
                 <div class="reminder-pill pending">
                     <i class="fas fa-arrow-down"></i>
@@ -436,26 +454,121 @@
             </div>
         </div>
 
+        <!-- 3. BANK DETAILS VIEW -->
+        <div id="view-bank" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="bankFormIcon" class="fas fa-university me-2"></i><span
+                                id="bankFormTitle">Add Bank Account</span></div>
+                        <div class="card-body">
+                            <form id="bankForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editBankId">
+                                    <div class="col-12"><label class="form-label">Bank Name</label><input type="text"
+                                            class="form-control form-control-sm" id="bankName" required></div>
+                                    <div class="col-12"><label class="form-label">Account Name</label><input type="text"
+                                            class="form-control form-control-sm" id="bankAccName" required></div>
+                                    <div class="col-12"><label class="form-label">Account Number</label><input
+                                            type="text" class="form-control form-control-sm" id="bankAccNum" required>
+                                    </div>
+                                    <div class="col-6"><label class="form-label">Sort Code</label><input type="text"
+                                            class="form-control form-control-sm" id="bankSortCode"
+                                            placeholder="00-00-00"></div>
+                                    <div class="col-6"><label class="form-label">Type</label>
+                                        <select class="form-select form-select-sm" id="bankType">
+                                            <option>Business Current</option>
+                                            <option>Business Savings</option>
+                                            <option>Merchant Account</option>
+                                            <option>Corporate Card</option>
+                                            <option>Petty Cash</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">IBAN (Optional)</label><input
+                                            type="text" class="form-control form-control-sm" id="bankIban"></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="bankStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="bankSubmitBtn" class="btn btn-minimal w-100 mt-3">Save
+                                    Account</button>
+                                <button type="button" id="cancelBankEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetBankForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Bank Accounts Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('bank')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Bank Name</th>
+                                        <th>Account Name</th>
+                                        <th>Number / Sort</th>
+                                        <th class="extra-col">IBAN</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bankTable">
+                                    <tr id="bank-1">
+                                        <td class="td-bank-name"><strong>Business Central Bank</strong></td>
+                                        <td class="td-bank-acc-name">LAKSHAN RAMAWICKRAMA ERP</td>
+                                        <td class="td-bank-info">88776655 <br><small class="text-muted">00-11-22</small>
+                                        </td>
+                                        <td class="td-bank-iban extra-col text-muted small">GB12 BCB 0011 2288 7766 55
+                                        </td>
+                                        <td class="td-bank-type"><span
+                                                class="badge bg-info-subtle text-info border border-info-subtle">Business
+                                                Current</span></td>
+                                        <td class="td-bank-status"><span class="status-badge bg-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editBank('bank-1')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteBank('bank-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 1. FINANCIAL RECORDS VIEW -->
         <div id="view-records" class="view-section active">
             <div class="row g-4">
                 <div class="col-lg-4 form-col">
                     <div class="card">
-                        <div class="card-header py-3"><i id="formIcon" class="fas fa-plus-circle me-2"></i><span id="formTitle">Add Financial Record</span></div>
+                        <div class="card-header py-3"><i id="formIcon" class="fas fa-plus-circle me-2"></i><span
+                                id="formTitle">Add Financial Record</span></div>
                         <div class="card-body">
                             <form id="recordForm">
                                 <div class="row g-3">
                                     <input type="hidden" id="editRowId">
                                     <div class="col-12">
-                                        <label class="form-label">Title</label>
+                                        <label class="form-label">Category</label>
                                         <div class="input-group">
                                             <select class="form-select form-select-sm" id="recTitle" required>
                                                 <option value="" selected disabled>Select Category...</option>
-                                                <option>Profit & Loss Statements</option>
-                                                <option>Bank Details</option>
-                                                <option>Sales Reports</option>
                                                 <option>Supplier Payments</option>
-                                                <option>VAT / Tax Dates</option>
+                                                <option>Loans</option>
                                                 <option>Loans / Insurance</option>
                                                 <option>Rent / Mortgage</option>
                                                 <option>Accountant Fees</option>
@@ -468,7 +581,7 @@
                                                 onclick="removeCategory()" title="Remove Selected Category">-</button>
                                         </div>
                                     </div>
-                                    <div class="col-12"><label class="form-label">Category Type</label>
+                                    <div class="col-12"><label class="form-label">Type</label>
                                         <select class="form-select form-select-sm" id="recCat" required>
                                             <option value="Income">Income</option>
                                             <option value="Expense">Expense</option>
@@ -492,8 +605,11 @@
                                             class="form-control form-control-sm" id="recNotes" rows="2"></textarea>
                                     </div>
                                 </div>
-                                <button type="submit" id="submitBtn" class="btn btn-minimal w-100 mt-3">Save Record</button>
-                                <button type="button" id="cancelEdit" class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;" onclick="resetRecordForm()">Cancel Edit</button>
+                                <button type="submit" id="submitBtn" class="btn btn-minimal w-100 mt-3">Save
+                                    Record</button>
+                                <button type="button" id="cancelEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetRecordForm()">Cancel Edit</button>
                             </form>
                         </div>
                     </div>
@@ -525,11 +641,15 @@
                                         <td class="td-title"><strong>Rent / Mortgage</strong></td>
                                         <td class="td-cat">Expense</td>
                                         <td class="td-amount" data-val="2500">$2,500.00</td>
-                                        <td class="td-notes extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> HQ Building</td>
+                                        <td class="td-notes extra-col text-muted small"><i
+                                                class="fas fa-file-pdf me-1"></i> HQ Building</td>
                                         <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-001')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-001', 2500, 'Expense')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editRecord('rec-001')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteRecord('rec-001', 2500, 'Expense')"><i
+                                                    class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="rec-002">
@@ -540,8 +660,11 @@
                                         <td class="td-notes extra-col text-muted small">Software dev services</td>
                                         <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-002')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-002', 5000, 'Income')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editRecord('rec-002')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteRecord('rec-002', 5000, 'Income')"><i
+                                                    class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -557,7 +680,8 @@
             <div class="row g-4">
                 <div class="col-lg-4 form-col">
                     <div class="card">
-                        <div class="card-header py-3"><i id="invFormIcon" class="fas fa-file-invoice me-2"></i><span id="invFormTitle">Create New Invoice</span></div>
+                        <div class="card-header py-3"><i id="invFormIcon" class="fas fa-file-invoice me-2"></i><span
+                                id="invFormTitle">Create New Invoice</span></div>
                         <div class="card-body">
                             <form id="invoiceForm">
                                 <div class="row g-3">
@@ -584,11 +708,15 @@
                                         <input type="file" class="form-control form-control-sm" id="invDoc">
                                     </div>
                                     <div class="col-12"><label class="form-label">Internal Notes</label>
-                                        <textarea class="form-control form-control-sm" id="invNotes" rows="2"></textarea>
+                                        <textarea class="form-control form-control-sm" id="invNotes"
+                                            rows="2"></textarea>
                                     </div>
                                 </div>
-                                <button type="submit" id="invSubmitBtn" class="btn btn-minimal w-100 mt-3">Generate Invoice</button>
-                                <button type="button" id="cancelInvEdit" class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;" onclick="resetInvoiceForm()">Cancel Edit</button>
+                                <button type="submit" id="invSubmitBtn" class="btn btn-minimal w-100 mt-3">Generate
+                                    Invoice</button>
+                                <button type="button" id="cancelInvEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetInvoiceForm()">Cancel Edit</button>
                             </form>
                         </div>
                     </div>
@@ -621,13 +749,17 @@
                                         <td class="td-inv-client">Client X</td>
                                         <td class="td-inv-amount" data-val="5000">$5,000.00</td>
                                         <td class="td-inv-due">2026-05-15</td>
-                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> INV-2024-001.pdf</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i
+                                                class="fas fa-file-pdf me-1"></i> INV-2024-001.pdf</td>
                                         <td class="td-inv-notes extra-col text-muted small">HQ Rent Payment</td>
                                         <td class="td-inv-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-001')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-001')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editInvoice('inv-001')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteInvoice('inv-001')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-download"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="inv-002">
@@ -635,13 +767,17 @@
                                         <td class="td-inv-client">Consulting Ltd</td>
                                         <td class="td-inv-amount" data-val="1200">$1,200.00</td>
                                         <td class="td-inv-due">2026-05-20</td>
-                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-image me-1"></i> receipt-04.png</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i
+                                                class="fas fa-file-image me-1"></i> receipt-04.png</td>
                                         <td class="td-inv-notes extra-col text-muted small">Q1 Consulting Fees</td>
                                         <td class="td-inv-status"><span class="status-badge bg-pending">Sent</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-002')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-002')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editInvoice('inv-002')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteInvoice('inv-002')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-download"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -662,6 +798,7 @@
         const mInput = document.getElementById('modalInput');
         const btnConfirm = document.getElementById('btnConfirm');
         const btnCancel = document.getElementById('btnCancel');
+
 
         function switchView(viewId) {
             document.querySelectorAll('.view-section').forEach(v => { v.classList.remove('active'); v.classList.remove('wide'); });
@@ -782,7 +919,7 @@
             document.getElementById('formIcon').className = 'fas fa-edit me-2';
             document.getElementById('submitBtn').innerText = 'Update Record';
             document.getElementById('cancelEdit').style.display = 'block';
-            
+
             document.getElementById('recordForm').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -798,11 +935,11 @@
         document.getElementById('recordForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const editId = document.getElementById('editRowId').value;
-            const title = document.getElementById('recTitle').value; 
+            const title = document.getElementById('recTitle').value;
             const cat = document.getElementById('recCat').value;
-            const amount = parseFloat(document.getElementById('recAmount').value); 
+            const amount = parseFloat(document.getElementById('recAmount').value);
             const status = document.getElementById('recStatus').value;
-            const date = document.getElementById('recDate').value; 
+            const date = document.getElementById('recDate').value;
             const notes = document.getElementById('recNotes').value || '-';
             const doc = document.getElementById('recDoc').files[0];
             const docName = doc ? `<i class="fas fa-paperclip me-1"></i> ${doc.name}` : '';
@@ -849,7 +986,7 @@
                 document.getElementById('recordsTable').insertAdjacentHTML('afterbegin', row);
                 openModal({ title: 'Success', body: 'Financial record saved!' });
             }
-            updateKPIs(); 
+            updateKPIs();
             resetRecordForm();
         });
 
@@ -907,11 +1044,11 @@
         document.getElementById('invoiceForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const editId = document.getElementById('editInvId').value;
-            const client = document.getElementById('invClient').value; 
+            const client = document.getElementById('invClient').value;
             const num = document.getElementById('invNum').value;
-            const amount = parseFloat(document.getElementById('invAmount').value); 
+            const amount = parseFloat(document.getElementById('invAmount').value);
             const due = document.getElementById('invDue').value;
-            const status = document.getElementById('invStatus').value; 
+            const status = document.getElementById('invStatus').value;
             const notes = document.getElementById('invNotes').value || '-';
             const doc = document.getElementById('invDoc').files[0];
             const docName = doc ? `<i class="fas fa-file-pdf me-1"></i> ${doc.name}` : '';
@@ -957,6 +1094,111 @@
             }
             resetInvoiceForm();
         });
+
+        // --- Bank Management Logic ---
+        function resetBankForm() {
+            document.getElementById('bankForm').reset();
+            document.getElementById('editBankId').value = '';
+            document.getElementById('bankFormTitle').innerText = 'Add Bank Account';
+            document.getElementById('bankFormIcon').className = 'fas fa-university me-2';
+            document.getElementById('bankSubmitBtn').innerText = 'Save Account';
+            document.getElementById('cancelBankEdit').style.display = 'none';
+        }
+
+        function editBank(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const name = row.querySelector('.td-bank-name').innerText;
+            const accName = row.querySelector('.td-bank-acc-name').innerText;
+            const infoText = row.querySelector('.td-bank-info').innerText;
+            const [num, sort] = infoText.split('\n');
+            const iban = row.querySelector('.td-bank-iban').innerText;
+            const type = row.querySelector('.td-bank-type span').innerText;
+            const status = row.querySelector('.td-bank-status span').innerText;
+
+            document.getElementById('editBankId').value = id;
+            document.getElementById('bankName').value = name;
+            document.getElementById('bankAccName').value = accName;
+            document.getElementById('bankAccNum').value = num.trim();
+            document.getElementById('bankSortCode').value = (sort || '').trim();
+            document.getElementById('bankIban').value = iban;
+            document.getElementById('bankType').value = type;
+            document.getElementById('bankStatus').value = status;
+
+            document.getElementById('bankFormTitle').innerText = 'Edit Bank Account';
+            document.getElementById('bankFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('bankSubmitBtn').innerText = 'Update Account';
+            document.getElementById('cancelBankEdit').style.display = 'block';
+            document.getElementById('bankForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteBank(id) {
+            openModal({
+                title: 'Delete Bank Account',
+                body: 'Are you sure you want to remove this bank account from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Bank account removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('bankForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editBankId').value;
+            const name = document.getElementById('bankName').value;
+            const accName = document.getElementById('bankAccName').value;
+            const num = document.getElementById('bankAccNum').value;
+            const sort = document.getElementById('bankSortCode').value || '-';
+            const iban = document.getElementById('bankIban').value || '-';
+            const type = document.getElementById('bankType').value;
+            const status = document.getElementById('bankStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : 'bg-inactive';
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = `
+                    <td class="td-bank-name"><strong>${name}</strong></td>
+                    <td class="td-bank-acc-name">${accName}</td>
+                    <td class="td-bank-info">${num} <br><small class="text-muted">${sort}</small></td>
+                    <td class="td-bank-iban extra-col text-muted small">${iban}</td>
+                    <td class="td-bank-type"><span class="badge bg-info-subtle text-info border border-info-subtle">${type}</span></td>
+                    <td class="td-bank-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" onclick="editBank('${editId}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteBank('${editId}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                openModal({ title: 'Success', body: 'Bank account updated successfully!' });
+            } else {
+                const rid = 'bank-' + Date.now();
+                const row = `
+                    <tr id="${rid}">
+                        <td class="td-bank-name"><strong>${name}</strong></td>
+                        <td class="td-bank-acc-name">${accName}</td>
+                        <td class="td-bank-info">${num} <br><small class="text-muted">${sort}</small></td>
+                        <td class="td-bank-iban extra-col text-muted small">${iban}</td>
+                        <td class="td-bank-type"><span class="badge bg-info-subtle text-info border border-info-subtle">${type}</span></td>
+                        <td class="td-bank-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-dark" onclick="editBank('${rid}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBank('${rid}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('bankTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New bank account added!' });
+            }
+            resetBankForm();
+        });
     </script>
 </body>
+
 </html>
