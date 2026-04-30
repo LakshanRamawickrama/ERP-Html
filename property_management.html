@@ -298,6 +298,7 @@
         <div class="nav-tabs-custom">
             <button class="tab-btn active" id="tab-inventory" onclick="switchView('inventory')">Property Inventory</button>
             <button class="tab-btn" id="tab-requests" onclick="switchView('requests')">Maintenance Requests</button>
+            <button class="tab-btn" id="tab-waste" onclick="switchView('waste')">Waste Collection</button>
         </div>
 
         <!-- 1. PROPERTY INVENTORY VIEW -->
@@ -475,6 +476,61 @@
             </div>
         </div>
 
+        <!-- 3. WASTE COLLECTION VIEW -->
+        <div id="view-waste" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-trash-alt me-2"></i>Schedule Waste Collection</div>
+                        <div class="card-body">
+                            <form id="wasteForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Contact Name</label><input type="text" class="form-control form-control-sm" id="wName" placeholder="e.g. Building Manager" required></div>
+                                    <div class="col-12"><label class="form-label">Phone Number</label><input type="tel" class="form-control form-control-sm" id="wPhone" placeholder="e.g. +1 555-0199" required></div>
+                                    <div class="col-12"><label class="form-label">Collection Address</label><input type="text" class="form-control form-control-sm" id="wAddress" placeholder="Full address or unit location" required></div>
+                                    <div class="col-12"><label class="form-label">Pick-up Date</label><input type="date" class="form-control form-control-sm" id="wDate" required></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="wNotes" rows="2" placeholder="e.g. Large items, hazardous waste..."></textarea></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Schedule Collection</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Waste Collection Schedule</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('waste')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Pick-up Date</th>
+                                        <th>Contact Person</th>
+                                        <th>Address / Location</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wasteTable">
+                                    <tr>
+                                        <td>2026-05-01</td>
+                                        <td><strong>John Doe</strong><br><small class="text-muted">+1 234-567-888</small></td>
+                                        <td>Building A, Service Entrance</td>
+                                        <td><span class="status-badge bg-active">Scheduled</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -545,8 +601,32 @@
             alert('Maintenance request logged!');
             this.reset();
         });
-        // Set default date for request form
-        document.getElementById('rDate').value = new Date().toISOString().split('T')[0];
+        // Set default date for forms
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('rDate').value = today;
+        document.getElementById('wDate').value = today;
+
+        // Waste Form Handler
+        document.getElementById('wasteForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('wName').value;
+            const phone = document.getElementById('wPhone').value;
+            const address = document.getElementById('wAddress').value;
+            const date = document.getElementById('wDate').value;
+            const notes = document.getElementById('wNotes').value || '-';
+
+            const row = `<tr>
+                <td>${date}</td>
+                <td><strong>${name}</strong><br><small class="text-muted">${phone}</small></td>
+                <td>${address}<br><small class="text-muted">${notes}</small></td>
+                <td><span class="status-badge bg-active">Scheduled</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+            document.getElementById('wasteTable').insertAdjacentHTML('afterbegin', row);
+            alert('Waste collection scheduled!');
+            this.reset();
+            document.getElementById('wDate').value = today;
+        });
     </script>
 
 </body>
