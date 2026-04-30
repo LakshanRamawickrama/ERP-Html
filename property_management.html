@@ -161,10 +161,12 @@
       gap: 6px;
       color: white;
       border-radius: 20px;
-      padding: 5px 14px;
+      padding: 4px 12px;
       font-size: 12.5px;
       white-space: nowrap;
     }
+    .kpi-pill .kpi-pill-label { opacity: 0.85; font-weight: 400; }
+    .kpi-pill strong { font-weight: 700; }
 
     /* Status Badges */
     .badge-priority {
@@ -294,11 +296,9 @@
         </select>
 
         <div class="ms-auto d-flex gap-2">
-          <div class="kpi-pill" style="background: #2c3e50"><strong>Open:</strong> <span id="kpi-open">0</span></div>
-          <div class="kpi-pill" style="background: #e67e22"><strong>Pending:</strong> <span id="kpi-pending">0</span>
-          </div>
-          <div class="kpi-pill" style="background: #2ecc71"><strong>Resolved:</strong> <span id="kpi-resolved">0</span>
-          </div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#2c3e50,#34495e)"><i class="fas fa-folder-open"></i> <span>Open:</span> <span id="kpi-open">0</span></div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-clock"></i> <span>Pending:</span> <span id="kpi-pending">0</span></div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#27ae60,#2ecc71)"><i class="fas fa-check-circle"></i> <span>Resolved:</span> <span id="kpi-resolved">0</span></div>
         </div>
       </div>
 

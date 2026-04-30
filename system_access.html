@@ -52,7 +52,7 @@
         .topbar { background-color: white; border-bottom: 1px solid #e0e0e0; padding: 15px 25px; position: sticky; top: 0; z-index: 50; }
 
         /* Tabs */
-        .nav-tabs-custom { border-bottom: 1px solid #e0e0e0; background: white; padding: 0 25px; display: flex; gap: 20px; }
+        .nav-tabs-custom { border-bottom: 1px solid #e0e0e0; background: white; padding: 0 25px; display: flex; align-items: center; gap: 20px; }
         .tab-btn {
             padding: 15px 5px; font-size: 14px; font-weight: 600; color: #666;
             border: none; background: none; cursor: pointer; position: relative; transition: 0.2s;
@@ -83,9 +83,32 @@
         .extra-col { display: none; }
         .view-section.wide .extra-col { display: table-cell; }
 
-        /* Alerts */
-        .reminder-card { border-left: 4px solid #ef4444; background-color: #fef2f2; }
-        .reminder-pending { border-left-color: #f59e0b; background-color: #fffbeb; }
+        /* Reminder pills in tab bar */
+        .reminder-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .reminder-pill.expired {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        .reminder-pill.soon {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .reminder-pill .pill-sub {
+            font-size: 11px;
+            opacity: 0.75;
+            font-weight: 400;
+        }
 
         .form-label { font-size: 12px; font-weight: 700; color: #555; }
         .form-control-sm, .form-select-sm { font-size: 13px; }
@@ -119,17 +142,12 @@
             <p class="text-muted small mb-0">Securely Manage Tills, PayPoint, and Service Logins</p>
         </div>
 
-        <!-- Reminders Panel -->
-        <div class="px-4 pt-3" id="reminders-container">
-            <div class="row g-3" id="reminders-list">
-                <!-- Dynamic Access Alerts -->
-            </div>
-        </div>
-
         <!-- Tab Toggle Views -->
         <div class="nav-tabs-custom">
             <button class="tab-btn active" id="tab-access" onclick="switchView('access')">Credentials Repository</button>
             <button class="tab-btn" id="tab-services" onclick="switchView('services')">Service Logins</button>
+            <!-- Alert pills pushed to the right -->
+            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap py-1" id="reminders-list"></div>
         </div>
 
         <!-- 1. ACCESS REPOSITORY VIEW -->
@@ -254,13 +272,15 @@
         function checkAccessAlerts() {
             const container = document.getElementById('reminders-list');
             container.innerHTML = '';
-            // Mock alerts
             const alerts = [
-                { name: 'PayPoint Portal', msg: 'Password expires in 5 days', type: 'reminder-pending' },
-                { name: 'Lottery Terminal', msg: 'System Maintenance Scheduled', type: 'reminder-pending' }
+                { name: 'PayPoint Portal', msg: 'Password expires in 5 days', type: 'soon' },
+                { name: 'Lottery Terminal', msg: 'System Maintenance Scheduled', type: 'soon' }
             ];
             alerts.forEach(a => {
-                const html = `<div class="col-md-4"><div class="card ${a.type} p-2 shadow-sm border-0"><div class="d-flex align-items-center gap-2"><i class="fas fa-shield-alt ${a.type === 'reminder-card' ? 'text-danger' : 'text-warning'}"></i><div><div class="fw-bold small">${a.name}</div><div class="text-muted" style="font-size: 11px;">${a.msg}</div></div></div></div></div>`;
+                const html = `<div class="reminder-pill ${a.type}">
+                    <i class="fas fa-shield-alt"></i>
+                    <span><strong>${a.name}</strong> <span class="pill-sub">${a.msg}</span></span>
+                </div>`;
                 document.getElementById('reminders-list').insertAdjacentHTML('beforeend', html);
             });
         }

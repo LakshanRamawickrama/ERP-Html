@@ -399,21 +399,6 @@
     <!-- ══════════════ DASHBOARD (single page with all tabs) ══════════════ -->
     <div id="dashboard" class="section active p-4">
 
-      <!-- ── Inner Tabs ── -->
-      <ul class="nav nav-tabs mb-3" id="dashTabs">
-        <li class="nav-item">
-          <a class="nav-link active" href="#" onclick="switchTab('tab-records')" id="tab-records-link">
-            <i class="fas fa-receipt me-1"></i>All Records
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" onclick="switchTab('tab-reminders')" id="tab-reminders-link">
-            <i class="fas fa-bell me-1"></i>Reminders
-          </a>
-        </li>
-      </ul>
-
-      <!-- ── TAB: All Records ── -->
       <div id="tab-records" class="dash-tab">
 
         <!-- Filter bar with inline KPI stats -->
@@ -490,31 +475,7 @@
         </div>
       </div>
 
-      <!-- ── TAB: Reminders ── -->
-      <div id="tab-reminders" class="dash-tab" style="display:none">
-        <div class="row g-3">
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-header bg-white py-3">
-                <h6 class="mb-0 text-danger"><i class="fas fa-triangle-exclamation me-2"></i>Overdue Payments</h6>
-              </div>
-              <div class="card-body" id="overdue-list">
-                <div class="empty-state"><i class="fas fa-check-circle text-success"></i>No overdue payments</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-header bg-white py-3">
-                <h6 class="mb-0 text-warning"><i class="fas fa-bell me-2"></i>Due Soon (Next 7 Days)</h6>
-              </div>
-              <div class="card-body" id="dueSoon-list">
-                <div class="empty-state"><i class="fas fa-calendar-check"></i>No upcoming dues</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
     </div><!-- /dashboard -->
 
@@ -665,7 +626,6 @@ function switchTab(tabId) {
   if (link) link.classList.add('active');
 
   if (tabId === 'tab-records')    renderTable();
-  if (tabId === 'tab-reminders')  renderReminders();
   return false;
 }
 function openAddModal() {
@@ -872,43 +832,6 @@ function renderDashboard() {
 }
 
 
-function renderReminders() {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const in7   = new Date(today); in7.setDate(in7.getDate()+7);
-
-  const overdue  = records.filter(r => r.payment_status === 'Overdue' ||
-    (r.due_date && new Date(r.due_date) < today && r.payment_status !== 'Paid'));
-  const dueSoon  = records.filter(r => {
-    if (!r.due_date || r.payment_status === 'Paid' || r.payment_status === 'Overdue') return false;
-    const d = new Date(r.due_date);
-    return d >= today && d <= in7;
-  });
-
-  const renderList = (items, containerId, emptyMsg) => {
-    const el = document.getElementById(containerId);
-    if (items.length === 0) {
-      el.innerHTML = `<div class="empty-state" style="padding:30px 0"><i class="fas fa-check-circle text-success" style="font-size:28px"></i><div style="margin-top:8px;font-size:13px">${emptyMsg}</div></div>`;
-      return;
-    }
-    el.innerHTML = items.map(r=>`
-      <div class="reminder-item">
-        <div class="reminder-dot" style="background:${r.category==='Income'?'#27ae60':'#e74c3c'}"></div>
-        <div class="flex-grow-1">
-          <div style="font-size:13.5px;font-weight:500">${esc(r.title)}</div>
-          <div style="font-size:12px;color:#888">${r.company_id} · ${fmtAmt(r.amount)}</div>
-        </div>
-        <div class="text-end">
-          ${statusBadge(r.payment_status)}
-          <div style="font-size:11px;color:#999;margin-top:2px">${fmtDate(r.due_date)}</div>
-        </div>
-      </div>
-    `).join('');
-  };
-
-  renderList(overdue, 'overdue-list', 'No overdue payments — all caught up!');
-  renderList(dueSoon, 'dueSoon-list', 'No upcoming dues in the next 7 days');
-}
-
 function refreshAll() {
   // Find the active tab by checking which one is visible
   const allTabs = document.querySelectorAll('.dash-tab');
@@ -917,7 +840,6 @@ function refreshAll() {
     if (t.style.display !== 'none') activeTabId = t.id;
   });
   if (activeTabId === 'tab-records')   renderTable();
-  if (activeTabId === 'tab-reminders') renderReminders();
 }
 
 function clearFilters() {

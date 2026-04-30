@@ -137,6 +137,7 @@
             background: white;
             padding: 0 25px;
             display: flex;
+            align-items: center;
             gap: 20px;
         }
 
@@ -243,15 +244,34 @@
             display: table-cell;
         }
 
-        /* Reminders / Alerts */
-        .reminder-card {
-            border-left: 4px solid #ef4444;
-            background-color: #fef2f2;
+        /* Reminder pills in tab bar */
+        .reminder-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: 500;
         }
 
-        .reminder-soon {
-            border-left-color: #f59e0b;
-            background-color: #fffbeb;
+        .reminder-pill.expired {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .reminder-pill.soon {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .reminder-pill .pill-sub {
+            font-size: 11px;
+            opacity: 0.75;
+            font-weight: 400;
         }
 
         .alert-indicator {
@@ -316,18 +336,13 @@
             <p class="text-muted small mb-0">Unified Module for Vehicles, Deliveries, and Parcels</p>
         </div>
 
-        <!-- Reminders Panel -->
-        <div class="px-4 pt-3" id="reminders-container">
-            <div class="row g-3" id="reminders-list">
-                <!-- Dynamic Reminders Here -->
-            </div>
-        </div>
-
         <!-- Tab Toggle Views -->
         <div class="nav-tabs-custom">
             <button class="tab-btn active" id="tab-vehicles" onclick="switchView('vehicles')">Vehicle Fleet</button>
             <button class="tab-btn" id="tab-deliveries" onclick="switchView('deliveries')">Delivery Tracking</button>
             <button class="tab-btn" id="tab-parcels" onclick="switchView('parcels')">Parcel Services</button>
+            <!-- Reminder pills pushed to the right -->
+            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap py-1" id="reminders-list"></div>
         </div>
 
         <!-- 1. VEHICLES VIEW -->
@@ -619,12 +634,10 @@
 
         function checkReminders() {
             const container = document.getElementById('reminders-list');
-            container.innerHTML = ''; // Clear
+            container.innerHTML = '';
             const today = new Date();
-            const soonThreshold = 30; // 30 days
+            const soonThreshold = 30;
 
-            // Scan static vehicles (for demo) + any added ones
-            // In a real app, this would iterate over an array
             const vehicles = [
                 { name: 'CAR 1', num: 'ABC-1234', ins: '2026-05-12', mot: '2026-04-10', tax: '2026-12-01' }
             ];
@@ -643,25 +656,21 @@
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                     if (diffDays <= 0) {
-                        addReminderUI(v.name, d.type, 'Expired', 'reminder-card');
+                        addReminderPill(v.name, d.type, 'Expired', 'expired');
                     } else if (diffDays <= soonThreshold) {
-                        addReminderUI(v.name, d.type, `Expiring in ${diffDays} days`, 'reminder-soon');
+                        addReminderPill(v.name, d.type, `Expiring in ${diffDays} days`, 'soon');
                     }
                 });
             });
         }
 
-        function addReminderUI(vName, type, status, className) {
-            const html = `<div class="col-md-4">
-                <div class="card ${className} p-2 shadow-sm border-0">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fas fa-exclamation-triangle ${className === 'reminder-card' ? 'text-danger' : 'text-warning'}"></i>
-                        <div style="line-height: 1.2;">
-                            <div class="fw-bold small">${vName} - ${type}</div>
-                            <div class="text-muted" style="font-size: 11px;">${status}</div>
-                        </div>
-                    </div>
-                </div>
+        function addReminderPill(vName, type, status, cls) {
+            const icon = cls === 'expired'
+                ? '<i class="fas fa-exclamation-triangle"></i>'
+                : '<i class="fas fa-exclamation-triangle"></i>';
+            const html = `<div class="reminder-pill ${cls}">
+                ${icon}
+                <span><strong>${vName} - ${type}</strong> <span class="pill-sub">${status}</span></span>
             </div>`;
             document.getElementById('reminders-list').insertAdjacentHTML('beforeend', html);
         }

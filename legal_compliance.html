@@ -160,10 +160,12 @@
       gap: 6px;
       color: white;
       border-radius: 20px;
-      padding: 5px 14px;
+      padding: 4px 12px;
       font-size: 12.5px;
       white-space: nowrap;
     }
+    .kpi-pill .kpi-pill-label { opacity: 0.85; font-weight: 400; }
+    .kpi-pill strong { font-weight: 700; }
 
     /* Status Badges */
     .status-badge {
@@ -255,9 +257,9 @@
         </select>
         
         <div class="ms-auto d-flex gap-2">
-          <div class="kpi-pill" style="background: #2ecc71"><strong>Active:</strong> <span id="kpi-active">0</span></div>
-          <div class="kpi-pill" style="background: #e67e22"><strong>Expiring:</strong> <span id="kpi-expiring">0</span></div>
-          <div class="kpi-pill" style="background: #e74c3c"><strong>Expired:</strong> <span id="kpi-expired">0</span></div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#27ae60,#2ecc71)"><i class="fas fa-check-circle"></i> <span>Active:</span> <span id="kpi-active">0</span></div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-clock"></i> <span>Expiring:</span> <span id="kpi-expiring">0</span></div>
+          <div class="kpi-pill" style="background:linear-gradient(135deg,#c0392b,#e74c3c)"><i class="fas fa-times-circle"></i> <span>Expired:</span> <span id="kpi-expired">0</span></div>
         </div>
       </div>
 

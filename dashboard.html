@@ -1,395 +1,585 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super Admin - Business Central</title>
+  <title>Dashboard - Business Central</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <style>
-    body {
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      color: #333;
-      overflow-x: hidden;
-    }
+    body { background-color:#f8f9fa; font-family:'Segoe UI',system-ui,sans-serif; color:#333; overflow-x:hidden; }
 
-    /* ── Sidebar ── */
-    .sidebar {
-      background-color: #2c3e50;
-      color: #ecf0f1;
-      height: 100vh;
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 70px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-      z-index: 100;
-      transition: width 0.3s ease;
-      overflow: hidden;
-    }
+    /* Sidebar */
+    .sidebar { background-color:#2c3e50; color:#ecf0f1; height:100vh; position:fixed; left:0; top:0; width:70px; display:flex; flex-direction:column; box-shadow:4px 0 24px rgba(0,0,0,.12); z-index:100; transition:width .3s ease; overflow:hidden; }
+    .sidebar:hover { width:240px; }
+    .sidebar-brand { padding:20px 16px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px; white-space:nowrap; min-height:70px; }
+    .sidebar-brand-icon { font-size:20px; min-width:38px; text-align:center; color:#ecf0f1; }
+    .sidebar-brand-text { opacity:0; transition:opacity .3s ease; }
+    .sidebar:hover .sidebar-brand-text { opacity:1; }
+    .sidebar-brand-text h5 { color:white; font-size:16px; font-weight:600; margin:0; line-height:1.2; }
+    .sidebar-brand-text small { font-size:11px; color:rgba(236,240,241,.7); display:block; margin-top:2px; }
+    .sidebar-nav-list { flex:1; padding:16px 0; overflow-y:auto; overflow-x:hidden; list-style:none; margin:0; }
+    .sidebar-nav-list::-webkit-scrollbar { width:4px; }
+    .sidebar-nav-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,.2); border-radius:2px; }
+    .nav-link { color:#bdc3c7; padding:10px 16px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:12px; border-radius:8px; margin:3px 10px; white-space:nowrap; transition:background-color .2s,color .2s; text-decoration:none; }
+    .nav-link:hover,.nav-link.active { background-color:#34495e; color:white; }
+    .nav-link .nav-icon { font-size:16px; min-width:18px; text-align:center; }
+    .nav-link .nav-label { opacity:0; transition:opacity .3s ease; }
+    .sidebar:hover .nav-link .nav-label { opacity:1; }
 
-    .sidebar:hover {
-      width: 240px;
-    }
+    /* Main */
+    .main-wrapper { margin-left:70px; transition:margin-left .3s ease; min-height:100vh; display:flex; flex-direction:column; }
+    .topbar { background-color:white; border-bottom:1px solid #e0e0e0; padding:12px 25px; position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .topbar-title { font-size:18px; font-weight:600; color:#2c3e50; margin:0; }
+    .topbar-right { display:flex; align-items:center; gap:12px; }
 
-    /* Logo area */
-    .sidebar-brand {
-      padding: 20px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      min-height: 70px;
-    }
+    /* Company switcher */
+    .company-switcher { display:flex; align-items:center; gap:8px; }
+    .company-switcher label { font-size:13px; color:#666; margin:0; white-space:nowrap; }
+    .company-switcher select { font-size:13px; border:1px solid #d0d0d0; border-radius:6px; padding:5px 10px; color:#2c3e50; background:white; cursor:pointer; }
 
-    .sidebar-brand-icon {
-      font-size: 20px;
-      min-width: 38px;
-      text-align: center;
-      color: #ecf0f1;
-    }
+    /* Role badge */
+    .role-badge { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; }
+    .role-badge.superadmin { background:#d4edda; color:#155724; }
+    .role-badge.company-admin { background:#cce5ff; color:#004085; }
 
-    .sidebar-brand-text {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
+    /* Content area */
+    .content-area { padding:24px; flex:1; }
 
-    .sidebar:hover .sidebar-brand-text {
-      opacity: 1;
-    }
+    /* Section heading */
+    .section-heading { font-size:15px; font-weight:600; color:#2c3e50; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .section-heading i { opacity:.7; }
 
-    .sidebar-brand-text h5 {
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0;
-      line-height: 1.2;
-    }
+    /* Module summary cards */
+    .module-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:28px; }
+    @media(max-width:1100px){ .module-grid { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:700px){ .module-grid { grid-template-columns:1fr; } }
 
-    .sidebar-brand-text small {
-      font-size: 11px;
-      color: rgba(236, 240, 241, 0.7);
-      display: block;
-      margin-top: 2px;
-    }
+    .module-card { background:white; border:1px solid #e8e8e8; border-radius:12px; padding:18px 20px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+    .module-card-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .module-card-icon { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px; color:white; flex-shrink:0; }
+    .module-card-title { font-size:14px; font-weight:600; color:#2c3e50; }
+    .module-card-subtitle { font-size:11.5px; color:#888; }
+    .module-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .stat-item { border-radius:8px; padding:10px 12px; }
+    .stat-item .stat-label { font-size:11.5px; opacity:.85; margin-bottom:3px; }
+    .stat-item .stat-value { font-size:20px; font-weight:700; line-height:1; }
+    .stat-item .stat-sub { font-size:11px; opacity:.75; margin-top:2px; }
+    .stat-green { background:linear-gradient(135deg,#27ae60,#2ecc71); color:white; }
+    .stat-red { background:linear-gradient(135deg,#c0392b,#e74c3c); color:white; }
+    .stat-blue { background:linear-gradient(135deg,#2980b9,#3498db); color:white; }
+    .stat-orange { background:linear-gradient(135deg,#d35400,#e67e22); color:white; }
+    .stat-dark { background:linear-gradient(135deg,#2c3e50,#34495e); color:white; }
+    .stat-teal { background:linear-gradient(135deg,#16a085,#1abc9c); color:white; }
+    .stat-purple { background:linear-gradient(135deg,#6c3483,#8e44ad); color:white; }
+    .stat-alert-red { background:linear-gradient(135deg,#922b21,#c0392b); color:white; }
 
-    /* Nav */
-    .sidebar-nav-list {
-      flex: 1;
-      padding: 16px 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      list-style: none;
-      margin: 0;
-    }
+    /* Alerts section */
+    .alerts-section { background:white; border:1px solid #e8e8e8; border-radius:12px; padding:18px 20px; margin-bottom:28px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+    .alert-row { display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:8px; margin-bottom:6px; font-size:13.5px; }
+    .alert-row:last-child { margin-bottom:0; }
+    .alert-row.alert-danger-row { background:#fdf2f2; border-left:4px solid #e74c3c; }
+    .alert-row.alert-warning-row { background:#fffbf0; border-left:4px solid #f39c12; }
+    .alert-row.alert-info-row { background:#f0f7ff; border-left:4px solid #3498db; }
+    .alert-row-icon { font-size:15px; flex-shrink:0; }
+    .alert-row-text { flex:1; }
+    .alert-row-text strong { display:block; font-weight:600; color:#2c3e50; }
+    .alert-row-text span { font-size:12px; color:#666; }
+    .alert-row-badge { font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+    .badge-danger { background:#f8d7da; color:#721c24; }
+    .badge-warning { background:#fff3cd; color:#856404; }
+    .badge-info { background:#cce5ff; color:#004085; }
 
-    .sidebar-nav-list::-webkit-scrollbar {
-      width: 4px;
-    }
+    /* Activity feed */
+    .activity-section { background:white; border:1px solid #e8e8e8; border-radius:12px; padding:18px 20px; margin-bottom:28px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+    .activity-item { display:flex; align-items:flex-start; gap:12px; padding:9px 0; border-bottom:1px solid #f5f5f5; }
+    .activity-item:last-child { border-bottom:none; }
+    .activity-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; color:white; flex-shrink:0; margin-top:1px; }
+    .activity-body { flex:1; }
+    .activity-body strong { font-size:13.5px; color:#2c3e50; display:block; }
+    .activity-body span { font-size:12px; color:#888; }
+    .activity-time { font-size:11.5px; color:#aaa; white-space:nowrap; }
 
-    .sidebar-nav-list::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 2px;
-    }
+    /* Quick nav */
+    .quick-nav-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:28px; }
+    @media(max-width:1100px){ .quick-nav-grid { grid-template-columns:repeat(3,1fr); } }
+    @media(max-width:600px){ .quick-nav-grid { grid-template-columns:repeat(2,1fr); } }
+    .quick-nav-btn { background:white; border:1px solid #e8e8e8; border-radius:12px; padding:18px 12px; text-align:center; text-decoration:none; color:#2c3e50; transition:all .2s; box-shadow:0 2px 6px rgba(0,0,0,.04); display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .quick-nav-btn:hover { background:#2c3e50; color:white; transform:translateY(-2px); box-shadow:0 6px 18px rgba(44,62,80,.18); }
+    .quick-nav-btn i { font-size:24px; }
+    .quick-nav-btn span { font-size:12.5px; font-weight:500; }
 
-    .nav-link {
-      color: #bdc3c7;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-radius: 8px;
-      margin: 3px 10px;
-      white-space: nowrap;
-      transition: background-color 0.2s, color 0.2s;
-      text-decoration: none;
-    }
+    /* Two-column layout for alerts + activity */
+    .bottom-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:28px; }
+    @media(max-width:900px){ .bottom-grid { grid-template-columns:1fr; } }
 
-    .nav-link:hover,
-    .nav-link.active {
-      background-color: #34495e;
-      color: white;
-    }
-
-    .nav-link .nav-icon {
-      font-size: 16px;
-      min-width: 18px;
-      text-align: center;
-    }
-
-    .nav-link .nav-label {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .sidebar:hover .nav-link .nav-label {
-      opacity: 1;
-    }
-
-    /* Main content offset */
-    .main-wrapper {
-      margin-left: 70px;
-      transition: margin-left 0.3s ease;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .topbar {
-      background-color: white;
-      border-bottom: 1px solid #e0e0e0;
-      padding: 12px 25px;
-    }
-
-    .card {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    /* Custom Multi-Select */
-    .multi-select-container {
-      position: relative;
-    }
-
-    .multi-select-box {
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      padding: 8px 12px;
-      min-height: 46px;
-      background: white;
-      cursor: pointer;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      align-items: center;
-      font-size: 14px;
-    }
-
-    .selected-item {
-      background-color: #e9ecef;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .remove-item {
-      color: #dc3545;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .multi-select-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      max-height: 220px;
-      overflow-y: auto;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      display: none;
-    }
-
-    .multi-select-dropdown.show {
-      display: block;
-    }
-
-    .dropdown-item {
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .dropdown-item:hover {
-      background-color: #f8f9fa;
-    }
-
-    table th {
-      background-color: #f8f9fa;
-      font-weight: 500;
-      color: #555;
-      font-size: 14px;
-    }
-
-    table td {
-      font-size: 14px;
-    }
-
-    .btn-minimal {
-      background-color: #2c3e50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-    }
-
-    .btn-minimal:hover {
-      background-color: #34495e;
-    }
-
-    .form-label {
-      font-size: 13.5px;
-      margin-bottom: 5px;
-    }
-
-    .form-control,
-    .form-select {
-      font-size: 14px;
-    }
-
-    /* Logistics Alerts Styling */
-    .alert-card {
-      border-left: 4px solid #ef4444;
-      background: #fef2f2;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-
-    .alert-card.warning {
-      border-left-color: #f59e0b;
-      background: #fffbeb;
-    }
+    .empty-state { text-align:center; padding:32px 20px; color:#aaa; font-size:13.5px; }
+    .empty-state i { font-size:32px; margin-bottom:10px; display:block; }
   </style>
 </head>
-
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
-      <div class="sidebar-brand-text">
-        <h5>Business Central</h5>
-        <small>Super Admin</small>
-      </div>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon"><i class="fas fa-tachometer-alt"></i></div>
+    <div class="sidebar-brand-text">
+      <h5>Business Central</h5>
+      <small>ERP Dashboard</small>
     </div>
-    <ul class="sidebar-nav-list">
-      <li><a href="dashboard.html" class="nav-link active"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
-      <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a></li>
-      <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
-      <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
-      <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
-      <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
-      <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span class="nav-label">Suppliers</span></a></li>
-      <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a></li>
-      <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span class="nav-label">Legal & Compliance</span></a></li>
-      <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span class="nav-label">Property Management</span></a></li>
-    </ul>
+  </div>
+  <ul class="sidebar-nav-list">
+    <li><a href="dashboard.html" class="nav-link active"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
+    <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a></li>
+    <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
+    <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
+    <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
+    <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
+    <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span class="nav-label">Suppliers</span></a></li>
+    <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a></li>
+    <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span class="nav-label">Legal &amp; Compliance</span></a></li>
+    <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span class="nav-label">Property Management</span></a></li>
+  </ul>
+</div>
+
+<!-- MAIN WRAPPER -->
+<div class="main-wrapper">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <h5 class="topbar-title"><i class="fas fa-tachometer-alt me-2" style="color:#2c3e50;opacity:.7"></i>Dashboard</h5>
+    <div class="topbar-right">
+      <!-- Company switcher (Super Admin only) -->
+      <div class="company-switcher" id="companySwitcherWrap">
+        <label><i class="fas fa-building me-1"></i>Company:</label>
+        <select id="companySwitcher" onchange="switchCompany(this.value)">
+          <option value="all">All Companies</option>
+          <option value="c1">Alpha Trading Co.</option>
+          <option value="c2">Beta Logistics Ltd.</option>
+        </select>
+      </div>
+      <!-- Role badge -->
+      <span class="role-badge" id="roleBadge">Super Admin</span>
+    </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="main-wrapper">
-    <div class="flex-grow-1">
-      <div class="topbar d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-medium" id="page-title">All Businesses</h5>
-      </div>
+  <!-- Content -->
+  <div class="content-area">
 
-      <!-- Dashboard -->
-      <div id="dashboard" class="section p-4">
-        <h4>Welcome to Super Admin Dashboard</h4>
-        <div class="row g-4 mb-4">
-          <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-0">
-              <p class="text-muted small mb-1">Total Businesses</p>
-              <h3 class="mb-0 fw-bold" id="business-count">0</h3>
-            </div>
+    <!-- ── MODULE SUMMARY CARDS ── -->
+    <div class="section-heading"><i class="fas fa-th-large"></i> Module Overview</div>
+    <div class="module-grid" id="moduleGrid">
+
+      <!-- Accounting -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)"><i class="fas fa-file-invoice-dollar"></i></div>
+          <div>
+            <div class="module-card-title">Accounting</div>
+            <div class="module-card-subtitle">Financial overview</div>
           </div>
-          <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-0">
-              <p class="text-muted small mb-1">Active Users</p>
-              <h3 class="mb-0 fw-bold">12</h3>
-            </div>
+        </div>
+        <div class="module-stats">
+          <div class="stat-item stat-green">
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value" id="acc-income">$0</div>
+            <div class="stat-sub">This period</div>
           </div>
-          <div class="col-md-6">
-            <div class="card p-3 shadow-sm border-0">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <p class="text-muted small mb-0">Logistics Alerts</p>
-                <a href="fleet_management.html" class="text-decoration-none small">View Fleet</a>
-              </div>
-              <div id="dashboard-logistics-alerts">
-                <div class="alert-card warning d-flex align-items-center gap-2 py-2">
-                  <i class="fas fa-exclamation-triangle text-warning"></i>
-                  <span class="small fw-medium">CAR 1: Insurance expiring in 12 days</span>
-                </div>
-                <div class="alert-card d-flex align-items-center gap-2 py-2 mb-0">
-                  <i class="fas fa-exclamation-circle text-danger"></i>
-                  <span class="small fw-medium">CAR 2: MOT Expired (2026-04-10)</span>
-                </div>
-              </div>
-            </div>
+          <div class="stat-item stat-red">
+            <div class="stat-label">Total Expenses</div>
+            <div class="stat-value" id="acc-expense">$0</div>
+            <div class="stat-sub">This period</div>
           </div>
         </div>
       </div>
 
-      <!-- Placeholder for Dashboard Content -->
-      <div id="dashboard-content" class="p-4">
-          <p class="text-muted">Welcome to the ERP Central Control. Select a module from the sidebar to begin.</p>
+      <!-- Inventory -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:linear-gradient(135deg,#2980b9,#3498db)"><i class="fas fa-boxes"></i></div>
+          <div>
+            <div class="module-card-title">Inventory</div>
+            <div class="module-card-subtitle">Stock management</div>
+          </div>
+        </div>
+        <div class="module-stats">
+          <div class="stat-item stat-blue">
+            <div class="stat-label">Total Stock Items</div>
+            <div class="stat-value" id="inv-total">0</div>
+            <div class="stat-sub">SKUs tracked</div>
+          </div>
+          <div class="stat-item stat-orange">
+            <div class="stat-label">Low Stock Alerts</div>
+            <div class="stat-value" id="inv-low">0</div>
+            <div class="stat-sub">Below threshold</div>
+          </div>
+        </div>
       </div>
 
+      <!-- Suppliers -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-truck-loading"></i></div>
+          <div>
+            <div class="module-card-title">Suppliers</div>
+            <div class="module-card-subtitle">Vendor payments</div>
+          </div>
+        </div>
+        <div class="module-stats">
+          <div class="stat-item stat-orange">
+            <div class="stat-label">Pending Payments</div>
+            <div class="stat-value" id="sup-count">0</div>
+            <div class="stat-sub">Invoices due</div>
+          </div>
+          <div class="stat-item stat-dark">
+            <div class="stat-label">Pending Amount</div>
+            <div class="stat-value" id="sup-amount">$0</div>
+            <div class="stat-sub">Total outstanding</div>
+          </div>
+        </div>
+      </div>
 
+      <!-- HR / Shifts -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:linear-gradient(135deg,#16a085,#1abc9c)"><i class="fas fa-user-clock"></i></div>
+          <div>
+            <div class="module-card-title">HR / Shifts</div>
+            <div class="module-card-subtitle">Workforce today</div>
+          </div>
+        </div>
+        <div class="module-stats">
+          <div class="stat-item stat-teal">
+            <div class="stat-label">Today's Shifts</div>
+            <div class="stat-value" id="hr-shifts">0</div>
+            <div class="stat-sub">Scheduled</div>
+          </div>
+          <div class="stat-item stat-purple">
+            <div class="stat-label">On Duty Now</div>
+            <div class="stat-value" id="hr-duty">0</div>
+            <div class="stat-sub">Currently active</div>
+          </div>
+        </div>
+      </div>
 
+      <!-- Logistics / Fleet -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:linear-gradient(135deg,#2980b9,#3498db)"><i class="fas fa-truck"></i></div>
+          <div>
+            <div class="module-card-title">Logistics</div>
+            <div class="module-card-subtitle">Fleet status</div>
+          </div>
+        </div>
+        <div class="module-stats">
+          <div class="stat-item stat-blue">
+            <div class="stat-label">Vehicles Active</div>
+            <div class="stat-value" id="fleet-active">0</div>
+            <div class="stat-sub">On the road</div>
+          </div>
+          <div class="stat-item stat-alert-red">
+            <div class="stat-label">Expiring Insurance</div>
+            <div class="stat-value" id="fleet-insurance">0</div>
+            <div class="stat-sub">Within 30 days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)"><i class="fas fa-gavel"></i></div>
+          <div>
+            <div class="module-card-title">Legal &amp; Compliance</div>
+            <div class="module-card-subtitle">Document status</div>
+          </div>
+        </div>
+        <div class="module-stats">
+          <div class="stat-item stat-green">
+            <div class="stat-label">Active Documents</div>
+            <div class="stat-value" id="legal-active">0</div>
+            <div class="stat-sub">In compliance</div>
+          </div>
+          <div class="stat-item stat-alert-red">
+            <div class="stat-label">Expiring Soon</div>
+            <div class="stat-value" id="legal-expiring">0</div>
+            <div class="stat-sub">Within 30 days</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /module-grid -->
+
+    <!-- ── ALERTS & ACTIVITY (two-column) ── -->
+    <div class="bottom-grid">
+
+      <!-- Alerts & Reminders -->
+      <div>
+        <div class="section-heading"><i class="fas fa-bell"></i> Alerts &amp; Reminders</div>
+        <div class="alerts-section" id="alertsSection">
+          <div class="empty-state"><i class="fas fa-check-circle text-success"></i>No urgent alerts</div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div>
+        <div class="section-heading"><i class="fas fa-history"></i> Recent Activity</div>
+        <div class="activity-section" id="activitySection">
+          <div class="empty-state"><i class="fas fa-stream"></i>No recent activity</div>
+        </div>
+      </div>
+
+    </div><!-- /bottom-grid -->
+
+    <!-- ── QUICK NAVIGATION ── -->
+    <div class="section-heading"><i class="fas fa-rocket"></i> Quick Navigation</div>
+    <div class="quick-nav-grid">
+      <a href="business_management.html" class="quick-nav-btn"><i class="fas fa-briefcase"></i><span>Business Mgmt</span></a>
+      <a href="user_management.html" class="quick-nav-btn"><i class="fas fa-users"></i><span>User Mgmt</span></a>
+      <a href="fleet_management.html" class="quick-nav-btn"><i class="fas fa-truck"></i><span>Fleet Mgmt</span></a>
+      <a href="inventory_management.html" class="quick-nav-btn"><i class="fas fa-boxes"></i><span>Inventory</span></a>
+      <a href="system_access.html" class="quick-nav-btn"><i class="fas fa-key"></i><span>System Access</span></a>
+      <a href="supplier.html" class="quick-nav-btn"><i class="fas fa-truck-loading"></i><span>Suppliers</span></a>
+      <a href="accounting.html" class="quick-nav-btn"><i class="fas fa-file-invoice-dollar"></i><span>Accounting</span></a>
+      <a href="legal_compliance.html" class="quick-nav-btn"><i class="fas fa-gavel"></i><span>Legal &amp; Compliance</span></a>
+      <a href="property_management.html" class="quick-nav-btn"><i class="fas fa-building"></i><span>Property Mgmt</span></a>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
+  </div><!-- /content-area -->
+</div><!-- /main-wrapper -->
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ══════════════════════════════════════════════
+//  MOCK DATA  (2 companies)
+// ══════════════════════════════════════════════
+const mockData = {
+  c1: {
+    name: "Alpha Trading Co.",
+    accounting: { income: 284500, expenses: 137200 },
+    inventory:  { total: 412, lowStock: 18 },
+    suppliers:  { pendingCount: 7, pendingAmount: 43800 },
+    hr:         { todayShifts: 24, onDuty: 19 },
+    fleet:      { active: 11, expiringInsurance: 3 },
+    legal:      { active: 28, expiringSoon: 4 },
+    alerts: [
+      { type:"danger", icon:"fas fa-exclamation-triangle", module:"Accounting",  text:"Invoice #INV-2024-089 is 12 days overdue",          badge:"Overdue",    badgeClass:"badge-danger" },
+      { type:"danger", icon:"fas fa-exclamation-triangle", module:"Fleet",       text:"Vehicle TRK-007 insurance expires in 5 days",        badge:"Urgent",     badgeClass:"badge-danger" },
+      { type:"warning",icon:"fas fa-clock",                module:"Suppliers",   text:"3 supplier invoices due within 7 days",              badge:"Due Soon",   badgeClass:"badge-warning" },
+      { type:"warning",icon:"fas fa-file-alt",             module:"Legal",       text:"Trade License renewal due in 6 days",                badge:"Expiring",   badgeClass:"badge-warning" },
+      { type:"warning",icon:"fas fa-boxes",                module:"Inventory",   text:"18 SKUs below minimum stock threshold",              badge:"Low Stock",  badgeClass:"badge-warning" },
+      { type:"info",   icon:"fas fa-user-clock",           module:"HR",          text:"5 employees have shifts starting in the next hour",  badge:"Upcoming",   badgeClass:"badge-info" }
+    ],
+    activity: [
+      { color:"#27ae60", icon:"fas fa-arrow-down",          text:"Income recorded: Office Supplies Sale — $12,400",       time:"2 min ago" },
+      { color:"#e74c3c", icon:"fas fa-arrow-up",            text:"Expense logged: Fleet Maintenance — $3,200",            time:"18 min ago" },
+      { color:"#3498db", icon:"fas fa-boxes",               text:"Inventory updated: 50 units of SKU-1042 restocked",     time:"45 min ago" },
+      { color:"#e67e22", icon:"fas fa-truck-loading",       text:"Supplier payment processed: Gulf Supplies Ltd. $8,750", time:"1 hr ago" },
+      { color:"#8e44ad", icon:"fas fa-user-check",          text:"Shift confirmed: 6 drivers checked in for morning run", time:"2 hrs ago" },
+      { color:"#16a085", icon:"fas fa-gavel",               text:"Legal document uploaded: Annual Compliance Report",     time:"3 hrs ago" },
+      { color:"#2980b9", icon:"fas fa-truck",               text:"Vehicle TRK-003 dispatched to Route 12",                time:"4 hrs ago" },
+      { color:"#c0392b", icon:"fas fa-exclamation-circle",  text:"Low stock alert triggered: SKU-0887 (Qty: 4)",          time:"5 hrs ago" }
+    ]
+  },
+  c2: {
+    name: "Beta Logistics Ltd.",
+    accounting: { income: 198300, expenses: 95600 },
+    inventory:  { total: 287, lowStock: 9 },
+    suppliers:  { pendingCount: 4, pendingAmount: 27500 },
+    hr:         { todayShifts: 16, onDuty: 13 },
+    fleet:      { active: 8, expiringInsurance: 1 },
+    legal:      { active: 19, expiringSoon: 2 },
+    alerts: [
+      { type:"danger", icon:"fas fa-exclamation-triangle", module:"Fleet",      text:"Vehicle VAN-002 insurance expires in 3 days",        badge:"Urgent",     badgeClass:"badge-danger" },
+      { type:"warning",icon:"fas fa-clock",                module:"Accounting", text:"Invoice #INV-2024-112 payment due in 4 days",         badge:"Due Soon",   badgeClass:"badge-warning" },
+      { type:"warning",icon:"fas fa-file-alt",             module:"Legal",      text:"Vehicle registration renewal due in 10 days",        badge:"Expiring",   badgeClass:"badge-warning" },
+      { type:"info",   icon:"fas fa-boxes",                module:"Inventory",  text:"9 SKUs below minimum stock threshold",               badge:"Low Stock",  badgeClass:"badge-info" }
+    ],
+    activity: [
+      { color:"#3498db", icon:"fas fa-truck",               text:"Vehicle VAN-005 completed delivery Route 7",            time:"5 min ago" },
+      { color:"#27ae60", icon:"fas fa-arrow-down",          text:"Income recorded: Freight Contract — $22,000",           time:"30 min ago" },
+      { color:"#e67e22", icon:"fas fa-truck-loading",       text:"New supplier invoice received: FastParts Co. $4,100",   time:"1 hr ago" },
+      { color:"#8e44ad", icon:"fas fa-user-check",          text:"Shift confirmed: 4 drivers checked in",                 time:"2 hrs ago" },
+      { color:"#e74c3c", icon:"fas fa-arrow-up",            text:"Expense logged: Fuel & Tolls — $1,850",                 time:"3 hrs ago" },
+      { color:"#16a085", icon:"fas fa-gavel",               text:"Compliance check completed — all clear",                time:"Yesterday" }
+    ]
+  }
+};
 
+// Aggregate all companies
+function aggregateData() {
+  const companies = Object.values(mockData);
+  const allAlerts = [];
+  const allActivity = [];
+  companies.forEach(c => {
+    allAlerts.push(...c.alerts);
+    allActivity.push(...c.activity);
+  });
+  return {
+    name: "All Companies",
+    accounting: {
+      income:   companies.reduce((s,c) => s + c.accounting.income, 0),
+      expenses: companies.reduce((s,c) => s + c.accounting.expenses, 0)
+    },
+    inventory: {
+      total:    companies.reduce((s,c) => s + c.inventory.total, 0),
+      lowStock: companies.reduce((s,c) => s + c.inventory.lowStock, 0)
+    },
+    suppliers: {
+      pendingCount:  companies.reduce((s,c) => s + c.suppliers.pendingCount, 0),
+      pendingAmount: companies.reduce((s,c) => s + c.suppliers.pendingAmount, 0)
+    },
+    hr: {
+      todayShifts: companies.reduce((s,c) => s + c.hr.todayShifts, 0),
+      onDuty:      companies.reduce((s,c) => s + c.hr.onDuty, 0)
+    },
+    fleet: {
+      active:            companies.reduce((s,c) => s + c.fleet.active, 0),
+      expiringInsurance: companies.reduce((s,c) => s + c.fleet.expiringInsurance, 0)
+    },
+    legal: {
+      active:       companies.reduce((s,c) => s + c.legal.active, 0),
+      expiringSoon: companies.reduce((s,c) => s + c.legal.expiringSoon, 0)
+    },
+    alerts:   allAlerts,
+    activity: allActivity
+  };
+}
 
+// ══════════════════════════════════════════════
+//  CURRENT USER
+// ══════════════════════════════════════════════
+const currentUser = {
+  name: "Ahmed Al-Rashidi",
+  role: "superadmin",   // "superadmin" | "company_admin"
+  companyId: "c1"       // used only when role === "company_admin"
+};
 
-    // ==================== COMMON FUNCTIONS ====================
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(sectionId).classList.add('active');
+let activeCompanyId = "all"; // default for superadmin
 
-      document.getElementById('page-title').textContent =
-        sectionId === 'dashboard' ? 'Dashboard' : 'All Businesses';
-    }
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function init() {
+  const isSuperAdmin = currentUser.role === "superadmin";
 
-    function updateDashboard() {
-      document.getElementById('total-businesses').textContent = businesses.length;
-      document.getElementById('total-users').textContent = users.length;
-    }
+  // Role badge
+  const badge = document.getElementById("roleBadge");
+  if (isSuperAdmin) {
+    badge.textContent = "Super Admin";
+    badge.className = "role-badge superadmin";
+  } else {
+    badge.textContent = "Company Admin";
+    badge.className = "role-badge company-admin";
+  }
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!document.querySelector('.multi-select-container').contains(e.target)) {
-        document.getElementById('dropdown').classList.remove('show');
-      }
-    });
+  // Company switcher visibility
+  const switcher = document.getElementById("companySwitcherWrap");
+  if (!isSuperAdmin) {
+    switcher.style.display = "none";
+    activeCompanyId = currentUser.companyId;
+  }
 
-    // Initialize
-    window.onload = () => {
-      renderBusinessTable();
-      updateDashboard();
-      showSection('businesses');
-    };
-  </script>
+  renderDashboard();
+}
 
+// ══════════════════════════════════════════════
+//  SWITCH COMPANY
+// ══════════════════════════════════════════════
+function switchCompany(id) {
+  activeCompanyId = id;
+  renderDashboard();
+}
+
+// ══════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard() {
+  const data = activeCompanyId === "all" ? aggregateData() : mockData[activeCompanyId];
+  if (!data) return;
+
+  // Format helpers
+  const fmt = n => n >= 1000000
+    ? "$" + (n/1000000).toFixed(1) + "M"
+    : n >= 1000
+      ? "$" + (n/1000).toFixed(1) + "K"
+      : "$" + n.toLocaleString();
+
+  // Accounting
+  document.getElementById("acc-income").textContent  = fmt(data.accounting.income);
+  document.getElementById("acc-expense").textContent = fmt(data.accounting.expenses);
+
+  // Inventory
+  document.getElementById("inv-total").textContent = data.inventory.total.toLocaleString();
+  document.getElementById("inv-low").textContent   = data.inventory.lowStock;
+
+  // Suppliers
+  document.getElementById("sup-count").textContent  = data.suppliers.pendingCount;
+  document.getElementById("sup-amount").textContent = fmt(data.suppliers.pendingAmount);
+
+  // HR
+  document.getElementById("hr-shifts").textContent = data.hr.todayShifts;
+  document.getElementById("hr-duty").textContent   = data.hr.onDuty;
+
+  // Fleet
+  document.getElementById("fleet-active").textContent    = data.fleet.active;
+  document.getElementById("fleet-insurance").textContent = data.fleet.expiringInsurance;
+
+  // Legal
+  document.getElementById("legal-active").textContent   = data.legal.active;
+  document.getElementById("legal-expiring").textContent = data.legal.expiringSoon;
+
+  // Alerts
+  renderAlerts(data.alerts);
+
+  // Activity
+  renderActivity(data.activity);
+}
+
+// ══════════════════════════════════════════════
+//  RENDER ALERTS
+// ══════════════════════════════════════════════
+function renderAlerts(alerts) {
+  const el = document.getElementById("alertsSection");
+  if (!alerts || alerts.length === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle text-success"></i>No urgent alerts</div>';
+    return;
+  }
+  el.innerHTML = alerts.map(a => `
+    <div class="alert-row alert-${a.type}-row">
+      <i class="alert-row-icon ${a.icon} text-${a.type === 'danger' ? 'danger' : a.type === 'warning' ? 'warning' : 'primary'}"></i>
+      <div class="alert-row-text">
+        <strong>${a.text}</strong>
+        <span>${a.module}</span>
+      </div>
+      <span class="alert-row-badge ${a.badgeClass}">${a.badge}</span>
+    </div>
+  `).join("");
+}
+
+// ══════════════════════════════════════════════
+//  RENDER ACTIVITY
+// ══════════════════════════════════════════════
+function renderActivity(activity) {
+  const el = document.getElementById("activitySection");
+  if (!activity || activity.length === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i>No recent activity</div>';
+    return;
+  }
+  el.innerHTML = activity.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"><i class="${a.icon}"></i></div>
+      <div class="activity-body">
+        <strong>${a.text}</strong>
+        <span>${a.time}</span>
+      </div>
+      <div class="activity-time">${a.time}</div>
+    </div>
+  `).join("");
+}
+
+// Run on load
+document.addEventListener("DOMContentLoaded", init);
+</script>
 </body>
-
 </html>
