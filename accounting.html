@@ -680,8 +680,6 @@
                                                 <option>Accountant Fees</option>
                                                 <option>Bank Charges</option>
                                                 <option>Card processing Dojo</option>
-                                                <option>Insurance</option>
-                                                <option>VAT / Tax</option>
                                             </select>
                                             <button class="btn btn-outline-secondary btn-sm" type="button"
                                                 onclick="addCategory()" title="Add New Category">+</button>
@@ -723,37 +721,68 @@
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label">Term (Years)</label>
-                                                <input type="number" class="form-control form-control-sm" id="mortTerm" placeholder="e.g. 25">
+                                                <input type="number" class="form-control form-control-sm" id="mortTerm"
+                                                    placeholder="e.g. 25">
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label">Interest Rate (%)</label>
-                                                <input type="number" class="form-control form-control-sm" id="mortRate" step="0.01" placeholder="0.00">
+                                                <input type="number" class="form-control form-control-sm" id="mortRate"
+                                                    step="0.01" placeholder="0.00">
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label">Repayment ($)</label>
-                                                <input type="number" class="form-control form-control-sm" id="mortRepay" step="0.01" placeholder="0.00">
+                                                <input type="number" class="form-control form-control-sm" id="mortRepay"
+                                                    step="0.01" placeholder="0.00">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-12" id="insuranceContainer" style="display: none;">
                                         <div class="row g-2">
-                                            <div class="col-6"><label class="form-label">Insurance Type</label><input type="text" class="form-control form-control-sm" id="insType" placeholder="e.g. Liability"></div>
-                                            <div class="col-6"><label class="form-label">Provider Name</label><input type="text" class="form-control form-control-sm" id="insProvider"></div>
-                                            <div class="col-6"><label class="form-label">Policy Number</label><input type="text" class="form-control form-control-sm" id="insPolicy"></div>
-                                            <div class="col-6"><label class="form-label">Premium Amount ($)</label><input type="number" class="form-control form-control-sm" id="insPremium" step="0.01"></div>
-                                            <div class="col-6"><label class="form-label">Start Date</label><input type="date" class="form-control form-control-sm" id="insStart"></div>
-                                            <div class="col-6"><label class="form-label">Expiry Date</label><input type="date" class="form-control form-control-sm" id="insExpiry"></div>
-                                            <div class="col-12"><label class="form-label">Renewal Reminder</label><select class="form-select form-select-sm" id="insReminder"><option>30 Days Before</option><option>15 Days Before</option><option>7 Days Before</option></select></div>
+                                            <div class="col-6"><label class="form-label">Insurance Type</label><input
+                                                    type="text" class="form-control form-control-sm" id="insType"
+                                                    placeholder="e.g. Liability"></div>
+                                            <div class="col-6"><label class="form-label">Provider Name</label><input
+                                                    type="text" class="form-control form-control-sm" id="insProvider">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Policy Number</label><input
+                                                    type="text" class="form-control form-control-sm" id="insPolicy">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Premium Amount
+                                                    ($)</label><input type="number" class="form-control form-control-sm"
+                                                    id="insPremium" step="0.01"></div>
+                                            <div class="col-6"><label class="form-label">Start Date</label><input
+                                                    type="date" class="form-control form-control-sm" id="insStart">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Expiry Date</label><input
+                                                    type="date" class="form-control form-control-sm" id="insExpiry">
+                                            </div>
+                                            <div class="col-12"><label class="form-label">Renewal
+                                                    Reminder</label><select class="form-select form-select-sm"
+                                                    id="insReminder">
+                                                    <option>30 Days Before</option>
+                                                    <option>15 Days Before</option>
+                                                    <option>7 Days Before</option>
+                                                </select></div>
                                         </div>
                                     </div>
                                     <div class="col-12" id="taxContainer" style="display: none;">
                                         <div class="row g-2">
-                                            <div class="col-6"><label class="form-label">Tax Type</label><input type="text" class="form-control form-control-sm" id="taxType" placeholder="e.g. Corporation Tax"></div>
-                                            <div class="col-6"><label class="form-label">Tax Amount ($)</label><input type="number" class="form-control form-control-sm" id="taxAmount" step="0.01"></div>
-                                            <div class="col-6"><label class="form-label">Period Start</label><input type="date" class="form-control form-control-sm" id="taxStart"></div>
-                                            <div class="col-6"><label class="form-label">Period End</label><input type="date" class="form-control form-control-sm" id="taxEnd"></div>
-                                            <div class="col-6"><label class="form-label">Filing Date</label><input type="date" class="form-control form-control-sm" id="taxFiling"></div>
-                                            <div class="col-6"><label class="form-label">Payment Due</label><input type="date" class="form-control form-control-sm" id="taxDue"></div>
+                                            <div class="col-6"><label class="form-label">Tax Type</label><input
+                                                    type="text" class="form-control form-control-sm" id="taxType"
+                                                    placeholder="e.g. Corporation Tax"></div>
+                                            <div class="col-6"><label class="form-label">Tax Amount ($)</label><input
+                                                    type="number" class="form-control form-control-sm" id="taxAmount"
+                                                    step="0.01"></div>
+                                            <div class="col-6"><label class="form-label">Period Start</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxStart">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Period End</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxEnd"></div>
+                                            <div class="col-6"><label class="form-label">Filing Date</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxFiling">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Payment Due</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxDue"></div>
                                         </div>
                                     </div>
                                     <div class="col-12"><label class="form-label">Type</label>
@@ -974,14 +1003,18 @@
                             <form id="insuranceForm">
                                 <div class="row g-3">
                                     <input type="hidden" id="editInsId">
-                                    <div class="col-12"><label class="form-label">Insurance Type</label><input type="text"
-                                            class="form-control form-control-sm" id="insType" placeholder="e.g. Public Liability" required></div>
-                                    <div class="col-12"><label class="form-label">Provider Name</label><input type="text"
-                                            class="form-control form-control-sm" id="insProvider" required></div>
-                                    <div class="col-12"><label class="form-label">Policy Number</label><input type="text"
-                                            class="form-control form-control-sm" id="insPolicy" required></div>
+                                    <div class="col-12"><label class="form-label">Insurance Type</label><input
+                                            type="text" class="form-control form-control-sm" id="insType"
+                                            placeholder="e.g. Public Liability" required></div>
+                                    <div class="col-12"><label class="form-label">Provider Name</label><input
+                                            type="text" class="form-control form-control-sm" id="insProvider" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Policy Number</label><input
+                                            type="text" class="form-control form-control-sm" id="insPolicy" required>
+                                    </div>
                                     <div class="col-12"><label class="form-label">Premium Amount ($)</label><input
-                                            type="number" class="form-control form-control-sm" id="insPremium" step="0.01" required></div>
+                                            type="number" class="form-control form-control-sm" id="insPremium"
+                                            step="0.01" required></div>
                                     <div class="col-6"><label class="form-label">Start Date</label><input type="date"
                                             class="form-control form-control-sm" id="insStart" required></div>
                                     <div class="col-6"><label class="form-label">Expiry Date</label><input type="date"
@@ -1001,7 +1034,8 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" id="insSubmitBtn" class="btn btn-minimal w-100 mt-3">Save Policy</button>
+                                <button type="submit" id="insSubmitBtn" class="btn btn-minimal w-100 mt-3">Save
+                                    Policy</button>
                                 <button type="button" id="cancelInsEdit"
                                     class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
                                     onclick="resetInsuranceForm()">Cancel Edit</button>
@@ -1031,14 +1065,19 @@
                                 </thead>
                                 <tbody id="insuranceTable">
                                     <tr id="ins-1">
-                                        <td class="td-ins-info"><strong>Public Liability</strong> <br><small class="text-muted">Allianz Insurance</small></td>
+                                        <td class="td-ins-info"><strong>Public Liability</strong> <br><small
+                                                class="text-muted">Allianz Insurance</small></td>
                                         <td class="td-ins-policy">POL-887766</td>
                                         <td class="td-ins-premium">$1,250.00</td>
-                                        <td class="td-ins-term extra-col small text-muted">2024-01-01 <br>2025-01-01</td>
-                                        <td class="td-ins-status"><span class="status-badge bg-active">Active</span></td>
+                                        <td class="td-ins-term extra-col small text-muted">2024-01-01 <br>2025-01-01
+                                        </td>
+                                        <td class="td-ins-status"><span class="status-badge bg-active">Active</span>
+                                        </td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editInsurance('ins-1')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInsurance('ins-1')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editInsurance('ins-1')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteInsurance('ins-1')"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1054,20 +1093,23 @@
             <div class="row g-4">
                 <div class="col-lg-4 form-col">
                     <div class="card">
-                        <div class="card-header py-3"><i id="taxFormIcon" class="fas fa-file-invoice-dollar me-2"></i><span
-                                id="taxFormTitle">New Tax Filing</span></div>
+                        <div class="card-header py-3"><i id="taxFormIcon"
+                                class="fas fa-file-invoice-dollar me-2"></i><span id="taxFormTitle">New Tax
+                                Filing</span></div>
                         <div class="card-body">
                             <form id="taxForm">
                                 <div class="row g-3">
                                     <input type="hidden" id="editTaxId">
                                     <div class="col-12"><label class="form-label">Tax Type</label><input type="text"
-                                            class="form-control form-control-sm" id="taxType" placeholder="e.g. VAT Q1 2024" required></div>
+                                            class="form-control form-control-sm" id="taxType"
+                                            placeholder="e.g. VAT Q1 2024" required></div>
                                     <div class="col-6"><label class="form-label">Period Start</label><input type="date"
                                             class="form-control form-control-sm" id="taxStart" required></div>
                                     <div class="col-6"><label class="form-label">Period End</label><input type="date"
                                             class="form-control form-control-sm" id="taxEnd" required></div>
                                     <div class="col-12"><label class="form-label">Tax Amount ($)</label><input
-                                            type="number" class="form-control form-control-sm" id="taxAmount" step="0.01" required></div>
+                                            type="number" class="form-control form-control-sm" id="taxAmount"
+                                            step="0.01" required></div>
                                     <div class="col-6"><label class="form-label">Filing Date</label><input type="date"
                                             class="form-control form-control-sm" id="taxFiling" required></div>
                                     <div class="col-6"><label class="form-label">Payment Due</label><input type="date"
@@ -1081,7 +1123,8 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" id="taxSubmitBtn" class="btn btn-minimal w-100 mt-3">Register Filing</button>
+                                <button type="submit" id="taxSubmitBtn" class="btn btn-minimal w-100 mt-3">Register
+                                    Filing</button>
                                 <button type="button" id="cancelTaxEdit"
                                     class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
                                     onclick="resetTaxForm()">Cancel Edit</button>
@@ -1111,14 +1154,17 @@
                                 </thead>
                                 <tbody id="taxTable">
                                     <tr id="tax-1">
-                                        <td class="td-tax-info"><strong>Corporation Tax 2023</strong> <br><small class="text-muted">Jan - Dec 2023</small></td>
+                                        <td class="td-tax-info"><strong>Corporation Tax 2023</strong> <br><small
+                                                class="text-muted">Jan - Dec 2023</small></td>
                                         <td class="td-tax-amount">$15,450.00</td>
                                         <td class="td-tax-filing">2024-03-15</td>
                                         <td class="td-tax-due extra-col">2024-04-01</td>
                                         <td class="td-tax-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editTax('tax-1')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTax('tax-1')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editTax('tax-1')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteTax('tax-1')"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1313,7 +1359,7 @@
             const mortgageCont = document.getElementById('mortgageContainer');
             const insuranceCont = document.getElementById('insuranceContainer');
             const taxCont = document.getElementById('taxContainer');
-            
+
             supplierCont.style.display = 'none';
             rentCont.style.display = 'none';
             mortgageCont.style.display = 'none';
@@ -1361,7 +1407,7 @@
             const insProvider = document.getElementById('insProvider').value;
             const taxT = document.getElementById('taxType').value;
             const taxA = document.getElementById('taxAmount').value;
-            
+
             let displayTitle = title;
             if (supplier) displayTitle = `${title}: ${supplier}`;
             else if (rentS && rentE) displayTitle = `${title} (${rentS} to ${rentE})`;

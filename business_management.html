@@ -269,17 +269,29 @@
             </div>
         </div>
         <ul class="sidebar-nav-list">
-            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
-            <li><a href="business_management.html" class="nav-link active"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a></li>
-            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
-            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
-            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
-            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
-            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span class="nav-label">Suppliers</span></a></li>
-            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a></li>
-            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span class="nav-label">Legal & Compliance</span></a></li>
-            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span class="nav-label">Property Management</span></a></li>
-            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span class="nav-label">Reports</span></a></li>
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span
+                        class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link active"><i
+                        class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a>
+            </li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span
+                        class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+                        class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+                        class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+                        class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span
+                        class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span
+                        class="nav-label">Accounting</span></a></li>
+            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span
+                        class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span
+                        class="nav-label">Property Management</span></a></li>
+            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+                        class="nav-label">Reports</span></a></li>
         </ul>
     </div>
 
@@ -292,8 +304,9 @@
 
         <!-- Tab Toggle Views -->
         <div class="nav-tabs-custom">
-            <button class="tab-btn active" id="tab-entities" onclick="switchView('entities')">Business Portfolio</button>
-            <button class="tab-btn" id="tab-structure" onclick="switchView('structure')">Corporate Structure</button>
+            <button class="tab-btn active" id="tab-entities" onclick="switchView('entities')">Basic Details </button>
+            <button class="tab-btn" id="tab-structure" onclick="switchView('structure')">Companies House
+                Structure</button>
         </div>
 
         <!-- 1. BUSINESS PORTFOLIO VIEW -->
@@ -305,8 +318,12 @@
                         <div class="card-body">
                             <form id="bizForm">
                                 <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Business Name</label><input type="text" class="form-control form-control-sm" id="bName" placeholder="e.g. Acme Corp" required></div>
-                                    <div class="col-12"><label class="form-label">Company Number</label><input type="text" class="form-control form-control-sm" id="bNum" placeholder="CH-12345678" required></div>
+                                    <div class="col-12"><label class="form-label">Business Name</label><input
+                                            type="text" class="form-control form-control-sm" id="bName"
+                                            placeholder="e.g. Acme Corp" required></div>
+                                    <div class="col-12"><label class="form-label">Company Number</label><input
+                                            type="text" class="form-control form-control-sm" id="bNum"
+                                            placeholder="CH-12345678" required></div>
                                     <div class="col-12"><label class="form-label">Business Category</label>
                                         <select class="form-select form-select-sm" id="bCat">
                                             <option>Retail</option>
@@ -316,8 +333,10 @@
                                             <option>Other</option>
                                         </select>
                                     </div>
-                                    <div class="col-12"><label class="form-label">Tax ID / VAT Number</label><input type="text" class="form-control form-control-sm" id="bTax"></div>
-                                    <div class="col-12"><label class="form-label">Headquarters</label><input type="text" class="form-control form-control-sm" id="bHQ"></div>
+                                    <div class="col-12"><label class="form-label">Tax ID / VAT Number</label><input
+                                            type="text" class="form-control form-control-sm" id="bTax"></div>
+                                    <div class="col-12"><label class="form-label">Headquarters</label><input type="text"
+                                            class="form-control form-control-sm" id="bHQ"></div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Register Business</button>
                             </form>
@@ -351,7 +370,8 @@
                                         <td>Retail</td>
                                         <td class="extra-col">London, UK</td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Logistics Hub</strong></td>
@@ -359,7 +379,8 @@
                                         <td>Logistics</td>
                                         <td class="extra-col">Manchester, UK</td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -369,34 +390,41 @@
             </div>
         </div>
 
-        <!-- 2. CORPORATE STRUCTURE VIEW -->
+        <!-- 2. COMPANIES HOUSE STRUCTURE VIEW -->
         <div id="view-structure" class="view-section">
             <div class="row g-4">
                 <div class="col-lg-4 form-col">
                     <div class="card">
-                        <div class="card-header py-3"><i class="fas fa-sitemap me-2"></i>Define Department / Branch</div>
+                        <div class="card-header py-3"><i class="fas fa-landmark me-2"></i>Companies House Registration
+                        </div>
                         <div class="card-body">
                             <form id="structureForm">
                                 <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Unit Name</label><input type="text" class="form-control form-control-sm" id="uName" placeholder="e.g. Sales Dept" required></div>
-                                    <div class="col-12"><label class="form-label">Parent Business</label>
-                                        <select class="form-select form-select-sm" id="uParent" required>
-                                            <option value="">Choose...</option>
-                                            <option value="Main Retail Store">Main Retail Store</option>
-                                            <option value="Logistics Hub">Logistics Hub</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12"><label class="form-label">Unit Head / Manager</label><input type="text" class="form-control form-control-sm" id="uHead"></div>
-                                    <div class="col-12"><label class="form-label">Type</label>
-                                        <select class="form-select form-select-sm" id="uType">
-                                            <option>Department</option>
-                                            <option>Branch</option>
-                                            <option>Warehouse</option>
-                                            <option>Satellite Office</option>
-                                        </select>
-                                    </div>
+                                    <div class="col-12"><label class="form-label">Full Company Name</label><input
+                                            type="text" class="form-control form-control-sm" id="cName"
+                                            placeholder="e.g. Whiterock Retail Ltd" required></div>
+                                    <div class="col-12"><label class="form-label">Registration Number
+                                            (CRN)</label><input type="text" class="form-control form-control-sm"
+                                            id="cCRN" placeholder="8-digit number" required></div>
+                                    <div class="col-12"><label class="form-label">Who Manages It
+                                            (Directors)</label><input type="text" class="form-control form-control-sm"
+                                            id="cManagers" placeholder="Name of Directors / Managers" required></div>
+                                    <div class="col-6"><label class="form-label">Incorporation Date</label><input
+                                            type="date" class="form-control form-control-sm" id="cDate"></div>
+                                    <div class="col-6"><label class="form-label">SIC Code</label><input type="text"
+                                            class="form-control form-control-sm" id="cSIC"
+                                            placeholder="Nature of Business"></div>
+                                    <div class="col-12"><label class="form-label">Registered Office
+                                            Address</label><textarea class="form-control form-control-sm" id="cAddress"
+                                            rows="2"></textarea></div>
+                                    <div class="col-12"><label class="form-label">Confirmation Statement
+                                            Due</label><input type="date" class="form-control form-control-sm"
+                                            id="cDue"></div>
+                                    <div class="col-6"><label class="form-label">Balance Sheet (PDF)</label><input type="file" class="form-control form-control-sm" id="cBS" accept=".pdf"></div>
+                                    <div class="col-6"><label class="form-label">P&L Statement (PDF)</label><input type="file" class="form-control form-control-sm" id="cPL" accept=".pdf"></div>
                                 </div>
-                                <button type="submit" class="btn btn-minimal w-100 mt-3">Save Organizational Unit</button>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Register Company
+                                    Details</button>
                             </form>
                         </div>
                     </div>
@@ -404,7 +432,7 @@
                 <div class="col-lg-8 table-col">
                     <div class="card h-100">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <span>Organizational Hierarchy</span>
+                            <span>Companies House Registry</span>
                             <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('structure')">
                                 <i class="fas fa-expand-alt me-1"></i> Wide View
                             </button>
@@ -413,30 +441,39 @@
                             <table class="table table-sm table-striped mb-0 align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Unit Name</th>
-                                        <th>Type</th>
-                                        <th>Parent Business</th>
-                                        <th class="extra-col">Head</th>
-                                        <th>Status</th>
+                                        <th>Company Name</th>
+                                        <th>CRN</th>
+                                        <th>Managed By</th>
+                                        <th class="extra-col">SIC Code</th>
+                                        <th>Filing Due</th>
+                                        <th>Statutory Docs</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="structureTable">
                                     <tr>
-                                        <td><strong>Sales & Marketing</strong></td>
-                                        <td>Department</td>
-                                        <td>Main Retail Store</td>
-                                        <td class="extra-col">David Brent</td>
-                                        <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-sitemap"></i></button></td>
+                                        <td><strong>Whiterock Retail Ltd</strong></td>
+                                        <td>12345678</td>
+                                        <td>John Smith</td>
+                                        <td class="extra-col">47110</td>
+                                        <td><span class="status-badge bg-active">2026-12-15</span></td>
+                                        <td>
+                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i class="fas fa-file-pdf"></i> BS</a>
+                                            <a href="#" class="text-danger" title="P&L Statement"><i class="fas fa-file-pdf"></i> P&L</a>
+                                        </td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>North Warehouse</strong></td>
-                                        <td>Warehouse</td>
-                                        <td>Logistics Hub</td>
-                                        <td class="extra-col">Sarah Connor</td>
-                                        <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-sitemap"></i></button></td>
+                                        <td><strong>Zenith Logistics Hub</strong></td>
+                                        <td>87654321</td>
+                                        <td>Sarah Jenkins</td>
+                                        <td class="extra-col">52101</td>
+                                        <td><span class="status-badge bg-active">2026-11-20</span></td>
+                                        <td>
+                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i class="fas fa-file-pdf"></i> BS</a>
+                                            <a href="#" class="text-danger" title="P&L Statement"><i class="fas fa-file-pdf"></i> P&L</a>
+                                        </td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -486,7 +523,7 @@
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
             </tr>`;
             document.getElementById('bizTable').insertAdjacentHTML('afterbegin', row);
-            
+
             // Add to Parent dropdown
             const sel = document.getElementById('uParent');
             const opt = document.createElement('option');
@@ -500,21 +537,29 @@
 
         document.getElementById('structureForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            const name = document.getElementById('uName').value;
-            const type = document.getElementById('uType').value;
-            const parent = document.getElementById('uParent').value;
-            const head = document.getElementById('uHead').value || '-';
+            const name = document.getElementById('cName').value;
+            const crn = document.getElementById('cCRN').value;
+            const managers = document.getElementById('cManagers').value;
+            const sic = document.getElementById('cSIC').value || '-';
+            const due = document.getElementById('cDue').value || '-';
+            
+            const bsFile = document.getElementById('cBS').files[0];
+            const plFile = document.getElementById('cPL').files[0];
+            
+            const bsHtml = bsFile ? `<a href="#" class="text-danger me-2" title="${bsFile.name}"><i class="fas fa-file-pdf"></i> BS</a>` : '-';
+            const plHtml = plFile ? `<a href="#" class="text-danger" title="${plFile.name}"><i class="fas fa-file-pdf"></i> P&L</a>` : '';
 
             const row = `<tr>
                 <td><strong>${name}</strong></td>
-                <td>${type}</td>
-                <td>${parent}</td>
-                <td class="extra-col">${head}</td>
-                <td><span class="status-badge bg-active">Active</span></td>
-                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-sitemap"></i></button></td>
+                <td>${crn}</td>
+                <td>${managers}</td>
+                <td class="extra-col">${sic}</td>
+                <td><span class="status-badge bg-active">${due}</span></td>
+                <td>${bsHtml} ${plHtml}</td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
             </tr>`;
             document.getElementById('structureTable').insertAdjacentHTML('afterbegin', row);
-            alert('Organizational unit saved!');
+            alert('Company details registered!');
             this.reset();
         });
     </script>
