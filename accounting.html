@@ -442,6 +442,9 @@
             <button class="tab-btn active" id="tab-records" onclick="switchView('records')">Financial Records</button>
             <button class="tab-btn" id="tab-invoices" onclick="switchView('invoices')">Invoices</button>
             <button class="tab-btn" id="tab-bank" onclick="switchView('bank')">Bank Details</button>
+            <button class="tab-btn" id="tab-loans" onclick="switchView('loans')">Loans</button>
+            <button class="tab-btn" id="tab-insurance" onclick="switchView('insurance')">Insurance</button>
+            <button class="tab-btn" id="tab-tax" onclick="switchView('tax')">VAT / Tax</button>
             <div class="ms-auto d-flex align-items-center gap-2 flex-wrap py-1" id="kpi-list">
                 <div class="reminder-pill pending">
                     <i class="fas fa-arrow-down"></i>
@@ -551,6 +554,110 @@
             </div>
         </div>
 
+        <!-- 4. LOANS VIEW -->
+        <div id="view-loans" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="loanFormIcon"
+                                class="fas fa-hand-holding-usd me-2"></i><span id="loanFormTitle">New Loan Entry</span>
+                        </div>
+                        <div class="card-body">
+                            <form id="loanForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editLoanId">
+                                    <div class="col-12"><label class="form-label">Loan Name / Type</label><input
+                                            type="text" class="form-control form-control-sm" id="loanName"
+                                            placeholder="e.g. Business Expansion Loan" required></div>
+                                    <div class="col-12"><label class="form-label">Lender (Bank / Company)</label><input
+                                            type="text" class="form-control form-control-sm" id="loanLender" required>
+                                    </div>
+                                    <div class="col-6"><label class="form-label">Total Loan Amount ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanTotal"
+                                            step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Outstanding (O/S) ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanOS" step="0.01"
+                                            required></div>
+                                    <div class="col-6"><label class="form-label">Monthly Payment ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanMonthly"
+                                            step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Interest Rate (%)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanRate" step="0.01"
+                                            required></div>
+                                    <div class="col-6"><label class="form-label">Start Date</label><input type="date"
+                                            class="form-control form-control-sm" id="loanStart" required></div>
+                                    <div class="col-6"><label class="form-label">End Date</label><input type="date"
+                                            class="form-control form-control-sm" id="loanEnd" required></div>
+                                    <div class="col-12"><label class="form-label">Next Payment Date</label><input
+                                            type="date" class="form-control form-control-sm" id="loanNextDate" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="loanStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Paid Off">Paid Off</option>
+                                            <option value="Defaulted">Defaulted</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="loanSubmitBtn" class="btn btn-minimal w-100 mt-3">Register
+                                    Loan</button>
+                                <button type="button" id="cancelLoanEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetLoanForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Loans Registry & Monitoring</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('loans')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Loan / Lender</th>
+                                        <th>Total / O/S</th>
+                                        <th>Monthly / Rate</th>
+                                        <th class="extra-col">Term (Start - End)</th>
+                                        <th class="extra-col">Next Payment</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loansTable">
+                                    <tr id="loan-1">
+                                        <td class="td-loan-info"><strong>SME Growth Loan</strong> <br><small
+                                                class="text-muted">Business Central Bank</small></td>
+                                        <td class="td-loan-amounts">T: $50,000 <br><small class="text-danger">O/S:
+                                                $32,450</small></td>
+                                        <td class="td-loan-rate">$1,200 <br><small class="text-muted">5.2% APR</small>
+                                        </td>
+                                        <td class="td-loan-term extra-col small text-muted">2024-01-15 <br>2028-01-15
+                                        </td>
+                                        <td class="td-loan-next extra-col text-primary small fw-bold">2026-05-15</td>
+                                        <td class="td-loan-status"><span class="status-badge bg-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editLoan('loan-1')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteLoan('loan-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 1. FINANCIAL RECORDS VIEW -->
         <div id="view-records" class="view-section active">
             <div class="row g-4">
@@ -568,17 +675,85 @@
                                             <select class="form-select form-select-sm" id="recTitle" required>
                                                 <option value="" selected disabled>Select Category...</option>
                                                 <option>Supplier Payments</option>
-                                                <option>Loans</option>
-                                                <option>Loans / Insurance</option>
-                                                <option>Rent / Mortgage</option>
+                                                <option>Rent</option>
+                                                <option>Mortgage</option>
                                                 <option>Accountant Fees</option>
                                                 <option>Bank Charges</option>
                                                 <option>Card processing Dojo</option>
+                                                <option>Insurance</option>
+                                                <option>VAT / Tax</option>
                                             </select>
                                             <button class="btn btn-outline-secondary btn-sm" type="button"
                                                 onclick="addCategory()" title="Add New Category">+</button>
                                             <button class="btn btn-outline-danger btn-sm" type="button"
                                                 onclick="removeCategory()" title="Remove Selected Category">-</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="supplierContainer" style="display: none;">
+                                        <label class="form-label">Supplier</label>
+                                        <select class="form-select form-select-sm" id="recSupplier">
+                                            <option value="" selected disabled>Select Supplier...</option>
+                                            <option>Global Supplies Ltd</option>
+                                            <option>Tech Connect Inc</option>
+                                            <option>Office Depot</option>
+                                            <option>Prime Logistics</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12" id="rentTermContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="form-label">Rent Term Start</label>
+                                                <input type="date" class="form-control form-control-sm" id="rentStart">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Rent Term End</label>
+                                                <input type="date" class="form-control form-control-sm" id="rentEnd">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="mortgageContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="form-label">Paying Mode</label>
+                                                <select class="form-select form-select-sm" id="mortMode">
+                                                    <option>Monthly</option>
+                                                    <option>Quarterly</option>
+                                                    <option>Annually</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Term (Years)</label>
+                                                <input type="number" class="form-control form-control-sm" id="mortTerm" placeholder="e.g. 25">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Interest Rate (%)</label>
+                                                <input type="number" class="form-control form-control-sm" id="mortRate" step="0.01" placeholder="0.00">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Repayment ($)</label>
+                                                <input type="number" class="form-control form-control-sm" id="mortRepay" step="0.01" placeholder="0.00">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="insuranceContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6"><label class="form-label">Insurance Type</label><input type="text" class="form-control form-control-sm" id="insType" placeholder="e.g. Liability"></div>
+                                            <div class="col-6"><label class="form-label">Provider Name</label><input type="text" class="form-control form-control-sm" id="insProvider"></div>
+                                            <div class="col-6"><label class="form-label">Policy Number</label><input type="text" class="form-control form-control-sm" id="insPolicy"></div>
+                                            <div class="col-6"><label class="form-label">Premium Amount ($)</label><input type="number" class="form-control form-control-sm" id="insPremium" step="0.01"></div>
+                                            <div class="col-6"><label class="form-label">Start Date</label><input type="date" class="form-control form-control-sm" id="insStart"></div>
+                                            <div class="col-6"><label class="form-label">Expiry Date</label><input type="date" class="form-control form-control-sm" id="insExpiry"></div>
+                                            <div class="col-12"><label class="form-label">Renewal Reminder</label><select class="form-select form-select-sm" id="insReminder"><option>30 Days Before</option><option>15 Days Before</option><option>7 Days Before</option></select></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="taxContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6"><label class="form-label">Tax Type</label><input type="text" class="form-control form-control-sm" id="taxType" placeholder="e.g. Corporation Tax"></div>
+                                            <div class="col-6"><label class="form-label">Tax Amount ($)</label><input type="number" class="form-control form-control-sm" id="taxAmount" step="0.01"></div>
+                                            <div class="col-6"><label class="form-label">Period Start</label><input type="date" class="form-control form-control-sm" id="taxStart"></div>
+                                            <div class="col-6"><label class="form-label">Period End</label><input type="date" class="form-control form-control-sm" id="taxEnd"></div>
+                                            <div class="col-6"><label class="form-label">Filing Date</label><input type="date" class="form-control form-control-sm" id="taxFiling"></div>
+                                            <div class="col-6"><label class="form-label">Payment Due</label><input type="date" class="form-control form-control-sm" id="taxDue"></div>
                                         </div>
                                     </div>
                                     <div class="col-12"><label class="form-label">Type</label>
@@ -787,9 +962,225 @@
                 </div>
             </div>
         </div>
+
+        <!-- 5. INSURANCE VIEW -->
+        <div id="view-insurance" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="insFormIcon" class="fas fa-shield-alt me-2"></i><span
+                                id="insFormTitle">New Insurance Policy</span></div>
+                        <div class="card-body">
+                            <form id="insuranceForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editInsId">
+                                    <div class="col-12"><label class="form-label">Insurance Type</label><input type="text"
+                                            class="form-control form-control-sm" id="insType" placeholder="e.g. Public Liability" required></div>
+                                    <div class="col-12"><label class="form-label">Provider Name</label><input type="text"
+                                            class="form-control form-control-sm" id="insProvider" required></div>
+                                    <div class="col-12"><label class="form-label">Policy Number</label><input type="text"
+                                            class="form-control form-control-sm" id="insPolicy" required></div>
+                                    <div class="col-12"><label class="form-label">Premium Amount ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="insPremium" step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Start Date</label><input type="date"
+                                            class="form-control form-control-sm" id="insStart" required></div>
+                                    <div class="col-6"><label class="form-label">Expiry Date</label><input type="date"
+                                            class="form-control form-control-sm" id="insExpiry" required></div>
+                                    <div class="col-12"><label class="form-label">Renewal Reminder</label>
+                                        <select class="form-select form-select-sm" id="insReminder">
+                                            <option>30 Days Before</option>
+                                            <option>15 Days Before</option>
+                                            <option>7 Days Before</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="insStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Expired">Expired</option>
+                                            <option value="Pending Renewal">Pending Renewal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="insSubmitBtn" class="btn btn-minimal w-100 mt-3">Save Policy</button>
+                                <button type="button" id="cancelInsEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetInsuranceForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Insurance Policies Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('insurance')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Type / Provider</th>
+                                        <th>Policy #</th>
+                                        <th>Premium</th>
+                                        <th class="extra-col">Term (Start - End)</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="insuranceTable">
+                                    <tr id="ins-1">
+                                        <td class="td-ins-info"><strong>Public Liability</strong> <br><small class="text-muted">Allianz Insurance</small></td>
+                                        <td class="td-ins-policy">POL-887766</td>
+                                        <td class="td-ins-premium">$1,250.00</td>
+                                        <td class="td-ins-term extra-col small text-muted">2024-01-01 <br>2025-01-01</td>
+                                        <td class="td-ins-status"><span class="status-badge bg-active">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editInsurance('ins-1')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInsurance('ins-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. VAT / TAX VIEW -->
+        <div id="view-tax" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="taxFormIcon" class="fas fa-file-invoice-dollar me-2"></i><span
+                                id="taxFormTitle">New Tax Filing</span></div>
+                        <div class="card-body">
+                            <form id="taxForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editTaxId">
+                                    <div class="col-12"><label class="form-label">Tax Type</label><input type="text"
+                                            class="form-control form-control-sm" id="taxType" placeholder="e.g. VAT Q1 2024" required></div>
+                                    <div class="col-6"><label class="form-label">Period Start</label><input type="date"
+                                            class="form-control form-control-sm" id="taxStart" required></div>
+                                    <div class="col-6"><label class="form-label">Period End</label><input type="date"
+                                            class="form-control form-control-sm" id="taxEnd" required></div>
+                                    <div class="col-12"><label class="form-label">Tax Amount ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="taxAmount" step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Filing Date</label><input type="date"
+                                            class="form-control form-control-sm" id="taxFiling" required></div>
+                                    <div class="col-6"><label class="form-label">Payment Due</label><input type="date"
+                                            class="form-control form-control-sm" id="taxDue" required></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="taxStatus">
+                                            <option value="Draft">Draft</option>
+                                            <option value="Filed">Filed</option>
+                                            <option value="Paid">Paid</option>
+                                            <option value="Overdue">Overdue</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="taxSubmitBtn" class="btn btn-minimal w-100 mt-3">Register Filing</button>
+                                <button type="button" id="cancelTaxEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetTaxForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>VAT & Tax Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('tax')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tax Type / Period</th>
+                                        <th>Amount</th>
+                                        <th>Filing Date</th>
+                                        <th class="extra-col">Payment Due</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="taxTable">
+                                    <tr id="tax-1">
+                                        <td class="td-tax-info"><strong>Corporation Tax 2023</strong> <br><small class="text-muted">Jan - Dec 2023</small></td>
+                                        <td class="td-tax-amount">$15,450.00</td>
+                                        <td class="td-tax-filing">2024-03-15</td>
+                                        <td class="td-tax-due extra-col">2024-04-01</td>
+                                        <td class="td-tax-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editTax('tax-1')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTax('tax-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom" id="modalHeader">Confirm Action</div>
+            <div class="modal-body-custom" id="modalBody">Are you sure you want to proceed?</div>
+            <div id="modalInputContainer" style="display: none;">
+                <input type="text" id="modalInput" class="modal-input" placeholder="Enter value...">
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-modal btn-modal-cancel" id="btnCancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btnConfirm">Confirm</button>
+            </div>
+        </div>
     </div>
 
     <script>
+        document.getElementById('recTitle').addEventListener('change', function () {
+            const supplierCont = document.getElementById('supplierContainer');
+            const rentCont = document.getElementById('rentTermContainer');
+            const mortgageCont = document.getElementById('mortgageContainer');
+            const insuranceCont = document.getElementById('insuranceContainer');
+            const taxCont = document.getElementById('taxContainer');
+            const typeSelect = document.getElementById('recCat');
+
+            // Reset visibility
+            supplierCont.style.display = 'none';
+            rentCont.style.display = 'none';
+            mortgageCont.style.display = 'none';
+            insuranceCont.style.display = 'none';
+            taxCont.style.display = 'none';
+            document.getElementById('recSupplier').required = false;
+
+            if (this.value === 'Supplier Payments') {
+                supplierCont.style.display = 'block';
+                document.getElementById('recSupplier').required = true;
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'Rent') {
+                rentCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'Mortgage') {
+                mortgageCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'Insurance') {
+                insuranceCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'VAT / Tax') {
+                taxCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            }
+        });
+
         let totalIncome = 6200; let totalExpense = 2650;
         const modal = document.getElementById('customModal');
         const mHeader = document.getElementById('modalHeader');
@@ -915,6 +1306,26 @@
             document.getElementById('recStatus').value = status;
             document.getElementById('recDate').value = date;
             document.getElementById('recNotes').value = notes;
+
+            // Handle visibility on edit
+            const supplierCont = document.getElementById('supplierContainer');
+            const rentCont = document.getElementById('rentTermContainer');
+            const mortgageCont = document.getElementById('mortgageContainer');
+            const insuranceCont = document.getElementById('insuranceContainer');
+            const taxCont = document.getElementById('taxContainer');
+            
+            supplierCont.style.display = 'none';
+            rentCont.style.display = 'none';
+            mortgageCont.style.display = 'none';
+            insuranceCont.style.display = 'none';
+            taxCont.style.display = 'none';
+
+            if (title === 'Supplier Payments') supplierCont.style.display = 'block';
+            else if (title === 'Rent') rentCont.style.display = 'block';
+            else if (title === 'Mortgage') mortgageCont.style.display = 'block';
+            else if (title === 'Insurance') insuranceCont.style.display = 'block';
+            else if (title === 'VAT / Tax') taxCont.style.display = 'block';
+
             document.getElementById('formTitle').innerText = 'Edit Financial Record';
             document.getElementById('formIcon').className = 'fas fa-edit me-2';
             document.getElementById('submitBtn').innerText = 'Update Record';
@@ -930,12 +1341,34 @@
             document.getElementById('formIcon').className = 'fas fa-plus-circle me-2';
             document.getElementById('submitBtn').innerText = 'Save Record';
             document.getElementById('cancelEdit').style.display = 'none';
+            document.getElementById('supplierContainer').style.display = 'none';
+            document.getElementById('rentTermContainer').style.display = 'none';
+            document.getElementById('mortgageContainer').style.display = 'none';
+            document.getElementById('insuranceContainer').style.display = 'none';
+            document.getElementById('taxContainer').style.display = 'none';
         }
 
         document.getElementById('recordForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const editId = document.getElementById('editRowId').value;
             const title = document.getElementById('recTitle').value;
+            const supplier = document.getElementById('recSupplier').value;
+            const rentS = document.getElementById('rentStart').value;
+            const rentE = document.getElementById('rentEnd').value;
+            const mMode = document.getElementById('mortMode').value;
+            const mTerm = document.getElementById('mortTerm').value;
+            const insType = document.getElementById('insType').value;
+            const insProvider = document.getElementById('insProvider').value;
+            const taxT = document.getElementById('taxType').value;
+            const taxA = document.getElementById('taxAmount').value;
+            
+            let displayTitle = title;
+            if (supplier) displayTitle = `${title}: ${supplier}`;
+            else if (rentS && rentE) displayTitle = `${title} (${rentS} to ${rentE})`;
+            else if (mMode && mTerm) displayTitle = `${title} (${mMode}, ${mTerm}yr)`;
+            else if (insType && insProvider) displayTitle = `${title}: ${insType} (${insProvider})`;
+            else if (taxT && taxA) displayTitle = `${title}: ${taxT} ($${parseFloat(taxA).toLocaleString()})`;
+
             const cat = document.getElementById('recCat').value;
             const amount = parseFloat(document.getElementById('recAmount').value);
             const status = document.getElementById('recStatus').value;
@@ -955,7 +1388,7 @@
 
                 row.innerHTML = `
                     <td class="td-date">${date}</td>
-                    <td class="td-title"><strong>${title}</strong></td>
+                    <td class="td-title"><strong>${displayTitle}</strong></td>
                     <td class="td-cat">${cat}</td>
                     <td class="td-amount" data-val="${amount}">$${amount.toFixed(2)}</td>
                     <td class="td-notes extra-col text-muted small">${docName} ${notes}</td>
@@ -972,7 +1405,7 @@
                 const row = `
                     <tr id="${rid}">
                         <td class="td-date">${date}</td>
-                        <td class="td-title"><strong>${title}</strong></td>
+                        <td class="td-title"><strong>${displayTitle}</strong></td>
                         <td class="td-cat">${cat}</td>
                         <td class="td-amount" data-val="${amount}">$${amount.toFixed(2)}</td>
                         <td class="td-notes extra-col text-muted small">${docName} ${notes}</td>
@@ -1197,6 +1630,283 @@
                 openModal({ title: 'Success', body: 'New bank account added!' });
             }
             resetBankForm();
+        });
+
+        // --- Loans Management Logic ---
+        function resetLoanForm() {
+            document.getElementById('loanForm').reset();
+            document.getElementById('editLoanId').value = '';
+            document.getElementById('loanFormTitle').innerText = 'New Loan Entry';
+            document.getElementById('loanFormIcon').className = 'fas fa-hand-holding-usd me-2';
+            document.getElementById('loanSubmitBtn').innerText = 'Register Loan';
+            document.getElementById('cancelLoanEdit').style.display = 'none';
+        }
+
+        function editLoan(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const info = row.querySelector('.td-loan-info').innerText.split('\n');
+            const amounts = row.querySelector('.td-loan-amounts').innerText.split('\n');
+            const rateInfo = row.querySelector('.td-loan-rate').innerText.split('\n');
+            const term = row.querySelector('.td-loan-term').innerText.split('\n');
+            const next = row.querySelector('.td-loan-next').innerText;
+            const status = row.querySelector('.td-loan-status span').innerText;
+
+            document.getElementById('editLoanId').value = id;
+            document.getElementById('loanName').value = info[0];
+            document.getElementById('loanLender').value = info[1];
+            document.getElementById('loanTotal').value = amounts[0].replace('T: $', '').replace(',', '');
+            document.getElementById('loanOS').value = amounts[1].replace('O/S: $', '').replace(',', '');
+            document.getElementById('loanMonthly').value = rateInfo[0].replace('$', '').replace(',', '');
+            document.getElementById('loanRate').value = rateInfo[1].replace('% APR', '');
+            document.getElementById('loanStart').value = term[0];
+            document.getElementById('loanEnd').value = term[1];
+            document.getElementById('loanNextDate').value = next;
+            document.getElementById('loanStatus').value = status;
+
+            document.getElementById('loanFormTitle').innerText = 'Edit Loan Details';
+            document.getElementById('loanFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('loanSubmitBtn').innerText = 'Update Loan';
+            document.getElementById('cancelLoanEdit').style.display = 'block';
+            document.getElementById('loanForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteLoan(id) {
+            openModal({
+                title: 'Delete Loan Record',
+                body: 'Are you sure you want to remove this loan record from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Loan record removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('loanForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editLoanId').value;
+            const name = document.getElementById('loanName').value;
+            const lender = document.getElementById('loanLender').value;
+            const total = parseFloat(document.getElementById('loanTotal').value);
+            const os = parseFloat(document.getElementById('loanOS').value);
+            const monthly = parseFloat(document.getElementById('loanMonthly').value);
+            const rate = parseFloat(document.getElementById('loanRate').value);
+            const start = document.getElementById('loanStart').value;
+            const end = document.getElementById('loanEnd').value;
+            const next = document.getElementById('loanNextDate').value;
+            const status = document.getElementById('loanStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : (status === 'Paid Off' ? 'bg-active' : (status === 'Defaulted' ? 'bg-overdue' : 'bg-pending'));
+
+            const content = `
+                <td class="td-loan-info"><strong>${name}</strong> <br><small class="text-muted">${lender}</small></td>
+                <td class="td-loan-amounts">T: $${total.toLocaleString()} <br><small class="text-danger">O/S: $${os.toLocaleString()}</small></td>
+                <td class="td-loan-rate">$${monthly.toLocaleString()} <br><small class="text-muted">${rate}% APR</small></td>
+                <td class="td-loan-term extra-col small text-muted">${start} <br>${end}</td>
+                <td class="td-loan-next extra-col text-primary small fw-bold">${next}</td>
+                <td class="td-loan-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark" onclick="editLoan('${editId || 'temp'}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteLoan('${editId || 'temp'}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = content.replace(/'temp'/g, `'${editId}'`);
+                openModal({ title: 'Success', body: 'Loan record updated successfully!' });
+            } else {
+                const rid = 'loan-' + Date.now();
+                const row = `<tr id="${rid}">${content.replace(/'temp'/g, `'${rid}'`)}</tr>`;
+                document.getElementById('loansTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New loan registered!' });
+            }
+            resetLoanForm();
+        });
+        // --- Insurance Management Logic ---
+        function resetInsuranceForm() {
+            document.getElementById('insuranceForm').reset();
+            document.getElementById('editInsId').value = '';
+            document.getElementById('insFormTitle').innerText = 'New Insurance Policy';
+            document.getElementById('insFormIcon').className = 'fas fa-shield-alt me-2';
+            document.getElementById('insSubmitBtn').innerText = 'Save Policy';
+            document.getElementById('cancelInsEdit').style.display = 'none';
+        }
+
+        function editInsurance(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const info = row.querySelector('.td-ins-info').innerText.split('\n');
+            const policy = row.querySelector('.td-ins-policy').innerText;
+            const premium = row.querySelector('.td-ins-premium').innerText;
+            const term = row.querySelector('.td-ins-term').innerText.split('\n');
+            const status = row.querySelector('.td-ins-status span').innerText;
+
+            document.getElementById('editInsId').value = id;
+            document.getElementById('insType').value = info[0];
+            document.getElementById('insProvider').value = info[1];
+            document.getElementById('insPolicy').value = policy;
+            document.getElementById('insPremium').value = premium.replace('$', '').replace(',', '');
+            document.getElementById('insStart').value = term[0];
+            document.getElementById('insExpiry').value = term[1];
+            document.getElementById('insStatus').value = status;
+
+            document.getElementById('insFormTitle').innerText = 'Edit Policy Details';
+            document.getElementById('insFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('insSubmitBtn').innerText = 'Update Policy';
+            document.getElementById('cancelInsEdit').style.display = 'block';
+            document.getElementById('insuranceForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteInsurance(id) {
+            openModal({
+                title: 'Delete Policy',
+                body: 'Are you sure you want to remove this insurance policy from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Insurance policy removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('insuranceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editInsId').value;
+            const type = document.getElementById('insType').value;
+            const provider = document.getElementById('insProvider').value;
+            const policy = document.getElementById('insPolicy').value;
+            const premium = parseFloat(document.getElementById('insPremium').value);
+            const start = document.getElementById('insStart').value;
+            const expiry = document.getElementById('insExpiry').value;
+            const status = document.getElementById('insStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : (status === 'Expired' ? 'bg-overdue' : 'bg-pending');
+
+            const content = `
+                <td class="td-ins-info"><strong>${type}</strong> <br><small class="text-muted">${provider}</small></td>
+                <td class="td-ins-policy">${policy}</td>
+                <td class="td-ins-premium">$${premium.toLocaleString()}</td>
+                <td class="td-ins-term extra-col small text-muted">${start} <br>${expiry}</td>
+                <td class="td-ins-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark" onclick="editInsurance('${editId || 'temp'}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteInsurance('${editId || 'temp'}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = content.replace(/'temp'/g, `'${editId}'`);
+                openModal({ title: 'Success', body: 'Policy updated successfully!' });
+            } else {
+                const rid = 'ins-' + Date.now();
+                const row = `<tr id="${rid}">${content.replace(/'temp'/g, `'${rid}'`)}</tr>`;
+                document.getElementById('insuranceTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New policy registered!' });
+            }
+            resetInsuranceForm();
+        });
+
+        // --- Tax Management Logic ---
+        function resetTaxForm() {
+            document.getElementById('taxForm').reset();
+            document.getElementById('editTaxId').value = '';
+            document.getElementById('taxFormTitle').innerText = 'New Tax Filing';
+            document.getElementById('taxFormIcon').className = 'fas fa-file-invoice-dollar me-2';
+            document.getElementById('taxSubmitBtn').innerText = 'Register Filing';
+            document.getElementById('cancelTaxEdit').style.display = 'none';
+        }
+
+        function editTax(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const info = row.querySelector('.td-tax-info').innerText.split('\n');
+            const amount = row.querySelector('.td-tax-amount').innerText;
+            const filing = row.querySelector('.td-tax-filing').innerText;
+            const due = row.querySelector('.td-tax-due').innerText;
+            const status = row.querySelector('.td-tax-status span').innerText;
+
+            document.getElementById('editTaxId').value = id;
+            document.getElementById('taxType').value = info[0];
+            document.getElementById('taxStart').value = info[1].split(' - ')[0] || ''; // Simplified extraction
+            document.getElementById('taxEnd').value = info[1].split(' - ')[1] || '';
+            document.getElementById('taxAmount').value = amount.replace('$', '').replace(',', '');
+            document.getElementById('taxFiling').value = filing;
+            document.getElementById('taxDue').value = due;
+            document.getElementById('taxStatus').value = status;
+
+            document.getElementById('taxFormTitle').innerText = 'Edit Tax Filing';
+            document.getElementById('taxFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('taxSubmitBtn').innerText = 'Update Filing';
+            document.getElementById('cancelTaxEdit').style.display = 'block';
+            document.getElementById('taxForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteTax(id) {
+            openModal({
+                title: 'Delete Filing',
+                body: 'Are you sure you want to remove this tax filing from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Tax filing removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('taxForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editTaxId').value;
+            const type = document.getElementById('taxType').value;
+            const start = document.getElementById('taxStart').value;
+            const end = document.getElementById('taxEnd').value;
+            const amount = parseFloat(document.getElementById('taxAmount').value);
+            const filing = document.getElementById('taxFiling').value;
+            const due = document.getElementById('taxDue').value;
+            const status = document.getElementById('taxStatus').value;
+
+            const statusClass = status === 'Paid' ? 'bg-active' : (status === 'Overdue' ? 'bg-overdue' : (status === 'Filed' ? 'bg-active' : 'bg-pending'));
+
+            const content = `
+                <td class="td-tax-info"><strong>${type}</strong> <br><small class="text-muted">${start} - ${end}</small></td>
+                <td class="td-tax-amount">$${amount.toLocaleString()}</td>
+                <td class="td-tax-filing">${filing}</td>
+                <td class="td-tax-due extra-col">${due}</td>
+                <td class="td-tax-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark" onclick="editTax('${editId || 'temp'}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteTax('${editId || 'temp'}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = content.replace(/'temp'/g, `'${editId}'`);
+                openModal({ title: 'Success', body: 'Tax filing updated successfully!' });
+            } else {
+                const rid = 'tax-' + Date.now();
+                const row = `<tr id="${rid}">${content.replace(/'temp'/g, `'${rid}'`)}</tr>`;
+                document.getElementById('taxTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New tax filing registered!' });
+            }
+            resetTaxForm();
         });
     </script>
 </body>
