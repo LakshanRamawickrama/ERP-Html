@@ -318,6 +318,7 @@
             font-size: 13px;
             flex: 1;
         }
+
         .permission-matrix th {
             font-size: 11px;
             text-transform: uppercase;
@@ -364,7 +365,8 @@
         }
 
         .permission-matrix .sub-row {
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
         }
 
         .permission-matrix .sub-row.show {
@@ -566,45 +568,43 @@
                         <div class="card-body">
                             <form id="roleForm">
                                 <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Role Name</label>
-                                        <input type="text" class="form-control form-control-sm" id="roleName" list="roleSuggestions" placeholder="e.g. Sales Manager" required>
-                                        <datalist id="roleSuggestions">
-                                            <option value="Super Admin">
-                                            <option value="Admin">
-                                            <option value="Manager">
-                                            <option value="Inventory Lead">
-                                            <option value="Fleet Supervisor">
-                                            <option value="Accountant">
-                                        </datalist>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Applicable Business</label>
-                                        <select class="form-select form-select-sm" id="roleBusiness">
-                                            <option value="All Entities">All Entities</option>
-                                            <option value="Whiterock Retail Ltd">Whiterock Retail Ltd</option>
-                                            <option value="Zenith Logistics Hub">Zenith Logistics Hub</option>
-                                            <option value="Main Retail Store">Main Retail Store</option>
+                                    <div class="col-12">
+                                        <label class="form-label">Administrative Role Assignment</label>
+                                        <select class="form-select form-select-sm" id="roleName" required>
+                                            <option value="" selected disabled>Select Admin Context...</option>
+
+                                            <option value="Admin (Main Retail Store)">Admin - Main Retail Store</option>
+                                            <option value="Admin (Whiterock Retail Ltd)">Admin - Whiterock Retail Ltd
+                                            </option>
+                                            <option value="Admin (Zenith Logistics Hub)">Admin - Zenith Logistics Hub
+                                            </option>
+                                            <option value="Admin (Main Retail Store)">Admin - Logistics Hub</option>
                                         </select>
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label d-block fw-bold border-bottom pb-2 mb-3">System-Wide Permission Matrix</label>
+                                        <label class="form-label d-block fw-bold border-bottom pb-2 mb-3">System-Wide
+                                            Permission Matrix</label>
                                         <div class="table-responsive">
                                             <table class="table table-sm table-bordered align-middle permission-matrix">
                                                 <thead class="table-light">
                                                     <tr class="text-center">
                                                         <th class="text-start">Module Name</th>
                                                         <th style="width: 70px;">
-                                                            View<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('view', this.checked)">
+                                                            View<br><input class="form-check-input mt-1" type="checkbox"
+                                                                onclick="toggleAllPerms('view', this.checked)">
                                                         </th>
                                                         <th style="width: 70px;">
-                                                            Add<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('add', this.checked)">
+                                                            Add<br><input class="form-check-input mt-1" type="checkbox"
+                                                                onclick="toggleAllPerms('add', this.checked)">
                                                         </th>
                                                         <th style="width: 70px;">
-                                                            Edit<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('edit', this.checked)">
+                                                            Edit<br><input class="form-check-input mt-1" type="checkbox"
+                                                                onclick="toggleAllPerms('edit', this.checked)">
                                                         </th>
                                                         <th style="width: 70px;">
-                                                            Delete<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('delete', this.checked)">
+                                                            Delete<br><input class="form-check-input mt-1"
+                                                                type="checkbox"
+                                                                onclick="toggleAllPerms('delete', this.checked)">
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -692,16 +692,13 @@
         // GLOBAL ROLE & PERMISSION STORE
         let rolePermissions = {
             'Super Admin': ['All Modules'],
-            'Admin': ['Dashboard', 'Business Management', 'User Management', 'Fleet Management', 'Accounting', 'Reports'],
-            'Manager': ['Dashboard', 'Fleet Management', 'Inventory Management', 'Accounting'],
-            'Operator': ['Fleet Management', 'Inventory Management'],
-            'Viewer': ['Dashboard', 'Reports']
+            'Admin': ['Dashboard', 'Business Management', 'User Management', 'Fleet Management', 'Accounting', 'Reports']
         };
 
         function updateUserRoleDropdown() {
             const list = document.getElementById('roleCheckboxList');
             if (!list) return;
-            
+
             // Clear current list except the 'type to add' area if possible, 
             // but we'll just rebuild based on rolePermissions
             list.innerHTML = '';
@@ -749,9 +746,9 @@
                     accessModules = [...new Set([...accessModules, ...rolePermissions[r]])];
                 }
             });
-            
-            const accessLabel = accessModules.includes('All Modules') ? 'All Modules' : 
-                              (accessModules.length > 2 ? `${accessModules.length} Modules` : accessModules.join(', '));
+
+            const accessLabel = accessModules.includes('All Modules') ? 'All Modules' :
+                (accessModules.length > 2 ? `${accessModules.length} Modules` : accessModules.join(', '));
 
             // Handle multiple business selection
             const checkedBoxes = document.querySelectorAll('#bizDropdown input[type="checkbox"]:checked');
@@ -861,7 +858,7 @@
             const tbody = document.getElementById('permissionList');
             if (!tbody) return;
             tbody.innerHTML = '';
-            
+
             systemMap.forEach((category, idx) => {
                 const categoryId = `cat-${idx}`;
                 // Parent Row
@@ -905,8 +902,9 @@
 
         document.getElementById('roleForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            const name = document.getElementById('roleName').value;
-            const business = document.getElementById('roleBusiness').value;
+            const combinedName = document.getElementById('roleName').value;
+            const [name, businessRaw] = combinedName.split(' (');
+            const business = businessRaw.replace(')', '');
 
             // Get selected modules (detailed for storage)
             const activeModules = [];
@@ -927,13 +925,13 @@
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
             </tr>`;
             document.getElementById('roleTable').insertAdjacentHTML('afterbegin', row);
-            alert('New Role "' + name + '" created. It is now available in the User Registry.');
-            
+            alert('New Role Assignment "' + combinedName + '" created.');
+
             // Sync with User Registry tab
             updateUserRoleDropdown();
-            
+
             this.reset();
-            
+
             // Reset header checkboxes
             document.querySelectorAll('.permission-matrix thead .form-check-input').forEach(cb => cb.checked = false);
             initPermissionMatrix();
@@ -943,23 +941,23 @@
             const tbody = document.getElementById('roleTable');
             if (!tbody) return;
             tbody.innerHTML = '';
-            
+
             // Map default roles to their scopes for display
             const defaultScopes = {
                 'Super Admin': 'All Entities',
-                'Admin': 'All Entities',
-                'Manager': 'Main Retail Store',
-                'Operator': 'Logistics Hub',
-                'Viewer': 'All Entities'
+                'Admin': 'All Entities'
             };
 
             Object.keys(rolePermissions).forEach(role => {
                 const modules = rolePermissions[role];
-                const business = defaultScopes[role] || 'Custom Scope';
+                // Try to find if role already has business in name or use default
+                const business = role.includes('(') ? '' : (defaultScopes[role] || 'Custom Scope');
+                const displayName = role.includes('(') ? role : `${role} (${business})`;
+
                 const row = `<tr>
-                    <td><strong>${role}</strong></td>
+                    <td><strong>${displayName}</strong></td>
                     <td><span class="text-truncate d-inline-block" style="max-width: 250px;">${modules.join(', ')}</span></td>
-                    <td class="extra-col">${business}</td>
+                    <td class="extra-col">${business || 'See Role Name'}</td>
                     <td><span class="status-badge bg-active">${role === 'Super Admin' ? 'Global' : 'Active'}</span></td>
                     <td><button class="btn btn-sm btn-outline-dark"><i class="${role === 'Super Admin' ? 'fas fa-lock' : 'fas fa-edit'}"></i></button></td>
                 </tr>`;
