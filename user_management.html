@@ -254,6 +254,132 @@
         .form-select-sm {
             font-size: 13px;
         }
+
+        /* Custom Checkbox Dropdown */
+        .checkbox-dropdown {
+            position: relative;
+            user-select: none;
+        }
+
+        .checkbox-dropdown-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checkbox-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .checkbox-dropdown.active .checkbox-dropdown-content {
+            display: block;
+        }
+
+        .checkbox-item {
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .checkbox-item:hover {
+            background: #f8f9fa;
+        }
+
+        .checkbox-item input {
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            margin: 0;
+            font-size: 13px;
+            flex: 1;
+        }
+        .permission-matrix th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+
+        .permission-matrix td {
+            font-size: 13px;
+        }
+
+        .permission-matrix .form-check-input {
+            width: 1.2em;
+            height: 1.2em;
+            margin: 0 auto;
+            display: block;
+            cursor: pointer;
+        }
+
+        .permission-matrix tr:hover {
+            background-color: #fcfcfc;
+        }
+
+        .permission-matrix .module-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .permission-matrix .sub-module-name {
+            padding-left: 30px;
+            font-style: italic;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .permission-matrix .category-row {
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .permission-matrix .category-row:hover {
+            background-color: #f1f3f5;
+        }
+
+        .permission-matrix .sub-row {
+            display: none; /* Hidden by default */
+        }
+
+        .permission-matrix .sub-row.show {
+            display: table-row;
+        }
+
+        .permission-matrix .toggle-icon {
+            transition: transform 0.3s;
+            width: 14px;
+            display: inline-block;
+        }
+
+        .permission-matrix .category-row.expanded .toggle-icon {
+            transform: rotate(90deg);
+        }
     </style>
 </head>
 
@@ -269,17 +395,28 @@
             </div>
         </div>
         <ul class="sidebar-nav-list">
-            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
-            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a></li>
-            <li><a href="user_management.html" class="nav-link active"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
-            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
-            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
-            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
-            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span class="nav-label">Suppliers</span></a></li>
-            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a></li>
-            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span class="nav-label">Legal & Compliance</span></a></li>
-            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span class="nav-label">Property Management</span></a></li>
-            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span class="nav-label">Reports</span></a></li>
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span
+                        class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span
+                        class="nav-label">Business Management</span></a></li>
+            <li><a href="user_management.html" class="nav-link active"><i class="fas fa-users nav-icon"></i><span
+                        class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+                        class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+                        class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+                        class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span
+                        class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span
+                        class="nav-label">Accounting</span></a></li>
+            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span
+                        class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span
+                        class="nav-label">Property Management</span></a></li>
+            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+                        class="nav-label">Reports</span></a></li>
         </ul>
     </div>
 
@@ -305,24 +442,66 @@
                         <div class="card-body">
                             <form id="userForm">
                                 <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Full Name</label><input type="text" class="form-control form-control-sm" id="uName" placeholder="John Doe" required></div>
-                                    <div class="col-12"><label class="form-label">Email Address</label><input type="email" class="form-control form-control-sm" id="uEmail" required></div>
-                                    <div class="col-12"><label class="form-label">Assigned Role</label>
-                                        <select class="form-select form-select-sm" id="uRole">
-                                            <option>Super Admin</option>
-                                            <option>Admin</option>
-                                            <option>Manager</option>
-                                            <option>Operator</option>
-                                            <option>Viewer</option>
-                                        </select>
+                                    <div class="col-12"><label class="form-label">Full Name</label><input type="text"
+                                            class="form-control form-control-sm" id="uName" placeholder="John Doe"
+                                            required></div>
+                                    <div class="col-12"><label class="form-label">Email Address</label><input
+                                            type="email" class="form-control form-control-sm" id="uEmail" required>
                                     </div>
-                                    <div class="col-12"><label class="form-label">Primary Business</label>
-                                        <select class="form-select form-select-sm" id="uBiz">
-                                            <option>All Entities</option>
-                                            <option>Main Retail Store</option>
-                                            <option>Logistics Hub</option>
-                                        </select>
+                                    <div class="col-12"><label class="form-label">Assigned Roles</label>
+                                        <div class="checkbox-dropdown" id="roleDropdown">
+                                            <div class="checkbox-dropdown-btn"
+                                                onclick="this.parentElement.classList.toggle('active')">
+                                                <span id="selectedRoleLabel">Admin</span>
+                                                <i class="fas fa-chevron-down small"></i>
+                                            </div>
+                                            <div class="checkbox-dropdown-content">
+                                                <div id="roleCheckboxList">
+
+                                                    <div class="checkbox-item"><input type="checkbox" value="Admin"
+                                                            id="rAdmin" checked><label for="rAdmin">Admin</label></div>
+
+                                                </div>
+                                                <div class="px-2 pt-2 border-top mt-1">
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="text" class="form-control" id="newRoleInput"
+                                                            placeholder="New role...">
+                                                        <button class="btn btn-dark" type="button"
+                                                            onclick="addNewRole()">Add</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <div class="col-12"><label class="form-label">Assigned Businesses</label>
+                                        <div class="checkbox-dropdown" id="bizDropdown">
+                                            <div class="checkbox-dropdown-btn"
+                                                onclick="this.parentElement.classList.toggle('active')">
+                                                <span id="selectedBizLabel">Select Businesses...</span>
+                                                <i class="fas fa-chevron-down small"></i>
+                                            </div>
+                                            <div class="checkbox-dropdown-content">
+                                                <div class="checkbox-item"><input type="checkbox" value="All Entities"
+                                                        id="bAll"><label for="bAll">All Entities</label></div>
+                                                <div class="checkbox-item"><input type="checkbox"
+                                                        value="Main Retail Store" id="bMain"><label for="bMain">Main
+                                                        Retail Store</label></div>
+                                                <div class="checkbox-item"><input type="checkbox" value="Logistics Hub"
+                                                        id="bLog"><label for="bLog">Logistics Hub</label></div>
+                                                <div class="checkbox-item"><input type="checkbox"
+                                                        value="Whiterock Retail Ltd" id="bWR"><label for="bWR">Whiterock
+                                                        Retail Ltd</label></div>
+                                                <div class="checkbox-item"><input type="checkbox"
+                                                        value="Zenith Logistics Hub" id="bZen"><label for="bZen">Zenith
+                                                        Logistics Hub</label></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Password</label><input type="password"
+                                            class="form-control form-control-sm" id="uPass" required></div>
+                                    <div class="col-12"><label class="form-label">Confirm Password</label><input
+                                            type="password" class="form-control form-control-sm" id="uConfirmPass"
+                                            required></div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Create User Account</button>
                             </form>
@@ -343,8 +522,9 @@
                                     <tr>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Role</th>
+                                        <th>Roles</th>
                                         <th class="extra-col">Business</th>
+                                        <th>Module Access</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -355,8 +535,10 @@
                                         <td>john@example.com</td>
                                         <td>Super Admin</td>
                                         <td class="extra-col">All Entities</td>
+                                        <td><span class="badge bg-secondary">All Modules</span></td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-user-edit"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-user-edit"></i></button></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Jane Doe</strong></td>
@@ -364,7 +546,8 @@
                                         <td>Manager</td>
                                         <td class="extra-col">Main Retail Store</td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-user-edit"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-user-edit"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -383,13 +566,53 @@
                         <div class="card-body">
                             <form id="roleForm">
                                 <div class="row g-3">
-                                    <div class="col-12"><label class="form-label">Role Name</label><input type="text" class="form-control form-control-sm" id="roleName" required></div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Role Name</label>
+                                        <input type="text" class="form-control form-control-sm" id="roleName" list="roleSuggestions" placeholder="e.g. Sales Manager" required>
+                                        <datalist id="roleSuggestions">
+                                            <option value="Super Admin">
+                                            <option value="Admin">
+                                            <option value="Manager">
+                                            <option value="Inventory Lead">
+                                            <option value="Fleet Supervisor">
+                                            <option value="Accountant">
+                                        </datalist>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Applicable Business</label>
+                                        <select class="form-select form-select-sm" id="roleBusiness">
+                                            <option value="All Entities">All Entities</option>
+                                            <option value="Whiterock Retail Ltd">Whiterock Retail Ltd</option>
+                                            <option value="Zenith Logistics Hub">Zenith Logistics Hub</option>
+                                            <option value="Main Retail Store">Main Retail Store</option>
+                                        </select>
+                                    </div>
                                     <div class="col-12">
-                                        <label class="form-label d-block">Module Permissions</label>
-                                        <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Dashboard</label></div>
-                                        <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Fleet</label></div>
-                                        <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Inventory</label></div>
-                                        <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">Accounting</label></div>
+                                        <label class="form-label d-block fw-bold border-bottom pb-2 mb-3">System-Wide Permission Matrix</label>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-bordered align-middle permission-matrix">
+                                                <thead class="table-light">
+                                                    <tr class="text-center">
+                                                        <th class="text-start">Module Name</th>
+                                                        <th style="width: 70px;">
+                                                            View<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('view', this.checked)">
+                                                        </th>
+                                                        <th style="width: 70px;">
+                                                            Add<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('add', this.checked)">
+                                                        </th>
+                                                        <th style="width: 70px;">
+                                                            Edit<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('edit', this.checked)">
+                                                        </th>
+                                                        <th style="width: 70px;">
+                                                            Delete<br><input class="form-check-input mt-1" type="checkbox" onclick="toggleAllPerms('delete', this.checked)">
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="permissionList">
+                                                    <!-- Generated Modules -->
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Save Role Settings</button>
@@ -409,10 +632,10 @@
                             <table class="table table-sm table-striped mb-0 align-middle">
                                 <thead class="table-light">
                                     <tr>
+                                    <tr>
                                         <th>Role</th>
-                                        <th>Access Level</th>
-                                        <th>Modules</th>
-                                        <th class="extra-col">User Count</th>
+                                        <th>Assigned Modules</th>
+                                        <th class="extra-col">Business Scope</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -420,19 +643,19 @@
                                 <tbody id="roleTable">
                                     <tr>
                                         <td><strong>Super Admin</strong></td>
-                                        <td>Full System</td>
-                                        <td>All</td>
-                                        <td class="extra-col">1</td>
+                                        <td>All Modules</td>
+                                        <td class="extra-col">All Entities</td>
                                         <td><span class="status-badge bg-active">Global</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-lock"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-lock"></i></button></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Inventory Manager</strong></td>
-                                        <td>Restricted</td>
-                                        <td>Fleet, Inventory</td>
-                                        <td class="extra-col">2</td>
+                                        <td>Inventory, Fleet</td>
+                                        <td class="extra-col">Main Retail Store</td>
                                         <td><span class="status-badge bg-active">Active</span></td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -466,41 +689,288 @@
             }
         }
 
+        // GLOBAL ROLE & PERMISSION STORE
+        let rolePermissions = {
+            'Super Admin': ['All Modules'],
+            'Admin': ['Dashboard', 'Business Management', 'User Management', 'Fleet Management', 'Accounting', 'Reports'],
+            'Manager': ['Dashboard', 'Fleet Management', 'Inventory Management', 'Accounting'],
+            'Operator': ['Fleet Management', 'Inventory Management'],
+            'Viewer': ['Dashboard', 'Reports']
+        };
+
+        function updateUserRoleDropdown() {
+            const list = document.getElementById('roleCheckboxList');
+            if (!list) return;
+            
+            // Clear current list except the 'type to add' area if possible, 
+            // but we'll just rebuild based on rolePermissions
+            list.innerHTML = '';
+            Object.keys(rolePermissions).forEach((role, idx) => {
+                const id = `role-opt-${idx}`;
+                const checked = (role === 'Admin') ? 'checked' : '';
+                const item = `
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="${role}" id="${id}" ${checked}>
+                        <label for="${id}">${role}</label>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', item);
+            });
+
+            // Re-attach listeners to new checkboxes
+            document.querySelectorAll('#roleDropdown input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', updateRoleLabel);
+            });
+            updateRoleLabel();
+        }
+
         document.getElementById('userForm').addEventListener('submit', function (e) {
             e.preventDefault();
+            const pass = document.getElementById('uPass').value;
+            const confirm = document.getElementById('uConfirmPass').value;
+
+            if (pass !== confirm) {
+                alert('Passwords do not match!');
+                return;
+            }
+
             const name = document.getElementById('uName').value;
             const email = document.getElementById('uEmail').value;
-            const role = document.getElementById('uRole').value;
-            const biz = document.getElementById('uBiz').value;
+
+            // Handle multiple role selection
+            const checkedRoles = document.querySelectorAll('#roleDropdown input[type="checkbox"]:checked');
+            const selectedRoles = Array.from(checkedRoles).map(cb => cb.value);
+            const rolesLabel = selectedRoles.join(', ') || 'No Role Assigned';
+
+            // "Fetch" Permissions based on live roles
+            let accessModules = [];
+            selectedRoles.forEach(r => {
+                if (rolePermissions[r]) {
+                    accessModules = [...new Set([...accessModules, ...rolePermissions[r]])];
+                }
+            });
+            
+            const accessLabel = accessModules.includes('All Modules') ? 'All Modules' : 
+                              (accessModules.length > 2 ? `${accessModules.length} Modules` : accessModules.join(', '));
+
+            // Handle multiple business selection
+            const checkedBoxes = document.querySelectorAll('#bizDropdown input[type="checkbox"]:checked');
+            const businesses = Array.from(checkedBoxes).map(cb => cb.value).join(', ') || 'No Business Assigned';
 
             const row = `<tr>
                 <td><strong>${name}</strong></td>
                 <td>${email}</td>
-                <td>${role}</td>
-                <td class="extra-col">${biz}</td>
+                <td>${rolesLabel}</td>
+                <td class="extra-col">${businesses}</td>
+                <td><span class="badge bg-light text-dark border">${accessLabel}</span></td>
                 <td><span class="status-badge bg-active">Active</span></td>
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-user-edit"></i></button></td>
             </tr>`;
             document.getElementById('userTable').insertAdjacentHTML('afterbegin', row);
-            alert('User account created!');
+            alert('User registered with synchronized role permissions.');
+
+            // Reset custom dropdowns
+            document.querySelectorAll('.checkbox-dropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+            const adminCb = Array.from(document.querySelectorAll('#roleDropdown input')).find(i => i.value === 'Admin');
+            if (adminCb) adminCb.checked = true;
+            updateRoleLabel();
+            updateBizLabel();
             this.reset();
         });
+
+        // Dropdown label update logic
+        function updateBizLabel() {
+            const checked = document.querySelectorAll('#bizDropdown input[type="checkbox"]:checked');
+            const label = document.getElementById('selectedBizLabel');
+            if (checked.length === 0) {
+                label.innerText = 'Select Businesses...';
+            } else if (checked.length === 1) {
+                label.innerText = checked[0].value;
+            } else {
+                label.innerText = checked.length + ' Businesses Selected';
+            }
+        }
+
+        function updateRoleLabel() {
+            const checked = document.querySelectorAll('#roleDropdown input[type="checkbox"]:checked');
+            const label = document.getElementById('selectedRoleLabel');
+            if (checked.length === 0) {
+                label.innerText = 'Select Roles...';
+            } else if (checked.length === 1) {
+                label.innerText = checked[0].value;
+            } else {
+                label.innerText = checked.length + ' Roles Selected';
+            }
+        }
+
+        function addNewRole() {
+            const input = document.getElementById('newRoleInput');
+            const roleName = input.value.trim();
+            if (!roleName) return;
+
+            const list = document.getElementById('roleCheckboxList');
+            const id = 'role-' + Date.now();
+            const item = `
+                <div class="checkbox-item">
+                    <input type="checkbox" value="${roleName}" id="${id}" checked>
+                    <label for="${id}">${roleName}</label>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', item);
+
+            // Re-attach event listeners for new checkboxes
+            const newCb = document.getElementById(id);
+            newCb.addEventListener('change', updateRoleLabel);
+
+            updateRoleLabel();
+            input.value = '';
+        }
+
+        document.querySelectorAll('#bizDropdown input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', updateBizLabel);
+        });
+
+        document.querySelectorAll('#roleDropdown input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', updateRoleLabel);
+        });
+
+        // Close dropdowns when clicking outside
+        window.addEventListener('click', function (e) {
+            document.querySelectorAll('.checkbox-dropdown').forEach(dropdown => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        });
+
+        // HIERARCHICAL MODULES LOGIC
+        const systemMap = [
+            { name: 'Dashboard', sub: [] },
+            { name: 'Business Management', sub: ['Companies House Structure', 'Basic Details'] },
+            { name: 'User Management', sub: ['User Registry', 'Role Permissions'] },
+            { name: 'Fleet Management', sub: ['Vehicle Registry', 'Driver Management', 'Fuel Logs', 'Maintenance'] },
+            { name: 'Inventory Management', sub: ['Stock Levels', 'Warehouse Tracking', 'Purchase Orders'] },
+            { name: 'Accounting', sub: ['Financial Records', 'Bank Details', 'Loans', 'Insurance', 'VAT / Tax'] },
+            { name: 'Suppliers', sub: ['Supplier Registry', 'Payment Terms'] },
+            { name: 'Legal & Compliance', sub: ['Certificates', 'Policy Documents', 'Audits'] },
+            { name: 'Property Management', sub: ['Asset Registry', 'Maintenance Requests', 'Rentals'] },
+            { name: 'Reports', sub: ['Profit & Loss', 'Sales Reports', 'Bank Reports', 'Tax Reports'] }
+        ];
+
+        function initPermissionMatrix() {
+            const tbody = document.getElementById('permissionList');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            systemMap.forEach((category, idx) => {
+                const categoryId = `cat-${idx}`;
+                // Parent Row
+                const parentRow = `<tr class="category-row" onclick="toggleSubModules('${categoryId}', this)">
+                    <td class="module-name">
+                        <i class="fas fa-chevron-right me-2 text-muted toggle-icon"></i>
+                        <i class="fas fa-folder me-2 text-primary"></i>
+                        ${category.name}
+                    </td>
+                    <td class="text-center"><input class="form-check-input perm-view" type="checkbox" data-module="${category.name}" data-perm="view" checked onclick="event.stopPropagation()"></td>
+                    <td class="text-center"><input class="form-check-input perm-add" type="checkbox" data-module="${category.name}" data-perm="add" onclick="event.stopPropagation()"></td>
+                    <td class="text-center"><input class="form-check-input perm-edit" type="checkbox" data-module="${category.name}" data-perm="edit" onclick="event.stopPropagation()"></td>
+                    <td class="text-center"><input class="form-check-input perm-delete" type="checkbox" data-module="${category.name}" data-perm="delete" onclick="event.stopPropagation()"></td>
+                </tr>`;
+                tbody.insertAdjacentHTML('beforeend', parentRow);
+
+                // Sub-module Rows
+                category.sub.forEach(s => {
+                    const subRow = `<tr class="sub-row ${categoryId}">
+                        <td class="sub-module-name"><i class="fas fa-caret-right me-2 text-muted"></i>${s}</td>
+                        <td class="text-center"><input class="form-check-input perm-view" type="checkbox" data-parent="${category.name}" data-sub="${s}" data-perm="view" checked></td>
+                        <td class="text-center"><input class="form-check-input perm-add" type="checkbox" data-parent="${category.name}" data-sub="${s}" data-perm="add"></td>
+                        <td class="text-center"><input class="form-check-input perm-edit" type="checkbox" data-parent="${category.name}" data-sub="${s}" data-perm="edit"></td>
+                        <td class="text-center"><input class="form-check-input perm-delete" type="checkbox" data-parent="${category.name}" data-sub="${s}" data-perm="delete"></td>
+                    </tr>`;
+                    tbody.insertAdjacentHTML('beforeend', subRow);
+                });
+            });
+        }
+
+        function toggleSubModules(catId, row) {
+            row.classList.toggle('expanded');
+            document.querySelectorAll('.' + catId).forEach(sub => {
+                sub.classList.toggle('show');
+            });
+        }
+
+        function toggleAllPerms(type, checked) {
+            document.querySelectorAll(`.perm-${type}`).forEach(cb => cb.checked = checked);
+        }
 
         document.getElementById('roleForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const name = document.getElementById('roleName').value;
+            const business = document.getElementById('roleBusiness').value;
+
+            // Get selected modules (detailed for storage)
+            const activeModules = [];
+            document.querySelectorAll('#permissionList tr.category-row').forEach(row => {
+                const view = row.querySelector('[data-perm="view"]').checked;
+                const mName = row.querySelector('.module-name').innerText.trim();
+                if (view) activeModules.push(mName);
+            });
+
+            // Update Global Store
+            rolePermissions[name] = activeModules;
+
             const row = `<tr>
                 <td><strong>${name}</strong></td>
-                <td>Custom</td>
-                <td>Partial</td>
-                <td class="extra-col">0</td>
+                <td><span class="text-truncate d-inline-block" style="max-width: 250px;">${activeModules.join(', ') || 'None'}</span></td>
+                <td class="extra-col">${business}</td>
                 <td><span class="status-badge bg-active">Active</span></td>
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
             </tr>`;
             document.getElementById('roleTable').insertAdjacentHTML('afterbegin', row);
-            alert('Role settings saved!');
+            alert('New Role "' + name + '" created. It is now available in the User Registry.');
+            
+            // Sync with User Registry tab
+            updateUserRoleDropdown();
+            
             this.reset();
+            
+            // Reset header checkboxes
+            document.querySelectorAll('.permission-matrix thead .form-check-input').forEach(cb => cb.checked = false);
+            initPermissionMatrix();
         });
+
+        function initRoleTable() {
+            const tbody = document.getElementById('roleTable');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            // Map default roles to their scopes for display
+            const defaultScopes = {
+                'Super Admin': 'All Entities',
+                'Admin': 'All Entities',
+                'Manager': 'Main Retail Store',
+                'Operator': 'Logistics Hub',
+                'Viewer': 'All Entities'
+            };
+
+            Object.keys(rolePermissions).forEach(role => {
+                const modules = rolePermissions[role];
+                const business = defaultScopes[role] || 'Custom Scope';
+                const row = `<tr>
+                    <td><strong>${role}</strong></td>
+                    <td><span class="text-truncate d-inline-block" style="max-width: 250px;">${modules.join(', ')}</span></td>
+                    <td class="extra-col">${business}</td>
+                    <td><span class="status-badge bg-active">${role === 'Super Admin' ? 'Global' : 'Active'}</span></td>
+                    <td><button class="btn btn-sm btn-outline-dark"><i class="${role === 'Super Admin' ? 'fas fa-lock' : 'fas fa-edit'}"></i></button></td>
+                </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // Initialize on load
+        updateUserRoleDropdown();
+        initPermissionMatrix();
+        initRoleTable();
     </script>
 
 </body>
