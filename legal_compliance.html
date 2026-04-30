@@ -1,520 +1,559 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Legal & Compliance - Business Central</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <style>
-    body {
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      color: #333;
-      overflow-x: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal & Compliance - Business Central</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    /* ── Sidebar ── */
-    .sidebar {
-      background-color: #2c3e50;
-      color: #ecf0f1;
-      height: 100vh;
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 70px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
-      z-index: 100;
-      transition: width 0.3s ease;
-      overflow: hidden;
-    }
-    .sidebar:hover { width: 240px; }
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
 
-    .sidebar-brand {
-      padding: 20px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      min-height: 70px;
-    }
-    .sidebar-brand-icon {
-      font-size: 20px;
-      min-width: 38px;
-      text-align: center;
-      color: #ecf0f1;
-    }
-    .sidebar-brand-text { opacity: 0; transition: opacity 0.3s ease; }
-    .sidebar:hover .sidebar-brand-text { opacity: 1; }
-    .sidebar-brand-text h5 {
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0;
-      line-height: 1.2;
-    }
-    .sidebar-brand-text small {
-      font-size: 11px;
-      color: rgba(236,240,241,0.7);
-      display: block;
-      margin-top: 2px;
-    }
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 70px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
 
-    .sidebar-nav-list {
-      flex: 1;
-      padding: 16px 0;
-      list-style: none;
-      margin: 0;
-    }
+        .sidebar:hover {
+            width: 240px;
+        }
 
-    .nav-link {
-      color: #bdc3c7;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-radius: 8px;
-      margin: 3px 10px;
-      white-space: nowrap;
-      transition: background-color 0.2s, color 0.2s;
-      text-decoration: none;
-    }
-    .nav-link:hover, .nav-link.active {
-      background-color: #34495e;
-      color: white;
-    }
-    .nav-link .nav-icon {
-      font-size: 16px;
-      min-width: 18px;
-      text-align: center;
-    }
-    .nav-link .nav-label {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .sidebar:hover .nav-link .nav-label { opacity: 1; }
+        .sidebar-brand {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            min-height: 70px;
+        }
 
-    /* Main content offset */
-    .main-wrapper {
-      margin-left: 70px;
-      transition: margin-left 0.3s ease;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+        .sidebar-brand-icon {
+            font-size: 20px;
+            min-width: 38px;
+            text-align: center;
+            color: #ecf0f1;
+        }
 
-    .topbar {
-      background-color: white;
-      border-bottom: 1px solid #e0e0e0;
-      padding: 15px 25px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
+        .sidebar-brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-    .card {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
+        .sidebar:hover .sidebar-brand-text {
+            opacity: 1;
+        }
 
-    .card-header {
-      background: white !important;
-      font-weight: 600;
-      padding: 15px 20px;
-      border-bottom: 1px solid #f0f0f0;
-    }
+        .sidebar-brand-text h5 {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
 
-    /* Tabs */
-    #legalTabs .nav-link {
-      color: #555;
-      font-size: 13.5px;
-      padding: 10px 20px;
-      border-radius: 6px 6px 0 0;
-    }
-    #legalTabs .nav-link.active {
-      color: #2c3e50;
-      font-weight: 600;
-      background: white;
-      border-color: #dee2e6 #dee2e6 white;
-    }
+        .sidebar-nav-list {
+            flex: 1;
+            padding: 16px 0;
+            list-style: none;
+            margin: 0;
+        }
 
-    /* KPI Pills */
-    .filter-bar {
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 16px;
-    }
-    .kpi-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: white;
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 12.5px;
-      white-space: nowrap;
-    }
-    .kpi-pill .kpi-pill-label { opacity: 0.85; font-weight: 400; }
-    .kpi-pill strong { font-weight: 700; }
+        .nav-link {
+            color: #bdc3c7;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin: 3px 10px;
+            white-space: nowrap;
+            transition: 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
-    /* Status Badges */
-    .status-badge {
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .bg-expired { background-color: #fee2e2; color: #b91c1c; }
-    .bg-expiring { background-color: #fef3c7; color: #92400e; }
-    .bg-valid { background-color: #d1fae5; color: #065f46; }
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #34495e;
+            color: white;
+        }
 
-    .btn-minimal {
-      background-color: #2c3e50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      font-size: 14px;
-    }
-    .btn-minimal:hover { background-color: #34495e; color: white; }
+        .nav-link .nav-icon {
+            font-size: 16px;
+            min-width: 18px;
+            text-align: center;
+        }
 
-    .table th { background: #f8f9fa; font-size: 12px; color: #666; text-transform: uppercase; }
-    .table td { font-size: 13.5px; vertical-align: middle; }
+        .nav-link .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-    /* Upload Area */
-    .upload-area {
-      border: 2px dashed #cbd5e0;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      background: #f7fafc;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .upload-area:hover { border-color: #2c3e50; background: #edf2f7; }
-  </style>
+        .sidebar:hover .nav-link .nav-label {
+            opacity: 1;
+        }
+
+        .main-wrapper {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* Tabs */
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fff !important;
+        }
+
+        .btn-minimal {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-minimal:hover {
+            background-color: #34495e;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .bg-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .bg-expired {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .bg-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .view-section {
+            display: none;
+            padding: 24px;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* Wide View Logic */
+        .view-section.wide .form-col {
+            display: none;
+        }
+
+        .view-section.wide .table-col {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .extra-col {
+            display: none;
+        }
+
+        .view-section.wide .extra-col {
+            display: table-cell;
+        }
+
+        .reminder-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .reminder-pill.expired {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            font-size: 13px;
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
-    <div class="sidebar-brand-text">
-      <h5>Business Central</h5>
-      <small>Legal Module</small>
-    </div>
-  </div>
-  <ul class="sidebar-nav-list">
-    <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
-    <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a></li>
-    <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
-    <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
-    <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
-    <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
-    <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span class="nav-label">Suppliers</span></a></li>
-    <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a></li>
-    <li><a href="legal_compliance.html" class="nav-link active"><i class="fas fa-gavel nav-icon"></i><span class="nav-label">Legal & Compliance</span></a></li>
-    <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span class="nav-label">Property Management</span></a></li>
-  </ul>
-</div>
-
-<!-- Main Content -->
-<div class="main-wrapper">
-  <div class="topbar d-flex justify-content-between align-items-center">
-    <div>
-      <h4 class="mb-0 fw-bold">Legal & Compliance</h4>
-      <p class="text-muted small mb-0">Manage business registrations, licenses, and legal documents</p>
-    </div>
-    <button class="btn btn-minimal" onclick="openDocModal()">
-      <i class="fas fa-plus me-2"></i>New Document
-    </button>
-  </div>
-
-  <div id="main-content" class="p-4">
-    <!-- Document Registry View -->
-    <div id="section-registry" class="tab-content-item">
-      <div class="filter-bar d-flex flex-wrap gap-2 align-items-center">
-        <input type="text" id="searchInput" class="form-control" style="max-width:250px" placeholder="Search by document or business..." onkeyup="filterDocs()">
-        <select id="typeFilter" class="form-select" style="max-width:180px" onchange="filterDocs()">
-          <option value="All">All Types</option>
-          <option value="Trade License">Trade License</option>
-          <option value="Tax Certificate">Tax Certificate</option>
-          <option value="Insurance Policy">Insurance Policy</option>
-          <option value="Lease Agreement">Lease Agreement</option>
-          <option value="Other">Other</option>
-        </select>
-        
-        <div class="ms-auto d-flex gap-2">
-          <div class="kpi-pill" style="background:linear-gradient(135deg,#27ae60,#2ecc71)"><i class="fas fa-check-circle"></i> <span>Active:</span> <span id="kpi-active">0</span></div>
-          <div class="kpi-pill" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-clock"></i> <span>Expiring:</span> <span id="kpi-expiring">0</span></div>
-          <div class="kpi-pill" style="background:linear-gradient(135deg,#c0392b,#e74c3c)"><i class="fas fa-times-circle"></i> <span>Expired:</span> <span id="kpi-expired">0</span></div>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text">
+                <h5>Business Central</h5>
+                <small>Super Admin</small>
+            </div>
         </div>
-      </div>
+        <ul class="sidebar-nav-list">
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a></li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a></li>
+            <li><a href="legal_compliance.html" class="nav-link active"><i class="fas fa-gavel nav-icon"></i><span class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span class="nav-label">Property Management</span></a></li>
+        </ul>
+    </div>
 
-      <div class="card">
-        <div class="card-body p-0">
-          <table class="table table-hover mb-0" id="mainTable">
-            <thead>
-              <tr>
-                <th class="ps-3">Document Type</th>
-                <th>Business / Company</th>
-                <th>Issue Date</th>
-                <th>Expiry Date</th>
-                <th>Status</th>
-                <th class="text-end pe-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Dynamic Rows -->
-            </tbody>
-          </table>
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">Legal & Compliance</h4>
+            <p class="text-muted small mb-0">Unified Module for Licenses, Permits, and Legal Documents</p>
         </div>
-      </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-docs" onclick="switchView('docs')">Document Registry</button>
+            <button class="tab-btn" id="tab-tasks" onclick="switchView('tasks')">Compliance Tasks</button>
+            <!-- KPI pills pushed to the right -->
+            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap py-1" id="kpi-list">
+                <div class="reminder-pill expired">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span><strong>Expired Docs:</strong> <span class="pill-sub" id="kpi-expired">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. DOCUMENT REGISTRY VIEW -->
+        <div id="view-docs" class="view-section active">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-plus-circle me-2"></i>Register New Document</div>
+                        <div class="card-body">
+                            <form id="docForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Document Title</label><input type="text" class="form-control form-control-sm" id="docTitle" placeholder="Trade License" required></div>
+                                    <div class="col-12"><label class="form-label">Document Type</label>
+                                        <select class="form-select form-select-sm" id="docType" required>
+                                            <option>License</option>
+                                            <option>Permit</option>
+                                            <option>Insurance</option>
+                                            <option>Tax Document</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Issuing Authority</label><input type="text" class="form-control form-control-sm" id="docAuth" required></div>
+                                    <div class="col-6"><label class="form-label">Issue Date</label><input type="date" class="form-control form-control-sm" id="docIssue"></div>
+                                    <div class="col-6"><label class="form-label">Expiry Date</label><input type="date" class="form-control form-control-sm" id="docExpiry" required></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control form-control-sm" id="docNotes" rows="2"></textarea></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Save Document</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Active Legal Documents</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('docs')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Type</th>
+                                        <th>Expiry Date</th>
+                                        <th class="extra-col">Authority</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="docsTable">
+                                    <tr>
+                                        <td><strong>Trade License</strong></td>
+                                        <td>License</td>
+                                        <td>2027-12-31</td>
+                                        <td class="extra-col">City Council</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Public Liability Insurance</strong></td>
+                                        <td>Insurance</td>
+                                        <td>2026-06-15</td>
+                                        <td class="extra-col">AXA Insurance</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>GDPR Compliance Cert</strong></td>
+                                        <td>Permit</td>
+                                        <td>2025-01-10</td>
+                                        <td class="extra-col">ICO Office</td>
+                                        <td><span class="status-badge bg-expired">Expired</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. COMPLIANCE TASKS VIEW -->
+        <div id="view-tasks" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-tasks me-2"></i>New Compliance Task</div>
+                        <div class="card-body">
+                            <form id="taskForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Task Description</label><input type="text" class="form-control form-control-sm" id="taskDesc" required></div>
+                                    <div class="col-12"><label class="form-label">Priority</label>
+                                        <select class="form-select form-select-sm" id="taskPrio">
+                                            <option>High</option>
+                                            <option>Medium</option>
+                                            <option>Low</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Due Date</label><input type="date" class="form-control form-control-sm" id="taskDue" required></div>
+                                    <div class="col-12"><label class="form-label">Assigned To</label><input type="text" class="form-control form-control-sm" id="taskAssignee"></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Create Task</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Compliance Action Tracker</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('tasks')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Task</th>
+                                        <th>Priority</th>
+                                        <th>Due Date</th>
+                                        <th class="extra-col">Assignee</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tasksTable">
+                                    <tr>
+                                        <td><strong>Annual Audit Preparation</strong></td>
+                                        <td><span class="status-badge bg-overdue">High</span></td>
+                                        <td>2026-05-15</td>
+                                        <td class="extra-col">Sarah Jenkins</td>
+                                        <td><span class="status-badge bg-pending">Pending</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Policy Review - HR</strong></td>
+                                        <td><span class="status-badge bg-pending">Medium</span></td>
+                                        <td>2026-06-01</td>
+                                        <td class="extra-col">Mark Ross</td>
+                                        <td><span class="status-badge bg-pending">Pending</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-  </div>
-</div>
 
-<!-- Document Modal -->
-<div class="modal fade" id="docModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header" style="background-color: #2c3e50; color: white;">
-        <h5 class="modal-title" id="modalTitle">New Legal Document</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="docForm">
-          <input type="hidden" id="docIdx">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Document Type <span class="text-danger">*</span></label>
-              <select class="form-select" id="f-document_type" required>
-                <option value="Trade License">Trade License</option>
-                <option value="Tax Certificate">Tax Certificate</option>
-                <option value="Insurance Policy">Insurance Policy</option>
-                <option value="Lease Agreement">Lease Agreement</option>
-                <option value="Vehicle License">Vehicle License</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Business Name / Company <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="f-business_name" placeholder="e.g. Acme Corp" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Company ID</label>
-              <input type="text" class="form-control" id="f-company_id">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Issue Date</label>
-              <input type="date" class="form-control" id="f-issue_date">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" id="f-expiry_date" required>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Notes</label>
-              <textarea class="form-control" id="f-notes" rows="2"></textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Upload Document</label>
-              <div class="upload-area" onclick="document.getElementById('f-file').click()">
-                <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-muted"></i>
-                <div id="file-label">Click to upload or drag & drop</div>
-                <input type="file" id="f-file" style="display:none" onchange="handleFile(this)">
-                <input type="hidden" id="f-filename">
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-minimal" onclick="saveDoc()">Save Document</button>
-      </div>
-    </div>
-  </div>
-</div>
+    <script>
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => {
+                v.classList.remove('active');
+                v.classList.remove('wide');
+            });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-let legalDocs = JSON.parse(localStorage.getItem('erp_legal_docs')) || [
-  { id: 1, document_type: 'Trade License', business_name: 'Apex Solutions', issue_date: '2025-01-10', expiry_date: '2026-05-15', status: 'Active', filename: 'license_apex.pdf', notes: '' },
-  { id: 2, document_type: 'Insurance Policy', business_name: 'Global Logistics', issue_date: '2024-06-01', expiry_date: '2025-04-10', status: 'Expired', filename: 'ins_global.pdf', notes: 'Urgent renewal needed' },
-  { id: 3, document_type: 'Tax Certificate', business_name: 'TechFlow Inc', issue_date: '2025-02-01', expiry_date: '2026-02-01', status: 'Active', filename: 'tax_techflow.pdf', notes: '' }
-];
+        function toggleWideView(viewId) {
+            const section = document.getElementById('view-' + viewId);
+            section.classList.toggle('wide');
+            const btn = section.querySelector('.card-header button');
+            if (section.classList.contains('wide')) {
+                btn.innerHTML = '<i class="fas fa-compress-alt me-1"></i> Standard View';
+            } else {
+                btn.innerHTML = '<i class="fas fa-expand-alt me-1"></i> Wide View';
+            }
+        }
 
-const docModal = new bootstrap.Modal(document.getElementById('docModal'));
+        let expiredCount = 0;
 
-// ── Tab Switcher removed as only one view remains ──
-function switchTab(tabId) { }
+        document.getElementById('docForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const title = document.getElementById('docTitle').value;
+            const type = document.getElementById('docType').value;
+            const expiry = document.getElementById('docExpiry').value;
+            const auth = document.getElementById('docAuth').value;
+            const notes = document.getElementById('docNotes').value || '-';
 
-function renderDocs() {
-  const mainTbody = document.querySelector('#mainTable tbody');
-  if (!mainTbody) return;
-  mainTbody.innerHTML = '';
+            const expiryDate = new Date(expiry);
+            const isExpired = expiryDate < new Date();
+            if (isExpired) expiredCount++;
 
-  const today = new Date();
-  let stats = { total: legalDocs.length, active: 0, expiring: 0, expired: 0 };
+            const statusClass = isExpired ? 'bg-expired' : 'bg-active';
+            const statusText = isExpired ? 'Expired' : 'Active';
 
-  legalDocs.forEach(doc => {
-    const expiryDate = new Date(doc.expiry_date);
-    const diffTime = expiryDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    let statusClass = 'bg-valid';
-    let statusText = 'Active';
-    
-    if (diffDays < 0) {
-      statusClass = 'bg-expired';
-      statusText = 'Expired';
-      stats.expired++;
-    } else if (diffDays <= 30) {
-      statusClass = 'bg-expiring';
-      statusText = 'Expiring Soon';
-      stats.expiring++;
-    } else {
-      stats.active++;
-    }
+            const row = `<tr>
+                <td><strong>${title}</strong></td>
+                <td>${type}</td>
+                <td>${expiry}</td>
+                <td class="extra-col">${auth}</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+            </tr>`;
+            document.getElementById('docsTable').insertAdjacentHTML('afterbegin', row);
+            document.getElementById('kpi-expired').textContent = expiredCount;
+            alert('Document registered!');
+            this.reset();
+        });
 
-    const row = `
-      <tr>
-        <td class="ps-3"><strong>${doc.document_type}</strong></td>
-        <td>${doc.business_name}</td>
-        <td>${doc.issue_date}</td>
-        <td>${doc.expiry_date}</td>
-        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-        <td class="text-end pe-3">
-          ${doc.filename ? `<button class="btn btn-sm btn-outline-info me-1" onclick="alert('Viewing: ${doc.filename}')" title="View"><i class="fas fa-file-pdf"></i></button>` : ''}
-          <button class="btn btn-sm btn-outline-secondary me-1" onclick="editDoc(${doc.id})" title="Edit"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteDoc(${doc.id})" title="Delete"><i class="fas fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-    mainTbody.innerHTML += row;
-  });
+        document.getElementById('taskForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const desc = document.getElementById('taskDesc').value;
+            const prio = document.getElementById('taskPrio').value;
+            const due = document.getElementById('taskDue').value;
+            const assignee = document.getElementById('taskAssignee').value || 'Unassigned';
 
-  // Update KPI Pills
-  const activeEl = document.getElementById('kpi-active');
-  const expiringEl = document.getElementById('kpi-expiring');
-  const expiredEl = document.getElementById('kpi-expired');
-  
-  if (activeEl) activeEl.textContent = stats.active;
-  if (expiringEl) expiringEl.textContent = stats.expiring;
-  if (expiredEl) expiredEl.textContent = stats.expired;
-}
+            const prioClass = prio === 'High' ? 'bg-overdue' : (prio === 'Medium' ? 'bg-pending' : 'bg-active');
 
-function filterDocs() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const type = document.getElementById('typeFilter').value;
-  
-  const filtered = legalDocs.filter(d => 
-    (d.document_type.toLowerCase().includes(q) || d.business_name.toLowerCase().includes(q)) &&
-    (type === 'All' || d.document_type === type)
-  );
-  
-  const tbody = document.querySelector('#mainTable tbody');
-  tbody.innerHTML = '';
-  filtered.forEach(doc => {
-    // Re-calculating status for filtered rows
-    const expiryDate = new Date(doc.expiry_date);
-    const diffDays = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
-    let statusClass = diffDays < 0 ? 'bg-expired' : (diffDays <= 30 ? 'bg-expiring' : 'bg-valid');
-    let statusText = diffDays < 0 ? 'Expired' : (diffDays <= 30 ? 'Expiring Soon' : 'Active');
+            const row = `<tr>
+                <td><strong>${desc}</strong></td>
+                <td><span class="status-badge ${prioClass}">${prio}</span></td>
+                <td>${due}</td>
+                <td class="extra-col">${assignee}</td>
+                <td><span class="status-badge bg-pending">Pending</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i></button></td>
+            </tr>`;
+            document.getElementById('tasksTable').insertAdjacentHTML('afterbegin', row);
+            alert('Compliance task created!');
+            this.reset();
+        });
+    </script>
 
-    tbody.innerHTML += `
-      <tr>
-        <td class="ps-3"><strong>${doc.document_type}</strong></td>
-        <td>${doc.business_name}</td>
-        <td>${doc.issue_date}</td>
-        <td>${doc.expiry_date}</td>
-        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-        <td class="text-end pe-3">
-          <button class="btn btn-sm btn-outline-secondary me-1" onclick="editDoc(${doc.id})"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteDoc(${doc.id})"><i class="fas fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-  });
-}
-
-function openDocModal() {
-  document.getElementById('modalTitle').textContent = "New Legal Document";
-  document.getElementById('docIdx').value = "";
-  document.getElementById('docForm').reset();
-  document.getElementById('file-label').textContent = "Click to upload or drag & drop";
-  docModal.show();
-}
-
-function editDoc(id) {
-  const d = legalDocs.find(x => x.id === id);
-  if (!d) return;
-  document.getElementById('modalTitle').textContent = "Edit Document";
-  document.getElementById('docIdx').value = d.id;
-  document.getElementById('f-document_type').value = d.document_type;
-  document.getElementById('f-business_name').value = d.business_name;
-  document.getElementById('f-company_id').value = d.company_id || '';
-  document.getElementById('f-issue_date').value = d.issue_date;
-  document.getElementById('f-expiry_date').value = d.expiry_date;
-  document.getElementById('f-notes').value = d.notes;
-  document.getElementById('f-filename').value = d.filename || '';
-  document.getElementById('file-label').textContent = d.filename || "Click to upload or drag & drop";
-  docModal.show();
-}
-
-function saveDoc() {
-  const id = document.getElementById('docIdx').value;
-  const data = {
-    document_type: document.getElementById('f-document_type').value,
-    business_name: document.getElementById('f-business_name').value,
-    company_id: document.getElementById('f-company_id').value,
-    issue_date: document.getElementById('f-issue_date').value,
-    expiry_date: document.getElementById('f-expiry_date').value,
-    notes: document.getElementById('f-notes').value,
-    filename: document.getElementById('f-filename').value
-  };
-
-  if (id) {
-    const idx = legalDocs.findIndex(x => x.id == id);
-    legalDocs[idx] = { ...legalDocs[idx], ...data, updated_at: new Date().toISOString() };
-  } else {
-    legalDocs.unshift({ id: Date.now(), ...data, created_at: new Date().toISOString() });
-  }
-
-  localStorage.setItem('erp_legal_docs', JSON.stringify(legalDocs));
-  renderDocs();
-  docModal.hide();
-}
-
-function deleteDoc(id) {
-  if (confirm("Delete this document?")) {
-    legalDocs = legalDocs.filter(x => x.id !== id);
-    localStorage.setItem('erp_legal_docs', JSON.stringify(legalDocs));
-    renderDocs();
-  }
-}
-
-function handleFile(input) {
-  if (input.files && input.files[0]) {
-    document.getElementById('f-filename').value = input.files[0].name;
-    document.getElementById('file-label').textContent = input.files[0].name;
-  }
-}
-
-window.onload = () => { renderDocs(); };
-</script>
 </body>
+
 </html>
