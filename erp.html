@@ -728,7 +728,7 @@
     <div class="nav">
       <button class="nav-btn active" onclick="show('accounting',this)">Accounting</button>
       <button class="nav-btn" onclick="show('supplier',this)">Supplier management</button>
-      <button class="nav-btn" onclick="show('logistics',this)">Logistics</button>
+      <button class="nav-btn" onclick="show('logistics',this)">Logistics & Fleet</button>
       <button class="nav-btn" onclick="show('property',this)">Property management</button>
       <button class="nav-btn" onclick="show('inventory',this)">Inventory management</button>
       <button class="nav-btn" onclick="show('legal',this)">Legal &amp; compliance</button>
@@ -1213,8 +1213,7 @@
               <option>Other</option>
             </select>
           </div>
-          <div class="field"><label>Contact Person</label><input type="text" id="contactPerson" placeholder="Full name">
-          </div>
+
           <div class="field"><label>Phone Number</label><input type="tel" id="sPhone" placeholder="+44 000 000 0000">
           </div>
           <div class="field"><label>Email Address</label><input type="email" id="sEmail"
@@ -1667,7 +1666,8 @@
     <!-- SYSTEM ACCESS -->
     <div id="access" class="form-section">
       <div class="section-header">
-        <div class="section-badge" style="background:#F1C40F"></div><span class="section-title">System Access & Credentials</span>
+        <div class="section-badge" style="background:#F1C40F"></div><span class="section-title">System Access &
+          Credentials</span>
       </div>
 
       <div class="sub-nav">
@@ -1692,8 +1692,10 @@
             <label>Specify Service Name *</label>
             <input type="text" id="sCustomName" placeholder="Enter service name">
           </div>
-          <div class="field"><label>Account / Username *</label><input type="text" id="sAccount" placeholder="Login ID or Username"></div>
-          <div class="field"><label>Password / PIN</label><input type="password" id="sPass" placeholder="••••••••"></div>
+          <div class="field"><label>Account / Username *</label><input type="text" id="sAccount"
+              placeholder="Login ID or Username"></div>
+          <div class="field"><label>Password / PIN</label><input type="password" id="sPass" placeholder="••••••••">
+          </div>
           <div class="field">
             <label>Status</label>
             <select id="sStatus">
@@ -1702,7 +1704,8 @@
             </select>
           </div>
           <div class="field"><label>Support Tel No</label><input type="tel" id="sTel" placeholder="+44 ..."></div>
-          <div class="field form-full"><label>Notes</label><textarea id="sNotes" rows="2" placeholder="URL, Renewal dates, etc."></textarea></div>
+          <div class="field form-full"><label>Notes</label><textarea id="sNotes" rows="2"
+              placeholder="URL, Renewal dates, etc."></textarea></div>
         </div>
       </div>
 
@@ -1727,20 +1730,28 @@
         <div class="subsection">Register New User</div>
         <div class="form-grid">
           <div class="field"><label>Full Name</label><input type="text" id="uName" placeholder="John Doe"></div>
-          <div class="field"><label>Email Address</label><input type="email" id="uEmail" placeholder="user@example.com"></div>
-          
+          <div class="field"><label>Email Address</label><input type="email" id="uEmail" placeholder="user@example.com">
+          </div>
+
           <div class="field">
             <label>Assigned Roles</label>
             <div class="checkbox-dropdown" id="roleDropdown">
               <div class="checkbox-dropdown-btn" onclick="toggleCheckboxDropdown(this)">
                 <span id="selectedRoleLabel">Select Roles...</span>
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                  <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
               </div>
               <div class="checkbox-dropdown-content">
-                <div class="checkbox-item"><input type="checkbox" value="Admin" id="rAdmin"><label for="rAdmin">Admin</label></div>
-                <div class="checkbox-item"><input type="checkbox" value="Manager" id="rManager"><label for="rManager">Manager</label></div>
-                <div class="checkbox-item"><input type="checkbox" value="Supervisor" id="rSupervisor"><label for="rSupervisor">Supervisor</label></div>
-                <div class="checkbox-item"><input type="checkbox" value="Staff" id="rStaff"><label for="rStaff">Staff</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Admin" id="rAdmin"><label
+                    for="rAdmin">Admin</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Manager" id="rManager"><label
+                    for="rManager">Manager</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Supervisor" id="rSupervisor"><label
+                    for="rSupervisor">Supervisor</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Staff" id="rStaff"><label
+                    for="rStaff">Staff</label></div>
               </div>
             </div>
           </div>
@@ -1749,19 +1760,27 @@
             <div class="checkbox-dropdown" id="bizDropdown">
               <div class="checkbox-dropdown-btn" onclick="toggleCheckboxDropdown(this)">
                 <span id="selectedBizLabel">Select Businesses...</span>
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                  <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
               </div>
               <div class="checkbox-dropdown-content">
-                <div class="checkbox-item"><input type="checkbox" value="All Entities" id="bAll"><label for="bAll">All Entities</label></div>
-                <div class="checkbox-item"><input type="checkbox" value="Main Retail Store" id="bMain"><label for="bMain">Main Retail Store</label></div>
-                <div class="checkbox-item"><input type="checkbox" value="Logistics Hub" id="bLog"><label for="bLog">Logistics Hub</label></div>
-                <div class="checkbox-item"><input type="checkbox" value="Whiterock Retail Ltd" id="bWR"><label for="bWR">Whiterock Retail Ltd</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="All Entities" id="bAll"><label for="bAll">All
+                    Entities</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Main Retail Store" id="bMain"><label
+                    for="bMain">Main Retail Store</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Logistics Hub" id="bLog"><label
+                    for="bLog">Logistics Hub</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Whiterock Retail Ltd" id="bWR"><label
+                    for="bWR">Whiterock Retail Ltd</label></div>
               </div>
             </div>
           </div>
 
           <div class="field"><label>Password</label><input type="password" id="uPass" placeholder="••••••••"></div>
-          <div class="field"><label>Confirm Password</label><input type="password" id="uConfirmPass" placeholder="••••••••"></div>
+          <div class="field"><label>Confirm Password</label><input type="password" id="uConfirmPass"
+              placeholder="••••••••"></div>
         </div>
       </div>
 
@@ -1772,13 +1791,13 @@
             <label>Administrative Role Assignment</label>
             <select id="roleName">
               <option value="" disabled selected>Select Admin Context...</option>
-               <option>Admin - Main Retail Store</option>
+              <option>Admin - Main Retail Store</option>
               <option>Admin - Whiterock Retail Ltd</option>
               <option>Admin - Zenith Logistics Hub</option>
             </select>
           </div>
         </div>
-        
+
         <div style="overflow-x: auto; margin-top: 15px; border: 1px solid #dee2e6; border-radius: 6px;">
           <table class="permission-matrix" style="width: 100%; font-size: 12px; border-collapse: collapse;">
             <thead>
@@ -1787,7 +1806,8 @@
                 <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">View</th>
                 <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">Add</th>
                 <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">Edit</th>
-                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">Delete</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">Delete
+                </th>
               </tr>
             </thead>
             <tbody id="permissionMatrixBody">
@@ -1946,13 +1966,13 @@
       });
     }
 
-    document.addEventListener('change', function(e) {
+    document.addEventListener('change', function (e) {
       if (e.target.closest('.checkbox-dropdown')) {
         updateCheckboxLabels();
       }
     });
 
-    window.addEventListener('click', function(e) {
+    window.addEventListener('click', function (e) {
       if (!e.target.closest('.checkbox-dropdown')) {
         document.querySelectorAll('.checkbox-dropdown').forEach(d => d.classList.remove('active'));
       }
