@@ -335,8 +335,6 @@
                                     </div>
                                     <div class="col-12"><label class="form-label">Tax ID / VAT Number</label><input
                                             type="text" class="form-control form-control-sm" id="bTax"></div>
-                                    <div class="col-12"><label class="form-label">Headquarters</label><input type="text"
-                                            class="form-control form-control-sm" id="bHQ"></div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Register Business</button>
                             </form>
@@ -420,8 +418,12 @@
                                     <div class="col-12"><label class="form-label">Confirmation Statement
                                             Due</label><input type="date" class="form-control form-control-sm"
                                             id="cDue"></div>
-                                    <div class="col-6"><label class="form-label">Balance Sheet (PDF)</label><input type="file" class="form-control form-control-sm" id="cBS" accept=".pdf"></div>
-                                    <div class="col-6"><label class="form-label">P&L Statement (PDF)</label><input type="file" class="form-control form-control-sm" id="cPL" accept=".pdf"></div>
+                                    <div class="col-6"><label class="form-label">Balance Sheet (PDF)</label><input
+                                            type="file" class="form-control form-control-sm" id="cBS" accept=".pdf">
+                                    </div>
+                                    <div class="col-6"><label class="form-label">P&L Statement (PDF)</label><input
+                                            type="file" class="form-control form-control-sm" id="cPL" accept=".pdf">
+                                    </div>
                                 </div>
                                 <button type="submit" class="btn btn-minimal w-100 mt-3">Register Company
                                     Details</button>
@@ -458,10 +460,13 @@
                                         <td class="extra-col">47110</td>
                                         <td><span class="status-badge bg-active">2026-12-15</span></td>
                                         <td>
-                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i class="fas fa-file-pdf"></i> BS</a>
-                                            <a href="#" class="text-danger" title="P&L Statement"><i class="fas fa-file-pdf"></i> P&L</a>
+                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i
+                                                    class="fas fa-file-pdf"></i> BS</a>
+                                            <a href="#" class="text-danger" title="P&L Statement"><i
+                                                    class="fas fa-file-pdf"></i> P&L</a>
                                         </td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-eye"></i></button></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Zenith Logistics Hub</strong></td>
@@ -470,10 +475,13 @@
                                         <td class="extra-col">52101</td>
                                         <td><span class="status-badge bg-active">2026-11-20</span></td>
                                         <td>
-                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i class="fas fa-file-pdf"></i> BS</a>
-                                            <a href="#" class="text-danger" title="P&L Statement"><i class="fas fa-file-pdf"></i> P&L</a>
+                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i
+                                                    class="fas fa-file-pdf"></i> BS</a>
+                                            <a href="#" class="text-danger" title="P&L Statement"><i
+                                                    class="fas fa-file-pdf"></i> P&L</a>
                                         </td>
-                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-eye"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -542,10 +550,10 @@
             const managers = document.getElementById('cManagers').value;
             const sic = document.getElementById('cSIC').value || '-';
             const due = document.getElementById('cDue').value || '-';
-            
+
             const bsFile = document.getElementById('cBS').files[0];
             const plFile = document.getElementById('cPL').files[0];
-            
+
             const bsHtml = bsFile ? `<a href="#" class="text-danger me-2" title="${bsFile.name}"><i class="fas fa-file-pdf"></i> BS</a>` : '-';
             const plHtml = plFile ? `<a href="#" class="text-danger" title="${plFile.name}"><i class="fas fa-file-pdf"></i> P&L</a>` : '';
 
