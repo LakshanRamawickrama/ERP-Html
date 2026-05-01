@@ -1035,7 +1035,8 @@
     <!-- SUPPLIER MANAGEMENT -->
     <div id="supplier" class="form-section">
       <div class="section-header">
-        <div class="section-badge" style="background:#7F77DD"></div><span class="section-title">Supplier management</span>
+        <div class="section-badge" style="background:#7F77DD"></div><span class="section-title">Supplier
+          management</span>
       </div>
 
       <div class="sub-nav">
@@ -1046,8 +1047,10 @@
       <div id="supplier-details" class="sub-form-section active">
         <div class="subsection">Supplier profile</div>
         <div class="form-grid">
-          <div class="field"><label>Supplier ID</label><input type="text" id="sID" placeholder="SUP-0001" readonly></div>
-          <div class="field"><label>Supplier Name</label><input type="text" id="sName" placeholder="e.g. Acme Supplies"></div>
+          <div class="field"><label>Supplier ID</label><input type="text" id="sID" placeholder="SUP-0001" readonly>
+          </div>
+          <div class="field"><label>Supplier Name</label><input type="text" id="sName" placeholder="e.g. Acme Supplies">
+          </div>
           <div class="field"><label>Category</label>
             <select id="sCat">
               <option>Raw Materials</option>
@@ -1057,10 +1060,14 @@
               <option>Other</option>
             </select>
           </div>
-          <div class="field"><label>Contact Person</label><input type="text" id="sContact" placeholder="Full name"></div>
-          <div class="field"><label>Phone Number</label><input type="tel" id="sPhone" placeholder="+44 000 000 0000"></div>
-          <div class="field"><label>Email Address</label><input type="email" id="sEmail" placeholder="supplier@example.com"></div>
-          <div class="field form-full"><label>Address</label><textarea id="sAddress" rows="2" placeholder="Street, city, postcode"></textarea></div>
+          <div class="field"><label>Contact Person</label><input type="text" id="sContact" placeholder="Full name">
+          </div>
+          <div class="field"><label>Phone Number</label><input type="tel" id="sPhone" placeholder="+44 000 000 0000">
+          </div>
+          <div class="field"><label>Email Address</label><input type="email" id="sEmail"
+              placeholder="supplier@example.com"></div>
+          <div class="field form-full"><label>Address</label><textarea id="sAddress" rows="2"
+              placeholder="Street, city, postcode"></textarea></div>
           <div class="field"><label>Status</label>
             <select id="sStatus">
               <option>Active</option>
@@ -1068,7 +1075,8 @@
               <option>On Hold</option>
             </select>
           </div>
-          <div class="field form-full"><label>Notes</label><textarea id="sNotes" rows="2" placeholder="Payment terms, delivery preferences, etc."></textarea></div>
+          <div class="field form-full"><label>Notes</label><textarea id="sNotes" rows="2"
+              placeholder="Payment terms, delivery preferences, etc."></textarea></div>
         </div>
       </div>
 
@@ -1179,11 +1187,14 @@
               <option>CAR 1</option>
               <option>CAR 2</option>
             </select></div>
-          <div class="field"><label>Vehicle Number</label><input type="text" id="dVehicleNum" readonly placeholder="Auto-populated"></div>
+          <div class="field"><label>Vehicle Number</label><input type="text" id="dVehicleNum" readonly
+              placeholder="Auto-populated"></div>
           <div class="field"><label>Delivery Date</label><input type="date" id="dDate"></div>
-          <div class="field form-full"><label>Delivery Address</label><input type="text" id="dAddress" placeholder="123 Street, City">
+          <div class="field form-full"><label>Delivery Address</label><input type="text" id="dAddress"
+              placeholder="123 Street, City">
           </div>
-          <div class="field"><label>Contact Name</label><input type="text" id="dContactName" placeholder="Recipient Name"></div>
+          <div class="field"><label>Contact Name</label><input type="text" id="dContactName"
+              placeholder="Recipient Name"></div>
           <div class="field"><label>Contact Number</label><input type="tel" id="dContact" placeholder="+44 ..."></div>
           <div class="field"><label>Delivery Status</label><select id="dStatus">
               <option>Pending</option>
@@ -1191,7 +1202,8 @@
               <option>Delivered</option>
               <option>Cancelled</option>
             </select></div>
-          <div class="field form-full"><label>Notes</label><textarea id="dNotes" rows="2" placeholder="Delivery instructions..."></textarea>
+          <div class="field form-full"><label>Notes</label><textarea id="dNotes" rows="2"
+              placeholder="Delivery instructions..."></textarea>
           </div>
         </div>
       </div>
@@ -1199,17 +1211,22 @@
       <div id="logistics-parcels" class="sub-form-section">
         <div class="subsection">Manage Parcel Service</div>
         <div class="form-grid">
-          <div class="field"><label>Service Provider</label><input type="text" id="pProvider" placeholder="DHL, FedEx..."></div>
+          <div class="field"><label>Service Provider</label><input type="text" id="pProvider"
+              placeholder="DHL, FedEx..."></div>
           <div class="field"><label>Assigned Vehicle</label><select id="pVehicle">
               <option value="">Select...</option>
               <option>CAR 1</option>
               <option>CAR 2</option>
             </select></div>
-          <div class="field"><label>Vehicle Number</label><input type="text" id="pVehicleNum" readonly placeholder="Auto-populated"></div>
+          <div class="field"><label>Vehicle Number</label><input type="text" id="pVehicleNum" readonly
+              placeholder="Auto-populated"></div>
           <div class="field"><label>Service Date</label><input type="date" id="pDate"></div>
-          <div class="field"><label>Service Area</label><input type="text" id="pAddress" placeholder="Coverage Area"></div>
-          <div class="field"><label>Contact Name</label><input type="text" id="pContactName" placeholder="Partner Contact"></div>
-          <div class="field"><label>Contact Number</label><input type="tel" id="pContact" placeholder="Partner Phone"></div>
+          <div class="field"><label>Service Area</label><input type="text" id="pAddress" placeholder="Coverage Area">
+          </div>
+          <div class="field"><label>Contact Name</label><input type="text" id="pContactName"
+              placeholder="Partner Contact"></div>
+          <div class="field"><label>Contact Number</label><input type="tel" id="pContact" placeholder="Partner Phone">
+          </div>
           <div class="field"><label>Agreement Status</label><select id="pStatus">
               <option>Active</option>
               <option>Pending</option>
@@ -1311,96 +1328,71 @@
       <div class="sub-nav">
         <button class="sub-nav-btn active" onclick="showSub('inventory','master',this)">Master Inventory</button>
         <button class="sub-nav-btn" onclick="showSub('inventory','movements',this)">Stock Movements</button>
-        <button class="sub-nav-btn" onclick="showSub('inventory','sales',this)">Sales & Till</button>
-        <button class="sub-nav-btn" onclick="showSub('inventory','services',this)">Service Terminals</button>
-        <button class="sub-nav-btn" onclick="showSub('inventory','loss',this)">Damage & Loss</button>
       </div>
 
       <div id="inventory-master" class="sub-form-section active">
         <div class="subsection">Item Registration</div>
         <div class="form-grid">
-          <div class="field form-full"><label>Item Name</label><input type="text" placeholder="e.g. Milk 1L"></div>
-          <div class="field"><label>Category</label><select>
-              <option>Groceries</option>
-              <option>Alcohol</option>
-              <option>Tobacco</option>
-              <option>News & Mags</option>
-            </select></div>
-          <div class="field"><label>Quantity in Stock</label><input type="number" placeholder="0"></div>
-          <div class="field"><label>Reorder Level</label><input type="number" placeholder="Min. stock"></div>
-          <div class="field"><label>Unit Price (£)</label><input type="number" step="0.01"></div>
-          <div class="field"><label>Supplier Ref</label><input type="text" placeholder="SUP-XXXX"></div>
-          <div class="field"><label>Stock Status</label><select>
-              <option>In Stock</option>
-              <option>Low Stock</option>
-              <option>Out of Stock</option>
-            </select></div>
+          <div class="field form-full"><label>Item Name *</label><input type="text" id="itemName"
+              placeholder="e.g. Milk Packet 1L"></div>
+          <div class="field">
+            <label>Category *</label>
+            <select id="itemCat">
+              <option value="Food & Beverages">Food & Beverages</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Alcohol">Alcohol</option>
+              <option value="Tobacco">Tobacco</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Stationery">Stationery</option>
+              <option value="Cleaning Supplies">Cleaning Supplies</option>
+              <option value="ADD_NEW">+ Add New Category...</option>
+            </select>
+          </div>
+          <div class="field"><label>Unit Price (£)</label><input type="number" id="itemPrice" step="0.01"></div>
+          <div class="field"><label>Stock Level</label><input type="number" id="itemQty" value="0"></div>
+          <div class="field"><label>Reorder Level</label><input type="number" id="itemMin" value="10"></div>
+          <div class="field"><label>Supplier Ref</label><input type="text" id="itemSupplier" placeholder="SUP-0456">
+          </div>
+          <div class="field"><label>Status (Auto-filled)</label>
+            <select id="itemStatus" disabled style="background-color: #f1f3f5; cursor: not-allowed;">
+              <option value="Active">Active (In Stock)</option>
+              <option value="Low Stock">Low Stock</option>
+              <option value="Out of Stock">Out of Stock</option>
+              <option value="Incoming">Incoming Stock</option>
+            </select>
+          </div>
+          <div class="field form-full"><label>Notes</label><textarea id="itemNotes" rows="2"
+              placeholder="Storage location, special handling..."></textarea></div>
         </div>
       </div>
 
       <div id="inventory-movements" class="sub-form-section">
         <div class="subsection">Log Stock Movement</div>
         <div class="form-grid">
-          <div class="field"><label>Select Item</label><select>
-              <option>Milk 1L</option>
-              <option>Bread</option>
-            </select></div>
-          <div class="field"><label>Movement Type</label><select>
-              <option>Stock IN (+)</option>
-              <option>Stock OUT (-)</option>
-              <option>Return</option>
-              <option>Waste</option>
-            </select></div>
-          <div class="field"><label>Quantity</label><input type="number" placeholder="1"></div>
-          <div class="field"><label>Date of Movement</label><input type="date"></div>
-          <div class="field"><label>Reference #</label><input type="text" placeholder="Invoice / Receipt"></div>
-          <div class="field form-full"><label>Movement Notes</label><textarea
+          <div class="field"><label>Select Item *</label>
+            <select id="mItem">
+              <option value="">Choose item...</option>
+              <option>Milk Packet 1L</option>
+            </select>
+          </div>
+          <div class="field"><label>Movement Type *</label>
+            <select id="mType">
+              <option value="IN">Stock In (+)</option>
+              <option value="OUT">Stock Out (-)</option>
+            </select>
+          </div>
+          <div class="field"><label>Quantity *</label><input type="number" id="mQty" min="1" placeholder="1"></div>
+          <div class="field"><label>Date of Movement</label><input type="date" id="mDate"></div>
+          <div class="field"><label>Reference / Reason</label><input type="text" id="mRef"
+              placeholder="Invoice # or Sale Ref"></div>
+          <div class="field form-full"><label>Movement Notes</label><textarea id="mNotes" rows="2"
               placeholder="Reason for adjustment..."></textarea></div>
         </div>
       </div>
 
-      <div id="inventory-sales" class="sub-form-section">
-        <div class="subsection">Daily Sales Report</div>
-        <div class="form-grid">
-          <div class="field"><label>Report Date</label><input type="date"></div>
-          <div class="field"><label>Till ID</label><input type="text" placeholder="Till-01"></div>
-          <div class="field"><label>Total Cash (£)</label><input type="number" step="0.01"></div>
-          <div class="field"><label>Total Card (£)</label><input type="number" step="0.01"></div>
-          <div class="field"><label>Total Sales (£)</label><input type="number" readonly placeholder="Auto-calc"></div>
-          <div class="field"><label>Verified By</label><input type="text" placeholder="Staff Name"></div>
-        </div>
-      </div>
-
-      <div id="inventory-services" class="sub-form-section">
-        <div class="subsection">Service Terminal Activity</div>
-        <div class="form-grid">
-          <div class="field"><label>Service Type</label><select>
-              <option>PayPoint</option>
-              <option>Lottery</option>
-              <option>Parcel (DPD)</option>
-            </select></div>
-          <div class="field"><label>Transaction Count</label><input type="number"></div>
-          <div class="field"><label>Total Volume (£)</label><input type="number" step="0.01"></div>
-          <div class="field"><label>Commission (£)</label><input type="number" step="0.01"></div>
-          <div class="field"><label>Terminal ID</label><input type="text"></div>
-        </div>
-      </div>
-
-      <div id="inventory-loss" class="sub-form-section">
-        <div class="subsection">Log Damage or Loss</div>
-        <div class="form-grid">
-          <div class="field"><label>Item Name</label><input type="text" placeholder="Select item..."></div>
-          <div class="field"><label>Quantity Lost</label><input type="number"></div>
-          <div class="field"><label>Loss Reason</label><select>
-              <option>Damaged</option>
-              <option>Expired</option>
-              <option>Theft</option>
-              <option>Stock Count Adjustment</option>
-            </select></div>
-          <div class="field"><label>Date</label><input type="date"></div>
-          <div class="field form-full"><label>Loss Details</label><textarea
-              placeholder="Describe the incident..."></textarea></div>
-        </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="save()">Save inventory record</button>
+        <button class="btn-secondary" onclick="clearForm()">Clear</button>
       </div>
     </div>
 
