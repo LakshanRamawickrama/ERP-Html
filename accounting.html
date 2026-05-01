@@ -223,6 +223,11 @@
             color: #b91c1c;
         }
 
+        .bg-inactive {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
         .view-section {
             display: none;
             padding: 24px;
@@ -459,7 +464,7 @@
                 </div>
                 <div class="reminder-pill overdue">
                     <i class="fas fa-arrow-up"></i>
-                    <span><strong>Expenses:</strong> <span class="pill-sub" id="rs-expense">$2,650.00</span></span>
+                    <span><strong>Expenses:</strong> <span class="pill-sub" id="rs-expense">$4,785.00</span></span>
                 </div>
             </div>
         </div>
@@ -852,34 +857,75 @@
                                 </thead>
                                 <tbody id="recordsTable">
                                     <tr id="rec-001">
-                                        <td class="td-date">2026-04-28</td>
-                                        <td class="td-title"><strong>Rent / Mortgage</strong></td>
+                                        <td class="td-date">2026-04-01</td>
+                                        <td class="td-title"><strong>HQ Office Rent</strong><br><small class="text-muted">Rent (Apr 2026 – Mar 2027)</small></td>
                                         <td class="td-cat">Expense</td>
                                         <td class="td-amount" data-val="2500">$2,500.00</td>
-                                        <td class="td-notes extra-col text-muted small"><i
-                                                class="fas fa-file-pdf me-1"></i> HQ Building</td>
+                                        <td class="td-notes extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> rent-apr2026.pdf</td>
                                         <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark"
-                                                onclick="editRecord('rec-001')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteRecord('rec-001', 2500, 'Expense')"><i
-                                                    class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-001')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-001', 2500, 'Expense')"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="rec-002">
-                                        <td class="td-date">2026-04-29</td>
-                                        <td class="td-title"><strong>Sales Reports</strong></td>
+                                        <td class="td-date">2026-04-05</td>
+                                        <td class="td-title"><strong>Freight Contract Revenue</strong><br><small class="text-muted">Sales Reports</small></td>
                                         <td class="td-cat">Income</td>
                                         <td class="td-amount" data-val="5000">$5,000.00</td>
-                                        <td class="td-notes extra-col text-muted small">Software dev services</td>
+                                        <td class="td-notes extra-col text-muted small">Alpha Trading – Q1 contract</td>
                                         <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark"
-                                                onclick="editRecord('rec-002')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteRecord('rec-002', 5000, 'Income')"><i
-                                                    class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-002')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-002', 5000, 'Income')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-003">
+                                        <td class="td-date">2026-04-10</td>
+                                        <td class="td-title"><strong>Office Supplies Purchase</strong><br><small class="text-muted">Supplier Payments (Prime Office Supplies)</small></td>
+                                        <td class="td-cat">Expense</td>
+                                        <td class="td-amount" data-val="450">$450.00</td>
+                                        <td class="td-notes extra-col text-muted small">Stationery restock – PO-2026-501</td>
+                                        <td class="td-status"><span class="status-badge bg-pending">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-003')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-003', 450, 'Expense')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-004">
+                                        <td class="td-date">2026-04-15</td>
+                                        <td class="td-title"><strong>Consulting Services Income</strong><br><small class="text-muted">Sales Reports</small></td>
+                                        <td class="td-cat">Income</td>
+                                        <td class="td-amount" data-val="1200">$1,200.00</td>
+                                        <td class="td-notes extra-col text-muted small">Consulting Ltd – Q1 advisory fees</td>
+                                        <td class="td-status"><span class="status-badge bg-pending">Sent</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-004')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-004', 1200, 'Income')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-005">
+                                        <td class="td-date">2026-04-20</td>
+                                        <td class="td-title"><strong>Fleet Maintenance</strong><br><small class="text-muted">Supplier Payments (Global Logistics Partners)</small></td>
+                                        <td class="td-cat">Expense</td>
+                                        <td class="td-amount" data-val="1800">$1,800.00</td>
+                                        <td class="td-notes extra-col text-muted small">TRK-007 & VAN-002 service</td>
+                                        <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-005')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-005', 1800, 'Expense')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-006">
+                                        <td class="td-date">2026-04-28</td>
+                                        <td class="td-title"><strong>Bank Charges – April</strong><br><small class="text-muted">Bank Charges</small></td>
+                                        <td class="td-cat">Expense</td>
+                                        <td class="td-amount" data-val="35">$35.00</td>
+                                        <td class="td-notes extra-col text-muted small">Monthly account maintenance fee</td>
+                                        <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-006')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-006', 35, 'Expense')"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -960,39 +1006,45 @@
                                 </thead>
                                 <tbody id="invoicesTable">
                                     <tr id="inv-001">
-                                        <td class="td-inv-num"><strong>INV-2024-001</strong></td>
-                                        <td class="td-inv-client">Client X</td>
+                                        <td class="td-inv-num"><strong>INV-2026-001</strong></td>
+                                        <td class="td-inv-client">Alpha Trading Co.</td>
                                         <td class="td-inv-amount" data-val="5000">$5,000.00</td>
-                                        <td class="td-inv-due">2026-05-15</td>
-                                        <td class="td-inv-doc extra-col text-muted small"><i
-                                                class="fas fa-file-pdf me-1"></i> INV-2024-001.pdf</td>
-                                        <td class="td-inv-notes extra-col text-muted small">HQ Rent Payment</td>
+                                        <td class="td-inv-due">2026-04-30</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> INV-2026-001.pdf</td>
+                                        <td class="td-inv-notes extra-col text-muted small">Freight Contract – Q1 2026</td>
                                         <td class="td-inv-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark"
-                                                onclick="editInvoice('inv-001')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteInvoice('inv-001')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i
-                                                    class="fas fa-download"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-001')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-001')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="inv-002">
-                                        <td class="td-inv-num"><strong>INV-2024-002</strong></td>
+                                        <td class="td-inv-num"><strong>INV-2026-002</strong></td>
                                         <td class="td-inv-client">Consulting Ltd</td>
                                         <td class="td-inv-amount" data-val="1200">$1,200.00</td>
                                         <td class="td-inv-due">2026-05-20</td>
-                                        <td class="td-inv-doc extra-col text-muted small"><i
-                                                class="fas fa-file-image me-1"></i> receipt-04.png</td>
-                                        <td class="td-inv-notes extra-col text-muted small">Q1 Consulting Fees</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-image me-1"></i> receipt-q1.png</td>
+                                        <td class="td-inv-notes extra-col text-muted small">Q1 Advisory Fees</td>
                                         <td class="td-inv-status"><span class="status-badge bg-pending">Sent</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark"
-                                                onclick="editInvoice('inv-002')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteInvoice('inv-002')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i
-                                                    class="fas fa-download"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-002')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-002')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="inv-003">
+                                        <td class="td-inv-num"><strong>INV-2026-003</strong></td>
+                                        <td class="td-inv-client">Beta Logistics Ltd.</td>
+                                        <td class="td-inv-amount" data-val="3800">$3,800.00</td>
+                                        <td class="td-inv-due">2026-04-15</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> INV-2026-003.pdf</td>
+                                        <td class="td-inv-notes extra-col text-muted small">Logistics services – March 2026</td>
+                                        <td class="td-inv-status"><span class="status-badge bg-overdue">Overdue</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-003')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-003')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1313,7 +1365,7 @@
             }
         });
 
-        let totalIncome = 6200; let totalExpense = 2650;
+        let totalIncome = 6200; let totalExpense = 4785;
         const modal = document.getElementById('customModal');
         const mHeader = document.getElementById('modalHeader');
         const mBody = document.getElementById('modalBody');
@@ -1433,7 +1485,6 @@
 
             document.getElementById('editRowId').value = id;
             document.getElementById('recMainTitle').value = title;
-            document.getElementById('recTitle').value = catLabel; // We'll need to parse this or store it
             document.getElementById('recCat').value = cat;
             document.getElementById('recAmount').value = amount;
             document.getElementById('recStatus').value = status;
@@ -1484,6 +1535,7 @@
 
         document.getElementById('recordForm').addEventListener('submit', function (e) {
             e.preventDefault();
+            const editId = document.getElementById('editRowId').value;
             const mainTitle = document.getElementById('recMainTitle').value;
             const title = document.getElementById('recTitle').value;
             const supplier = document.getElementById('recSupplier').value;
@@ -1589,7 +1641,7 @@
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
             </tr>`;
             document.getElementById('dojoTable').insertAdjacentHTML('afterbegin', row);
-            alert('Dojo Settlement Logged!');
+            openModal({ title: 'Success', body: 'Dojo Settlement Logged!' });
             this.reset();
             document.getElementById('dojoProvider').value = 'Dojo';
         });

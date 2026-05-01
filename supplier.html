@@ -223,6 +223,11 @@
             color: #b91c1c;
         }
 
+        .bg-on-hold {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
         .view-section {
             display: none;
             padding: 24px;
@@ -495,15 +500,12 @@
                                         <td class="td-s-cat">Office Supplies</td>
                                         <td class="td-s-email">sales@prime.com</td>
                                         <td class="td-s-phone extra-col">+44 20 8987 6543</td>
-                                        <td class="td-s-address extra-col text-muted small">45 Stationery Road,
-                                            Manchester</td>
+                                        <td class="td-s-address extra-col text-muted small">45 Stationery Road, Manchester</td>
+                                        <td class="td-s-notes extra-col text-muted small">Net 30 payment terms</td>
                                         <td class="td-s-status"><span class="status-badge bg-active">Active</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark"
-                                                onclick="editSupplier('supp-102')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteSupplier('supp-102')"><i
-                                                    class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('supp-102')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('supp-102')"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="supp-103">
@@ -515,14 +517,11 @@
                                         <td class="td-s-email">support@techconnect.com</td>
                                         <td class="td-s-phone extra-col">+1 415 555 0123</td>
                                         <td class="td-s-address extra-col text-muted small">Silicon Valley, CA, USA</td>
-                                        <td class="td-s-status"><span class="status-badge bg-inactive">On Hold</span>
-                                        </td>
+                                        <td class="td-s-notes extra-col text-muted small">Awaiting contract renewal</td>
+                                        <td class="td-s-status"><span class="status-badge bg-inactive">On Hold</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark"
-                                                onclick="editSupplier('supp-103')"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteSupplier('supp-103')"><i
-                                                    class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('supp-103')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('supp-103')"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -621,36 +620,45 @@
                                 </thead>
                                 <tbody id="orderTable">
                                     <tr id="po-501">
-                                        <td class="td-o-num"><strong>PO-2024-501</strong></td>
+                                        <td class="td-o-num"><strong>PO-2026-501</strong></td>
                                         <td class="td-o-supp">Prime Office Supplies</td>
-                                        <td class="td-o-prod">Stationery (10 Units)</td>
+                                        <td class="td-o-prod">Paper Reams (10 Units)</td>
                                         <td class="td-o-amount" data-val="450.00">$450.00</td>
                                         <td class="td-o-due">2026-05-10</td>
                                         <td class="td-o-date extra-col">2026-04-28</td>
-                                        <td class="td-o-status"><span class="status-badge bg-active">Pending</span></td>
+                                        <td class="td-o-status"><span class="status-badge bg-pending">Pending</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-501')"><i
-                                                    class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteOrder('po-501')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i
-                                                    class="fas fa-print"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-501')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-501')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
                                         </td>
                                     </tr>
                                     <tr id="po-502">
-                                        <td class="td-o-num"><strong>PO-2024-502</strong></td>
+                                        <td class="td-o-num"><strong>PO-2026-502</strong></td>
                                         <td class="td-o-supp">Global Logistics Partners</td>
-                                        <td class="td-o-amount" data-val="1200.00">$1,200.00</td>
-                                        <td class="td-o-due">2026-05-15</td>
-                                        <td class="td-o-date extra-col">2026-04-30</td>
-                                        <td class="td-o-status"><span class="status-badge bg-pending">Paid</span></td>
+                                        <td class="td-o-prod">Freight Services (1 Unit)</td>
+                                        <td class="td-o-amount" data-val="1800.00">$1,800.00</td>
+                                        <td class="td-o-due">2026-04-30</td>
+                                        <td class="td-o-date extra-col">2026-04-20</td>
+                                        <td class="td-o-status"><span class="status-badge bg-active">Paid</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-502')"><i
-                                                    class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteOrder('po-502')"><i class="fas fa-trash"></i></button>
-                                            <button class="btn btn-sm btn-outline-dark"><i
-                                                    class="fas fa-print"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-502')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-502')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="po-503">
+                                        <td class="td-o-num"><strong>PO-2026-503</strong></td>
+                                        <td class="td-o-supp">TechConnect Inc</td>
+                                        <td class="td-o-prod">Laptop Docking Stations (5 Units)</td>
+                                        <td class="td-o-amount" data-val="2750.00">$2,750.00</td>
+                                        <td class="td-o-due">2026-04-20</td>
+                                        <td class="td-o-date extra-col">2026-04-10</td>
+                                        <td class="td-o-status"><span class="status-badge bg-overdue">Overdue</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-503')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-503')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -809,7 +817,10 @@
                     <td class="td-s-address extra-col text-muted small">${address || '-'}</td>
                     <td class="td-s-notes extra-col text-muted small">${notes}</td>
                     <td class="td-s-status"><span class="status-badge bg-${status.toLowerCase().replace(' ', '-')}">${status}</span></td>
-                    <td><button class="btn btn-sm btn-outline-dark" onclick="editSupplier('${newId}')"><i class="fas fa-edit"></i></button></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('${newId}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('${newId}')"><i class="fas fa-trash"></i></button>
+                    </td>
                 </tr>`;
                 document.getElementById('supplierTable').insertAdjacentHTML('afterbegin', row);
                 nextSuppId++;

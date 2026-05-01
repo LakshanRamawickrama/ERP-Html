@@ -536,24 +536,16 @@
             const name = document.getElementById('bName').value;
             const num = document.getElementById('bNum').value;
             const cat = document.getElementById('bCat').value;
-            const hq = document.getElementById('bHQ').value || '-';
 
             const row = `<tr>
                 <td><strong>${name}</strong></td>
                 <td>${num}</td>
                 <td>${cat}</td>
-                <td class="extra-col">${hq}</td>
+                <td class="extra-col">-</td>
                 <td><span class="status-badge bg-active">Active</span></td>
                 <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
             </tr>`;
             document.getElementById('bizTable').insertAdjacentHTML('afterbegin', row);
-
-            // Add to Parent dropdown
-            const sel = document.getElementById('uParent');
-            const opt = document.createElement('option');
-            opt.value = name;
-            opt.textContent = name;
-            sel.appendChild(opt);
 
             alert('Business registered!');
             this.reset();

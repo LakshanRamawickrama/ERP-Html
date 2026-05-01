@@ -495,7 +495,7 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Delivery Date</label>
-                                        <input type="date" class="form-control form-control-sm" id="dDate" required>
+                                        <input type="date" class="form-control form-control-sm" id="dDeliveryDate" required>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Delivery Address</label>
@@ -766,6 +766,7 @@
             const name = document.getElementById('vName').value;
             const num = document.getElementById('vNum').value;
             const biz = document.getElementById('vBiz').value;
+            const ins = document.getElementById('vIns').value || '-';
             const mot = document.getElementById('vMot').value || '-';
             const tax = document.getElementById('vTax').value || '-';
             const notes = document.getElementById('vNotes').value || '-';
@@ -813,6 +814,7 @@
         document.getElementById('deliveryForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const date = document.getElementById('dDate').value;
+            const deliveryDate = document.getElementById('dDeliveryDate').value;
             const vehicle = document.getElementById('dVehicle').value;
             const num = document.getElementById('dVehicleNum').value;
             const address = document.getElementById('dAddress').value;
@@ -825,7 +827,9 @@
                 <td>${date}</td>
                 <td><strong>${vehicle}</strong><br><small>${num}</small></td>
                 <td>${address}<br><small class="text-muted">${contactName} | ${contact}</small></td>
-                <td>${notes}</td>
+                <td class="extra-col">-</td>
+                <td class="extra-col">-</td>
+                <td>${notes || '-'}</td>
                 <td><span class="status-badge bg-active">${status}</span></td>
             </tr>`;
             document.getElementById('dTable').insertAdjacentHTML('afterbegin', row);
@@ -850,7 +854,8 @@
                 <td><strong>${provider}</strong></td>
                 <td><strong>${vehicle}</strong><br><small>${num}</small></td>
                 <td>${address}<br><small class="text-muted">${contactName} | ${contact}</small></td>
-                <td>${notes}</td>
+                <td class="extra-col">-</td>
+                <td>${notes || '-'}</td>
                 <td><span class="status-badge bg-active">${status}</span></td>
             </tr>`;
             document.getElementById('pTable').insertAdjacentHTML('afterbegin', row);

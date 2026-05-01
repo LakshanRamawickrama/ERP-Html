@@ -926,25 +926,25 @@
     const mockData = {
       c1: {
         name: "Alpha Trading Co.",
-        accounting: { income: 284500, expenses: 137200 },
+        accounting: { income: 284500, expenses: 141985 },
         inventory: { total: 412, lowStock: 18 },
         suppliers: { pendingCount: 7, pendingAmount: 43800 },
         hr: { todayShifts: 24, onDuty: 19 },
         fleet: { active: 11, expiringInsurance: 3 },
         legal: { active: 28, expiringSoon: 4 },
         alerts: [
-          { type: "danger", icon: "fas fa-warning", module: "Accounting", text: "Invoice #INV-2024-089 is 12 days overdue", badge: "Overdue", badgeClass: "badge-danger" },
+          { type: "danger", icon: "fas fa-warning", module: "Accounting", text: "Invoice #INV-2026-003 is 16 days overdue — Beta Logistics Ltd.", badge: "Overdue", badgeClass: "badge-danger" },
           { type: "danger", icon: "fas fa-warning", module: "Fleet", text: "Vehicle TRK-007 insurance expires in 5 days", badge: "Urgent", badgeClass: "badge-danger" },
-          { type: "warning", icon: "fas fa-clock", module: "Suppliers", text: "3 supplier invoices due within 7 days", badge: "Due Soon", badgeClass: "badge-warning" },
+          { type: "warning", icon: "fas fa-clock", module: "Suppliers", text: "PO-2026-501 from Prime Office Supplies due in 9 days", badge: "Due Soon", badgeClass: "badge-warning" },
           { type: "warning", icon: "fas fa-file-lines", module: "Legal", text: "Trade License renewal due in 6 days", badge: "Expiring", badgeClass: "badge-warning" },
           { type: "warning", icon: "fas fa-box", module: "Inventory", text: "18 SKUs below minimum stock threshold", badge: "Low Stock", badgeClass: "badge-warning" },
           { type: "info", icon: "fas fa-user-clock", module: "HR", text: "5 employees have shifts starting soon", badge: "Upcoming", badgeClass: "badge-info" }
         ],
         activity: [
-          { color: "#10b981", icon: "fas fa-arrow-down", text: "Income recorded: Office Supplies Sale — $12,400", time: "2 min ago" },
-          { color: "#ef4444", icon: "fas fa-arrow-up", text: "Expense logged: Fleet Maintenance — $3,200", time: "18 min ago" },
+          { color: "#10b981", icon: "fas fa-arrow-down", text: "Income recorded: Freight Contract Revenue — $5,000", time: "2 min ago" },
+          { color: "#ef4444", icon: "fas fa-arrow-up", text: "Expense logged: Fleet Maintenance (TRK-007 & VAN-002) — $1,800", time: "18 min ago" },
           { color: "#3b82f6", icon: "fas fa-boxes", text: "Inventory updated: 50 units of SKU-1042 restocked", time: "45 min ago" },
-          { color: "#f59e0b", icon: "fas fa-truck-loading", text: "Supplier payment processed: Gulf Supplies Ltd. $8,750", time: "1 hr ago" },
+          { color: "#f59e0b", icon: "fas fa-truck-loading", text: "PO-2026-502 paid: Global Logistics Partners — $1,800", time: "1 hr ago" },
           { color: "#8b5cf6", icon: "fas fa-user-check", text: "Shift confirmed: 6 drivers checked in", time: "2 hrs ago" }
         ]
       },
@@ -958,13 +958,13 @@
         legal: { active: 19, expiringSoon: 2 },
         alerts: [
           { type: "danger", icon: "fas fa-warning", module: "Fleet", text: "Vehicle VAN-002 insurance expires in 3 days", badge: "Urgent", badgeClass: "badge-danger" },
-          { type: "warning", icon: "fas fa-clock", module: "Accounting", text: "Invoice #INV-2024-112 due in 4 days", badge: "Due Soon", badgeClass: "badge-warning" },
+          { type: "warning", icon: "fas fa-clock", module: "Accounting", text: "Invoice #INV-2026-002 due in 19 days — Consulting Ltd", badge: "Due Soon", badgeClass: "badge-warning" },
           { type: "info", icon: "fas fa-box", module: "Inventory", text: "9 SKUs below stock threshold", badge: "Low Stock", badgeClass: "badge-info" }
         ],
         activity: [
           { color: "#3b82f6", icon: "fas fa-truck", text: "Vehicle VAN-005 completed delivery Route 7", time: "5 min ago" },
           { color: "#10b981", icon: "fas fa-arrow-down", text: "Income recorded: Freight Contract — $22,000", time: "30 min ago" },
-          { color: "#f59e0b", icon: "fas fa-truck-loading", text: "New supplier invoice: FastParts Co. $4,100", time: "1 hr ago" }
+          { color: "#f59e0b", icon: "fas fa-truck-loading", text: "New supplier invoice: TechConnect Inc — PO-2026-503 overdue", time: "1 hr ago" }
         ]
       }
     };
