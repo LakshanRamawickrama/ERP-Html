@@ -137,6 +137,132 @@
       padding: 28px 32px 32px;
     }
 
+    /* Custom Checkbox Dropdown */
+    .checkbox-dropdown {
+      position: relative;
+      user-select: none;
+    }
+
+    .checkbox-dropdown-btn {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--border-radius-md);
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color .15s;
+    }
+
+    .checkbox-dropdown-btn:hover {
+      border-color: var(--gray-400);
+    }
+
+    .checkbox-dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-card);
+      z-index: 1000;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 6px 0;
+      margin-top: 4px;
+    }
+
+    .checkbox-dropdown.active .checkbox-dropdown-content {
+      display: block;
+    }
+
+    .checkbox-item {
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background .12s;
+    }
+
+    .checkbox-item:hover {
+      background: var(--gray-50);
+    }
+
+    .checkbox-item input {
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      cursor: pointer;
+      margin: 0;
+      font-size: 12.5px;
+      flex: 1;
+    }
+
+    /* Permission Matrix */
+    .permission-matrix th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gray-500);
+      border-bottom: 2px solid var(--gray-200);
+      padding: 10px 8px;
+    }
+
+    .permission-matrix td {
+      font-size: 13px;
+      padding: 8px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .permission-matrix .module-name {
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .permission-matrix .sub-module-name {
+      padding-left: 32px;
+      font-style: italic;
+      color: var(--gray-500);
+      font-size: 12px;
+    }
+
+    .permission-matrix .category-row {
+      background-color: var(--gray-50);
+      cursor: pointer;
+      transition: background .12s;
+    }
+
+    .permission-matrix .category-row:hover {
+      background-color: var(--gray-100);
+    }
+
+    .permission-matrix .sub-row {
+      display: none;
+    }
+
+    .permission-matrix .sub-row.show {
+      display: table-row;
+    }
+
+    .permission-matrix .toggle-icon {
+      transition: transform 0.3s;
+      width: 14px;
+      display: inline-block;
+    }
+
+    .permission-matrix .category-row.expanded .toggle-icon {
+      transform: rotate(90deg);
+    }
+
     /* ── Nav ───────────────────────────────────────────────────── */
     .nav {
       display: flex;
@@ -1032,7 +1158,6 @@
     </div>
 
     <!-- SUPPLIER MANAGEMENT -->
-    <!-- SUPPLIER MANAGEMENT -->
     <div id="supplier" class="form-section">
       <div class="section-header">
         <div class="section-badge" style="background:#7F77DD"></div><span class="section-title">Supplier
@@ -1060,7 +1185,7 @@
               <option>Other</option>
             </select>
           </div>
-          <div class="field"><label>Contact Person</label><input type="text" id="sContact" placeholder="Full name">
+          <div class="field"><label>Contact Person</label><input type="text" id="contactPerson" placeholder="Full name">
           </div>
           <div class="field"><label>Phone Number</label><input type="tel" id="sPhone" placeholder="+44 000 000 0000">
           </div>
@@ -1397,7 +1522,6 @@
     </div>
 
     <!-- LEGAL & COMPLIANCE -->
-    <!-- LEGAL & COMPLIANCE -->
     <div id="legal" class="form-section">
       <div class="section-header">
         <div class="section-badge" style="background:#E24B4A"></div><span class="section-title">Legal &
@@ -1468,7 +1592,6 @@
             </select>
           </div>
           <div class="field"><label>Tax ID / VAT Number</label><input type="text" id="bTax" placeholder="Tax ID"></div>
-
         </div>
       </div>
 
@@ -1557,71 +1680,82 @@
       </div>
 
       <div id="users-registry" class="sub-form-section active">
-        <div class="subsection">New User Registration</div>
+        <div class="subsection">Register New User</div>
         <div class="form-grid">
-          <div class="field"><label>Full Name</label><input type="text" placeholder="Full Name"></div>
-          <div class="field"><label>User ID / Code</label><input type="text" placeholder="USR-0001"></div>
-          <div class="field"><label>Assigned Role</label>
-            <select>
-              <option>Super Admin</option>
-              <option>Manager</option>
-              <option>Tele Agent</option>
-              <option>Team Lead</option>
-            </select>
+          <div class="field"><label>Full Name</label><input type="text" id="uName" placeholder="John Doe"></div>
+          <div class="field"><label>Email Address</label><input type="email" id="uEmail" placeholder="user@example.com"></div>
+          
+          <div class="field">
+            <label>Assigned Roles</label>
+            <div class="checkbox-dropdown" id="roleDropdown">
+              <div class="checkbox-dropdown-btn" onclick="toggleCheckboxDropdown(this)">
+                <span id="selectedRoleLabel">Select Roles...</span>
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="checkbox-dropdown-content">
+                <div class="checkbox-item"><input type="checkbox" value="Admin" id="rAdmin"><label for="rAdmin">Admin</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Manager" id="rManager"><label for="rManager">Manager</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Supervisor" id="rSupervisor"><label for="rSupervisor">Supervisor</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Staff" id="rStaff"><label for="rStaff">Staff</label></div>
+              </div>
+            </div>
           </div>
-          <div class="field"><label>System Password</label><input type="password" placeholder="••••••••"></div>
-          <div class="field"><label>Status</label><select>
-              <option>Active</option>
-              <option>Suspended</option>
-            </select></div>
+          <div class="field">
+            <label>Assigned Businesses</label>
+            <div class="checkbox-dropdown" id="bizDropdown">
+              <div class="checkbox-dropdown-btn" onclick="toggleCheckboxDropdown(this)">
+                <span id="selectedBizLabel">Select Businesses...</span>
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="checkbox-dropdown-content">
+                <div class="checkbox-item"><input type="checkbox" value="All Entities" id="bAll"><label for="bAll">All Entities</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Main Retail Store" id="bMain"><label for="bMain">Main Retail Store</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Logistics Hub" id="bLog"><label for="bLog">Logistics Hub</label></div>
+                <div class="checkbox-item"><input type="checkbox" value="Whiterock Retail Ltd" id="bWR"><label for="bWR">Whiterock Retail Ltd</label></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field"><label>Password</label><input type="password" id="uPass" placeholder="••••••••"></div>
+          <div class="field"><label>Confirm Password</label><input type="password" id="uConfirmPass" placeholder="••••••••"></div>
         </div>
       </div>
 
       <div id="users-roles" class="sub-form-section">
-        <div class="subsection">Permission Matrix</div>
-        <div style="overflow-x: auto; margin-top: 10px;">
-          <table style="width: 100%; font-size: 12px; border-collapse: collapse; color: var(--gray-700);">
+        <div class="subsection">Configure Role Permissions</div>
+        <div class="form-grid">
+          <div class="field form-full">
+            <label>Administrative Role Assignment</label>
+            <select id="roleName">
+              <option value="" disabled selected>Select Admin Context...</option>
+               <option>Admin - Main Retail Store</option>
+              <option>Admin - Whiterock Retail Ltd</option>
+              <option>Admin - Zenith Logistics Hub</option>
+            </select>
+          </div>
+        </div>
+        
+        <div style="overflow-x: auto; margin-top: 15px; border: 1px solid #dee2e6; border-radius: 6px;">
+          <table class="permission-matrix" style="width: 100%; font-size: 12px; border-collapse: collapse;">
             <thead>
-              <tr style="background: var(--gray-100); text-align: left;">
-                <th style="padding: 8px; border-bottom: 2px solid var(--gray-200);">Module</th>
-                <th style="padding: 8px; border-bottom: 2px solid var(--gray-200); text-align: center;">View</th>
-                <th style="padding: 8px; border-bottom: 2px solid var(--gray-200); text-align: center;">Add</th>
-                <th style="padding: 8px; border-bottom: 2px solid var(--gray-200); text-align: center;">Edit</th>
-                <th style="padding: 8px; border-bottom: 2px solid var(--gray-200); text-align: center;">Delete</th>
+              <tr style="background: #f8f9fa;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6;">Module Name</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">View</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">Add</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">Edit</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #dee2e6; width: 60px;">Delete</th>
               </tr>
             </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid var(--gray-100);">
-                <td style="padding: 8px; font-weight: 500;">Business Mgmt</td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox"></td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--gray-100);">
-                <td style="padding: 8px; font-weight: 500;">Inventory</td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox" checked></td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--gray-100);">
-                <td style="padding: 8px; font-weight: 500;">Accounting</td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox"></td>
-                <td align="center"><input type="checkbox"></td>
-                <td align="center"><input type="checkbox"></td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--gray-100);">
-                <td style="padding: 8px; font-weight: 500;">Fleet Mgmt</td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox" checked></td>
-                <td align="center"><input type="checkbox"></td>
-                <td align="center"><input type="checkbox"></td>
-              </tr>
+            <tbody id="permissionMatrixBody">
+              <!-- Dynamically populated by JS -->
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" onclick="save()">Save user & permissions</button>
+        <button class="btn-secondary" onclick="clearForm()">Clear</button>
       </div>
     </div>
 
@@ -1690,35 +1824,103 @@
       }
     }
 
-    function toggleOtherService(val) {
-      document.querySelectorAll('.other-service').forEach(el => {
-        el.style.display = (val === 'OTHER') ? 'block' : 'none';
+    function toggleCustomService() {
+      const select = document.getElementById('sName');
+      const customCol = document.getElementById('customServiceCol');
+      if (select && customCol) {
+        customCol.style.display = (select.value === 'Other') ? 'block' : 'none';
+      }
+    }
+
+    // User Management Hierarchical Matrix
+    const systemMap = [
+      { name: 'Dashboard', sub: [] },
+      { name: 'Business Management', sub: ['Companies House Structure', 'Basic Details'] },
+      { name: 'User Management', sub: ['User Registry', 'Role Permissions'] },
+      { name: 'Fleet Management', sub: ['Vehicle Registry', 'Driver Management', 'Fuel Logs', 'Maintenance'] },
+      { name: 'Inventory Management', sub: ['Stock Levels', 'Warehouse Tracking', 'Purchase Orders'] },
+      { name: 'Accounting', sub: ['Financial Records', 'Bank Details', 'Loans', 'Insurance', 'VAT / Tax'] },
+      { name: 'Suppliers', sub: ['Supplier Registry', 'Payment Terms'] },
+      { name: 'Legal & Compliance', sub: ['Certificates', 'Policy Documents', 'Audits'] },
+      { name: 'Property Management', sub: ['Asset Registry', 'Maintenance Requests', 'Rentals'] },
+      { name: 'Reports', sub: ['Profit & Loss', 'Sales Reports', 'Bank Reports', 'Tax Reports'] }
+    ];
+
+    function initPermissionMatrix() {
+      const tbody = document.getElementById('permissionMatrixBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      systemMap.forEach((category, idx) => {
+        const categoryId = `cat-${idx}`;
+        const parentRow = `<tr class="category-row" onclick="toggleSubModules('${categoryId}', this)">
+          <td class="module-name">
+            <span class="toggle-icon">▶</span>
+            ${category.name}
+          </td>
+          <td align="center"><input type="checkbox" onclick="event.stopPropagation()" checked></td>
+          <td align="center"><input type="checkbox" onclick="event.stopPropagation()"></td>
+          <td align="center"><input type="checkbox" onclick="event.stopPropagation()"></td>
+          <td align="center"><input type="checkbox" onclick="event.stopPropagation()"></td>
+        </tr>`;
+        tbody.insertAdjacentHTML('beforeend', parentRow);
+
+        category.sub.forEach(s => {
+          const subRow = `<tr class="sub-row ${categoryId}">
+            <td class="sub-module-name">${s}</td>
+            <td align="center"><input type="checkbox" checked></td>
+            <td align="center"><input type="checkbox"></td>
+            <td align="center"><input type="checkbox"></td>
+            <td align="center"><input type="checkbox"></td>
+          </tr>`;
+          tbody.insertAdjacentHTML('beforeend', subRow);
+        });
       });
     }
 
-    // Auto-calculation listeners
-    document.addEventListener('input', function (e) {
-      if (['hr-start', 'hr-end', 'hr-rate', 'hr-break'].includes(e.target.id)) {
-        calcHRPay();
+    function toggleSubModules(catId, row) {
+      row.classList.toggle('expanded');
+      document.querySelectorAll('.' + catId).forEach(sub => {
+        sub.classList.toggle('show');
+      });
+    }
+
+    // Checkbox Dropdown Logic
+    function toggleCheckboxDropdown(btn) {
+      const dropdown = btn.parentElement;
+      dropdown.classList.toggle('active');
+    }
+
+    function updateCheckboxLabels() {
+      ['roleDropdown', 'bizDropdown'].forEach(id => {
+        const dropdown = document.getElementById(id);
+        if (!dropdown) return;
+        const checked = dropdown.querySelectorAll('input:checked');
+        const label = dropdown.querySelector('span');
+        if (checked.length === 0) {
+          label.innerText = (id === 'roleDropdown') ? 'Select Roles...' : 'Select Businesses...';
+        } else if (checked.length === 1) {
+          label.innerText = checked[0].value;
+        } else {
+          label.innerText = checked.length + (id === 'roleDropdown' ? ' Roles Selected' : ' Businesses Selected');
+        }
+      });
+    }
+
+    document.addEventListener('change', function(e) {
+      if (e.target.closest('.checkbox-dropdown')) {
+        updateCheckboxLabels();
       }
     });
 
-    function calcHRPay() {
-      const start = document.getElementById('hr-start')?.value;
-      const end = document.getElementById('hr-end')?.value;
-      const rate = parseFloat(document.getElementById('hr-rate')?.value) || 0;
-      const breaks = parseFloat(document.getElementById('hr-break')?.value) || 0;
-
-      if (start && end) {
-        const sTime = new Date(`1970-01-01T${start}:00`);
-        const eTime = new Date(`1970-01-01T${end}:00`);
-        let diff = (eTime - sTime) / (1000 * 60 * 60);
-        if (diff < 0) diff += 24;
-        const netHours = diff - (breaks / 60);
-        const target = document.getElementById('hr-pay');
-        if (target) target.value = (netHours * rate).toFixed(2);
+    window.addEventListener('click', function(e) {
+      if (!e.target.closest('.checkbox-dropdown')) {
+        document.querySelectorAll('.checkbox-dropdown').forEach(d => d.classList.remove('active'));
       }
-    }
+    });
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', initPermissionMatrix);
 
     function save() {
       const t = document.getElementById('toast');
@@ -1735,6 +1937,7 @@
           else if (el.type === 'file') el.value = '';
           else if (!el.readOnly) el.value = '';
         });
+        updateCheckboxLabels();
       }
     }
   </script>
