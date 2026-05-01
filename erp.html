@@ -1500,69 +1500,48 @@
     <!-- SYSTEM ACCESS -->
     <div id="access" class="form-section">
       <div class="section-header">
-        <div class="section-badge" style="background:#F1C40F"></div><span class="section-title">System Access</span>
+        <div class="section-badge" style="background:#F1C40F"></div><span class="section-title">System Access & Credentials</span>
       </div>
 
       <div class="sub-nav">
-        <button class="sub-nav-btn active" onclick="showSub('access','registry',this)">Credential Inventory</button>
-        <button class="sub-nav-btn" onclick="showSub('access','logs',this)">Access Logs</button>
+        <button class="sub-nav-btn active" onclick="showSub('access','registry',this)">Credentials Repository</button>
       </div>
 
       <div id="access-registry" class="sub-form-section active">
-        <div class="subsection">Register Credentials</div>
+        <div class="subsection">🔐 Add New Credential</div>
         <div class="form-grid">
           <div class="field">
-            <label>Service / Terminal Name</label>
-            <select onchange="toggleOtherService(this.value)">
-              <option>Dojo Terminal</option>
-              <option>UberEats POS</option>
-              <option>Deliveroo POS</option>
-              <option>JustEat POS</option>
-              <option>Cloud CCTV</option>
-              <option>Business Email</option>
-              <option value="OTHER">Other Service...</option>
+            <label>Service Name *</label>
+            <select id="sName" onchange="toggleCustomService()">
+              <option value="">Select Service</option>
+              <option>Till Access</option>
+              <option>PayPoint</option>
+              <option>PayZone</option>
+              <option>Lottery</option>
+              <option>Other</option>
             </select>
           </div>
-          <div class="field other-service" style="display: none;"><label>Specify Other Service</label><input type="text"
-              placeholder="Service name"></div>
-          <div class="field"><label>Account / Username</label><input type="text" placeholder="Username"></div>
-          <div class="field">
-            <label>Password / Key</label>
-            <div style="position: relative;">
-              <input type="password" class="pass-field" placeholder="••••••••">
-              <span
-                style="position: absolute; right: 10px; top: 8px; cursor: pointer; font-size: 12px; color: var(--gray-400);"
-                onclick="togglePass(this)">SHOW</span>
-            </div>
+          <div class="field" id="customServiceCol" style="display: none;">
+            <label>Specify Service Name *</label>
+            <input type="text" id="sCustomName" placeholder="Enter service name">
           </div>
-          <div class="field"><label>Access Level</label><select>
-              <option>Admin</option>
-              <option>Standard</option>
-              <option>Restricted</option>
-            </select></div>
-          <div class="field"><label>Assigned Business</label><select>
-              <option>Main Retail Store</option>
-              <option>Whiterock Retail Ltd</option>
-            </select></div>
-          <div class="field form-full"><label>Security Notes</label><textarea
-              placeholder="Security instructions..."></textarea></div>
+          <div class="field"><label>Account / Username *</label><input type="text" id="sAccount" placeholder="Login ID or Username"></div>
+          <div class="field"><label>Password / PIN</label><input type="password" id="sPass" placeholder="••••••••"></div>
+          <div class="field">
+            <label>Status</label>
+            <select id="sStatus">
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+          </div>
+          <div class="field"><label>Support Tel No</label><input type="tel" id="sTel" placeholder="+44 ..."></div>
+          <div class="field form-full"><label>Notes</label><textarea id="sNotes" rows="2" placeholder="URL, Renewal dates, etc."></textarea></div>
         </div>
       </div>
 
-      <div id="access-logs" class="sub-form-section">
-        <div class="subsection">Access Audit Trail</div>
-        <div
-          style="padding: 10px; background: var(--gray-50); border-radius: 6px; font-size: 12px; color: var(--gray-500);">
-          <p style="margin-bottom: 8px;">Recent credential views:</p>
-          <div
-            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--gray-200); padding: 4px 0;">
-            <span>Admin viewed Dojo Terminal</span><span>2024-05-20 14:22</span>
-          </div>
-          <div
-            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--gray-200); padding: 4px 0;">
-            <span>Manager viewed Cloud CCTV</span><span>2024-05-20 11:05</span>
-          </div>
-        </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="save()">Save access details</button>
+        <button class="btn-secondary" onclick="clearForm()">Clear</button>
       </div>
     </div>
 
