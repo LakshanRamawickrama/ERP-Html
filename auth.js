@@ -42,14 +42,14 @@
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 const href = link.getAttribute('href');
-                if (href === 'business_management.html' || href === 'system_access.html') {
+                if (href === 'user_management.html' || href === 'system_access.html') {
                     link.parentElement.style.display = 'none';
                 }
             });
 
             // If a company admin tries to access a super-admin page directly, redirect to dashboard
             const currentPath = window.location.pathname.split('/').pop() || '';
-            if (currentPath === 'business_management.html' || currentPath === 'system_access.html') {
+            if (currentPath === 'user_management.html' || currentPath === 'system_access.html') {
                 window.location.href = 'dashboard.html';
             }
         }

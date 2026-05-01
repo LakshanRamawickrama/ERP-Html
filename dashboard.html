@@ -1008,6 +1008,8 @@
       };
     }
 
+    let currentDashboardCompanyId = window.activeCompanyId || "all";
+
     function init() {
       const isSuperAdmin = currentUser.role === "superadmin" || currentUser.role === "Super Admin";
       const badge = document.getElementById("roleBadge");
@@ -1016,18 +1018,19 @@
 
       if (!isSuperAdmin) {
         document.getElementById("companySwitcherWrap").style.display = "none";
-        activeCompanyId = "c1";
+        // If businessId from auth doesn't match mockData, fallback to "c1" for demo purposes
+        if (!mockData[currentDashboardCompanyId]) currentDashboardCompanyId = "c1";
       }
       renderDashboard();
     }
 
     function switchCompany(id) {
-      activeCompanyId = id;
+      currentDashboardCompanyId = id;
       renderDashboard();
     }
 
     function renderDashboard() {
-      const data = activeCompanyId === "all" ? aggregateData() : mockData[activeCompanyId];
+      const data = currentDashboardCompanyId === "all" ? aggregateData() : mockData[currentDashboardCompanyId];
       if (!data) return;
 
       const fmt = n => n >= 1000000 ? "$" + (n / 1000000).toFixed(1) + "M" : n >= 1000 ? "$" + (n / 1000).toFixed(1) + "K" : "$" + n.toLocaleString();

@@ -654,6 +654,13 @@
                 return;
             }
             
+            // Company Admin hardcoded fallback (in case it wasn't seeded)
+            if (username === 'admin' && password === 'admin123') {
+                localStorage.setItem('clearerp_user', JSON.stringify({ username, role: 'Admin', fullName: 'Admin User', businessId: 'c1', businessName: 'Alpha Trading Co.' }));
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
             // Check created users in localStorage
             const users = JSON.parse(localStorage.getItem('clearerp_users') || '[]');
             const user = users.find(u => u.username === username && u.password === password);
