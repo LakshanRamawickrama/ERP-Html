@@ -636,7 +636,7 @@
             initMockUsersIfNeeded();
             const savedUser = localStorage.getItem('clearerp_user');
             if (savedUser) {
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
             }
         });
 
@@ -650,7 +650,7 @@
             if (username === 'superadmin' && password === 'admin123') {
                 localStorage.setItem('clearerp_user', JSON.stringify({ username, role: 'Super Admin', fullName: 'Super Administrator' }));
                 localStorage.setItem('clearerp_setup_complete', 'true');
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
                 return;
             }
             
@@ -666,7 +666,7 @@
                     businessId: user.businessId,
                     businessName: user.businessName
                 }));
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
             } else {
                 document.getElementById('loginError').style.display = 'block';
                 setTimeout(() => document.getElementById('loginError').style.display = 'none', 3000);

@@ -668,6 +668,7 @@
       background: #94a3b8;
     }
   </style>
+  <script src="auth.js"></script>
 </head>
 
 <body>
@@ -1007,11 +1008,8 @@
       };
     }
 
-    const currentUser = { name: "Ahmed Al-Rashidi", role: "superadmin" };
-    let activeCompanyId = "all";
-
     function init() {
-      const isSuperAdmin = currentUser.role === "superadmin";
+      const isSuperAdmin = currentUser.role === "superadmin" || currentUser.role === "Super Admin";
       const badge = document.getElementById("roleBadge");
       badge.textContent = isSuperAdmin ? "Super Admin" : "Company Admin";
       badge.className = "role-badge " + (isSuperAdmin ? "superadmin" : "company-admin");
