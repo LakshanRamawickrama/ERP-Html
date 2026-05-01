@@ -606,7 +606,7 @@
       <button class="nav-btn" onclick="show('property',this)">Property management</button>
       <button class="nav-btn" onclick="show('inventory',this)">Inventory management</button>
       <button class="nav-btn" onclick="show('legal',this)">Legal &amp; compliance</button>
-      <button class="nav-btn" onclick="show('hr',this)">HR management</button>
+
       <button class="nav-btn" onclick="show('business',this)">Business management</button>
       <button class="nav-btn" onclick="show('access',this)">System access</button>
       <button class="nav-btn" onclick="show('users',this)">User management</button>
@@ -1397,6 +1397,7 @@
     </div>
 
     <!-- LEGAL & COMPLIANCE -->
+    <!-- LEGAL & COMPLIANCE -->
     <div id="legal" class="form-section">
       <div class="section-header">
         <div class="section-badge" style="background:#E24B4A"></div><span class="section-title">Legal &
@@ -1404,63 +1405,17 @@
       </div>
 
       <div class="sub-nav">
-        <button class="sub-nav-btn active" onclick="showSub('legal','licences',this)">Licences</button>
-        <button class="sub-nav-btn" onclick="showSub('legal','filings',this)">Company Filings</button>
-        <button class="sub-nav-btn" onclick="showSub('legal','logs',this)">Compliance Logs</button>
-        <button class="sub-nav-btn" onclick="showSub('legal','docs',this)">Document Registry</button>
+        <button class="sub-nav-btn active" onclick="showSub('legal','docs',this)">Document Registry</button>
       </div>
 
-      <div id="legal-licences" class="sub-form-section active">
-        <div class="subsection">Certificates & Licences</div>
+      <div id="legal-docs" class="sub-form-section active">
+        <div class="subsection">Register New Document</div>
         <div class="form-grid">
-          <div class="field"><label>Licence Type</label><select>
-              <option>Premises Licence</option>
-              <option>Personal Licence</option>
-              <option>Food Hygiene</option>
-              <option>Lottery Licence</option>
-            </select></div>
-          <div class="field"><label>Licence Number</label><input type="text" placeholder="Ref #"></div>
-          <div class="field"><label>Issued By</label><input type="text" placeholder="Authority"></div>
-          <div class="field"><label>Expiry Date</label><input type="date"></div>
-          <div class="field"><label>DPS Name</label><input type="text" placeholder="Supervisor"></div>
-          <div class="field"><label>Status</label><select>
-              <option>Active</option>
-              <option>Expired</option>
-            </select></div>
-        </div>
-      </div>
-
-      <div id="legal-filings" class="sub-form-section">
-        <div class="subsection">Regulatory Filings</div>
-        <div class="form-grid">
-          <div class="field"><label>CH Registration #</label><input type="text" placeholder="8-digit no."></div>
-          <div class="field"><label>Confirmation Statement</label><input type="date"></div>
-          <div class="field"><label>VAT Deadline</label><input type="date"></div>
-          <div class="field"><label>Corp. Tax Deadline</label><input type="date"></div>
-          <div class="field"><label>Accountant Fee (£)</label><input type="number"></div>
-        </div>
-      </div>
-
-      <div id="legal-logs" class="sub-form-section">
-        <div class="subsection">Incidents & Safety Logs</div>
-        <div class="form-grid">
-          <div class="field"><label>Log Date</label><input type="date"></div>
-          <div class="field"><label>Log Type</label><select>
-              <option>Refusal Log</option>
-              <option>Temp Record</option>
-              <option>Incident Report</option>
-            </select></div>
-          <div class="field form-full"><label>Log Details</label><textarea
-              placeholder="Specific notes, temperatures, readings..."></textarea></div>
-        </div>
-      </div>
-
-      <div id="legal-docs" class="sub-form-section">
-        <div class="subsection">Document Storage</div>
-        <div class="form-grid">
-          <div class="field"><label>Document Title</label><input type="text" placeholder="Trade License"></div>
-          <div class="field"><label>Document Type</label>
-            <select>
+          <div class="field form-full"><label>Document Title</label><input type="text" id="docTitle"
+              placeholder="e.g. Trade License"></div>
+          <div class="field">
+            <label>Document Type</label>
+            <select id="docType">
               <option>License Applications</option>
               <option>Change of DPS</option>
               <option>Change of Premisses Slip</option>
@@ -1470,72 +1425,17 @@
               <option>Shift Sheets</option>
             </select>
           </div>
-          <div class="field"><label>Issuing Authority</label><input type="text" placeholder="Authority name"></div>
-          <div class="field"><label>Upload Document</label><input type="file"></div>
-          <div class="field form-full"><label>Notes</label><textarea
-              placeholder="Additional document info..."></textarea></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- HR MANAGEMENT -->
-    <div id="hr" class="form-section">
-      <div class="section-header">
-        <div class="section-badge" style="background:#639922"></div><span class="section-title">Human Resources</span>
-      </div>
-
-      <div class="sub-nav">
-        <button class="sub-nav-btn active" onclick="showSub('hr','staff',this)">Staff Details</button>
-        <button class="sub-nav-btn" onclick="showSub('hr','shifts',this)">Shifts & Pay</button>
-        <button class="sub-nav-btn" onclick="showSub('hr','tasks',this)">Tasks & Records</button>
-      </div>
-
-      <div id="hr-staff" class="sub-form-section active">
-        <div class="subsection">Employee Profile</div>
-        <div class="form-grid">
-          <div class="field"><label>Full Name</label><input type="text" placeholder="John Doe"></div>
-          <div class="field"><label>Role</label><input type="text" placeholder="Sales Assistant"></div>
-          <div class="field"><label>Employment Type</label><select>
-              <option>Permanent</option>
-              <option>Part-time</option>
-              <option>Contract</option>
-            </select></div>
-          <div class="field"><label>Phone Number</label><input type="tel" placeholder="+44 ..."></div>
-          <div class="field"><label>Email Address</label><input type="email" placeholder="email@example.com"></div>
-          <div class="field"><label>Start Date</label><input type="date"></div>
+          <div class="field"><label>Issuing Authority</label><input type="text" id="docAuth"
+              placeholder="e.g. City Council"></div>
+          <div class="field"><label>Upload Document</label><input type="file" id="docFile"></div>
+          <div class="field form-full"><label>Notes</label><textarea id="docNotes" rows="2"
+              placeholder="Additional details..."></textarea></div>
         </div>
       </div>
 
-      <div id="hr-shifts" class="sub-form-section">
-        <div class="subsection">Shift & Payroll Calculation</div>
-        <div class="form-grid">
-          <div class="field"><label>Shift Date</label><input type="date"></div>
-          <div class="field"><label>Start Time</label><input type="time" id="hr-start"></div>
-          <div class="field"><label>End Time</label><input type="time" id="hr-end"></div>
-          <div class="field"><label>Hourly Rate (£)</label><input type="number" id="hr-rate" step="0.01"></div>
-          <div class="field"><label>Break Mins</label><input type="number" id="hr-break" value="30"></div>
-          <div class="field"><label>Total Pay (£)</label><input type="number" id="hr-pay" readonly
-              placeholder="Auto-calc"></div>
-        </div>
-      </div>
-
-      <div id="hr-tasks" class="sub-form-section">
-        <div class="subsection">Daily Task Allocation</div>
-        <div class="form-grid">
-          <div class="field"><label>Task Title</label><input type="text"></div>
-          <div class="field"><label>Assigned To</label><select>
-              <option>Staff A</option>
-              <option>Staff B</option>
-            </select></div>
-          <div class="field"><label>Priority</label><select>
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
-            </select></div>
-          <div class="field"><label>Due Date</label><input type="date"></div>
-          <div class="field form-full"><label>Task Description</label><textarea placeholder="Details..."></textarea>
-          </div>
-        </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="save()">Save legal record</button>
+        <button class="btn-secondary" onclick="clearForm()">Clear</button>
       </div>
     </div>
 
@@ -1547,44 +1447,53 @@
       </div>
 
       <div class="sub-nav">
-        <button class="sub-nav-btn active" onclick="showSub('business','entities',this)">Entity registry</button>
-        <button class="sub-nav-btn" onclick="showSub('business','structure',this)">Corporate structure</button>
+        <button class="sub-nav-btn active" onclick="showSub('business','entities',this)">Basic Details</button>
+        <button class="sub-nav-btn" onclick="showSub('business','structure',this)">Companies House Structure</button>
       </div>
 
       <div id="business-entities" class="sub-form-section active">
         <div class="subsection">New Entity Registration</div>
         <div class="form-grid">
-          <div class="field"><label>Business name</label><input type="text" placeholder="e.g. Zenith Retail Ltd"></div>
-          <div class="field"><label>Trading Name</label><input type="text" placeholder="e.g. Zenith Store"></div>
-          <div class="field"><label>Entity type</label><select>
-              <option>Limited Company</option>
-              <option>Sole Trader</option>
-              <option>Partnership</option>
-              <option>Subsidiary</option>
-            </select></div>
-          <div class="field"><label>Tax ID (UTR)</label><input type="text" placeholder="10-digit UTR"></div>
-          <div class="field"><label>VAT Number</label><input type="text" placeholder="GB 123 4567 89"></div>
-          <div class="field"><label>Status</label><select>
-              <option>Active</option>
-              <option>Inactive</option>
-              <option>Pending</option>
-            </select></div>
-          <div class="field form-full"><label>Registered Address</label><textarea
-              placeholder="Official legal address..."></textarea></div>
+          <div class="field"><label>Business Name</label><input type="text" id="bName" placeholder="e.g. Acme Corp">
+          </div>
+          <div class="field"><label>Company Number</label><input type="text" id="bNum" placeholder="CH-12345678"></div>
+          <div class="field">
+            <label>Business Category</label>
+            <select id="bCat">
+              <option>Retail</option>
+              <option>Manufacturing</option>
+              <option>Service Provider</option>
+              <option>Holding Company</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Tax ID / VAT Number</label><input type="text" id="bTax" placeholder="Tax ID"></div>
+
         </div>
       </div>
 
       <div id="business-structure" class="sub-form-section">
         <div class="subsection">Companies House details</div>
         <div class="form-grid">
-          <div class="field"><label>Company no. (CRN)</label><input type="text" placeholder="8-digit no."></div>
-          <div class="field"><label>SIC code</label><input type="text" placeholder="Business nature"></div>
-          <div class="field"><label>Director(s)</label><input type="text" placeholder="Full names"></div>
-          <div class="field"><label>Incorp. date</label><input type="date"></div>
-          <div class="field"><label>Confirmation Statement Due</label><input type="date"></div>
-          <div class="field form-full"><label>Registered office</label><input type="text" placeholder="Legal address">
-          </div>
+          <div class="field form-full"><label>Full Company Name</label><input type="text" id="cName"
+              placeholder="e.g. Whiterock Retail Ltd"></div>
+          <div class="field"><label>Registration Number (CRN)</label><input type="text" id="cCRN"
+              placeholder="8-digit number"></div>
+          <div class="field"><label>Who Manages It (Directors)</label><input type="text" id="cManagers"
+              placeholder="Name of Directors / Managers"></div>
+          <div class="field"><label>Incorporation Date</label><input type="date" id="cDate"></div>
+          <div class="field"><label>SIC Code</label><input type="text" id="cSIC" placeholder="Nature of Business"></div>
+          <div class="field form-full"><label>Registered Office Address</label><textarea id="cAddress" rows="2"
+              placeholder="Official legal address..."></textarea></div>
+          <div class="field"><label>Confirmation Statement Due</label><input type="date" id="cDue"></div>
+          <div class="field"><label>Balance Sheet (PDF)</label><input type="file" id="cBS"></div>
+          <div class="field"><label>P&L Statement (PDF)</label><input type="file" id="cPL"></div>
         </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" onclick="save()">Save business record</button>
+        <button class="btn-secondary" onclick="clearForm()">Clear</button>
       </div>
     </div>
 
