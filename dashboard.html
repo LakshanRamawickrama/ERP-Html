@@ -4,45 +4,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Dashboard | Business Central ERP</title>
+  <title>Super Admin Dashboard | Business Central ERP</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+  <script src="auth.js"></script>
   <style>
-    :root {
-      --primary-color: #4f46e5;
-      --primary-hover: #4338ca;
-      --sidebar-bg: #0f172a;
-      --bg-light: #f8fafc;
-      --card-border: #e2e8f0;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #0ea5e9;
-      --purple: #8b5cf6;
-      --radius-xl: 16px;
-      --radius-lg: 12px;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    * {
+      box-sizing: border-box
     }
 
     body {
-      background-color: var(--bg-light);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      color: var(--text-main);
-      overflow: hidden;
+      background: #f8fafc;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #1e293b;
+      margin: 0;
       height: 100vh;
-      width: 100vw;
+      overflow: hidden
     }
 
-
-    /* Sidebar */
     .sidebar {
-      background-color: #2c3e50;
+      background: #2c3e50;
       color: #ecf0f1;
       height: 100vh;
       position: fixed;
@@ -54,11 +36,11 @@
       box-shadow: 4px 0 24px rgba(0, 0, 0, .12);
       z-index: 1100;
       transition: width .3s ease;
-      overflow: hidden;
+      overflow: hidden
     }
 
     .sidebar:hover {
-      width: 240px;
+      width: 240px
     }
 
     .sidebar-brand {
@@ -68,23 +50,23 @@
       align-items: center;
       gap: 10px;
       white-space: nowrap;
-      min-height: 70px;
+      min-height: 70px
     }
 
     .sidebar-brand-icon {
       font-size: 20px;
       min-width: 38px;
       text-align: center;
-      color: #ecf0f1;
+      color: #ecf0f1
     }
 
     .sidebar-brand-text {
       opacity: 0;
-      transition: opacity .3s ease;
+      transition: opacity .3s ease
     }
 
     .sidebar:hover .sidebar-brand-text {
-      opacity: 1;
+      opacity: 1
     }
 
     .sidebar-brand-text h5 {
@@ -92,14 +74,14 @@
       font-size: 16px;
       font-weight: 600;
       margin: 0;
-      line-height: 1.2;
+      line-height: 1.2
     }
 
     .sidebar-brand-text small {
       font-size: 11px;
       color: rgba(236, 240, 241, .7);
       display: block;
-      margin-top: 2px;
+      margin-top: 2px
     }
 
     .sidebar-nav-list {
@@ -108,16 +90,16 @@
       overflow-y: auto;
       overflow-x: hidden;
       list-style: none;
-      margin: 0;
+      margin: 0
     }
 
     .sidebar-nav-list::-webkit-scrollbar {
-      width: 4px;
+      width: 4px
     }
 
     .sidebar-nav-list::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, .2);
-      border-radius: 2px;
+      border-radius: 2px
     }
 
     .nav-link {
@@ -132,86 +114,80 @@
       margin: 3px 10px;
       white-space: nowrap;
       transition: background-color .2s, color .2s;
-      text-decoration: none;
+      text-decoration: none
     }
 
     .nav-link:hover,
     .nav-link.active {
       background-color: #34495e;
-      color: white;
+      color: white
     }
 
     .nav-link .nav-icon {
       font-size: 16px;
       min-width: 18px;
-      text-align: center;
+      text-align: center
     }
 
     .nav-link .nav-label {
       opacity: 0;
-      transition: opacity .3s ease;
+      transition: opacity .3s ease
     }
 
     .sidebar:hover .nav-link .nav-label {
-      opacity: 1;
+      opacity: 1
     }
 
-    /* ── Main Wrapper ── */
     .main-wrapper {
       margin-left: 70px;
-      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: hidden
     }
 
-    /* ── Topbar ── */
     .topbar {
-      background-color: white;
-      border-bottom: 1px solid var(--card-border);
-      padding: 14px 24px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+      flex-shrink: 0
     }
 
     .topbar-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
-      color: var(--text-main);
+      color: #1e293b;
       margin: 0;
-      padding-left: 5px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px
     }
 
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 16px
     }
 
     .company-switcher {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: var(--bg-light);
+      background: #f8fafc;
       padding: 6px 12px;
       border-radius: 10px;
-      border: 1px solid var(--card-border);
+      border: 1px solid #e2e8f0
     }
 
     .company-switcher label {
       font-size: 12px;
       font-weight: 600;
-      color: var(--text-muted);
-      margin: 0;
+      color: #64748b;
+      margin: 0
     }
 
     .company-switcher select {
@@ -219,467 +195,579 @@
       background: transparent;
       font-size: 13px;
       font-weight: 600;
-      color: var(--text-main);
+      color: #1e293b;
       outline: none;
-      cursor: pointer;
+      cursor: pointer
     }
 
     .role-badge {
       padding: 6px 14px;
       border-radius: 30px;
       font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      font-weight: 600
     }
 
     .role-badge.superadmin {
       background: #ecfdf5;
       color: #059669;
-      border: 1px solid #b7f4d8;
+      border: 1px solid #b7f4d8
     }
 
     .role-badge.company-admin {
       background: #eff6ff;
       color: #2563eb;
-      border: 1px solid #bfdbfe;
+      border: 1px solid #bfdbfe
     }
 
-    /* ── Content Area ── */
-    .content-area {
-      padding: 1.25rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      gap: 1rem;
-    }
-
-    .section-heading {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* ── Module Grid ── */
-    .module-grid {
+    .kpi-strip {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      flex: 0 0 auto;
+      grid-template-columns: repeat(6, 1fr);
+      gap: .4rem;
+      padding: .5rem .75rem .2rem;
+      flex-shrink: 0
     }
 
-    @media (max-width: 1200px) {
-      .module-grid {
-        grid-template-columns: repeat(2, 1fr);
+    @media(max-width:1400px) {
+      .kpi-strip {
+        grid-template-columns: repeat(4, 1fr)
       }
     }
 
-    @media (max-width: 768px) {
-      .module-grid {
-        grid-template-columns: 1fr;
+    @media(max-width:1100px) {
+      .kpi-strip {
+        grid-template-columns: repeat(3, 1fr)
       }
     }
 
-    .module-card {
+    @media(max-width:768px) {
+      .kpi-strip {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    .kpi-card {
       background: white;
-      border-radius: var(--radius-xl);
-      padding: 16px;
-      box-shadow: var(--shadow-md);
-      transition: all 0.3s ease;
-      border: 1px solid var(--card-border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .module-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--primary-color);
-    }
-
-    .module-card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .module-card-icon {
-      width: 32px;
-      height: 32px;
       border-radius: 8px;
+      padding: 6px 10px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .kpi-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 11px;
       color: white;
-      flex-shrink: 0;
+      flex-shrink: 0
     }
 
-    .module-card-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 2px;
-    }
-
-    .module-card-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .module-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .stat-item {
-      border-radius: var(--radius-lg);
-      padding: 8px 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .stat-label {
-      font-size: 10px;
+    .kpi-label {
+      font-size: 8px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.025em;
-      opacity: 0.9;
-      margin-bottom: 4px;
+      letter-spacing: .04em;
+      color: #64748b
     }
 
-    .stat-value {
-      font-size: 18px;
+    .kpi-value {
+      font-size: 13px;
       font-weight: 800;
-      line-height: 1;
-    }
-
-    .stat-sub {
-      font-size: 9px;
-      opacity: 0.75;
-      margin-top: 2px;
-      font-weight: 500;
-    }
-
-    /* Specific Stat Themes */
-    .stat-green {
-      background: #f0fdf4;
-      color: #166534;
-      border: 1px solid #dcfce7;
-    }
-
-    .stat-red {
-      background: #fef2f2;
-      color: #991b1b;
-      border: 1px solid #fee2e2;
-    }
-
-    .stat-blue {
-      background: #eff6ff;
-      color: #1e40af;
-      border: 1px solid #dbeafe;
-    }
-
-    .stat-orange {
-      background: #fffbeb;
-      color: #92400e;
-      border: 1px solid #fef3c7;
-    }
-
-    .stat-dark {
-      background: #f8fafc;
       color: #1e293b;
+      line-height: 1
+    }
+
+    .bg-gg {
+      background: linear-gradient(135deg, #10b981, #059669)
+    }
+
+    .bg-gr {
+      background: linear-gradient(135deg, #ef4444, #dc2626)
+    }
+
+    .bg-gb {
+      background: linear-gradient(135deg, #3b82f6, #2563eb)
+    }
+
+    .bg-go {
+      background: linear-gradient(135deg, #f59e0b, #d97706)
+    }
+
+    .bg-gt {
+      background: linear-gradient(135deg, #14b8a6, #0d9488)
+    }
+
+    .bg-gp {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed)
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: .75rem 1.25rem 1.5rem
+    }
+
+    .content-area::-webkit-scrollbar {
+      width: 6px
+    }
+
+    .content-area::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px
+    }
+
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem
+    }
+
+    @media(max-width:1200px) {
+      .widget-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    @media(max-width:800px) {
+      .widget-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .widget-card {
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column
+    }
+
+    .widget-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc
+    }
+
+    .widget-header-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: white;
+      flex-shrink: 0
+    }
+
+    .widget-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0
+    }
+
+    .widget-body {
+      padding: 6px 10px;
+      flex: 1
+    }
+
+    .wt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5px
+    }
+
+    .wt th {
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #64748b;
+      padding: 4px 5px;
+      border-bottom: 2px solid #f1f5f9;
+      white-space: nowrap
+    }
+
+    .wt td {
+      padding: 4px 5px;
+      border-bottom: 1px solid #f8fafc;
+      vertical-align: middle
+    }
+
+    .wt tr:last-child td {
+      border-bottom: none
+    }
+
+    .wt tr:hover td {
+      background: #f8fafc
+    }
+
+    .pl-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px;
+      border-radius: 4px;
+      margin-bottom: 2px;
+      font-size: 11px
+    }
+
+    .pl-row.divider {
+      border-top: 1px solid #e2e8f0;
+      margin-top: 3px;
+      padding-top: 6px
+    }
+
+    .pl-row.total {
+      background: #f0fdf4;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #059669;
+      border-radius: 5px;
+      margin-top: 3px
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 0;
+      border-bottom: 1px solid #f1f5f9
+    }
+
+    .todo-item:last-child {
+      border-bottom: none
+    }
+
+    .todo-item input[type=checkbox] {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      accent-color: #4f46e5;
+      flex-shrink: 0
+    }
+
+    .todo-item label {
+      flex: 1;
+      font-size: 12px;
+      cursor: pointer;
+      margin: 0
+    }
+
+    .todo-item label.done {
+      text-decoration: line-through;
+      color: #94a3b8
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 11px;
+      opacity: .5
+    }
+
+    .btn-del:hover {
+      opacity: 1
+    }
+
+    .todo-add {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px
+    }
+
+    .todo-add input {
+      flex: 1;
+      font-size: 11.5px;
+      padding: 4px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      outline: none
+    }
+
+    .todo-add input:focus {
+      border-color: #4f46e5
+    }
+
+    .note-item {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px
+    }
+
+    .note-item p {
+      flex: 1;
+      margin: 0;
+      font-size: 11.5px;
+      line-height: 1.4
+    }
+
+    .notes-add {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 6px
+    }
+
+    .notes-add textarea {
+      font-size: 11.5px;
+      padding: 6px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      resize: vertical;
+      min-height: 50px;
+      outline: none
+    }
+
+    .notes-add textarea:focus {
+      border-color: #4f46e5
+    }
+
+    .email-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9
+    }
+
+    .email-item:last-child {
+      border-bottom: none
+    }
+
+    .email-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #4f46e5;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .email-meta {
+      flex: 1;
+      min-width: 0
+    }
+
+    .email-from {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e293b
+    }
+
+    .email-subject {
+      font-size: 11px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .email-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0
+    }
+
+    .email-date {
+      font-size: 10px;
+      color: #94a3b8
+    }
+
+    .email-login-area {
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 10px;
       border: 1px solid #e2e8f0;
     }
 
-    .stat-teal {
-      background: #f0fdfa;
-      color: #115e59;
-      border: 1px solid #ccfbf1;
+    .email-login-area h6 {
+      font-size: 11px;
+      margin-bottom: 8px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .stat-purple {
-      background: #faf5ff;
-      color: #6b21a8;
-      border: 1px solid #f3e8ff;
-    }
-
-    /* Icons with dynamic backgrounds */
-    .bg-gradient-green {
-      background: linear-gradient(135deg, #10b981, #059669);
-    }
-
-    .bg-gradient-blue {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-    }
-
-    .bg-gradient-orange {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-    }
-
-    .bg-gradient-teal {
-      background: linear-gradient(135deg, #14b8a6, #0d9488);
-    }
-
-    /* ── Bottom Grid ── */
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      flex: 1;
-      min-height: 0;
-    }
-
-    @media (max-width: 1024px) {
-      .bottom-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .panel-card {
-      background: white;
-      border-radius: var(--radius-xl);
-      padding: 1.25rem;
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--card-border);
-      height: 100%;
+    .email-input-group {
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-    }
-
-    .panel-scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 8px;
-    }
-
-    /* Alerts */
-    .alert-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      border-radius: var(--radius-lg);
-      margin-bottom: 10px;
-      border: 1px solid transparent;
-      transition: transform 0.2s;
-    }
-
-    .alert-row:hover {
-      transform: translateX(4px);
-    }
-
-    .alert-danger-row {
-      background: #fff1f2;
-      border-color: #ffe4e6;
-    }
-
-    .alert-warning-row {
-      background: #fffbeb;
-      border-color: #fef3c7;
-    }
-
-    .alert-info-row {
-      background: #f0f9ff;
-      border-color: #e0f2fe;
-    }
-
-    .alert-icon {
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-
-    .alert-text {
-      flex: 1;
-    }
-
-    .alert-text strong {
-      display: block;
-      font-size: 13.5px;
-      color: var(--text-main);
-      font-weight: 600;
-    }
-
-    .alert-text span {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-weight: 500;
-      text-transform: uppercase;
-    }
-
-    .alert-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
-    }
-
-    .badge-danger {
-      background: #be123c;
-      color: white;
-    }
-
-    .badge-warning {
-      background: #b45309;
-      color: white;
-    }
-
-    .badge-info {
-      background: #0369a1;
-      color: white;
-    }
-
-    /* Activity */
-    .activity-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 14px 0;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .activity-item:last-child {
-      border-bottom: none;
-    }
-
-    .activity-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: white;
-      flex-shrink: 0;
-    }
-
-    .activity-body strong {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 2px;
-    }
-
-    .activity-body span {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .activity-time {
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    /* Quick Nav */
-    .quick-nav-grid {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      gap: 0.75rem;
-      flex: 0 0 auto;
-    }
-
-    @media (max-width: 1100px) {
-      .quick-nav-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .quick-nav-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    .quick-nav-btn {
-      background: white;
-      border-radius: var(--radius-lg);
-      padding: 12px 8px;
-      text-align: center;
-      text-decoration: none;
-      color: var(--text-main);
-      border: 1px solid var(--card-border);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       gap: 6px;
     }
 
-    .quick-nav-btn:hover {
-      background: var(--primary-color);
-      color: white !important;
-      transform: translateY(-4px);
-      box-shadow: 0 12px 20px -8px rgba(79, 70, 229, 0.4);
-      border-color: var(--primary-color);
-    }
-
-    .quick-nav-btn i {
-      font-size: 18px;
-    }
-
-    .quick-nav-btn span {
+    .email-input-group input {
+      padding: 6px 10px;
       font-size: 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .email-input-group input:focus {
+      border-color: #3b82f6;
+    }
+
+    .email-input-group button {
+      padding: 6px;
+      font-size: 11px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
       font-weight: 600;
+    }
+
+    .email-input-group button:hover {
+      background: #2563eb;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .pw-pass {
+      font-family: monospace;
+      letter-spacing: .05em
+    }
+
+    .pw-toggle {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 11px
+    }
+
+    .pw-toggle:hover {
+      color: #4f46e5
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 8px;
+      margin-bottom: 2px
+    }
+
+    .quick-actions .btn {
       white-space: nowrap;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+      border: 1px solid #e2e8f0
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
+    .quick-actions::-webkit-scrollbar {
+      height: 4px
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 10.5px
+    }
+
+    .activity-item:last-child {
+      border-bottom: none
+    }
+
+    .activity-time {
       color: #94a3b8;
+      font-size: 9px;
+      white-space: nowrap
     }
 
-    .empty-state i {
-      font-size: 32px;
-      margin-bottom: 12px;
-      opacity: 0.5;
+    .activity-text b {
+      color: #1e293b
     }
 
-    /* Custom Scrollbar */
+    .top-search {
+      position: relative;
+      flex: 1;
+      max-width: 300px;
+      margin: 0 15px
+    }
+
+    .top-search input {
+      width: 100%;
+      padding: 5px 10px 5px 30px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 12px;
+      outline: none;
+      transition: all .2s
+    }
+
+    .top-search input:focus {
+      background: white;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, .1)
+    }
+
+    .top-search i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 12px
+    }
+
     ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
+      width: 6px
     }
 
     ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      border-radius: 10px
     }
   </style>
-  <script src="auth.js"></script>
 </head>
 
 <body>
-
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
+  <div class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-icon"><i class="fas fa-tachometer-alt"></i></div>
       <div class="sidebar-brand-text">
-        <h5>Business Central</h5>
-        <small>ERP Dashboard</small>
+        <h5>Business Central</h5><small>ERP Dashboard</small>
       </div>
     </div>
     <ul class="sidebar-nav-list">
@@ -707,15 +795,13 @@
             class="nav-label">Reports</span></a></li>
     </ul>
   </div>
-
-  <!-- MAIN WRAPPER -->
   <div class="main-wrapper">
-
-    <!-- Topbar -->
     <div class="topbar">
-      <h5 class="topbar-title">
-        Dashboard
-      </h5>
+      <h5 class="topbar-title"><i class="fas fa-tachometer-alt text-primary me-2"></i>Super Admin Dashboard</h5>
+      <div class="top-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search businesses, users, fleet or reports...">
+      </div>
       <div class="topbar-right">
         <div class="company-switcher" id="companySwitcherWrap">
           <label>Organization</label>
@@ -725,371 +811,780 @@
             <option value="c2">Beta Logistics Ltd.</option>
           </select>
         </div>
-        <span class="role-badge" id="roleBadge">Super Admin</span>
+        <span class="role-badge superadmin" id="roleBadge">Super Admin</span>
       </div>
     </div>
-
-    <!-- Content Area -->
     <div class="content-area">
+      <div class="widget-grid">
 
-      <!-- ── MODULE OVERVIEW ── -->
-      <div class="section-heading"><i class="fas fa-shapes"></i> Key Performance Indicators</div>
-      <div class="module-grid" id="moduleGrid">
-
-        <!-- Accounting -->
-        <div class="module-card">
-          <div class="module-card-header">
-            <div class="module-card-icon bg-gradient-green"><i class="fas fa-money-bill-transfer"></i></div>
-            <div>
-              <div class="module-card-title">Accounting</div>
-              <div class="module-card-subtitle">Financial Liquidity</div>
-            </div>
+        <!-- 1. BUSINESS DETAILS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gb"><i class="fas fa-briefcase"></i></div><span
+              class="widget-title">Business Details</span>
           </div>
-          <div class="module-stats">
-            <div class="stat-item stat-green">
-              <div class="stat-label">Income</div>
-              <div class="stat-value" id="acc-income">$0</div>
-              <div class="stat-sub">Monthly Revenue</div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Business Name</th>
+                  <th>Income</th>
+                  <th>Expenses</th>
+                  <th>SKUs</th>
+                  <th>Fleet</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td><strong>Alpha Trading Co.</strong></td>
+                  <td class="text-success fw-bold">$125,400</td>
+                  <td class="text-danger">$42,100</td>
+                  <td>1,240</td>
+                  <td>12</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td><strong>Beta Logistics Ltd.</strong></td>
+                  <td class="text-success fw-bold">$84,200</td>
+                  <td class="text-danger">$31,500</td>
+                  <td>450</td>
+                  <td>24</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td><strong>Whiterock Retail Ltd.</strong></td>
+                  <td class="text-success fw-bold">$210,500</td>
+                  <td class="text-danger">$98,400</td>
+                  <td>3,800</td>
+                  <td>4</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td><strong>Zenith Logistics Hub</strong></td>
+                  <td class="text-success fw-bold">$15,000</td>
+                  <td class="text-danger">$2,000</td>
+                  <td>120</td>
+                  <td>0</td>
+                  <td><span class="badge bg-warning text-dark">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td><strong>Prime Supplies UK</strong></td>
+                  <td class="text-success fw-bold">$58,000</td>
+                  <td class="text-danger">$12,800</td>
+                  <td>6,200</td>
+                  <td>2</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td><strong>Global Logistics Partners</strong></td>
+                  <td class="text-success fw-bold">$92,300</td>
+                  <td class="text-danger">$28,500</td>
+                  <td>1,100</td>
+                  <td>35</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td><strong>Smart Solutions Ltd.</strong></td>
+                  <td class="text-success fw-bold">$45,000</td>
+                  <td class="text-danger">$12,000</td>
+                  <td>850</td>
+                  <td>3</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>8</td>
+                  <td><strong>Ocean View Exports</strong></td>
+                  <td class="text-success fw-bold">$112,000</td>
+                  <td class="text-danger">$45,600</td>
+                  <td>2,400</td>
+                  <td>8</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>9</td>
+                  <td><strong>TechConnect Inc.</strong></td>
+                  <td class="text-success fw-bold">$38,500</td>
+                  <td class="text-danger">$15,200</td>
+                  <td>320</td>
+                  <td>1</td>
+                  <td><span class="badge bg-danger text-white">Suspended</span></td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td><strong>Consulting Ltd.</strong></td>
+                  <td class="text-success fw-bold">$12,400</td>
+                  <td class="text-danger">$4,100</td>
+                  <td>15</td>
+                  <td>0</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. FLEET MANAGEMENT -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gt"><i class="fas fa-truck"></i></div><span class="widget-title">Fleet
+              Management</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Plate</th>
+                  <th>Ins. Expiry</th>
+                  <th>MOT</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>CAR 1</strong></td>
+                  <td>ABC-1234</td>
+                  <td>2026-06-15</td>
+                  <td>2026-08-20</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN 2</strong></td>
+                  <td>DEF-5678</td>
+                  <td>2026-05-03</td>
+                  <td>2026-07-10</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TRK-007</strong></td>
+                  <td>GHI-9012</td>
+                  <td>2026-05-06</td>
+                  <td>2026-09-01</td>
+                  <td><span class="badge bg-warning text-dark">Maintenance</span></td>
+                </tr>
+                <tr>
+                  <td><strong>CAR 2</strong></td>
+                  <td>WP-BC-5678</td>
+                  <td>2026-12-01</td>
+                  <td>2026-11-15</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN-002</strong></td>
+                  <td>JKL-3456</td>
+                  <td>2026-05-04</td>
+                  <td>2026-06-30</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TRK-010</strong></td>
+                  <td>MNO-7890</td>
+                  <td>2026-07-12</td>
+                  <td>2026-10-05</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN-005</strong></td>
+                  <td>PQR-1234</td>
+                  <td>2026-05-20</td>
+                  <td>2026-09-15</td>
+                  <td><span class="badge bg-warning text-dark">Repair</span></td>
+                </tr>
+                <tr>
+                  <td><strong>CAR-003</strong></td>
+                  <td>STU-5678</td>
+                  <td>2026-11-30</td>
+                  <td>2026-12-20</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TRK-022</strong></td>
+                  <td>VWX-9012</td>
+                  <td>2026-05-01</td>
+                  <td>2026-08-11</td>
+                  <td><span class="badge bg-danger text-white">Impounded</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN-011</strong></td>
+                  <td>YZA-3456</td>
+                  <td>2026-08-15</td>
+                  <td>2026-11-01</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. EMAILS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gr"><i class="fas fa-envelope"></i></div><span class="widget-title">Gmails
+              / Emails</span>
+            <button class="btn btn-xs btn-outline-primary ms-auto" style="font-size:9px" onclick="toggleEmailLogin()">Switch Account</button>
+          </div>
+          <div class="widget-body">
+            <!-- Email Login State -->
+            <div id="emailLoginArea" class="email-login-area">
+              <h6>Connect your Account</h6>
+              <div class="email-input-group">
+                <input type="email" id="emailUser" placeholder="Email Address (e.g. admin@company.com)">
+                <input type="password" id="emailPass" placeholder="Password">
+                <button onclick="handleEmailLogin()">Sync Inbox</button>
+              </div>
             </div>
-            <div class="stat-item stat-red">
-              <div class="stat-label">Expenses</div>
-              <div class="stat-value" id="acc-expense">$0</div>
-              <div class="stat-sub">Operational Cost</div>
+
+            <!-- Email List State -->
+            <div id="emailListArea" class="hidden">
+              <div class="email-item">
+                <div class="email-avatar">H</div>
+                <div class="email-meta">
+                  <div class="email-from">HMRC</div>
+                  <div class="email-subject">VAT Return Reminder Q2 2026</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-30</span><span
+                    class="badge bg-danger text-white">Unread</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#059669">P</div>
+                <div class="email-meta">
+                  <div class="email-from">Prime Office Supplies</div>
+                  <div class="email-subject">Invoice PO-2026-501</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-28</span><span
+                    class="badge bg-secondary text-white">Read</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#0ea5e9">A</div>
+                <div class="email-meta">
+                  <div class="email-from">Allianz Insurance</div>
+                  <div class="email-subject">Policy Renewal Notice</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-25</span><span
+                    class="badge bg-danger text-white">Unread</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#8b5cf6">T</div>
+                <div class="email-meta">
+                  <div class="email-from">TechConnect Inc</div>
+                  <div class="email-subject">Overdue PO-2026-503</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-22</span><span
+                    class="badge bg-secondary text-white">Read</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#f59e0b">C</div>
+                <div class="email-meta">
+                  <div class="email-from">Companies House</div>
+                  <div class="email-subject">Confirmation Statement Due</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-20</span><span
+                    class="badge bg-secondary text-white">Read</span></div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Inventory -->
-        <div class="module-card">
-          <div class="module-card-header">
-            <div class="module-card-icon bg-gradient-blue"><i class="fas fa-box-open"></i></div>
-            <div>
-              <div class="module-card-title">Inventory</div>
-              <div class="module-card-subtitle">Stock Health</div>
-            </div>
+        <!-- 4. NOTES -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-note-sticky"></i></div><span
+              class="widget-title">Notes</span>
           </div>
-          <div class="module-stats">
-            <div class="stat-item stat-blue">
-              <div class="stat-label">Total SKUs</div>
-              <div class="stat-value" id="inv-total">0</div>
-              <div class="stat-sub">Items Tracked</div>
+          <div class="widget-body">
+            <div id="notesList">
+              <div class="note-item">
+                <p>Renew trade licence before May 20 — contact City Planning Dept</p><button class="btn-del"
+                  onclick="deleteNote(this)"><i class="fas fa-trash-can"></i></button>
+              </div>
+              <div class="note-item">
+                <p>TRK-007 and VAN-002 insurance both expiring this month — call broker</p><button class="btn-del"
+                  onclick="deleteNote(this)"><i class="fas fa-trash-can"></i></button>
+              </div>
             </div>
-            <div class="stat-item stat-orange">
-              <div class="stat-label">Low Stock</div>
-              <div class="stat-value" id="inv-low">0</div>
-              <div class="stat-sub">Reorder Alerts</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Suppliers -->
-        <div class="module-card">
-          <div class="module-card-header">
-            <div class="module-card-icon bg-gradient-orange"><i class="fas fa-truck-ramp-box"></i></div>
-            <div>
-              <div class="module-card-title">Suppliers</div>
-              <div class="module-card-subtitle">Payables Status</div>
-            </div>
-          </div>
-          <div class="module-stats">
-            <div class="stat-item stat-orange">
-              <div class="stat-label">Due Invoices</div>
-              <div class="stat-value" id="sup-count">0</div>
-              <div class="stat-sub">Pending Review</div>
-            </div>
-            <div class="stat-item stat-dark">
-              <div class="stat-label">Outstanding</div>
-              <div class="stat-value" id="sup-amount">$0</div>
-              <div class="stat-sub">Total Liability</div>
+            <div class="notes-add">
+              <textarea id="noteInput" placeholder="Write a note…"></textarea>
+              <button class="btn btn-warning btn-sm text-dark" onclick="addNote()"><i class="fas fa-plus"></i> Add
+                Note</button>
             </div>
           </div>
         </div>
 
-        <!-- HR / Shifts -->
-        <div class="module-card">
-          <div class="module-card-header">
-            <div class="module-card-icon bg-gradient-teal"><i class="fas fa-user-clock"></i></div>
-            <div>
-              <div class="module-card-title">Human Capital</div>
-              <div class="module-card-subtitle">Workforce Metrics</div>
-            </div>
+        <!-- 5. VAT / TAX -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-file-invoice-dollar"></i></div><span
+              class="widget-title">VAT / Tax</span>
           </div>
-          <div class="module-stats">
-            <div class="stat-item stat-teal">
-              <div class="stat-label">Daily Shifts</div>
-              <div class="stat-value" id="hr-shifts">0</div>
-              <div class="stat-sub">Scheduled</div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Period</th>
+                  <th>Amount</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Corporation Tax 2025</td>
+                  <td>Jan–Dec 2025</td>
+                  <td><strong>$15,450</strong></td>
+                  <td>2026-04-01</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+                <tr>
+                  <td>VAT Q1 2026</td>
+                  <td>Jan–Mar 2026</td>
+                  <td><strong>$8,320</strong></td>
+                  <td>2026-05-07</td>
+                  <td><span class="badge bg-warning text-dark">Filed</span></td>
+                </tr>
+                <tr>
+                  <td>VAT Q2 2026</td>
+                  <td>Apr–Jun 2026</td>
+                  <td><strong>$0</strong></td>
+                  <td>2026-08-07</td>
+                  <td><span class="badge bg-secondary text-white">Draft</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. TO-DO LIST -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gp"><i class="fas fa-list-check"></i></div><span
+              class="widget-title">To-Do List</span>
+          </div>
+          <div class="widget-body">
+            <div id="todoList">
+              <div class="todo-item"><input type="checkbox" id="td1" checked onchange="toggleTodo(this)"><label
+                  for="td1" class="done">Renew TRK-007 insurance</label><button class="btn-del"
+                  onclick="deleteTodo(this)"><i class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td2" onchange="toggleTodo(this)"><label for="td2">File
+                  VAT Q2 2026</label><button class="btn-del" onclick="deleteTodo(this)"><i
+                    class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td3" onchange="toggleTodo(this)"><label for="td3">Review
+                  supplier PO-2026-503 overdue</label><button class="btn-del" onclick="deleteTodo(this)"><i
+                    class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td4" checked onchange="toggleTodo(this)"><label
+                  for="td4" class="done">Update GDPR compliance cert</label><button class="btn-del"
+                  onclick="deleteTodo(this)"><i class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td5" onchange="toggleTodo(this)"><label
+                  for="td5">Schedule fleet MOT for VAN 2</label><button class="btn-del" onclick="deleteTodo(this)"><i
+                    class="fas fa-trash-can"></i></button></div>
             </div>
-            <div class="stat-item stat-purple">
-              <div class="stat-label">On Duty</div>
-              <div class="stat-value" id="hr-duty">0</div>
-              <div class="stat-sub">Currently Active</div>
+            <div class="todo-add">
+              <input type="text" id="todoInput" placeholder="Add a new task…"
+                onkeydown="if(event.key==='Enter')addTodo()">
+              <button class="btn btn-primary btn-sm" onclick="addTodo()"><i class="fas fa-plus"></i> Add</button>
             </div>
           </div>
         </div>
 
-        <!-- Logistics / Fleet -->
-        <div class="module-card">
-          <div class="module-card-header">
-            <div class="module-card-icon bg-gradient-blue"><i class="fas fa-truck-fast"></i></div>
-            <div>
-              <div class="module-card-title">Logistics</div>
-              <div class="module-card-subtitle">Asset Management</div>
-            </div>
+
+        <!-- 6. PASSWORDS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gp"><i class="fas fa-lock"></i></div><span class="widget-title">Password
+              Vault</span>
           </div>
-          <div class="module-stats">
-            <div class="stat-item stat-blue">
-              <div class="stat-label">Active Fleet</div>
-              <div class="stat-value" id="fleet-active">0</div>
-              <div class="stat-sub">Dispatch Units</div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Site</th>
+                  <th>Username</th>
+                  <th>Password</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HMRC Online</td>
+                  <td>admin@businesscentral.com</td>
+                  <td><span class="pw-pass" data-pw="Hmrc@2026!">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Companies House</td>
+                  <td>john.smith@bc.com</td>
+                  <td><span class="pw-pass" data-pw="CH-Secure99">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Allianz Portal</td>
+                  <td>insurance@bc.com</td>
+                  <td><span class="pw-pass" data-pw="Allianz#Portal1">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Dojo Payments</td>
+                  <td>payments@bc.com</td>
+                  <td><span class="pw-pass" data-pw="DojoP@y2026">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- 8. PROFIT & LOSS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gg"><i class="fas fa-chart-pie"></i></div><span
+              class="widget-title">Profit &amp; Loss Statement</span>
+          </div>
+          <div class="widget-body">
+            <div class="pl-row"><span><i class="fas fa-circle text-success me-2" style="font-size:9px"></i>Total
+                Income</span><strong class="text-success">$482,800</strong></div>
+            <div class="pl-row"><span><i class="fas fa-circle text-danger me-2" style="font-size:9px"></i>Total
+                Expenses</span><strong class="text-danger">$237,585</strong></div>
+            <div class="pl-row divider"><span class="fw-bold">Gross Profit</span><strong>$245,215</strong></div>
+            <div class="pl-row"><span><i class="fas fa-circle text-warning me-2" style="font-size:9px"></i>Tax
+                (20%)</span><strong class="text-warning">$49,043</strong></div>
+            <div class="pl-row total"><span><i class="fas fa-star me-2" style="font-size:10px"></i>Net
+                Profit</span><strong>$196,172</strong></div>
+          </div>
+        </div>
+
+        <!-- 9. SUPPLIER PAYMENTS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-truck-ramp-box"></i></div><span
+              class="widget-title">Supplier Payments</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>PO #</th>
+                  <th>Supplier</th>
+                  <th>Amount</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PO-2026-501</strong></td>
+                  <td>Prime Office Supplies</td>
+                  <td>$450</td>
+                  <td>2026-05-10</td>
+                  <td><span class="badge bg-warning text-dark">Pending</span></td>
+                </tr>
+                <tr>
+                  <td><strong>PO-2026-502</strong></td>
+                  <td>Global Logistics Partners</td>
+                  <td>$1,800</td>
+                  <td>2026-04-30</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+                <tr>
+                  <td><strong>PO-2026-503</strong></td>
+                  <td>TechConnect Inc</td>
+                  <td>$2,750</td>
+                  <td>2026-04-20</td>
+                  <td><span class="badge bg-danger text-white">Overdue</span></td>
+                </tr>
+                <tr>
+                  <td><strong>PO-2026-504</strong></td>
+                  <td>Allianz Insurance</td>
+                  <td>$1,250</td>
+                  <td>2026-05-01</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 10. SALES REPORT -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gb"><i class="fas fa-chart-line"></i></div><span
+              class="widget-title">Sales Report</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Client</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>INV-2026-001</strong></td>
+                  <td>Alpha Trading Co.</td>
+                  <td>$5,000</td>
+                  <td>2026-04-30</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+                <tr>
+                  <td><strong>INV-2026-002</strong></td>
+                  <td>Consulting Ltd</td>
+                  <td>$1,200</td>
+                  <td>2026-05-20</td>
+                  <td><span class="badge bg-warning text-dark">Sent</span></td>
+                </tr>
+                <tr>
+                  <td><strong>INV-2026-003</strong></td>
+                  <td>Beta Logistics Ltd.</td>
+                  <td>$3,800</td>
+                  <td>2026-04-15</td>
+                  <td><span class="badge bg-danger text-white">Overdue</span></td>
+                </tr>
+                <tr>
+                  <td><strong>INV-2026-004</strong></td>
+                  <td>Zenith Logistics Hub</td>
+                  <td>$7,500</td>
+                  <td>2026-05-25</td>
+                  <td><span class="badge bg-warning text-dark">Sent</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 11. BANK — full width -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gg"><i class="fas fa-building-columns"></i></div><span
+              class="widget-title">Bank Accounts</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Bank Name</th>
+                  <th>Account Name</th>
+                  <th>Account No.</th>
+                  <th>Type</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Business Central Bank</strong></td>
+                  <td>LAKSHAN RAMAWICKRAMA ERP</td>
+                  <td>88776655</td>
+                  <td>Business Current</td>
+                  <td><strong class="text-success">$142,350</strong></td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Barclays Business</strong></td>
+                  <td>Alpha Trading Co.</td>
+                  <td>12345678</td>
+                  <td>Business Savings</td>
+                  <td><strong class="text-success">$58,200</strong></td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>HSBC Corporate</strong></td>
+                  <td>Beta Logistics Ltd.</td>
+                  <td>87654321</td>
+                  <td>Merchant Account</td>
+                  <td><strong class="text-success">$23,750</strong></td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 12. MAINTENANCE REQUESTS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gr"><i class="fas fa-screwdriver-wrench"></i></div><span
+              class="widget-title">Maintenance Requests</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Asset</th>
+                  <th>Issue</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Main Office HVAC</td>
+                  <td>Leak in Drain</td>
+                  <td><span class="badge bg-danger">Urgent</span></td>
+                  <td>Pending</td>
+                </tr>
+                <tr>
+                  <td>Elevator A</td>
+                  <td>Annual Service</td>
+                  <td><span class="badge bg-warning text-dark">Medium</span></td>
+                  <td>Scheduled</td>
+                </tr>
+                <tr>
+                  <td>Van 2 (DEF-5678)</td>
+                  <td>Brake Check</td>
+                  <td><span class="badge bg-danger">Urgent</span></td>
+                  <td>In Progress</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 13. INVENTORY ALERTS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-triangle-exclamation"></i></div><span
+              class="widget-title">Low Stock Alerts</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Current</th>
+                  <th>Min.</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sugar 1kg</td>
+                  <td><strong>5</strong></td>
+                  <td>20</td>
+                  <td><span class="text-danger">Reorder</span></td>
+                </tr>
+                <tr>
+                  <td>Notebook A4</td>
+                  <td><strong>0</strong></td>
+                  <td>10</td>
+                  <td><span class="text-danger">Out of Stock</span></td>
+                </tr>
+                <tr>
+                  <td>Milk Packet 1L</td>
+                  <td>150</td>
+                  <td>20</td>
+                  <td><span class="text-success">Good</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 14. RECENT SYSTEM ACTIVITY -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gb"><i class="fas fa-history"></i></div><span class="widget-title">Recent
+              System Activity</span>
+          </div>
+          <div class="widget-body">
+            <div class="activity-item">
+              <span class="activity-time">2 mins ago</span>
+              <span class="activity-text"><b>Admin</b> updated <b>VAT Q1 2026</b> to Filed.</span>
             </div>
-            <div class="stat-item stat-red">
-              <div class="stat-label">Maintenance</div>
-              <div class="stat-value" id="fleet-insurance">0</div>
-              <div class="stat-sub">Urgent Attention</div>
+            <div class="activity-item">
+              <span class="activity-time">15 mins ago</span>
+              <span class="activity-text"><b>John Smith</b> created new user <b>Sarah Jenkins</b>.</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">1 hour ago</span>
+              <span class="activity-text"><b>System</b> backed up <b>Database Alpha</b> successfully.</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">3 hours ago</span>
+              <span class="activity-text"><b>Fleet Bot</b> flagged <b>TRK-007</b> for maintenance.</span>
             </div>
           </div>
         </div>
 
-        <!-- Legal -->
-        <div class="module-card">
-          <div class="module-card-header">
-            <div class="module-card-icon bg-gradient-green"><i class="fas fa-shield-halved"></i></div>
-            <div>
-              <div class="module-card-title">Compliance</div>
-              <div class="module-card-subtitle">Legal Status</div>
-            </div>
+
+
+        <!-- 18. UPCOMING RENEWALS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gp" style="background:#8b5cf6"><i class="fas fa-clock-rotate-left"></i>
+            </div><span class="widget-title">Upcoming Renewals</span>
           </div>
-          <div class="module-stats">
-            <div class="stat-item stat-green">
-              <div class="stat-label">Valid Docs</div>
-              <div class="stat-value" id="legal-active">0</div>
-              <div class="stat-sub">Fully Compliant</div>
-            </div>
-            <div class="stat-item stat-red">
-              <div class="stat-label">Expirations</div>
-              <div class="stat-value" id="legal-expiring">0</div>
-              <div class="stat-sub">Renew Within 30d</div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /module-grid -->
-
-      <!-- ── ALERTS & ACTIVITY ── -->
-      <div class="bottom-grid">
-
-        <!-- Alerts -->
-        <div class="panel-card">
-          <div class="section-heading mb-3"><i class="fas fa-bolt"></i> System Alerts</div>
-          <div id="alertsSection" class="panel-scroll-area">
-            <div class="empty-state"><i class="fas fa-circle-check"></i>All systems operational</div>
-          </div>
-        </div>
-
-        <!-- Activity -->
-        <div class="panel-card">
-          <div class="section-heading mb-3"><i class="fas fa-clock-rotate-left"></i> Event Timeline</div>
-          <div id="activitySection" class="panel-scroll-area">
-            <div class="empty-state"><i class="fas fa-list-ul"></i>No recent activity logged</div>
+          <div class="widget-body">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Type</th>
+                  <th>Due In</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Alpha Trading</td>
+                  <td>Trade License</td>
+                  <td><span class="text-danger fw-bold">3 Days</span></td>
+                </tr>
+                <tr>
+                  <td>TRK-007 (Fleet)</td>
+                  <td>Insurance</td>
+                  <td>12 Days</td>
+                </tr>
+                <tr>
+                  <td>Main Hub Retail</td>
+                  <td>Safety Cert</td>
+                  <td>28 Days</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-
-      </div><!-- /bottom-grid -->
-
-      <!-- ── QUICK NAV ── -->
-      <div class="section-heading mb-2"><i class="fas fa-compass"></i> Shortcuts</div>
-      <div class="quick-nav-grid">
-        <a href="business_management.html" class="quick-nav-btn"><i
-            class="fas fa-building-circle-check"></i><span>Businesses</span></a>
-        <a href="user_management.html" class="quick-nav-btn"><i class="fas fa-user-group"></i><span>Users</span></a>
-        <a href="fleet_management.html" class="quick-nav-btn"><i
-            class="fas fa-truck-plane"></i><span>Logistics</span></a>
-        <a href="inventory_management.html" class="quick-nav-btn"><i
-            class="fas fa-boxes-stacked"></i><span>Inventory</span></a>
-        <a href="supplier.html" class="quick-nav-btn"><i class="fas fa-truck-field"></i><span>Suppliers</span></a>
-        <a href="accounting.html" class="quick-nav-btn"><i class="fas fa-file-invoice"></i><span>Accounting</span></a>
-        <a href="legal_compliance.html" class="quick-nav-btn"><i class="fas fa-gavel"></i><span>Legal</span></a>
-        <a href="property_management.html" class="quick-nav-btn"><i
-            class="fas fa-building-user"></i><span>Properties</span></a>
-        <a href="system_access.html" class="quick-nav-btn"><i class="fas fa-lock"></i><span>Security</span></a>
       </div>
+    </div>
+  </div>
 
-    </div><!-- /content-area -->
+
+
+  </div><!-- /widget-grid -->
+  </div><!-- /content-area -->
   </div><!-- /main-wrapper -->
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // ══════════════════════════════════════════════
-    //  MOCK DATA  (Synchronized with User Specs)
-    // ══════════════════════════════════════════════
-    const mockData = {
-      c1: {
-        name: "Alpha Trading Co.",
-        accounting: { income: 284500, expenses: 141985 },
-        inventory: { total: 412, lowStock: 18 },
-        suppliers: { pendingCount: 7, pendingAmount: 43800 },
-        hr: { todayShifts: 24, onDuty: 19 },
-        fleet: { active: 11, expiringInsurance: 3 },
-        legal: { active: 28, expiringSoon: 4 },
-        alerts: [
-          { type: "danger", icon: "fas fa-warning", module: "Accounting", text: "Invoice #INV-2026-003 is 16 days overdue — Beta Logistics Ltd.", badge: "Overdue", badgeClass: "badge-danger" },
-          { type: "danger", icon: "fas fa-warning", module: "Fleet", text: "Vehicle TRK-007 insurance expires in 5 days", badge: "Urgent", badgeClass: "badge-danger" },
-          { type: "warning", icon: "fas fa-clock", module: "Suppliers", text: "PO-2026-501 from Prime Office Supplies due in 9 days", badge: "Due Soon", badgeClass: "badge-warning" },
-          { type: "warning", icon: "fas fa-file-lines", module: "Legal", text: "Trade License renewal due in 6 days", badge: "Expiring", badgeClass: "badge-warning" },
-          { type: "warning", icon: "fas fa-box", module: "Inventory", text: "18 SKUs below minimum stock threshold", badge: "Low Stock", badgeClass: "badge-warning" },
-          { type: "info", icon: "fas fa-user-clock", module: "HR", text: "5 employees have shifts starting soon", badge: "Upcoming", badgeClass: "badge-info" }
-        ],
-        activity: [
-          { color: "#10b981", icon: "fas fa-arrow-down", text: "Income recorded: Freight Contract Revenue — $5,000", time: "2 min ago" },
-          { color: "#ef4444", icon: "fas fa-arrow-up", text: "Expense logged: Fleet Maintenance (TRK-007 & VAN-002) — $1,800", time: "18 min ago" },
-          { color: "#3b82f6", icon: "fas fa-boxes", text: "Inventory updated: 50 units of SKU-1042 restocked", time: "45 min ago" },
-          { color: "#f59e0b", icon: "fas fa-truck-loading", text: "PO-2026-502 paid: Global Logistics Partners — $1,800", time: "1 hr ago" },
-          { color: "#8b5cf6", icon: "fas fa-user-check", text: "Shift confirmed: 6 drivers checked in", time: "2 hrs ago" }
-        ]
-      },
-      c2: {
-        name: "Beta Logistics Ltd.",
-        accounting: { income: 198300, expenses: 95600 },
-        inventory: { total: 287, lowStock: 9 },
-        suppliers: { pendingCount: 4, pendingAmount: 27500 },
-        hr: { todayShifts: 16, onDuty: 13 },
-        fleet: { active: 8, expiringInsurance: 1 },
-        legal: { active: 19, expiringSoon: 2 },
-        alerts: [
-          { type: "danger", icon: "fas fa-warning", module: "Fleet", text: "Vehicle VAN-002 insurance expires in 3 days", badge: "Urgent", badgeClass: "badge-danger" },
-          { type: "warning", icon: "fas fa-clock", module: "Accounting", text: "Invoice #INV-2026-002 due in 19 days — Consulting Ltd", badge: "Due Soon", badgeClass: "badge-warning" },
-          { type: "info", icon: "fas fa-box", module: "Inventory", text: "9 SKUs below stock threshold", badge: "Low Stock", badgeClass: "badge-info" }
-        ],
-        activity: [
-          { color: "#3b82f6", icon: "fas fa-truck", text: "Vehicle VAN-005 completed delivery Route 7", time: "5 min ago" },
-          { color: "#10b981", icon: "fas fa-arrow-down", text: "Income recorded: Freight Contract — $22,000", time: "30 min ago" },
-          { color: "#f59e0b", icon: "fas fa-truck-loading", text: "New supplier invoice: TechConnect Inc — PO-2026-503 overdue", time: "1 hr ago" }
-        ]
+    function toggleEmailLogin() {
+      const loginArea = document.getElementById('emailLoginArea');
+      const listArea = document.getElementById('emailListArea');
+      if (loginArea && listArea) {
+        loginArea.classList.toggle('hidden');
+        listArea.classList.toggle('hidden');
       }
-    };
-
-    function aggregateData() {
-      const companies = Object.values(mockData);
-      const allAlerts = [];
-      const allActivity = [];
-      companies.forEach(c => {
-        allAlerts.push(...c.alerts);
-        allActivity.push(...c.activity);
-      });
-      return {
-        name: "All Organizations",
-        accounting: {
-          income: companies.reduce((s, c) => s + c.accounting.income, 0),
-          expenses: companies.reduce((s, c) => s + c.accounting.expenses, 0)
-        },
-        inventory: {
-          total: companies.reduce((s, c) => s + c.inventory.total, 0),
-          lowStock: companies.reduce((s, c) => s + c.inventory.lowStock, 0)
-        },
-        suppliers: {
-          pendingCount: companies.reduce((s, c) => s + c.suppliers.pendingCount, 0),
-          pendingAmount: companies.reduce((s, c) => s + c.suppliers.pendingAmount, 0)
-        },
-        hr: {
-          todayShifts: companies.reduce((s, c) => s + c.hr.todayShifts, 0),
-          onDuty: companies.reduce((s, c) => s + c.hr.onDuty, 0)
-        },
-        fleet: {
-          active: companies.reduce((s, c) => s + c.fleet.active, 0),
-          expiringInsurance: companies.reduce((s, c) => s + c.fleet.expiringInsurance, 0)
-        },
-        legal: {
-          active: companies.reduce((s, c) => s + c.legal.active, 0),
-          expiringSoon: companies.reduce((s, c) => s + c.legal.expiringSoon, 0)
-        },
-        alerts: allAlerts,
-        activity: allActivity
-      };
     }
 
-    let currentDashboardCompanyId = window.activeCompanyId || "all";
-
-    function init() {
-      const isSuperAdmin = currentUser.role === "superadmin" || currentUser.role === "Super Admin";
-      const badge = document.getElementById("roleBadge");
-      badge.textContent = isSuperAdmin ? "Super Admin" : "Company Admin";
-      badge.className = "role-badge " + (isSuperAdmin ? "superadmin" : "company-admin");
-
-      if (!isSuperAdmin) {
-        document.getElementById("companySwitcherWrap").style.display = "none";
-        // If businessId from auth doesn't match mockData, fallback to "c1" for demo purposes
-        if (!mockData[currentDashboardCompanyId]) currentDashboardCompanyId = "c1";
+    function handleEmailLogin() {
+      const email = document.getElementById('emailUser').value;
+      const pass = document.getElementById('emailPass').value;
+      if (email && pass) {
+        document.getElementById('emailLoginArea').classList.add('hidden');
+        document.getElementById('emailListArea').classList.remove('hidden');
+      } else {
+        alert("Please enter both email and password.");
       }
-      renderDashboard();
     }
-
-    function switchCompany(id) {
-      currentDashboardCompanyId = id;
-      renderDashboard();
-    }
-
-    function renderDashboard() {
-      const data = currentDashboardCompanyId === "all" ? aggregateData() : mockData[currentDashboardCompanyId];
-      if (!data) return;
-
-      const fmt = n => n >= 1000000 ? "$" + (n / 1000000).toFixed(1) + "M" : n >= 1000 ? "$" + (n / 1000).toFixed(1) + "K" : "$" + n.toLocaleString();
-
-      document.getElementById("acc-income").textContent = fmt(data.accounting.income);
-      document.getElementById("acc-expense").textContent = fmt(data.accounting.expenses);
-      document.getElementById("inv-total").textContent = data.inventory.total.toLocaleString();
-      document.getElementById("inv-low").textContent = data.inventory.lowStock;
-      document.getElementById("sup-count").textContent = data.suppliers.pendingCount;
-      document.getElementById("sup-amount").textContent = fmt(data.suppliers.pendingAmount);
-      document.getElementById("hr-shifts").textContent = data.hr.todayShifts;
-      document.getElementById("hr-duty").textContent = data.hr.onDuty;
-      document.getElementById("fleet-active").textContent = data.fleet.active;
-      document.getElementById("fleet-insurance").textContent = data.fleet.expiringInsurance;
-      document.getElementById("legal-active").textContent = data.legal.active;
-      document.getElementById("legal-expiring").textContent = data.legal.expiringSoon;
-
-      renderAlerts(data.alerts);
-      renderActivity(data.activity);
-    }
-
-    function renderAlerts(alerts) {
-      const el = document.getElementById("alertsSection");
-      if (!alerts || alerts.length === 0) {
-        el.innerHTML = '<div class="empty-state"><i class="fas fa-circle-check"></i>All systems operational</div>';
-        return;
-      }
-      el.innerHTML = alerts.map(a => `
-        <div class="alert-row alert-${a.type}-row">
-          <i class="alert-icon ${a.icon} text-${a.type}"></i>
-          <div class="alert-text">
-            <strong>${a.text}</strong>
-            <span>${a.module}</span>
-          </div>
-          <span class="alert-badge ${a.badgeClass}">${a.badge}</span>
-        </div>
-      `).join("");
-    }
-
-    function renderActivity(activity) {
-      const el = document.getElementById("activitySection");
-      if (!activity || activity.length === 0) {
-        el.innerHTML = '<div class="empty-state"><i class="fas fa-list-ul"></i>No recent activity</div>';
-        return;
-      }
-      el.innerHTML = activity.map(a => `
-        <div class="activity-item">
-          <div class="activity-icon" style="background:${a.color}"><i class="${a.icon}"></i></div>
-          <div class="activity-body">
-            <strong>${a.text}</strong>
-            <span>Log generated ${a.time}</span>
-          </div>
-          <div class="activity-time">${a.time}</div>
-        </div>
-      `).join("");
-    }
-
-    document.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
-
 </html>

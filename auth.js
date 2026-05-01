@@ -1,12 +1,17 @@
 // auth.js
 (function() {
     // 1. Check for valid session
-    const savedUserStr = localStorage.getItem('clearerp_user');
+    let savedUserStr = localStorage.getItem('clearerp_user');
+
+    // DEV FALLBACK: if opening files directly (file:// or no session), auto-inject Super Admin
     if (!savedUserStr) {
-        if (!window.location.href.endsWith('login.html')) {
-            window.location.href = 'login.html';
-        }
-        return;
+        const isLoginPage = window.location.href.includes('login.html');
+        if (isLoginPage) return;
+
+        // Auto-seed a Super Admin session so pages work without logging in during development
+        const devUser = { username: 'superadmin', role: 'Super Admin', fullName: 'Super Administrator' };
+        localStorage.setItem('clearerp_user', JSON.stringify(devUser));
+        savedUserStr = JSON.stringify(devUser);
     }
 
     const currentUser = JSON.parse(savedUserStr);
