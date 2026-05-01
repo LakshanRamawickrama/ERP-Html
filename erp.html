@@ -1149,44 +1149,49 @@
       <div id="logistics-fleet" class="sub-form-section active">
         <div class="subsection">Register Vehicle</div>
         <div class="form-grid">
-          <div class="field"><label>Vehicle Name</label><input type="text" placeholder="CAR 1"></div>
-          <div class="field"><label>Plate Number</label><input type="text" placeholder="ABC-1234"></div>
+          <div class="field"><label>Vehicle Name</label><input type="text" id="vName" placeholder="CAR 1"></div>
+          <div class="field"><label>Plate Number</label><input type="text" id="vNum" placeholder="ABC-1234"></div>
           <div class="field"><label>Assigned Business</label>
-            <select>
+            <select id="vBiz">
               <option value="" selected disabled>Select Business...</option>
               <option>Main Retail Store</option>
               <option>Logistics Hub</option>
               <option>Whiterock Retail Ltd</option>
+              <option>Zenith Logistics Hub</option>
             </select>
           </div>
-          <div class="field"><label>Insurance Exp.</label><input type="date"></div>
-          <div class="field"><label>MOT Date</label><input type="date"></div>
-          <div class="field"><label>Road Tax Date</label><input type="date"></div>
-          <div class="field"><label>Insurance Doc</label><input type="file"></div>
-          <div class="field"><label>MOT/Tax Doc</label><input type="file"></div>
-          <div class="field form-full"><label>Technical Notes</label><textarea
-              placeholder="Service history..."></textarea></div>
+          <div class="field"><label>Insurance Exp.</label><input type="date" id="vIns"></div>
+          <div class="field"><label>Insurance Doc</label><input type="file" id="vInsDoc"></div>
+          <div class="field"><label>MOT Date</label><input type="date" id="vMot"></div>
+          <div class="field"><label>MOT Doc</label><input type="file" id="vMotDoc"></div>
+          <div class="field"><label>Road Tax Date</label><input type="date" id="vTax"></div>
+          <div class="field"><label>Tax Doc</label><input type="file" id="vTaxDoc"></div>
+          <div class="field form-full"><label>Notes</label><textarea id="vNotes" rows="2"
+              placeholder="Service history, special conditions..."></textarea></div>
         </div>
       </div>
 
       <div id="logistics-deliveries" class="sub-form-section">
         <div class="subsection">New Delivery Entry</div>
         <div class="form-grid">
-          <div class="field"><label>Select Vehicle</label><select>
+          <div class="field"><label>Select Vehicle</label><select id="dVehicle">
+              <option value="">Select...</option>
               <option>CAR 1</option>
               <option>CAR 2</option>
             </select></div>
-          <div class="field"><label>Delivery Date</label><input type="date"></div>
-          <div class="field form-full"><label>Delivery Address</label><input type="text" placeholder="123 Street, City">
+          <div class="field"><label>Vehicle Number</label><input type="text" id="dVehicleNum" readonly placeholder="Auto-populated"></div>
+          <div class="field"><label>Delivery Date</label><input type="date" id="dDate"></div>
+          <div class="field form-full"><label>Delivery Address</label><input type="text" id="dAddress" placeholder="123 Street, City">
           </div>
-          <div class="field"><label>Contact Name</label><input type="text" placeholder="Recipient Name"></div>
-          <div class="field"><label>Contact Number</label><input type="tel" placeholder="+44 ..."></div>
-          <div class="field"><label>Delivery Status</label><select>
+          <div class="field"><label>Contact Name</label><input type="text" id="dContactName" placeholder="Recipient Name"></div>
+          <div class="field"><label>Contact Number</label><input type="tel" id="dContact" placeholder="+44 ..."></div>
+          <div class="field"><label>Delivery Status</label><select id="dStatus">
               <option>Pending</option>
               <option>In Transit</option>
               <option>Delivered</option>
+              <option>Cancelled</option>
             </select></div>
-          <div class="field form-full"><label>Notes</label><textarea placeholder="Delivery instructions..."></textarea>
+          <div class="field form-full"><label>Notes</label><textarea id="dNotes" rows="2" placeholder="Delivery instructions..."></textarea>
           </div>
         </div>
       </div>
@@ -1194,21 +1199,30 @@
       <div id="logistics-parcels" class="sub-form-section">
         <div class="subsection">Manage Parcel Service</div>
         <div class="form-grid">
-          <div class="field"><label>Service Provider</label><input type="text" placeholder="DHL, FedEx..."></div>
-          <div class="field"><label>Assigned Vehicle</label><select>
+          <div class="field"><label>Service Provider</label><input type="text" id="pProvider" placeholder="DHL, FedEx..."></div>
+          <div class="field"><label>Assigned Vehicle</label><select id="pVehicle">
+              <option value="">Select...</option>
               <option>CAR 1</option>
               <option>CAR 2</option>
             </select></div>
-          <div class="field"><label>Service Area</label><input type="text" placeholder="Coverage Area"></div>
-          <div class="field"><label>Contact Name</label><input type="text" placeholder="Partner Contact"></div>
-          <div class="field"><label>Agreement Status</label><select>
+          <div class="field"><label>Vehicle Number</label><input type="text" id="pVehicleNum" readonly placeholder="Auto-populated"></div>
+          <div class="field"><label>Service Date</label><input type="date" id="pDate"></div>
+          <div class="field"><label>Service Area</label><input type="text" id="pAddress" placeholder="Coverage Area"></div>
+          <div class="field"><label>Contact Name</label><input type="text" id="pContactName" placeholder="Partner Contact"></div>
+          <div class="field"><label>Contact Number</label><input type="tel" id="pContact" placeholder="Partner Phone"></div>
+          <div class="field"><label>Agreement Status</label><select id="pStatus">
               <option>Active</option>
               <option>Pending</option>
               <option>Expired</option>
             </select></div>
-          <div class="field form-full"><label>Service Notes</label><textarea
-              placeholder="Collection times, etc."></textarea></div>
+          <div class="field form-full"><label>Service Notes</label><textarea id="pNotes" rows="2"
+              placeholder="Collection times, collection rules, etc."></textarea></div>
         </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" onclick="save()">Save logistics record</button>
+        <button class="btn-secondary" onclick="clearForm()">Clear</button>
       </div>
     </div>
 
