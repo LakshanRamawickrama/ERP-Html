@@ -1032,10 +1032,10 @@
     </div>
 
     <!-- SUPPLIER MANAGEMENT -->
+    <!-- SUPPLIER MANAGEMENT -->
     <div id="supplier" class="form-section">
       <div class="section-header">
-        <div class="section-badge" style="background:#7F77DD"></div><span class="section-title">Supplier
-          management</span>
+        <div class="section-badge" style="background:#7F77DD"></div><span class="section-title">Supplier management</span>
       </div>
 
       <div class="sub-nav">
@@ -1046,37 +1046,85 @@
       <div id="supplier-details" class="sub-form-section active">
         <div class="subsection">Supplier profile</div>
         <div class="form-grid">
-          <div class="field"><label>Supplier name</label><input type="text" placeholder="Company name"></div>
-          <div class="field"><label>Supplier ID</label><input type="text" placeholder="SUP-0001"></div>
-          <div class="field"><label>Contact person</label><input type="text" placeholder="Full name"></div>
-          <div class="field"><label>Phone number</label><input type="tel" placeholder="+44 000 000 0000"></div>
-          <div class="field"><label>Email address</label><input type="email" placeholder="supplier@example.com"></div>
-          <div class="field"><label>Address</label><input type="text" placeholder="Street, city, postcode"></div>
+          <div class="field"><label>Supplier ID</label><input type="text" id="sID" placeholder="SUP-0001" readonly></div>
+          <div class="field"><label>Supplier Name</label><input type="text" id="sName" placeholder="e.g. Acme Supplies"></div>
+          <div class="field"><label>Category</label>
+            <select id="sCat">
+              <option>Raw Materials</option>
+              <option>Services</option>
+              <option>Office Supplies</option>
+              <option>IT Hardware</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Contact Person</label><input type="text" id="sContact" placeholder="Full name"></div>
+          <div class="field"><label>Phone Number</label><input type="tel" id="sPhone" placeholder="+44 000 000 0000"></div>
+          <div class="field"><label>Email Address</label><input type="email" id="sEmail" placeholder="supplier@example.com"></div>
+          <div class="field form-full"><label>Address</label><textarea id="sAddress" rows="2" placeholder="Street, city, postcode"></textarea></div>
+          <div class="field"><label>Status</label>
+            <select id="sStatus">
+              <option>Active</option>
+              <option>Inactive</option>
+              <option>On Hold</option>
+            </select>
+          </div>
+          <div class="field form-full"><label>Notes</label><textarea id="sNotes" rows="2" placeholder="Payment terms, delivery preferences, etc."></textarea></div>
         </div>
       </div>
 
       <div id="supplier-orders" class="sub-form-section">
-        <div class="subsection">Order &amp; Payment</div>
+        <div class="subsection">Purchase Order Registry</div>
         <div class="form-grid">
-          <div class="field"><label>Invoice number</label><input type="text" placeholder="INV-XXXX"></div>
-          <div class="field"><label>Invoice amount (£)</label><input type="number" placeholder="0.00"></div>
-          <div class="field"><label>Due date</label><input type="date"></div>
-          <div class="field"><label>Payment date</label><input type="date"></div>
-          <div class="field"><label>Category</label><select>
-              <option>Raw Materials</option>
-              <option>Services</option>
-              <option>IT Hardware</option>
-              <option>Other</option>
-            </select></div>
-          <div class="field"><label>Payment status</label>
-            <div class="status-row">
-              <span class="status-pill active-paid" onclick="setStatus(this,'active-paid')">Paid</span>
-              <span class="status-pill" onclick="setStatus(this,'active-pending')">Pending</span>
-              <span class="status-pill" onclick="setStatus(this,'active-overdue')">Overdue</span>
-            </div>
+          <div class="field form-full">
+            <label>Select Supplier</label>
+            <select id="oSupplier">
+              <option value="" selected disabled>Choose Supplier...</option>
+              <option>Global Logistics Partners</option>
+              <option>Prime Office Supplies</option>
+              <option>TechConnect Inc</option>
+            </select>
           </div>
-          <div class="field form-full"><label>Order notes</label><textarea
-              placeholder="Product details, delivery preferences, etc."></textarea></div>
+          <div class="field">
+            <label>PO Number</label>
+            <input type="text" id="oNum" placeholder="PO-1001">
+          </div>
+          <div class="field">
+            <label>Order Amount (£)</label>
+            <input type="number" id="oAmount" step="0.01" placeholder="0.00">
+          </div>
+          <div class="field">
+            <label>Product Category</label>
+            <select id="oProdCat">
+              <option>Electronics</option>
+              <option>Stationery</option>
+              <option>Services</option>
+              <option>Logistics</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Quantity</label>
+            <input type="number" id="oQty" placeholder="0">
+          </div>
+          <div class="field form-full">
+            <label>Product Name</label>
+            <input type="text" id="oProdName" placeholder="e.g. Paper Reams">
+          </div>
+          <div class="field">
+            <label>Delivery Due</label>
+            <input type="date" id="oDue">
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="oStatus">
+              <option>Paid</option>
+              <option>Pending</option>
+              <option>Overdue</option>
+            </select>
+          </div>
+          <div class="field form-full">
+            <label>Internal Notes</label>
+            <textarea id="oNotes" placeholder="Order details, delivery preferences, etc."></textarea>
+          </div>
         </div>
       </div>
 
