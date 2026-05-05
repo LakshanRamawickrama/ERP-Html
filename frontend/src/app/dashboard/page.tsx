@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layouts/Sidebar';
 import ProfileDrawer from '@/components/layouts/ProfileDrawer';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/constants/roles';
 import { 
@@ -122,20 +123,27 @@ export default function Dashboard() {
                   </thead>
                   <tbody>
                     {[
-                      { id: 1, name: 'Alpha Trading Co.', inc: '$125,400', exp: '$42,100', skus: '1,240', flt: 12, st: 'Active' },
-                      { id: 2, name: 'Beta Logistics Ltd.', inc: '$84,200', exp: '$31,500', skus: '450', flt: 24, st: 'Active' },
-                      { id: 3, name: 'Whiterock Retail Ltd.', inc: '$210,500', exp: '$98,400', skus: '3,800', flt: 4, st: 'Active' },
-                      { id: 4, name: 'Zenith Logistics Hub', inc: '$15,000', exp: '$2,000', skus: '120', flt: 0, st: 'Pending' },
-                      { id: 5, name: 'Prime Supplies UK', inc: '$58,000', exp: '$12,800', skus: '6,200', flt: 2, st: 'Active' },
-                      { id: 6, name: 'Global Logistics Partners', inc: '$92,300', exp: '$28,500', skus: '1,100', flt: 35, st: 'Active' },
-                      { id: 7, name: 'Smart Solutions Ltd.', inc: '$45,000', exp: '$12,000', skus: '850', flt: 3, st: 'Active' },
-                      { id: 8, name: 'Ocean View Exports', inc: '$112,000', exp: '$45,600', skus: '2,400', flt: 8, st: 'Active' },
-                      { id: 9, name: 'TechConnect Inc.', inc: '$38,500', exp: '$15,200', skus: '320', flt: 1, st: 'Suspended' },
-                      { id: 10, name: 'Consulting Ltd.', inc: '$12,400', exp: '$4,100', skus: '15', flt: 0, st: 'Active' },
+                      { id: 1, name: 'Alpha Trading Co.', slug: 'alpha-trading', inc: '$125,400', exp: '$42,100', skus: '1,240', flt: 12, st: 'Active' },
+                      { id: 2, name: 'Beta Logistics Ltd.', slug: 'beta-logistics', inc: '$84,200', exp: '$31,500', skus: '450', flt: 24, st: 'Active' },
+                      { id: 3, name: 'Whiterock Retail Ltd.', slug: 'whiterock-retail', inc: '$210,500', exp: '$98,400', skus: '3,800', flt: 4, st: 'Active' },
+                      { id: 4, name: 'Zenith Logistics Hub', slug: 'zenith-logistics', inc: '$15,000', exp: '$2,000', skus: '120', flt: 0, st: 'Pending' },
+                      { id: 5, name: 'Prime Supplies UK', slug: 'prime-supplies', inc: '$58,000', exp: '$12,800', skus: '6,200', flt: 2, st: 'Active' },
+                      { id: 6, name: 'Global Logistics Partners', slug: 'global-logistics', inc: '$92,300', exp: '$28,500', skus: '1,100', flt: 35, st: 'Active' },
+                      { id: 7, name: 'Smart Solutions Ltd.', slug: 'smart-solutions', inc: '$45,000', exp: '$12,000', skus: '850', flt: 3, st: 'Active' },
+                      { id: 8, name: 'Ocean View Exports', slug: 'ocean-view', inc: '$112,000', exp: '$45,600', skus: '2,400', flt: 8, st: 'Active' },
+                      { id: 9, name: 'TechConnect Inc.', slug: 'techconnect', inc: '$38,500', exp: '$15,200', skus: '320', flt: 1, st: 'Suspended' },
+                      { id: 10, name: 'Consulting Ltd.', slug: 'consulting-ltd', inc: '$12,400', exp: '$4,100', skus: '15', flt: 0, st: 'Active' },
                     ].map((row) => (
                       <tr key={row.id}>
                         <td>{row.id}</td>
-                        <td className="truncate"><strong>{row.name}</strong></td>
+                        <td className="truncate">
+                          <Link 
+                            href={`/business/${row.slug}`}
+                            className="font-bold text-[#1e293b] hover:text-[#3b82f6] transition-colors cursor-pointer"
+                          >
+                            {row.name}
+                          </Link>
+                        </td>
                         <td className="text-[#198754] font-bold">{row.inc}</td>
                         <td className="text-[#dc3545]">{row.exp}</td>
                         <td>{row.skus}</td>

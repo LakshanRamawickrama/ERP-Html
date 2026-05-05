@@ -1,5 +1,6 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface CardProps {
   title: string;
@@ -8,6 +9,7 @@ interface CardProps {
   children: React.ReactNode;
   headerAction?: React.ReactNode;
   className?: string;
+  noPadding?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({ 
@@ -16,7 +18,8 @@ export const Card: React.FC<CardProps> = ({
   iconColor = 'bg-blue-500', 
   children, 
   headerAction,
-  className = '' 
+  className = '',
+  noPadding = false
 }) => {
   return (
     <div className={`bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col ${className}`}>
@@ -33,7 +36,7 @@ export const Card: React.FC<CardProps> = ({
         </div>
         {headerAction && <div>{headerAction}</div>}
       </div>
-      <div className="p-4 flex-1">
+      <div className={cn("flex-1", noPadding ? "p-0" : "p-4")}>
         {children}
       </div>
     </div>
