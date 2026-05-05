@@ -20,11 +20,13 @@ export default function InventoryModule() {
   const [activeTab, setActiveTab] = useState<TabType>('stock');
   const [isWide, setIsWide] = useState(false);
 
-  // Mock alerts
-  const alerts = [
-    { id: 1, name: 'Sugar 1kg', status: 'Low Stock (5 left)', level: 'low' },
-    { id: 2, name: 'Notebook A4', status: 'Out of Stock', level: 'out' },
-  ];
+  const [data, setData] = useState<any>({ alerts: [], stock: [], moves: [] });
+
+  React.useEffect(() => {
+    fetch('/api/inventory').then(res => res.json()).then(setData);
+  }, []);
+
+  const alerts = data.alerts || [];
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -139,9 +141,13 @@ export default function InventoryModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'stock' ? (
-                      <StockRow name="Milk Packet 1L" cat="Food & Beverages" stock="150" isWide={isWide} status="Active" />
+                      data.stock?.map((item: any, i: number) => (
+                        <StockRow key={i} {...item} isWide={isWide} />
+                      )) || null
                     ) : (
-                      <MoveRow date="2026-05-05" item="Milk Packet 1L" type="IN" qty="50" notes="Monthly replenishment" />
+                      data.moves?.map((move: any, i: number) => (
+                        <MoveRow key={i} {...move} />
+                      )) || null
                     )}
                   </tbody>
                 </table>

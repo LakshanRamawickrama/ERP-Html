@@ -33,6 +33,12 @@ export default function AccountingModule() {
   const [isWide, setIsWide] = useState(false);
   const [recordCategory, setRecordCategory] = useState('');
 
+  const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [] });
+
+  React.useEffect(() => {
+    fetch('/api/accounting').then(res => res.json()).then(setData);
+  }, []);
+
   const tabs = [
     { id: 'records', label: 'Financial Records', icon: FileText },
     { id: 'invoices', label: 'Invoices', icon: Receipt },
@@ -323,19 +329,19 @@ export default function AccountingModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'records' && (
-                      <RecordRow date="2026-04-01" title="HQ Office Rent" sub="Rent (Apr 2026 - Mar 2027)" category="Expense" amount="-$2,500.00" status="Paid" />
+                      data.history?.map((r: any, i: number) => <RecordRow key={i} {...r} />) || null
                     )}
                     {activeTab === 'invoices' && (
-                      <InvoiceRow num="INV-2026-001" client="Alpha Trading Co." amount="$5,000.00" due="2026-04-30" status="Paid" />
+                      data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} />) || null
                     )}
                     {activeTab === 'bank' && (
-                      <BankRow bank="Business Central Bank" acc="LAKSHAN RAMAWICKRAMA ERP" num="88776655" sort="00-11-22" type="Business Current" status="Active" />
+                      data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} />) || null
                     )}
                     {activeTab === 'loans' && (
-                      <LoanRow loan="SME Growth Loan" lender="BC Bank" total="$50,000" os="$32,450" monthly="$1,200" rate="5.2%" status="Active" />
+                      data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} />) || null
                     )}
                     {activeTab === 'dojo' && (
-                      <DojoRow date="2026-04-30" amount="$1,000.00" fee="$17.50" net="$982.50" status="Paid" />
+                      data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} />) || null
                     )}
                   </tbody>
                 </table>

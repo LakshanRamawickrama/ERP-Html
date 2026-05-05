@@ -35,17 +35,20 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [dash, setDash] = useState<any>({
+    businesses: [], fleet: [], notes: [], vat: [], todos: [],
+    passwords: [], supplierPayments: [], sales: [], banks: [],
+    maintenance: [], lowStock: [], activity: [], renewals: []
+  });
   const router = useRouter();
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
-    if (!savedUser) {
-      router.push('/login');
-      return;
-    }
+    if (!savedUser) { router.push('/login'); return; }
     const userData = JSON.parse(savedUser);
     setUser(userData);
     setUserRole(userData.role as UserRole);
+    fetch('/api/dashboard').then(res => res.json()).then(setDash);
   }, [router]);
 
   if (!userRole || !user) return null;
@@ -122,18 +125,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      { id: 1, name: 'Alpha Trading Co.', slug: 'alpha-trading', inc: '$125,400', exp: '$42,100', skus: '1,240', flt: 12, st: 'Active' },
-                      { id: 2, name: 'Beta Logistics Ltd.', slug: 'beta-logistics', inc: '$84,200', exp: '$31,500', skus: '450', flt: 24, st: 'Active' },
-                      { id: 3, name: 'Whiterock Retail Ltd.', slug: 'whiterock-retail', inc: '$210,500', exp: '$98,400', skus: '3,800', flt: 4, st: 'Active' },
-                      { id: 4, name: 'Zenith Logistics Hub', slug: 'zenith-logistics', inc: '$15,000', exp: '$2,000', skus: '120', flt: 0, st: 'Pending' },
-                      { id: 5, name: 'Prime Supplies UK', slug: 'prime-supplies', inc: '$58,000', exp: '$12,800', skus: '6,200', flt: 2, st: 'Active' },
-                      { id: 6, name: 'Global Logistics Partners', slug: 'global-logistics', inc: '$92,300', exp: '$28,500', skus: '1,100', flt: 35, st: 'Active' },
-                      { id: 7, name: 'Smart Solutions Ltd.', slug: 'smart-solutions', inc: '$45,000', exp: '$12,000', skus: '850', flt: 3, st: 'Active' },
-                      { id: 8, name: 'Ocean View Exports', slug: 'ocean-view', inc: '$112,000', exp: '$45,600', skus: '2,400', flt: 8, st: 'Active' },
-                      { id: 9, name: 'TechConnect Inc.', slug: 'techconnect', inc: '$38,500', exp: '$15,200', skus: '320', flt: 1, st: 'Suspended' },
-                      { id: 10, name: 'Consulting Ltd.', slug: 'consulting-ltd', inc: '$12,400', exp: '$4,100', skus: '15', flt: 0, st: 'Active' },
-                    ].map((row) => (
+                    {dash.businesses.map((row: any) => (
                       <tr key={row.id}>
                         <td>{row.id}</td>
                         <td className="truncate">
@@ -172,18 +164,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { v: 'CAR 1', p: 'ABC-1234', i: '2026-06-15', s: 'Active' },
-                    { v: 'VAN 2', p: 'DEF-5678', i: '2026-05-03', s: 'Active' },
-                    { v: 'TRK-007', p: 'GHI-9012', i: '2026-05-06', s: 'Maint' },
-                    { v: 'CAR 2', p: 'WP-BC-5678', i: '2026-12-01', s: 'Active' },
-                    { v: 'VAN-002', p: 'JKL-3456', i: '2026-05-04', s: 'Active' },
-                    { v: 'TRK-010', p: 'MNO-7890', i: '2026-07-12', s: 'Active' },
-                    { v: 'VAN-005', p: 'PQR-1234', i: '2026-05-20', s: 'Repair' },
-                    { v: 'CAR-003', p: 'STU-5678', i: '2026-11-30', s: 'Active' },
-                    { v: 'TRK-022', p: 'VWX-9012', i: '2026-05-01', s: 'Impound' },
-                    { v: 'VAN-011', p: 'YZA-3456', i: '2026-08-15', s: 'Active' },
-                  ].map((row, i) => (
+                  {dash.fleet.map((row: any, i: number) => (
                     <tr key={i}>
                       <td><strong>{row.v}</strong></td>
                       <td className="truncate">{row.p}</td>
@@ -207,13 +188,7 @@ export default function Dashboard() {
             {/* 3. NOTES */}
             <Widget title="Notes" icon={FileText} color="bg-[#f59e0b]">
               <div className="space-y-2">
-                {[
-                  'Renew trade licence before May 20 — contact City Planning Dept',
-                  'TRK-007 and VAN-002 insurance both expiring this month — call broker',
-                  'Follow up with Global Logistics regarding the pending PO-501 shipment',
-                  'Prepare Q2 financial summary for the board meeting next Tuesday',
-                  'Verify inventory levels for high-demand SKUs in Whiterock Retail',
-                ].map((note, i) => (
+                {dash.notes.map((note: string, i: number) => (
                   <div key={i} className="bg-[#fffbeb] border border-[#fef3c7] rounded-lg p-2 relative group shadow-sm">
                     <p className="text-[11px] text-[#1e293b] leading-[1.3] m-0 pr-5">{note}</p>
                     <button className="absolute right-1.5 top-2 text-[#ef4444] opacity-20 group-hover:opacity-100 transition-all"><Trash2 className="w-3 h-3" /></button>
@@ -264,24 +239,14 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Corporation Tax 2025</td>
-                    <td>Jan–Dec 2025</td>
-                    <td><strong>$15,450</strong></td>
-                    <td className="text-center"><span className="status-pill bg-[#198754]">Paid</span></td>
-                  </tr>
-                  <tr>
-                    <td>VAT Q1 2026</td>
-                    <td>Jan–Mar 2026</td>
-                    <td><strong>$8,320</strong></td>
-                    <td className="text-center"><span className="status-pill bg-[#f59e0b]">Filed</span></td>
-                  </tr>
-                  <tr>
-                    <td>VAT Q2 2026</td>
-                    <td>Apr–Jun 2026</td>
-                    <td><strong>$0</strong></td>
-                    <td className="text-center"><span className="status-pill bg-[#6c757d]">Draft</span></td>
-                  </tr>
+                  {dash.vat.map((r: any, i: number) => (
+                    <tr key={i}>
+                      <td>{r.type}</td>
+                      <td>{r.period}</td>
+                      <td><strong>{r.amount}</strong></td>
+                      <td className="text-center"><span className={`status-pill ${r.status === 'Paid' ? 'bg-[#198754]' : r.status === 'Filed' ? 'bg-[#f59e0b]' : 'bg-[#6c757d]'}`}>{r.status}</span></td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </Widget>
@@ -289,12 +254,7 @@ export default function Dashboard() {
             {/* 6. TO-DO LIST */}
             <Widget title="To-Do List" icon={ListTodo} color="bg-[#8b5cf6]">
               <div className="space-y-1">
-                {[
-                  { t: 'Renew TRK-007 insurance', d: true },
-                  { t: 'File VAT Q2 2026', d: false },
-                  { t: 'Review supplier PO-2026-503 overdue', d: false },
-                  { t: 'Update GDPR compliance cert', d: true },
-                ].map((todo, i) => (
+                {dash.todos.map((todo: any, i: number) => (
                   <div key={i} className="flex items-center gap-2 py-1 border-b border-[#f1f5f9] last:border-0 group">
                     <input type="checkbox" defaultChecked={todo.d} className="w-[14px] h-[14px] accent-[#4f46e5] cursor-pointer" />
                     <label className={`text-[11px] flex-1 cursor-pointer m-0 truncate ${todo.d ? 'text-[#94a3b8] line-through' : 'text-[#1e293b]'}`}>{todo.t}</label>
@@ -320,11 +280,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      { s: 'HMRC Online', u: 'admin@businesscentral.com' },
-                      { s: 'Companies House', u: 'john.smith@bc.com' },
-                      { s: 'Allianz Portal', u: 'insurance@bc.com' },
-                    ].map((pw, i) => (
+                    {dash.passwords.map((pw: any, i: number) => (
                       <tr key={i}>
                         <td className="truncate">{pw.s}</td>
                         <td className="truncate">{pw.u}</td>
@@ -497,11 +453,7 @@ export default function Dashboard() {
             {userRole === UserRole.SUPER_ADMIN && (
               <Widget title="Recent Activity" icon={History} color="bg-[#3b82f6]">
                 <div className="space-y-3 py-1">
-                  {[
-                    { t: '2m', a: 'Admin updated VAT Q1 to Filed.' },
-                    { t: '15m', a: 'John created user Sarah.' },
-                    { t: '1h', a: 'Backup successful.' },
-                  ].map((act, i) => (
+                  {dash.activity.map((act: any, i: number) => (
                     <div key={i} className="flex gap-2 text-[11px]">
                       <span className="text-[#94a3b8] whitespace-nowrap">{act.t}</span>
                       <span className="text-[#1e293b] leading-[1.3] truncate">{act.a}</span>

@@ -17,6 +17,23 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
   const isSuperAdmin = userRole === 'Super Admin';
   const [activeTab, setActiveTab] = useState<TabType>(isSuperAdmin ? 'entities' : 'structure');
   const [isWide, setIsWide] = useState(false);
+  const [entities, setEntities] = useState<any[]>([]);
+  const [structures, setStructures] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    fetch('/api/business')
+      .then(res => res.json())
+      .then(data => {
+        setEntities(data.entities || []);
+        setStructures(data.structures || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch business data', err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -131,15 +148,21 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
                     )}
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {activeTab === 'entities' ? (
+                    {loading ? (
+                      <tr>
+                        <td colSpan={10} className="px-4 py-8 text-center text-sm text-slate-500">Loading data...</td>
+                      </tr>
+                    ) : activeTab === 'entities' ? (
                       <>
-                        <EntityRow isWide={isWide} name="Main Retail Store" num="CH-98765432" cat="Retail" hq="London, UK" />
-                        <EntityRow isWide={isWide} name="Logistics Hub" num="CH-11223344" cat="Logistics" hq="Manchester, UK" />
+                        {entities.map((e, idx) => (
+                          <EntityRow key={idx} isWide={isWide} name={e.name} num={e.num} cat={e.cat} hq={e.hq} />
+                        ))}
                       </>
                     ) : (
                       <>
-                        <StructureRow isWide={isWide} name="Whiterock Retail Ltd" crn="12345678" manager="John Smith" sic="47110" due="2026-12-15" />
-                        <StructureRow isWide={isWide} name="Zenith Logistics Hub" crn="87654321" manager="Sarah Jenkins" sic="52101" due="2026-11-20" />
+                        {structures.map((s, idx) => (
+                          <StructureRow key={idx} isWide={isWide} name={s.name} crn={s.crn} manager={s.manager} sic={s.sic} due={s.due} />
+                        ))}
                       </>
                     )}
                   </tbody>

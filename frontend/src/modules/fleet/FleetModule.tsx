@@ -26,12 +26,13 @@ export default function FleetModule() {
   const [activeTab, setActiveTab] = useState<TabType>('vehicles');
   const [isWide, setIsWide] = useState(false);
 
-  // Mock data for reminders
-  const reminders = [
-    { id: 1, vehicle: 'CAR 1', type: 'Insurance', status: 'Expiring in 7 days', level: 'soon' },
-    { id: 2, vehicle: 'CAR 1', type: 'MOT', status: 'Expired', level: 'expired' },
-    { id: 3, vehicle: 'VAN 2', type: 'Road Tax', status: 'Expiring in 12 days', level: 'soon' },
-  ];
+  const [data, setData] = useState<any>({ reminders: [], vehicles: [], deliveries: [], parcels: [] });
+
+  React.useEffect(() => {
+    fetch('/api/fleet').then(res => res.json()).then(setData);
+  }, []);
+
+  const reminders = data.reminders || [];
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -197,36 +198,13 @@ export default function FleetModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'vehicles' && (
-                      <VehicleRow 
-                        name="CAR 1" 
-                        plate="ABC-1234" 
-                        biz="Main Retail Store" 
-                        mot="2026-04-10" 
-                        ins="2026-05-12" 
-                        tax="2026-12-01"
-                        status="Active" 
-                      />
+                      data.vehicles?.map((v: any, i: number) => <VehicleRow key={i} {...v} />) || null
                     )}
                     {activeTab === 'deliveries' && (
-                      <DeliveryRow 
-                        date="2026-04-29" 
-                        v="CAR 1" 
-                        vNum="ABC-1234"
-                        addr="Central Warehouse, London" 
-                        contact="John Doe | +44 7700 900077" 
-                        notes="Urgent delivery"
-                        status="Scheduled" 
-                      />
+                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} />) || null
                     )}
                     {activeTab === 'parcels' && (
-                      <ParcelRow 
-                        provider="DHL Express"
-                        v="CAR 1"
-                        vNum="ABC-1234"
-                        area="City Central Area"
-                        contact="Sarah Jones | +44 20 7946 0001"
-                        status="Active"
-                      />
+                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} />) || null
                     )}
                   </tbody>
                 </table>

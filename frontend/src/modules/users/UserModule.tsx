@@ -20,18 +20,13 @@ export default function UserModule() {
   const [isWide, setIsWide] = useState(false);
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
 
-  const systemMap = [
-    { name: 'Dashboard', sub: [] },
-    { name: 'Business Management', sub: ['Companies House Structure', 'Basic Details'] },
-    { name: 'User Management', sub: ['User Registry', 'Role Permissions'] },
-    { name: 'Fleet Management', sub: ['Vehicle Registry', 'Driver Management', 'Fuel Logs', 'Maintenance'] },
-    { name: 'Inventory Management', sub: ['Stock Levels', 'Warehouse Tracking', 'Purchase Orders'] },
-    { name: 'Accounting', sub: ['Financial Records', 'Bank Details', 'Loans', 'Insurance', 'VAT / Tax'] },
-    { name: 'Suppliers', sub: ['Supplier Registry', 'Payment Terms'] },
-    { name: 'Legal & Compliance', sub: ['Certificates', 'Policy Documents', 'Audits'] },
-    { name: 'Property Management', sub: ['Asset Registry', 'Maintenance Requests', 'Rentals'] },
-    { name: 'Reports', sub: ['Profit & Loss', 'Sales Reports', 'Bank Reports', 'Tax Reports'] }
-  ];
+  const [data, setData] = useState<any>({ systemMap: [], registry: [] });
+
+  React.useEffect(() => {
+    fetch('/api/users').then(res => res.json()).then(setData);
+  }, []);
+
+  const systemMap = data.systemMap || [];
 
   const toggleCat = (name: string) => {
     setExpandedCats(prev => prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]);
@@ -132,22 +127,9 @@ export default function UserModule() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        <UserRow 
-                          name="John Smith" 
-                          email="john@example.com" 
-                          roles="Super Admin" 
-                          scope="All Entities"
-                          access="All Modules"
-                          status="Active" 
-                        />
-                        <UserRow 
-                          name="Jane Doe" 
-                          email="jane@example.com" 
-                          roles="Manager" 
-                          scope="Main Retail Store"
-                          access="Inventory, Fleet"
-                          status="Active" 
-                        />
+                        {data.registry?.map((u: any, i: number) => (
+                          <UserRow key={i} {...u} />
+                        )) || null}
                       </tbody>
                     </>
                   ) : (

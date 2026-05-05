@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { 
   Gavel, 
@@ -17,6 +17,11 @@ import {
 
 export default function LegalModule() {
   const [isWide, setIsWide] = useState(false);
+  const [docs, setDocs] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/legal').then(res => res.json()).then(d => setDocs(d.docs || []));
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -99,8 +104,7 @@ export default function LegalModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    <DocRow title="Trade License" type="License" auth="City Council" file="license_2024.pdf" status="Active" />
-                    <DocRow title="GDPR Compliance" type="Permit" auth="ICO Office" file="gdpr_cert.pdf" status="Expired" />
+                    {docs.map((doc, i) => <DocRow key={i} {...doc} />)}
                   </tbody>
                 </table>
               </div>

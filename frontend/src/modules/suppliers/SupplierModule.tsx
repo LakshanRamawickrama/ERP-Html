@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { 
   Truck, 
@@ -26,6 +26,11 @@ type TabType = 'suppliers' | 'orders';
 export default function SupplierModule() {
   const [activeTab, setActiveTab] = useState<TabType>('suppliers');
   const [isWide, setIsWide] = useState(false);
+  const [data, setData] = useState<any>({ suppliers: [], orders: [] });
+
+  useEffect(() => {
+    fetch('/api/suppliers').then(res => res.json()).then(setData);
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -145,25 +150,10 @@ export default function SupplierModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'suppliers' && (
-                      <SupplierRow 
-                        id="SUP-101" 
-                        name="Global Logistics Partners" 
-                        category="Services" 
-                        email="contact@global.com" 
-                        phone="+44 20 7123 4567" 
-                        status="Active" 
-                      />
+                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} />) || null
                     )}
                     {activeTab === 'orders' && (
-                      <OrderRow 
-                        num="PO-2026-501" 
-                        supplier="Prime Office Supplies" 
-                        product="Paper Reams (A4)" 
-                        qty="50"
-                        amount="$450.00" 
-                        due="2026-05-15" 
-                        status="Pending" 
-                      />
+                      data.orders?.map((o: any, i: number) => <OrderRow key={i} {...o} />) || null
                     )}
                   </tbody>
                 </table>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { 
   Building2, 
@@ -25,6 +25,11 @@ type TabType = 'inventory' | 'requests' | 'waste' | 'licence';
 export default function PropertyModule() {
   const [activeTab, setActiveTab] = useState<TabType>('inventory');
   const [isWide, setIsWide] = useState(false);
+  const [data, setData] = useState<any>({ assets: [], requests: [], waste: [], licences: [] });
+
+  useEffect(() => {
+    fetch('/api/property').then(res => res.json()).then(setData);
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -182,44 +187,16 @@ export default function PropertyModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'inventory' && (
-                      <PropertyRow 
-                        name="Main Office HVAC" 
-                        sub="Floor 1, West Wing" 
-                        type="HVAC" 
-                        doc="hvac_manual.pdf"
-                        person="Robert Chen"
-                        contact="+1 234-567-890"
-                        status="Operational" 
-                      />
+                      data.assets?.map((r: any, i: number) => <PropertyRow key={i} {...r} />) || null
                     )}
                     {activeTab === 'requests' && (
-                      <RequestRow 
-                        date="2026-04-29" 
-                        issue="Leak in Bathroom" 
-                        asset="Floor 2 Restroom"
-                        tech="Mike Plumb"
-                        prio="Urgent" 
-                        status="In Progress" 
-                      />
+                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} />) || null
                     )}
                     {activeTab === 'waste' && (
-                      <WasteRow 
-                        date="2026-05-01" 
-                        contact="John Doe" 
-                        phone="+1 234-567-888"
-                        addr="Building A, Service Entrance" 
-                        status="Scheduled" 
-                      />
+                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} />) || null
                     )}
                     {activeTab === 'licence' && (
-                      <LicenceRow 
-                        type="Trade Licence 2026" 
-                        biz="Property Management Div" 
-                        auth="City Planning Dept" 
-                        expiry="2027-05-20" 
-                        issue="2026-05-20" 
-                        status="Active" 
-                      />
+                      data.licences?.map((r: any, i: number) => <LicenceRow key={i} {...r} />) || null
                     )}
                   </tbody>
                 </table>

@@ -22,280 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const BUSINESSES: Record<string, any> = {
-  'green-valley-retail': {
-    name: 'Green Valley Retail Store',
-    category: 'Retail',
-    email: 'contact@greenvalley.com',
-    phone: '+44 20 1234 5678',
-  },
-  'alpha-trading': {
-    name: 'Alpha Trading Co.',
-    category: 'Retail',
-    email: 'contact@alphatrading.com',
-    phone: '+44 20 7946 0123',
-  },
-  'beta-logistics': {
-    name: 'Beta Logistics Ltd.',
-    category: 'Logistics',
-    email: 'info@betalogistics.co.uk',
-    phone: '+44 161 496 0345',
-  },
-};
-
-const ACCOUNTING_RECORDS = [
-  {
-    name: 'VAT Return Q1 2026',
-    category: 'Tax',
-    amount: '£5429',
-    paymentMethod: 'Bank Transfer',
-    reminderDate: '2026-04-10',
-    notes: 'Q1 2026 VAT payment processed',
-    title: 'Quarterly VAT Payment',
-    type: 'VAT',
-    status: 'Paid',
-    dueDate: '2026-04-15',
-    uploadDate: '2026-04-12',
-  },
-  {
-    name: 'Accountant Fee March',
-    category: 'Fees',
-    amount: '£850',
-    paymentMethod: 'Direct Debit',
-    reminderDate: '2026-05-01',
-    notes: 'Monthly accounting services',
-    title: 'Monthly Accounting Services',
-    type: 'Professional Services',
-    status: 'Pending',
-    dueDate: '2026-05-05',
-    uploadDate: '2026-04-28',
-  },
-  {
-    name: 'Business Loan Payment',
-    category: 'Loan',
-    amount: '£1,200',
-    paymentMethod: 'Standing Order',
-    reminderDate: '2026-05-01',
-    notes: 'Monthly loan instalment',
-    title: 'Monthly Loan Instalment',
-    type: 'Finance',
-    status: 'Pending',
-    dueDate: '2026-05-01',
-    uploadDate: '2026-04-30',
-  },
-];
-
-const FLEET_RECORDS = [
-  {
-    vehicle: 'Mercedes Sprinter Van',
-    registration: 'AB12 CDE',
-    insurance: '2026-05-15',
-    mot: '2026-05-20',
-    roadTax: '2026-07-01',
-    deliveryDate: '2024-01-15',
-    vehicleName: 'Delivery Van 1',
-    vehicleNumber: 'AB12 CDE',
-    insuranceExpiry: '2026-05-15',
-    motDate: '2026-05-20',
-    roadTaxDate: '2026-07-01',
-    status: 'Active',
-    notes: 'Company delivery van – main vehicle',
-  },
-  {
-    vehicle: 'Ford Transit',
-    registration: 'XY34 FGH',
-    insurance: '2026-05-10',
-    mot: '2026-05-25',
-    roadTax: '2026-06-15',
-    deliveryDate: '2023-08-20',
-    vehicleName: 'Delivery Van 2',
-    vehicleNumber: 'XY34 FGH',
-    insuranceExpiry: '2026-05-10',
-    motDate: '2026-05-25',
-    roadTaxDate: '2026-06-15',
-    status: 'Active',
-    notes: 'Secondary delivery vehicle',
-  },
-  {
-    vehicle: 'Vauxhall Vivaro',
-    registration: 'LM56 NOP',
-    insurance: '2026-08-01',
-    mot: '2026-09-10',
-    roadTax: '2026-10-01',
-    deliveryDate: '2022-11-05',
-    vehicleName: 'Delivery Van 3',
-    vehicleNumber: 'LM56 NOP',
-    insuranceExpiry: '2026-08-01',
-    motDate: '2026-09-10',
-    roadTaxDate: '2026-10-01',
-    status: 'Active',
-    notes: 'Backup delivery vehicle',
-  },
-];
-
-const INVENTORY_RECORDS = [
-  {
-    item: 'Premium Tobacco A',
-    products: 'Tobacco Products',
-    stock: 150,
-    supplier: 'SUP-001',
-    status: 'In Stock',
-    notes: 'Popular brand – high demand',
-    itemName: 'Premium Tobacco Brand A',
-    category: 'Tobacco',
-    stockLevel: 150,
-    supplierName: 'Alpha Distributors',
-  },
-  {
-    item: 'Vape Cartridge B',
-    products: 'Vaping Products',
-    stock: 25,
-    supplier: 'SUP-002',
-    status: 'Low Stock',
-    notes: 'Reorder soon – below minimum',
-    itemName: 'Vape Cartridge Type B',
-    category: 'Vaping',
-    stockLevel: 25,
-    supplierName: 'Beta Wholesale',
-  },
-  {
-    item: 'Lighter Pack',
-    products: 'Accessories',
-    stock: 80,
-    supplier: 'SUP-003',
-    status: 'In Stock',
-    notes: 'Standard disposable lighters',
-    itemName: 'Disposable Lighter Pack',
-    category: 'Accessories',
-    stockLevel: 80,
-    supplierName: 'City Supplies',
-  },
-];
-
-const SUPPLIER_RECORDS = [
-  {
-    supplierName: 'Alpha Distributors Ltd',
-    supplierId: 'SUP-001',
-    contact: 'John Smith',
-    contactDetails: 'John Smith – Sales Manager',
-    phone: '020 7234 5678',
-    email: 'john@alpha.com',
-    address: '123 Business Park, London, SW1A 1AA',
-    paymentStatus: 'Current',
-    paymentTerms: 'Net 30',
-    dueDate: '2026-05-15',
-    uploadDocs: 'Contract-Alpha.pdf',
-    notes: 'Primary tobacco supplier – excellent service',
-  },
-  {
-    supplierName: 'Beta Wholesale Co',
-    supplierId: 'SUP-002',
-    contact: 'Sarah Jones',
-    contactDetails: 'Sarah Jones – Account Manager',
-    phone: '020 8765 4321',
-    email: 'sarah@beta.com',
-    address: '456 Trade Centre, Manchester, M1 2AB',
-    paymentStatus: 'Pending',
-    paymentTerms: 'Net 15',
-    dueDate: '2026-05-10',
-    uploadDocs: 'Agreement-Beta.pdf',
-    notes: 'Vaping products specialist',
-  },
-  {
-    supplierName: 'City Supplies Limited',
-    supplierId: 'SUP-003',
-    contact: 'Mike Brown',
-    contactDetails: 'Mike Brown – Director',
-    phone: '020 9876 5432',
-    email: 'mike@citysupplies.com',
-    address: '789 Commerce Road, Birmingham, B1 3CD',
-    paymentStatus: 'Current',
-    paymentTerms: 'Net 30',
-    dueDate: '2026-06-01',
-    uploadDocs: 'Contract-City.pdf',
-    notes: 'Accessories and general supplies',
-  },
-];
-
-const LEGAL_RECORDS = [
-  {
-    type: 'Licence',
-    business: 'Main Store',
-    issueDate: '2025-01-15',
-    uploadFile: 'Licence-Main-Store.pdf',
-    notes: 'Premises licence for alcohol sales – valid until 2027',
-    documentType: 'Premises Licence',
-    businessName: 'Main Store – High Street',
-    expiryDate: '2027-01-15',
-    status: 'Valid',
-  },
-  {
-    type: 'Food Safety Cert',
-    business: 'Main Store',
-    issueDate: '2025-06-01',
-    uploadFile: 'Food-Safety-Cert.pdf',
-    notes: 'Level 2 Food Hygiene – renewal required soon',
-    documentType: 'Food Safety Certificate',
-    businessName: 'Main Store – High Street',
-    expiryDate: '2026-06-01',
-    status: 'Expiring',
-  },
-  {
-    type: 'Change of DPS',
-    business: 'Branch 2',
-    issueDate: '2024-12-01',
-    uploadFile: 'DPS-Change-2024.pdf',
-    notes: '',
-    documentType: 'DPS Change Application',
-    businessName: 'Branch 2 – Market Road',
-    expiryDate: '2026-03-01',
-    status: 'Expired',
-  },
-];
-
-const PROPERTY_RECORDS = [
-  {
-    type: 'Utility',
-    property: 'Main Store',
-    address: '10 High Street, London, SW1A 1AA',
-    infoName: 'Gas Bill March 2026',
-    priority: 'Medium',
-    status: 'Open',
-    notes: 'Monthly gas bill payment due',
-    requestType: 'Utility Bill',
-    propertyName: 'Main Store – High Street',
-    description: 'Gas Bill – March 2026',
-    assignedTo: 'Finance Team',
-  },
-  {
-    type: 'Maintenance',
-    property: 'Branch 2',
-    address: '25 Market Road, Manchester, M1 2AB',
-    infoName: 'HVAC System Repair',
-    priority: 'High',
-    status: 'In Progress',
-    notes: 'Air conditioning not working – technician scheduled',
-    requestType: 'Maintenance Request',
-    propertyName: 'Branch 2 – Market Road',
-    description: 'HVAC Repair – Air Conditioning',
-    assignedTo: 'Maintenance Team',
-  },
-  {
-    type: 'Lease',
-    property: 'Warehouse',
-    address: '5 Industrial Estate, Leeds, LS1 4EF',
-    infoName: 'Annual Lease Renewal',
-    priority: 'Low',
-    status: 'Pending',
-    notes: 'Lease renewal due in 3 months',
-    requestType: 'Lease Renewal',
-    propertyName: 'Warehouse – Leeds',
-    description: 'Annual Lease Renewal 2026',
-    assignedTo: 'Legal Team',
-  },
-];
+// Data is now fetched via API from /api/business/[id]
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
@@ -371,7 +98,7 @@ function FieldRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 // ─── Record Panels ────────────────────────────────────────────────────────────
 
-function AccountingRecord({ r }: { r: (typeof ACCOUNTING_RECORDS)[0] }) {
+function AccountingRecord({ r }: { r: any }) {
   return (
     <div className="p-3 grid grid-cols-2 gap-x-6 gap-y-1 hover:bg-slate-50 transition-colors">
       <div className="space-y-1">
@@ -396,7 +123,7 @@ function AccountingRecord({ r }: { r: (typeof ACCOUNTING_RECORDS)[0] }) {
   );
 }
 
-function FleetRecord({ r }: { r: (typeof FLEET_RECORDS)[0] }) {
+function FleetRecord({ r }: { r: any }) {
   return (
     <div className="p-3 grid grid-cols-2 gap-x-6 gap-y-1 hover:bg-slate-50 transition-colors">
       <div className="space-y-1">
@@ -423,7 +150,7 @@ function FleetRecord({ r }: { r: (typeof FLEET_RECORDS)[0] }) {
   );
 }
 
-function InventoryRecord({ r }: { r: (typeof INVENTORY_RECORDS)[0] }) {
+function InventoryRecord({ r }: { r: any }) {
   return (
     <div className="p-3 grid grid-cols-2 gap-x-6 gap-y-1 hover:bg-slate-50 transition-colors">
       <div className="space-y-1">
@@ -447,7 +174,7 @@ function InventoryRecord({ r }: { r: (typeof INVENTORY_RECORDS)[0] }) {
   );
 }
 
-function SupplierRecord({ r }: { r: (typeof SUPPLIER_RECORDS)[0] }) {
+function SupplierRecord({ r }: { r: any }) {
   return (
     <div className="p-3 grid grid-cols-2 gap-x-6 gap-y-1 hover:bg-slate-50 transition-colors">
       <div className="space-y-1">
@@ -470,7 +197,7 @@ function SupplierRecord({ r }: { r: (typeof SUPPLIER_RECORDS)[0] }) {
   );
 }
 
-function LegalRecord({ r }: { r: (typeof LEGAL_RECORDS)[0] }) {
+function LegalRecord({ r }: { r: any }) {
   return (
     <div className="p-3 grid grid-cols-2 gap-x-6 gap-y-1 hover:bg-slate-50 transition-colors">
       <div className="space-y-1">
@@ -493,7 +220,7 @@ function LegalRecord({ r }: { r: (typeof LEGAL_RECORDS)[0] }) {
   );
 }
 
-function PropertyRecord({ r }: { r: (typeof PROPERTY_RECORDS)[0] }) {
+function PropertyRecord({ r }: { r: any }) {
   return (
     <div className="p-3 grid grid-cols-2 gap-x-6 gap-y-1 hover:bg-slate-50 transition-colors">
       <div className="space-y-1">
@@ -526,21 +253,28 @@ export default function BusinessDetailPage() {
   const router = useRouter();
 
   const slug = id as string;
-  const business = BUSINESSES[slug] ?? {
-    name: slug?.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    category: 'General',
-    email: 'N/A',
-    phone: 'N/A',
-  };
+  const [data, setData] = useState<any>(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (!savedUser) { router.push('/login'); return; }
     const user = JSON.parse(savedUser);
     setUserRole(user.role as UserRole);
-  }, [router]);
 
-  if (!userRole) return null;
+    fetch(`/api/business/${slug}`)
+      .then(res => res.json())
+      .then(d => setData(d))
+      .catch(err => console.error(err));
+  }, [router, slug]);
+
+  if (!userRole || !data) return null;
+
+  const business = data.business ?? {
+    name: slug?.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    category: 'General',
+    email: 'N/A',
+    phone: 'N/A',
+  };
 
   return (
     <div className="flex min-h-screen bg-[#f1f5f9]">
@@ -595,43 +329,43 @@ export default function BusinessDetailPage() {
         <div className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
 
           {/* 1. Accounting */}
-          <SectionCard icon={Calculator} iconBg="bg-slate-700" title="Accounting" count={ACCOUNTING_RECORDS.length}>
-            {ACCOUNTING_RECORDS.map((r, i) => (
+          <SectionCard icon={Calculator} iconBg="bg-slate-700" title="Accounting" count={data.accounting?.length || 0}>
+            {data.accounting?.map((r: any, i: number) => (
               <AccountingRecord key={i} r={r} />
             ))}
           </SectionCard>
 
           {/* 2. Logistics / Fleet */}
-          <SectionCard icon={Truck} iconBg="bg-orange-500" title="Logistics / Fleet" count={FLEET_RECORDS.length}>
-            {FLEET_RECORDS.map((r, i) => (
+          <SectionCard icon={Truck} iconBg="bg-orange-500" title="Logistics / Fleet" count={data.fleet?.length || 0}>
+            {data.fleet?.map((r: any, i: number) => (
               <FleetRecord key={i} r={r} />
             ))}
           </SectionCard>
 
           {/* 3. Inventory */}
-          <SectionCard icon={Boxes} iconBg="bg-yellow-500" title="Inventory" count={INVENTORY_RECORDS.length}>
-            {INVENTORY_RECORDS.map((r, i) => (
+          <SectionCard icon={Boxes} iconBg="bg-yellow-500" title="Inventory" count={data.inventory?.length || 0}>
+            {data.inventory?.map((r: any, i: number) => (
               <InventoryRecord key={i} r={r} />
             ))}
           </SectionCard>
 
           {/* 4. Supplier Management */}
-          <SectionCard icon={Package} iconBg="bg-amber-600" title="Supplier Management" count={SUPPLIER_RECORDS.length}>
-            {SUPPLIER_RECORDS.map((r, i) => (
+          <SectionCard icon={Package} iconBg="bg-amber-600" title="Supplier Management" count={data.supplier?.length || 0}>
+            {data.supplier?.map((r: any, i: number) => (
               <SupplierRecord key={i} r={r} />
             ))}
           </SectionCard>
 
           {/* 5. Legal & Compliance */}
-          <SectionCard icon={Scale} iconBg="bg-slate-600" title="Legal & Compliance" count={LEGAL_RECORDS.length}>
-            {LEGAL_RECORDS.map((r, i) => (
+          <SectionCard icon={Scale} iconBg="bg-slate-600" title="Legal & Compliance" count={data.legal?.length || 0}>
+            {data.legal?.map((r: any, i: number) => (
               <LegalRecord key={i} r={r} />
             ))}
           </SectionCard>
 
           {/* 6. Property Management */}
-          <SectionCard icon={Home} iconBg="bg-slate-500" title="Property Management" count={PROPERTY_RECORDS.length}>
-            {PROPERTY_RECORDS.map((r, i) => (
+          <SectionCard icon={Home} iconBg="bg-slate-500" title="Property Management" count={data.property?.length || 0}>
+            {data.property?.map((r: any, i: number) => (
               <PropertyRecord key={i} r={r} />
             ))}
           </SectionCard>
