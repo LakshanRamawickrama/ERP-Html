@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layouts/Sidebar';
+import { useRouter } from 'next/navigation';
 import { UserRole } from '@/constants/roles';
 import { 
   LayoutDashboard, 
@@ -17,7 +18,20 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const [userRole, setUserRole] = useState<UserRole>(UserRole.SUPER_ADMIN);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (!savedUser) {
+      router.push('/login');
+      return;
+    }
+    const user = JSON.parse(savedUser);
+    setUserRole(user.role as UserRole);
+  }, [router]);
+
+  if (!userRole) return null;
 
   const kpis = [
     { label: 'Total Sales', value: '$128,430', icon: DollarSign, color: 'bg-emerald-500' },
@@ -37,7 +51,7 @@ export default function Dashboard() {
         <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm flex-shrink-0">
           <h5 className="text-base font-bold flex items-center gap-2">
             <LayoutDashboard className="w-5 h-5 text-slate-400" />
-            Admin Dashboard
+            {userRole === UserRole.SUPER_ADMIN ? 'Super Admin Dashboard' : 'Company Admin Dashboard'}
           </h5>
 
           <div className="flex items-center gap-6">
@@ -48,20 +62,6 @@ export default function Dashboard() {
                 placeholder="Search resources..." 
                 className="bg-slate-50 border border-slate-200 rounded-lg py-1.5 pl-9 pr-4 text-xs outline-none focus:bg-white focus:border-blue-500 transition-all w-full"
               />
-            </div>
-
-            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
-               {Object.values(UserRole).map(role => (
-                 <button 
-                  key={role}
-                  onClick={() => setUserRole(role)}
-                  className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded transition-all ${
-                    userRole === role ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                 >
-                   {role}
-                 </button>
-               ))}
             </div>
           </div>
         </header>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { UserRole, RolePermissions, Permission } from '@/constants/roles';
 import { 
   LayoutDashboard, 
@@ -25,7 +25,13 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const permissions = RolePermissions[userRole];
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, permission: 'VIEW_DASHBOARD' },
@@ -85,7 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       {/* Footer / Logout */}
       <div className="p-2 border-t border-white/10">
         <button 
-          onClick={() => console.log('Logout')} 
+          onClick={handleLogout} 
           className="w-full flex items-center gap-3 p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors whitespace-nowrap"
         >
           <div className="min-w-[38px] flex justify-center">
