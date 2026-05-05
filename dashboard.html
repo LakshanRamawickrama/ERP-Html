@@ -1033,11 +1033,31 @@
           <div class="widget-header">
             <div class="widget-header-icon bg-gr"><i class="fas fa-envelope"></i></div><span class="widget-title">Gmails
               / Emails</span>
-            <button class="btn btn-xs btn-outline-primary ms-auto" style="font-size:9px" onclick="toggleEmailLogin()">Switch Account</button>
+            <button id="emailHeaderBtn" class="btn btn-xs btn-outline-primary ms-auto" style="font-size:9px" onclick="toggleEmailView('add')">Add Email</button>
           </div>
           <div class="widget-body">
+            <!-- Email Accounts State -->
+            <div id="emailAccountsArea">
+              <div class="email-item" onclick="toggleEmailView('add')">
+                <div class="email-avatar" style="background:#4f46e5; color: white;"><i class="fab fa-google"></i></div>
+                <div class="email-meta">
+                  <div class="email-from">admin@company.com</div>
+                  <div class="email-subject">Primary Account</div>
+                </div>
+                <div class="email-right"><span class="badge bg-success text-white">Connected</span></div>
+              </div>
+              <div class="email-item" onclick="toggleEmailView('add')">
+                <div class="email-avatar" style="background:#ea4335; color: white;"><i class="fab fa-google"></i></div>
+                <div class="email-meta">
+                  <div class="email-from">support@company.com</div>
+                  <div class="email-subject">Support Inbox</div>
+                </div>
+                <div class="email-right"><span class="badge bg-success text-white">Connected</span></div>
+              </div>
+            </div>
+
             <!-- Email Login State -->
-            <div id="emailLoginArea" class="email-login-area">
+            <div id="emailLoginArea" class="email-login-area hidden">
               <h6>Connect your Account</h6>
               <div class="email-input-group">
                 <input type="email" id="emailUser" placeholder="Email Address (e.g. admin@company.com)">
@@ -1641,14 +1661,36 @@
     function switchCompany(val) {
       applyGlobalFilter(val);
     }
-  </script>
 
-    function toggleEmailLogin() {
+    function toggleEmailView(view) {
+      const accountsArea = document.getElementById('emailAccountsArea');
       const loginArea = document.getElementById('emailLoginArea');
       const listArea = document.getElementById('emailListArea');
-      if (loginArea && listArea) {
-        loginArea.classList.toggle('hidden');
-        listArea.classList.toggle('hidden');
+      const headerBtn = document.getElementById('emailHeaderBtn');
+
+      if (accountsArea) accountsArea.classList.add('hidden');
+      if (loginArea) loginArea.classList.add('hidden');
+      if (listArea) listArea.classList.add('hidden');
+
+      if (view === 'add') {
+        if (loginArea) loginArea.classList.remove('hidden');
+        if (headerBtn) {
+          headerBtn.innerHTML = 'Back';
+          headerBtn.setAttribute('onclick', "toggleEmailView('accounts')");
+        }
+      } else if (view === 'inbox') {
+        if (listArea) listArea.classList.remove('hidden');
+        if (headerBtn) {
+          headerBtn.innerHTML = 'Back to Accounts';
+          headerBtn.setAttribute('onclick', "toggleEmailView('accounts')");
+        }
+      } else {
+        // accounts view
+        if (accountsArea) accountsArea.classList.remove('hidden');
+        if (headerBtn) {
+          headerBtn.innerHTML = 'Add Email';
+          headerBtn.setAttribute('onclick', "toggleEmailView('add')");
+        }
       }
     }
 
@@ -1656,8 +1698,7 @@
       const email = document.getElementById('emailUser').value;
       const pass = document.getElementById('emailPass').value;
       if (email && pass) {
-        document.getElementById('emailLoginArea').classList.add('hidden');
-        document.getElementById('emailListArea').classList.remove('hidden');
+        toggleEmailView('inbox');
       } else {
         alert("Please enter both email and password.");
       }
