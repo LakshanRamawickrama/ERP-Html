@@ -2,138 +2,246 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, User, Briefcase, ShieldCheck } from 'lucide-react';
+import { 
+  Lock, 
+  User, 
+  ShieldCheck, 
+  Zap, 
+  BarChart3, 
+  Shield, 
+  ArrowRight,
+  CircleDollarSign,
+  Info
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    // Super Admin Credentials
-    if (email === 'superadmin@central.com' && password === 'superadmin123') {
-      localStorage.setItem('user', JSON.stringify({
-        email,
-        role: 'Super Admin',
-        name: 'Super Administrator'
-      }));
-      router.push('/dashboard');
-    } 
-    // Admin Credentials
-    else if (email === 'admin@central.com' && password === 'admin123') {
-      localStorage.setItem('user', JSON.stringify({
-        email,
-        role: 'Company Admin',
-        name: 'Company Administrator'
-      }));
-      router.push('/dashboard');
-    } 
-    else {
-      setError('Invalid identity or secret key. Access denied.');
-    }
+    // Mock authentication delay
+    setTimeout(() => {
+      // Handle both legacy and current credential formats
+      const isSuperAdmin = (email === 'superadmin@central.com' && password === 'superadmin123') || 
+                          (email === 'superadmin' && password === 'admin123');
+      
+      const isCompanyAdmin = (email === 'admin@central.com' && password === 'admin123') || 
+                            (email === 'admin' && password === 'admin123');
+
+      if (isSuperAdmin) {
+        localStorage.setItem('user', JSON.stringify({
+          email: email.includes('@') ? email : 'superadmin@central.com',
+          role: 'Super Admin',
+          name: 'Super Administrator'
+        }));
+        router.push('/dashboard');
+      } 
+      else if (isCompanyAdmin) {
+        localStorage.setItem('user', JSON.stringify({
+          email: email.includes('@') ? email : 'admin@central.com',
+          role: 'Company Admin',
+          name: 'Company Administrator'
+        }));
+        router.push('/dashboard');
+      } 
+      else {
+        setError('Invalid identity or secret key. Access denied.');
+        setIsLoading(false);
+      }
+    }, 800);
   };
 
   return (
-    <div className="min-h-screen bg-[#2c3e50] flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-      <div className="w-full max-w-md">
-        {/* Logo/Brand */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-2xl mb-4">
-             <Briefcase className="w-8 h-8 text-[#2c3e50]" />
-          </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter">BUSINESS CENTRAL</h1>
-          <p className="text-slate-400 text-sm font-medium tracking-wide uppercase">Enterprise ERP Solutions</p>
-        </div>
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center relative overflow-hidden font-sans selection:bg-emerald-500/30">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute top-[-400px] right-[-200px] w-[800px] h-[800px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.15)_0%,transparent_70%)] animate-float-slow" />
+        <div className="absolute bottom-[-300px] left-[-150px] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(6,182,212,0.1)_0%,transparent_70%)] animate-float-medium" />
+        <div className="absolute inset-0 grid-pattern opacity-50" />
+      </div>
 
-        {/* Login Card */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden p-8 md:p-10">
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-slate-800">Welcome Back</h2>
-            <p className="text-slate-500 text-xs mt-1 font-medium">Please sign in to access your secure portal</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-[10px] font-bold p-3 rounded-xl flex items-center gap-2 animate-pulse">
-                <ShieldCheck className="w-4 h-4" />
-                {error}
+      <div className="container relative z-10 max-w-[1200px] px-4 md:px-10 py-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          
+          {/* Left Side: Branding & Features */}
+          <div className="hidden lg:block space-y-10 animate-in fade-in slide-in-from-left-8 duration-700">
+            <div className="flex items-center gap-4 group">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
+                <CircleDollarSign size={36} />
               </div>
-            )}
-            
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Identity (Email)</label>
-              <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                <input 
-                  type="text" 
-                  required
-                  placeholder="admin@central.com"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm outline-none focus:border-blue-500 focus:bg-white transition-all shadow-inner"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+              <div>
+                <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                  ClearERP
+                </h1>
+                <p className="text-slate-400 font-medium">Business Management System</p>
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secret Key (Password)</label>
-                <a href="#" className="text-[10px] font-bold text-blue-500 uppercase hover:underline">Forgot?</a>
-              </div>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                <input 
-                  type="password" 
-                  required
-                  placeholder="••••••••"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm outline-none focus:border-blue-500 focus:bg-white transition-all shadow-inner"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
+            <div className="space-y-6">
+              <h2 className="text-5xl font-extrabold text-white leading-tight">
+                Welcome to the <br />
+                <span className="text-emerald-400">Future of ERP.</span>
+              </h2>
+              <p className="text-slate-400 text-lg leading-relaxed max-w-md">
+                Manage your business operations with unprecedented efficiency, security, and lightning-fast performance.
+              </p>
             </div>
 
-            <button 
-              type="submit"
-              className="w-full bg-[#2c3e50] text-white py-4 rounded-xl text-sm font-bold shadow-xl hover:bg-[#34495e] hover:-translate-y-0.5 transition-all active:translate-y-0 flex items-center justify-center gap-3 mt-6"
-            >
-              <ShieldCheck className="w-5 h-5" />
-              AUTHENTICATE SESSION
-            </button>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-slate-100">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Demo Access Credentials</p>
-            <div className="grid grid-cols-1 gap-3">
-              <button 
-                onClick={() => { setEmail('superadmin@central.com'); setPassword('superadmin123'); }}
-                className="flex flex-col items-start p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-blue-500 transition-all text-left"
-              >
-                <span className="text-[10px] font-black text-blue-600 uppercase">Super Admin</span>
-                <span className="text-[11px] text-slate-500 font-mono mt-1">ID: superadmin@central.com / PW: superadmin123</span>
-              </button>
-              <button 
-                onClick={() => { setEmail('admin@central.com'); setPassword('admin123'); }}
-                className="flex flex-col items-start p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-blue-500 transition-all text-left"
-              >
-                <span className="text-[10px] font-black text-emerald-600 uppercase">Company Admin</span>
-                <span className="text-[11px] text-slate-500 font-mono mt-1">ID: admin@central.com / PW: admin123</span>
-              </button>
+            <div className="grid gap-4 max-w-md">
+              {[
+                { icon: <BarChart3 className="text-emerald-400" />, title: "Real-time Analytics", desc: "Track your business metrics in real-time" },
+                { icon: <Shield className="text-emerald-400" />, title: "Secure & Reliable", desc: "Enterprise-grade security for your data" },
+                { icon: <Zap className="text-emerald-400" />, title: "Lightning Fast", desc: "Optimized performance for productivity" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white">{item.title}</h4>
+                    <p className="text-slate-400 text-sm">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">
-            &copy; 2026 Global Enterprise Systems Ltd.
-          </p>
+          {/* Right Side: Login Form */}
+          <div className="animate-in fade-in slide-in-from-right-8 duration-700">
+            {/* Mobile Logo */}
+            <div className="lg:hidden flex flex-col items-center mb-10 text-center">
+              <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center text-white mb-4 shadow-xl shadow-emerald-500/20">
+                <CircleDollarSign size={32} />
+              </div>
+              <h1 className="text-3xl font-bold text-white">ClearERP</h1>
+            </div>
+
+            <div className="bg-white/[0.98] backdrop-blur-xl rounded-[32px] p-8 md:p-12 shadow-2xl shadow-black/40 border border-white/20">
+              <div className="mb-10 text-center lg:text-left">
+                <h3 className="text-3xl font-bold text-slate-900">Sign In</h3>
+                <p className="text-slate-500 mt-2">Enter your credentials to access your account</p>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-6">
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm flex items-center gap-3 animate-shake">
+                    <Info size={18} />
+                    {error}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 ml-1">Identity (Username or Email)</label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                      <User size={20} />
+                    </div>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="Enter your identity"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 outline-none focus:border-emerald-500 focus:bg-white transition-all"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-sm font-semibold text-slate-700">Secret Key (Password)</label>
+                    <a href="#" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">Forgot?</a>
+                  </div>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                      <Lock size={20} />
+                    </div>
+                    <input 
+                      type="password" 
+                      required
+                      placeholder="••••••••"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 outline-none focus:border-emerald-500 focus:bg-white transition-all"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 px-1">
+                  <input type="checkbox" id="remember" className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <label htmlFor="remember" className="text-sm text-slate-500 cursor-pointer">Remember this session</label>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group"
+                >
+                  {isLoading ? (
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>AUTHENTICATE</span>
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Demo Credentials Section */}
+              <div className="mt-10 pt-8 border-t border-slate-100">
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-6">Master Access Keys</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    onClick={() => { setEmail('superadmin@central.com'); setPassword('superadmin123'); }}
+                    className="group flex flex-col items-start p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-emerald-500/50 hover:bg-white transition-all text-left shadow-sm hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Shield size={12} className="text-emerald-600" />
+                      <span className="text-[11px] font-black text-emerald-600 uppercase">Super Admin</span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-mono">Fill Keys</span>
+                  </button>
+                  <button 
+                    onClick={() => { setEmail('admin@central.com'); setPassword('admin123'); }}
+                    className="group flex flex-col items-start p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-cyan-500/50 hover:bg-white transition-all text-left shadow-sm hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <ShieldCheck size={12} className="text-cyan-600" />
+                      <span className="text-[11px] font-black text-cyan-600 uppercase">Company Admin</span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-mono">Fill Keys</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Legal Footer */}
+            <p className="mt-8 text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">
+              &copy; 2026 ClearERP Global Systems Ltd.
+            </p>
+          </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-8px); }
+          75% { transform: translateX(8px); }
+        }
+        .animate-shake {
+          animation: shake 0.4s ease-in-out 0s 2;
+        }
+      `}</style>
     </div>
   );
 }

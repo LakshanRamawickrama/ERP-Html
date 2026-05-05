@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layouts/Sidebar';
+import ProfileDrawer from '@/components/layouts/ProfileDrawer';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/constants/roles';
 import { 
@@ -31,6 +32,8 @@ import {
 
 export default function Dashboard() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -39,15 +42,23 @@ export default function Dashboard() {
       router.push('/login');
       return;
     }
-    const user = JSON.parse(savedUser);
-    setUserRole(user.role as UserRole);
+    const userData = JSON.parse(savedUser);
+    setUser(userData);
+    setUserRole(userData.role as UserRole);
   }, [router]);
 
-  if (!userRole) return null;
+  if (!userRole || !user) return null;
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc]">
       <Sidebar userRole={userRole} />
+      
+      <ProfileDrawer 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+        user={user}
+        onUpdateUser={(updatedUser: any) => setUser(updatedUser)}
+      />
       
       <main className="ml-[70px] flex-1 flex flex-col h-screen overflow-hidden">
         {/* Topbar */}
@@ -76,9 +87,17 @@ export default function Dashboard() {
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-[#94a3b8]" />
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#4f46e5] flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
-              SA
-            </div>
+            
+            <button 
+              onClick={() => setIsProfileOpen(true)}
+              className="w-9 h-9 rounded-full bg-gradient-to-br from-[#4f46e5] to-[#7c3aed] flex items-center justify-center text-white text-[11px] font-bold shadow-lg hover:scale-105 transition-transform border-2 border-white overflow-hidden"
+            >
+              {user.photo ? (
+                <img src={user.photo} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                user.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'SA'
+              )}
+            </button>
           </div>
         </header>
 
