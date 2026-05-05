@@ -10,7 +10,7 @@ export default function BusinessPage() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar userRole={userRole} />
       <div className="flex-1 ml-[70px]">
-        <BusinessModule />
+        <BusinessModule userRole={userRole} />
       </div>
     </div>
   );

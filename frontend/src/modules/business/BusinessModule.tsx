@@ -8,14 +8,14 @@ import {
   PlusCircle, 
   Edit, 
   Eye, 
-  FilePdf, 
   Maximize2,
   Minimize2,} from 'lucide-react';
 
 type TabType = 'entities' | 'structure';
 
-export default function BusinessModule() {
-  const [activeTab, setActiveTab] = useState<TabType>('entities');
+export default function BusinessModule({ userRole }: { userRole?: string }) {
+  const isSuperAdmin = userRole === 'Super Admin';
+  const [activeTab, setActiveTab] = useState<TabType>(isSuperAdmin ? 'entities' : 'structure');
   const [isWide, setIsWide] = useState(false);
 
   return (
@@ -28,14 +28,16 @@ export default function BusinessModule() {
 
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center gap-6">
-        <button
-          onClick={() => setActiveTab('entities')}
-          className={`py-4 text-xs font-bold border-b-2 transition-all ${
-            activeTab === 'entities' ? 'border-[#2c3e50] text-[#2c3e50]' : 'border-transparent text-slate-400 hover:text-slate-600'
-          }`}
-        >
-          Basic Details
-        </button>
+        {isSuperAdmin && (
+          <button
+            onClick={() => setActiveTab('entities')}
+            className={`py-4 text-xs font-bold border-b-2 transition-all ${
+              activeTab === 'entities' ? 'border-[#2c3e50] text-[#2c3e50]' : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Basic Details
+          </button>
+        )}
         <button
           onClick={() => setActiveTab('structure')}
           className={`py-4 text-xs font-bold border-b-2 transition-all ${
@@ -75,6 +77,11 @@ export default function BusinessModule() {
                       <Field label="SIC Code" placeholder="Nature of Business" />
                     </div>
                     <Field label="Registered Office Address" isTextArea />
+                    <Field label="Confirmation Statement Due" type="date" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field label="Balance Sheet (PDF)" type="file" />
+                      <Field label="P&L Statement (PDF)" type="file" />
+                    </div>
                     <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
                       Register Company Details
                     </button>
@@ -125,9 +132,15 @@ export default function BusinessModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'entities' ? (
-                      <EntityRow isWide={isWide} name="Main Retail Store" num="CH-98765432" cat="Retail" hq="London, UK" />
+                      <>
+                        <EntityRow isWide={isWide} name="Main Retail Store" num="CH-98765432" cat="Retail" hq="London, UK" />
+                        <EntityRow isWide={isWide} name="Logistics Hub" num="CH-11223344" cat="Logistics" hq="Manchester, UK" />
+                      </>
                     ) : (
-                      <StructureRow isWide={isWide} name="Whiterock Retail Ltd" crn="12345678" manager="John Smith" sic="47110" due="2026-12-15" />
+                      <>
+                        <StructureRow isWide={isWide} name="Whiterock Retail Ltd" crn="12345678" manager="John Smith" sic="47110" due="2026-12-15" />
+                        <StructureRow isWide={isWide} name="Zenith Logistics Hub" crn="87654321" manager="Sarah Jenkins" sic="52101" due="2026-11-20" />
+                      </>
                     )}
                   </tbody>
                 </table>
@@ -195,7 +208,11 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
       ) : isTextArea ? (
         <textarea rows={2} className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder={placeholder} />
       ) : (
-        <input type={type} className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder={placeholder} />
+        <input 
+          type={type} 
+          className={`w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 ${type === 'file' ? 'file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200' : ''}`} 
+          placeholder={placeholder} 
+        />
       )}
     </div>
   );
