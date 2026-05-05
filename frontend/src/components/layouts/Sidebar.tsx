@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { label: 'Fleet Management', href: '/fleet', icon: Truck, permission: 'MANAGE_FLEET' },
     { label: 'Inventory Management', href: '/inventory', icon: Boxes, permission: 'MANAGE_INVENTORY' },
     { label: 'System Access', href: '/system-access', icon: Key, permission: 'SYSTEM_ACCESS' },
-    { label: 'Suppliers', href: '/suppliers', icon: Package, permission: 'MANAGE_INVENTORY' },
+    { label: 'Suppliers', href: '/suppliers', icon: Truck, permission: 'MANAGE_INVENTORY' },
     { label: 'Accounting', href: '/accounting', icon: Receipt, permission: 'VIEW_ACCOUNTING' },
     { label: 'Legal & Compliance', href: '/legal', icon: Gavel, permission: 'LEGAL_COMPLIANCE' },
     { label: 'Property Management', href: '/property', icon: Building, permission: 'PROPERTY_MANAGEMENT' },

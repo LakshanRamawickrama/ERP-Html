@@ -6,69 +6,108 @@ import {
   Users, 
   ShieldCheck, 
   UserPlus, 
-  Edit, 
-  Trash2, 
   Maximize2,
   Minimize2,
   Lock,
-  ChevronRight,
-  ShieldAlert
+  ChevronDown,
+  Edit,
+  Folder,
+  ChevronRight
 } from 'lucide-react';
 
-type TabType = 'registry' | 'roles';
-
 export default function UserModule() {
-  const [activeTab, setActiveTab] = useState<TabType>('registry');
+  const [activeTab, setActiveTab] = useState<'registry' | 'roles'>('registry');
   const [isWide, setIsWide] = useState(false);
+  const [expandedCats, setExpandedCats] = useState<string[]>([]);
+
+  const systemMap = [
+    { name: 'Dashboard', sub: [] },
+    { name: 'Business Management', sub: ['Companies House Structure', 'Basic Details'] },
+    { name: 'User Management', sub: ['User Registry', 'Role Permissions'] },
+    { name: 'Fleet Management', sub: ['Vehicle Registry', 'Driver Management', 'Fuel Logs', 'Maintenance'] },
+    { name: 'Inventory Management', sub: ['Stock Levels', 'Warehouse Tracking', 'Purchase Orders'] },
+    { name: 'Accounting', sub: ['Financial Records', 'Bank Details', 'Loans', 'Insurance', 'VAT / Tax'] },
+    { name: 'Suppliers', sub: ['Supplier Registry', 'Payment Terms'] },
+    { name: 'Legal & Compliance', sub: ['Certificates', 'Policy Documents', 'Audits'] },
+    { name: 'Property Management', sub: ['Asset Registry', 'Maintenance Requests', 'Rentals'] },
+    { name: 'Reports', sub: ['Profit & Loss', 'Sales Reports', 'Bank Reports', 'Tax Reports'] }
+  ];
+
+  const toggleCat = (name: string) => {
+    setExpandedCats(prev => prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]);
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
-        <h4 className="text-lg font-bold text-slate-800">User Management</h4>
-        <p className="text-xs text-slate-500">Manage Platform Access, Roles, and User Permissions</p>
+      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
+        <h1 className="text-xl font-bold text-slate-800 tracking-tight">User Management</h1>
+        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest leading-none mt-1">Manage Platform Access, Roles, and User Permissions</p>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6 flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
-        <TabButton active={activeTab === 'registry'} label="User Registry" onClick={() => setActiveTab('registry')} />
-        <TabButton active={activeTab === 'roles'} label="Role Permissions" onClick={() => setActiveTab('roles')} />
+      {/* Tab Navigation */}
+      <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">
+        <div className="flex gap-6">
+          <button 
+            onClick={() => setActiveTab('registry')}
+            className={`py-4 text-xs font-bold transition-all border-b-2 whitespace-nowrap ${
+              activeTab === 'registry' ? 'border-slate-800 text-slate-800' : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            User Registry
+          </button>
+          <button 
+            onClick={() => setActiveTab('roles')}
+            className={`py-4 text-xs font-bold transition-all border-b-2 whitespace-nowrap ${
+              activeTab === 'roles' ? 'border-slate-800 text-slate-800' : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Role Permissions
+          </button>
+        </div>
+        <button 
+          onClick={() => setIsWide(!isWide)}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all uppercase tracking-wider shadow-sm"
+        >
+          {isWide ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+          {isWide ? 'Standard' : 'Wide'} View
+        </button>
       </div>
 
+      {/* Content Area */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
           {/* Form Column */}
-          {!isWide && (
+          {!isWide && (activeTab === 'registry') && (
             <div className="lg:col-span-4">
-              <Card title={activeTab === 'registry' ? "Register New User" : "Configure Role"} icon={activeTab === 'registry' ? UserPlus : ShieldAlert} iconColor="bg-[#2c3e50]">
+              <Card title="Register New User" icon={UserPlus} iconColor="bg-slate-800">
                 <form className="space-y-4">
-                  {activeTab === 'registry' && (
-                    <>
-                      <Field label="Full Name" placeholder="John Doe" />
-                      <Field label="Email Address" type="email" />
-                      <Field label="Assigned Role" isSelect options={['Super Admin', 'Admin', 'Manager', 'Staff']} />
-                      <Field label="Business Context" isSelect options={['All Entities', 'Main Retail Store', 'Logistics Hub']} />
-                      <Field label="Password" type="password" />
-                      <Field label="Confirm Password" type="password" />
-                    </>
-                  )}
-                  {activeTab === 'roles' && (
-                    <>
-                      <Field label="Role Name" placeholder="e.g. Inventory Manager" />
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b pb-2">Module Access</p>
-                        {['Dashboard', 'Accounting', 'Inventory', 'Fleet', 'Legal'].map(m => (
-                          <label key={m} className="flex items-center gap-3 text-xs font-bold text-slate-600 cursor-pointer hover:text-[#2c3e50]">
-                            <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-[#2c3e50]" />
-                            {m}
-                          </label>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-colors">
-                    {activeTab === 'registry' ? 'Create Account' : 'Save Permissions'}
+                  <Field label="Full Name" placeholder="John Doe" />
+                  <Field label="Email Address" type="email" placeholder="john@example.com" />
+                  <Field label="Assigned Roles" isSelect options={['Admin', 'Manager', 'Staff']} />
+                  <Field label="Assigned Businesses" isSelect options={['All Entities', 'Main Retail Store', 'Logistics Hub']} />
+                  <Field label="Password" type="password" />
+                  <Field label="Confirm Password" type="password" />
+                  <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all">
+                    Create User Account
+                  </button>
+                </form>
+              </Card>
+            </div>
+          )}
+
+          {!isWide && (activeTab === 'roles') && (
+            <div className="lg:col-span-4">
+              <Card title="Configure Role" icon={Lock} iconColor="bg-slate-800">
+                <form className="space-y-4">
+                  <Field label="Administrative Role Assignment" isSelect options={['Admin (Main Retail Store)', 'Admin (Whiterock Retail Ltd)', 'Admin (Logistics Hub)']} />
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase border-b pb-2 mb-3">Role Identity</p>
+                    <p className="text-[11px] text-slate-500 italic leading-relaxed">Saving this role will create a new selectable permission set in the User Registry.</p>
+                  </div>
+                  <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all">
+                    Save Role Settings
                   </button>
                 </form>
               </Card>
@@ -76,124 +115,153 @@ export default function UserModule() {
           )}
 
           {/* Table Column */}
-          <div className={isWide ? 'lg:col-span-1' : 'lg:col-span-8'}>
-            <Card title={activeTab === 'registry' ? "Platform Users" : "Access Control Matrix"} icon={activeTab === 'registry' ? Users : Lock}
-              headerAction={
-                <button onClick={() => setIsWide(!isWide)} className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-md hover:bg-slate-100 transition-all tracking-wide">
-                  {isWide ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
-                  {isWide ? 'Standard' : 'Wide'} View
-                </button>
-              }
-            >
+          <div className={isWide ? 'lg:col-span-12' : 'lg:col-span-8'}>
+            <Card title={activeTab === 'registry' ? "Platform Users" : "Access Control Matrix"} icon={activeTab === 'registry' ? Users : Lock}>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead className="bg-slate-50 border-b border-slate-100">
-                    {activeTab === 'registry' ? (
-                      <tr>
-                        <th className={thClass}>User</th>
-                        <th className={thClass}>Role</th>
-                        <th className={thClass}>Scope</th>
-                        <th className={thClass}>Access</th>
-                        <th className={thClass}>Status</th>
-                        <th className={thClass}>Actions</th>
-                      </tr>
-                    ) : (
-                      <tr>
-                        <th className={thClass}>Role Name</th>
-                        <th className={thClass}>Assigned Modules</th>
-                        <th className={thClass}>Business Context</th>
-                        <th className={thClass}>Status</th>
-                        <th className={thClass}>Actions</th>
-                      </tr>
-                    )}
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {activeTab === 'registry' ? (
-                      <UserRow name="John Smith" email="john@example.com" role="Super Admin" scope="All Entities" access="All Modules" />
-                    ) : (
-                      <RoleRow name="Inventory Manager" modules="Inventory, Fleet" scope="Main Retail Store" />
-                    )}
-                  </tbody>
+                  {activeTab === 'registry' ? (
+                    <>
+                      <thead className="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                          <th className={thClass}>Name / Email</th>
+                          <th className={thClass}>Roles</th>
+                          <th className={thClass}>Scope</th>
+                          <th className={thClass}>Module Access</th>
+                          <th className={thClass}>Status</th>
+                          <th className={thClass}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        <UserRow 
+                          name="John Smith" 
+                          email="john@example.com" 
+                          roles="Super Admin" 
+                          scope="All Entities"
+                          access="All Modules"
+                          status="Active" 
+                        />
+                        <UserRow 
+                          name="Jane Doe" 
+                          email="jane@example.com" 
+                          roles="Manager" 
+                          scope="Main Retail Store"
+                          access="Inventory, Fleet"
+                          status="Active" 
+                        />
+                      </tbody>
+                    </>
+                  ) : (
+                    <>
+                      <thead className="bg-slate-50 border-b border-slate-100 border-t">
+                        <tr className="text-center">
+                          <th className={`${thClass} text-left`}>Module Name</th>
+                          <th className={thClass}>View</th>
+                          <th className={thClass}>Add</th>
+                          <th className={thClass}>Edit</th>
+                          <th className={thClass}>Delete</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {systemMap.map(cat => (
+                          <React.Fragment key={cat.name}>
+                            <tr 
+                              className="category-row hover:bg-slate-50 cursor-pointer group"
+                              onClick={() => toggleCat(cat.name)}
+                            >
+                              <td className="px-4 py-3 font-bold text-slate-800 text-xs flex items-center gap-2">
+                                <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform ${expandedCats.includes(cat.name) ? 'rotate-90' : ''}`} />
+                                <Folder className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600" />
+                                {cat.name}
+                              </td>
+                              <td className="px-4 py-3 text-center"><input type="checkbox" defaultChecked className="checkbox-standard" onClick={e => e.stopPropagation()} /></td>
+                              <td className="px-4 py-3 text-center"><input type="checkbox" className="checkbox-standard" onClick={e => e.stopPropagation()} /></td>
+                              <td className="px-4 py-3 text-center"><input type="checkbox" className="checkbox-standard" onClick={e => e.stopPropagation()} /></td>
+                              <td className="px-4 py-3 text-center"><input type="checkbox" className="checkbox-standard" onClick={e => e.stopPropagation()} /></td>
+                            </tr>
+                            {expandedCats.includes(cat.name) && cat.sub.map(s => (
+                              <tr key={s} className="bg-slate-50/30">
+                                <td className="px-4 py-2 pl-12 text-[11px] text-slate-500 font-medium italic flex items-center gap-2">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                  {s}
+                                </td>
+                                <td className="px-4 py-2 text-center"><input type="checkbox" defaultChecked className="checkbox-standard scale-75" /></td>
+                                <td className="px-4 py-2 text-center"><input type="checkbox" className="checkbox-standard scale-75" /></td>
+                                <td className="px-4 py-2 text-center"><input type="checkbox" className="checkbox-standard scale-75" /></td>
+                                <td className="px-4 py-2 text-center"><input type="checkbox" className="checkbox-standard scale-75" /></td>
+                              </tr>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </>
+                  )}
                 </table>
               </div>
             </Card>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .checkbox-standard {
+          width: 1rem;
+          height: 1rem;
+          border-radius: 0.25rem;
+          border-color: #cbd5e1;
+          color: #1e293b;
+          cursor: pointer;
+        }
+        .checkbox-standard:focus {
+          ring: 2px solid #1e293b;
+        }
+      `}</style>
     </div>
   );
 }
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function TabButton({ active, label, onClick }: any) {
-  return (
-    <button
-      onClick={onClick}
-      className={`py-4 text-xs font-bold border-b-2 transition-all ${
-        active ? 'border-[#2c3e50] text-[#2c3e50]' : 'border-transparent text-slate-400 hover:text-slate-600'
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function UserRow({ name, email, role, scope, access }: any) {
-  return (
-    <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3">
-        <div className="font-bold text-slate-800">{name}</div>
-        <div className="text-[10px] text-slate-400 font-mono tracking-tighter">{email}</div>
-      </td>
-      <td className="px-4 py-3 text-slate-500 font-bold text-[11px]">{role}</td>
-      <td className="px-4 py-3 text-slate-400 text-xs italic">{scope}</td>
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-slate-100 border text-slate-600 text-[10px] font-bold rounded">{access}</span>
-      </td>
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase tracking-tighter">Active</span>
-      </td>
-      <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
-      </td>
-    </tr>
-  );
-}
-
-function RoleRow({ name, modules, scope }: any) {
-  return (
-    <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
-      <td className="px-4 py-3 text-slate-500 font-medium text-xs truncate max-w-[200px]">{modules}</td>
-      <td className="px-4 py-3 text-slate-400 text-xs italic">{scope}</td>
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded uppercase">Custom</span>
-      </td>
-      <td className="px-4 py-3 text-slate-500">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
-      </td>
-    </tr>
-  );
-}
-
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [] }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500">
-          {options.map((opt: string) => <option key={opt}>{opt}</option>)}
-        </select>
-      ) : isTextArea ? (
-        <textarea rows={2} className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder={placeholder} />
+        <div className="relative mt-1.5">
+          <select className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium appearance-none">
+            <option value="">Select Option...</option>
+            {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+        </div>
       ) : (
-        <input type={type} className={`w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500`} placeholder={placeholder} />
+        <input type={type} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
       )}
     </div>
+  );
+}
+
+function UserRow({ name, email, roles, scope, access, status }: any) {
+  return (
+    <tr className="hover:bg-slate-50/50 transition-colors">
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800">{name}</div>
+        <div className="text-[10px] text-slate-400 font-mono tracking-tighter leading-none mt-1">{email}</div>
+      </td>
+      <td className="px-4 py-4 font-bold text-slate-400 text-[10px] uppercase">{roles}</td>
+      <td className="px-4 py-4 text-slate-500 text-xs italic">{scope}</td>
+      <td className="px-4 py-4">
+        <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded uppercase">{access}</span>
+      </td>
+      <td className="px-4 py-4">
+        <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase border ${
+          status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
+        }`}>{status}</span>
+      </td>
+      <td className="px-4 py-4">
+        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+          <Edit className="w-3.5 h-3.5" />
+        </button>
+      </td>
+    </tr>
   );
 }
