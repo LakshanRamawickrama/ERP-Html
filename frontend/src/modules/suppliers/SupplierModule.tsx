@@ -20,25 +20,58 @@ import {
   Printer,
   FileText
 } from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 type TabType = 'suppliers' | 'orders';
 
 export default function SupplierModule() {
   const [activeTab, setActiveTab] = useState<TabType>('suppliers');
   const [isWide, setIsWide] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
   const [data, setData] = useState<any>({ suppliers: [], orders: [] });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/suppliers').then(res => res.json()).then(setData);
   }, []);
 
+  const handleEdit = (id: string, rowData: any, tab: TabType) => {
+    setEditingId(id);
+    setFormData(rowData);
+    setActiveTab(tab);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId) {
+      console.log('Updating:', editingId, formData);
+    } else {
+      console.log('Creating:', formData);
+    }
+    handleCancelEdit();
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting:', deleteId);
+      // TODO: API call
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">Supplier Management</h1>
-        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Vendor Relations & Procurement Operations</p>
-      </div>
 
       {/* Tab Navigation */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">
@@ -73,11 +106,11 @@ export default function SupplierModule() {
           {!isWide && (
             <div className="lg:col-span-4">
               <Card 
-                title={activeTab === 'suppliers' ? 'Register New Supplier' : 'Create Purchase Order'} 
-                icon={Plus} 
+                title={editingId ? (activeTab === 'suppliers' ? 'Edit Supplier' : 'Edit Purchase Order') : (activeTab === 'suppliers' ? 'Register New Supplier' : 'Create Purchase Order')} 
+                icon={editingId ? Edit : Plus} 
                 iconColor="bg-slate-800"
               >
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'suppliers' && (
                     <>
                       <Field label="Supplier ID" placeholder="AUTO-GENERATED" disabled value={data.metadata?.nextId || "SUP-..."} />
@@ -112,8 +145,17 @@ export default function SupplierModule() {
                   )}
 
                   <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all transform active:scale-[0.98]">
-                    {activeTab === 'suppliers' ? 'Register Supplier' : 'Generate PO'}
+                    {editingId ? 'Update Record' : (activeTab === 'suppliers' ? 'Register Supplier' : 'Generate PO')}
                   </button>
+                  {editingId && (
+                    <button 
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </form>
               </Card>
             </div>
@@ -150,10 +192,10 @@ export default function SupplierModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'suppliers' && (
-                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} />) || null
+                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} onEdit={() => handleEdit(`supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(`supplier-${i}`)} />) || null
                     )}
                     {activeTab === 'orders' && (
-                      data.orders?.map((o: any, i: number) => <OrderRow key={i} {...o} />) || null
+                      data.orders?.map((o: any, i: number) => <OrderRow key={i} {...o} onEdit={() => handleEdit(`order-${i}`, o, 'orders')} />) || null
                     )}
                   </tbody>
                 </table>
@@ -162,6 +204,12 @@ export default function SupplierModule() {
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
@@ -206,7 +254,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function SupplierRow({ id, name, category, email, phone, status }: any) {
+function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -235,10 +283,13 @@ function SupplierRow({ id, name, category, email, phone, status }: any) {
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
             <Edit className="w-3.5 h-3.5" />
           </button>
-          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+          <button 
+            onClick={onDelete}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+          >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -247,7 +298,7 @@ function SupplierRow({ id, name, category, email, phone, status }: any) {
   );
 }
 
-function OrderRow({ num, supplier, product, qty, amount, due, status }: any) {
+function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -276,7 +327,7 @@ function OrderRow({ num, supplier, product, qty, amount, due, status }: any) {
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">

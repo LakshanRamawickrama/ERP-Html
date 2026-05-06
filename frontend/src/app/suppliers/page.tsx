@@ -1,17 +1,11 @@
 import React from 'react';
-import Sidebar from '@/components/layouts/Sidebar';
 import SupplierModule from '@/modules/suppliers/SupplierModule';
-import { UserRole } from '@/constants/roles';
+import PageWrapper from '@/components/layouts/PageWrapper';
 
 export default function SuppliersPage() {
-  const userRole = UserRole.SUPER_ADMIN;
-
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar userRole={userRole} />
-      <div className="flex-1 ml-[70px]">
-        <SupplierModule />
-      </div>
-    </div>
+    <PageWrapper title="Supplier Management">
+      <SupplierModule />
+    </PageWrapper>
   );
 }

@@ -12,8 +12,10 @@ import {
   ChevronDown,
   Edit,
   Folder,
-  ChevronRight
+  ChevronRight,
+  Trash2
 } from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 export default function UserModule() {
   const [activeTab, setActiveTab] = useState<'registry' | 'roles'>('registry');
@@ -21,6 +23,10 @@ export default function UserModule() {
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
 
   const [data, setData] = useState<any>({ systemMap: [], registry: [], roles: [], businesses: [] });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
     fetch('/api/users').then(res => res.json()).then(setData);
@@ -32,13 +38,31 @@ export default function UserModule() {
     setExpandedCats(prev => prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]);
   };
 
+  const handleEdit = (id: string, rowData: any) => {
+    setEditingId(id);
+    setFormData(rowData);
+    setActiveTab('registry');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting user:', deleteId);
+      // TODO: API call
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">User Management</h1>
-        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest leading-none mt-1">Manage Platform Access, Roles, and User Permissions</p>
-      </div>
 
       {/* Tab Navigation */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">
@@ -76,17 +100,30 @@ export default function UserModule() {
           {/* Form Column */}
           {!isWide && (activeTab === 'registry') && (
             <div className="lg:col-span-4">
-              <Card title="Register New User" icon={UserPlus} iconColor="bg-slate-800">
+              <Card title={editingId ? "Edit User Account" : "Register New User"} icon={UserPlus} iconColor="bg-slate-800">
                 <form className="space-y-4">
-                  <Field label="Full Name" placeholder="John Doe" />
-                  <Field label="Email Address" type="email" placeholder="john@example.com" />
-                  <Field label="Assigned Roles" isSelect options={data.roles || []} />
-                  <Field label="Assigned Businesses" isSelect options={data.businesses || []} />
-                  <Field label="Password" type="password" />
-                  <Field label="Confirm Password" type="password" />
+                  <Field label="Full Name" placeholder="John Doe" value={formData.name} />
+                  <Field label="Email Address" type="email" placeholder="john@example.com" value={formData.email} />
+                  <Field label="Assigned Roles" isSelect options={data.roles || []} value={formData.roles} />
+                  <Field label="Assigned Businesses" isSelect options={data.businesses || []} value={formData.scope} />
+                  {!editingId && (
+                    <>
+                      <Field label="Password" type="password" />
+                      <Field label="Confirm Password" type="password" />
+                    </>
+                  )}
                   <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all">
-                    Create User Account
+                    {editingId ? "Update User Account" : "Create User Account"}
                   </button>
+                  {editingId && (
+                    <button 
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </form>
               </Card>
             </div>
@@ -128,7 +165,7 @@ export default function UserModule() {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {data.registry?.map((u: any, i: number) => (
-                          <UserRow key={i} {...u} />
+                          <UserRow key={i} {...u} onEdit={() => handleEdit(`user-${i}`, u)} onDelete={() => handleDeleteClick(`user-${i}`)} />
                         )) || null}
                       </tbody>
                     </>
@@ -184,6 +221,12 @@ export default function UserModule() {
         </div>
       </div>
 
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
+
       <style jsx>{`
         .checkbox-standard {
           width: 1rem;
@@ -203,26 +246,34 @@ export default function UserModule() {
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function Field({ label, placeholder, type = "text", isSelect, options = [] }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], value }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
         <div className="relative mt-1.5">
-          <select className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium appearance-none">
+          <select 
+            defaultValue={value}
+            className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium appearance-none"
+          >
             <option value="">Select Option...</option>
             {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
           </select>
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
         </div>
       ) : (
-        <input type={type} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
+        <input 
+          type={type} 
+          defaultValue={value}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
+          placeholder={placeholder} 
+        />
       )}
     </div>
   );
 }
 
-function UserRow({ name, email, roles, scope, access, status }: any) {
+function UserRow({ name, email, roles, scope, access, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -240,9 +291,20 @@ function UserRow({ name, email, roles, scope, access, status }: any) {
         }`}>{status}</span>
       </td>
       <td className="px-4 py-4">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={onEdit}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"
+          >
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={onDelete}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );

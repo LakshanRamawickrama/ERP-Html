@@ -1,24 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Sidebar from '@/components/layouts/Sidebar';
-import { useRouter, useParams } from 'next/navigation';
-import { UserRole } from '@/constants/roles';
+import { useParams, useRouter } from 'next/navigation';
+import PageWrapper from '@/components/layouts/PageWrapper';
 import {
   ArrowLeft,
   Building2,
   Truck,
   Package,
-  ShieldCheck,
-  MapPin,
-  Phone,
-  Mail,
   Calculator,
   Boxes,
   Scale,
-  Home,
-  LogOut,
-  User
+  Home
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -249,25 +242,18 @@ function PropertyRecord({ r }: { r: any }) {
 
 export default function BusinessDetailPage() {
   const { id } = useParams();
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const router = useRouter();
-
   const slug = id as string;
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (!savedUser) { router.push('/login'); return; }
-    const user = JSON.parse(savedUser);
-    setUserRole(user.role as UserRole);
-
     fetch(`/api/business/${slug}`)
       .then(res => res.json())
       .then(d => setData(d))
       .catch(err => console.error(err));
-  }, [router, slug]);
+  }, [slug]);
 
-  if (!userRole || !data) return null;
+  if (!data) return null;
 
   const business = data.business ?? {
     name: slug?.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
@@ -277,31 +263,10 @@ export default function BusinessDetailPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f1f5f9]">
-      <Sidebar userRole={userRole} />
-
-      <main className="ml-[70px] flex-1 flex flex-col min-h-screen">
-
-        {/* ── Top Nav ── */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-          <h1 className="text-base font-bold text-slate-800">Business Profile</h1>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <User size={14} className="text-slate-400" />
-              <span className="font-medium">superadmin</span>
-              <span className="text-slate-400">(Super Admin)</span>
-            </div>
-            <button
-              onClick={() => { localStorage.removeItem('user'); router.push('/login'); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              <LogOut size={12} /> Logout
-            </button>
-          </div>
-        </header>
-
+    <PageWrapper title="Business Profile">
+      <div className="flex flex-col h-full overflow-hidden bg-[#f1f5f9]">
         {/* ── Business Banner ── */}
-        <div className="bg-teal-600 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-teal-600 text-white px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
               <Building2 size={20} className="text-white" />
@@ -321,13 +286,12 @@ export default function BusinessDetailPage() {
             onClick={() => router.push('/dashboard')}
             className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold rounded-lg transition-colors border border-white/30"
           >
-            <ArrowLeft size={12} /> Back to All Businesses
+            <ArrowLeft size={12} /> Back to Dashboard
           </button>
         </div>
 
         {/* ── 6-Section Grid ── */}
-        <div className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
-
+        <div className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-2 gap-5 overflow-y-auto custom-scrollbar">
           {/* 1. Accounting */}
           <SectionCard icon={Calculator} iconBg="bg-slate-700" title="Accounting" count={data.accounting?.length || 0}>
             {data.accounting?.map((r: any, i: number) => (
@@ -369,14 +333,13 @@ export default function BusinessDetailPage() {
               <PropertyRecord key={i} r={r} />
             ))}
           </SectionCard>
-
         </div>
-      </main>
+      </div>
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
       `}</style>
-    </div>
+    </PageWrapper>
   );
 }

@@ -17,30 +17,69 @@ import {
   FileSearch,
   Box,
   User,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 type TabType = 'vehicles' | 'deliveries' | 'parcels';
 
 export default function FleetModule() {
   const [activeTab, setActiveTab] = useState<TabType>('vehicles');
   const [isWide, setIsWide] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
 
   const [data, setData] = useState<any>({ reminders: [], vehicles: [], deliveries: [], parcels: [] });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
     fetch('/api/fleet').then(res => res.json()).then(setData);
   }, []);
 
+  const handleEdit = (id: string, rowData: any, tab: TabType) => {
+    setEditingId(id);
+    setFormData(rowData);
+    setActiveTab(tab);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId) {
+      console.log('Updating:', editingId, formData);
+    } else {
+      console.log('Creating:', formData);
+    }
+    handleCancelEdit();
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting fleet record:', deleteId);
+      // TODO: API call
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
+  };
+
   const reminders = data.reminders || [];
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">Logistics / Fleet Management</h1>
-        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Unified Module for Vehicles, Deliveries, and Parcels</p>
-      </div>
 
       {/* Tab Navigation & Reminders */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">
@@ -95,63 +134,82 @@ export default function FleetModule() {
           {!isWide && (
             <div className="lg:col-span-4">
               <Card 
-                title={activeTab === 'vehicles' ? "Register Vehicle" : activeTab === 'deliveries' ? "New Delivery Entry" : "Manage Parcel Partner"} 
-                icon={PlusCircle} 
+                title={
+                  editingId ? (
+                    activeTab === 'vehicles' ? "Edit Vehicle" : 
+                    activeTab === 'deliveries' ? "Edit Delivery" : 
+                    "Edit Parcel Partner"
+                  ) : (
+                    activeTab === 'vehicles' ? "Register Vehicle" : 
+                    activeTab === 'deliveries' ? "New Delivery Entry" : 
+                    "Manage Parcel Partner"
+                  )
+                } 
+                icon={editingId ? Edit : PlusCircle} 
                 iconColor="bg-slate-800"
               >
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'vehicles' && (
                     <>
-                      <Field label="Vehicle Name" placeholder="e.g. CAR 1" />
-                      <Field label="Plate Number" placeholder="ABC-1234" />
-                      <Field label="Assigned Business" isSelect options={data.options?.businesses || []} />
+                      <Field label="Vehicle Name" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. CAR 1" />
+                      <Field label="Plate Number" name="plate" value={formData.plate} onChange={handleInputChange} placeholder="ABC-1234" />
+                      <Field label="Assigned Business" name="biz" value={formData.biz} onChange={handleInputChange} isSelect options={data.options?.businesses || []} />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Insurance Exp." type="date" />
-                        <Field label="Insurance Doc" type="file" />
+                        <Field label="Insurance Exp." name="ins" value={formData.ins} onChange={handleInputChange} type="date" />
+                        <Field label="Insurance Doc" name="insDoc" onChange={handleInputChange} type="file" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="MOT Date" type="date" />
-                        <Field label="MOT Doc" type="file" />
+                        <Field label="MOT Date" name="mot" value={formData.mot} onChange={handleInputChange} type="date" />
+                        <Field label="MOT Doc" name="motDoc" onChange={handleInputChange} type="file" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Road Tax Date" type="date" />
-                        <Field label="Tax Doc" type="file" />
+                        <Field label="Road Tax Date" name="tax" value={formData.tax} onChange={handleInputChange} type="date" />
+                        <Field label="Tax Doc" name="taxDoc" onChange={handleInputChange} type="file" />
                       </div>
-                      <Field label="Notes" isTextArea placeholder="Standard company van, service due, etc." />
+                      <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea placeholder="Standard company van, service due, etc." />
                     </>
                   )}
 
                   {activeTab === 'deliveries' && (
                     <>
-                      <Field label="Select Vehicle" isSelect options={data.options?.vehicles || []} />
+                      <Field label="Select Vehicle" name="v" value={formData.v} onChange={handleInputChange} isSelect options={data.options?.vehicles || []} />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Pickup Date" type="date" />
-                        <Field label="Delivery Date" type="date" />
+                        <Field label="Pickup Date" name="pickupDate" value={formData.pickupDate} onChange={handleInputChange} type="date" />
+                        <Field label="Delivery Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
                       </div>
-                      <Field label="Delivery Address" placeholder="123 Street, City" />
-                      <Field label="Contact Person" placeholder="Receiver's name" />
-                      <Field label="Contact Number" placeholder="+44 7..." />
-                      <Field label="Status" isSelect options={data.options?.deliveryStatuses || []} />
-                      <Field label="Notes" isTextArea placeholder="Gate code, specific instructions..." />
+                      <Field label="Delivery Address" name="addr" value={formData.addr} onChange={handleInputChange} placeholder="123 Street, City" />
+                      <Field label="Contact Person" name="contact" value={formData.contact} onChange={handleInputChange} placeholder="Receiver's name" />
+                      <Field label="Contact Number" name="contactNum" value={formData.contactNum} onChange={handleInputChange} placeholder="+44 7..." />
+                      <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.options?.deliveryStatuses || []} />
+                      <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea placeholder="Gate code, specific instructions..." />
                     </>
                   )}
 
                   {activeTab === 'parcels' && (
                     <>
-                      <Field label="Service Provider" placeholder="DHL, FedEx, UPS..." />
-                      <Field label="Assigned Vehicle" isSelect options={data.options?.vehicleShort || []} />
-                      <Field label="Service Date" type="date" />
-                      <Field label="Area / Address" placeholder="City Central Coverage" />
-                      <Field label="Contact Name" placeholder="Partner manager name" />
-                      <Field label="Contact Number" placeholder="Partner phone" />
-                      <Field label="Agreement Status" isSelect options={data.options?.agreementStatuses || []} />
-                      <Field label="Notes" isTextArea placeholder="Weekly billing, special rates..." />
+                      <Field label="Service Provider" name="provider" value={formData.provider} onChange={handleInputChange} placeholder="DHL, FedEx, UPS..." />
+                      <Field label="Assigned Vehicle" name="v" value={formData.v} onChange={handleInputChange} isSelect options={data.options?.vehicleShort || []} />
+                      <Field label="Service Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
+                      <Field label="Area / Address" name="area" value={formData.area} onChange={handleInputChange} placeholder="City Central Coverage" />
+                      <Field label="Contact Name" name="contact" value={formData.contact} onChange={handleInputChange} placeholder="Partner manager name" />
+                      <Field label="Contact Number" name="contactNum" value={formData.contactNum} onChange={handleInputChange} placeholder="Partner phone" />
+                      <Field label="Agreement Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.options?.agreementStatuses || []} />
+                      <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea placeholder="Weekly billing, special rates..." />
                     </>
                   )}
 
                   <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all transform active:scale-[0.98]">
-                    Save Record
+                    {editingId ? 'Update Record' : 'Save Record'}
                   </button>
+                  {editingId && (
+                    <button 
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </form>
               </Card>
             </div>
@@ -198,13 +256,13 @@ export default function FleetModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'vehicles' && (
-                      data.vehicles?.map((v: any, i: number) => <VehicleRow key={i} {...v} />) || null
+                      data.vehicles?.map((v: any, i: number) => <VehicleRow key={i} {...v} onEdit={() => handleEdit(`vehicle-${i}`, v, 'vehicles')} onDelete={() => handleDeleteClick(`vehicle-${i}`)} />) || null
                     )}
                     {activeTab === 'deliveries' && (
-                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} />) || null
+                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} onEdit={() => handleEdit(`delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(`delivery-${i}`)} />) || null
                     )}
                     {activeTab === 'parcels' && (
-                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} />) || null
+                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} onEdit={() => handleEdit(`parcel-${i}`, p, 'parcels')} onDelete={() => handleDeleteClick(`parcel-${i}`)} />) || null
                     )}
                   </tbody>
                 </table>
@@ -213,6 +271,12 @@ export default function FleetModule() {
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
@@ -233,25 +297,44 @@ function TabButton({ active, label, icon: Icon, onClick }: any) {
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, name, value, onChange }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium">
+        <select 
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
+        >
           <option value="">Select Option...</option>
-          {options.map((opt: string) => <option key={opt}>{opt}</option>)}
+          {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea rows={2} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
+        <textarea 
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          rows={2} 
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
+          placeholder={placeholder} 
+        />
       ) : (
-        <input type={type} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
+        <input 
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          type={type} 
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
+          placeholder={placeholder} 
+        />
       )}
     </div>
   );
 }
 
-function VehicleRow({ name, plate, biz, mot, ins, tax, status }: any) {
+function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -294,15 +377,20 @@ function VehicleRow({ name, plate, biz, mot, ins, tax, status }: any) {
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">{status}</span>
       </td>
       <td className="px-4 py-4">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function DeliveryRow({ date, v, vNum, addr, contact, notes, status }: any) {
+function DeliveryRow({ date, v, vNum, addr, contact, notes, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 text-xs font-medium">{date}</td>
@@ -327,15 +415,20 @@ function DeliveryRow({ date, v, vNum, addr, contact, notes, status }: any) {
         <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full border border-blue-100 uppercase">{status}</span>
       </td>
       <td className="px-4 py-4">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-          <FileSearch className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+            <FileSearch className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function ParcelRow({ provider, v, vNum, area, contact, status }: any) {
+function ParcelRow({ provider, v, vNum, area, contact, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -359,9 +452,14 @@ function ParcelRow({ provider, v, vNum, area, contact, status }: any) {
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">{status}</span>
       </td>
       <td className="px-4 py-4">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );

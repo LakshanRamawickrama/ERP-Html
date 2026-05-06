@@ -4,7 +4,6 @@ import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { 
   Download, 
-  Filter, 
   Calendar, 
   TrendingUp, 
   TrendingDown,
@@ -23,10 +22,12 @@ import {
   Trophy,
   ArrowUpRight
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function ReportsModule() {
   const [data, setData] = React.useState<any>({ stats: [], templates: [], businesses: [] });
   const [selectedBiz, setSelectedBiz] = React.useState('All Entities');
+  const [user, setUser] = React.useState<any>(null);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const fetchReports = React.useCallback(() => {
@@ -38,6 +39,14 @@ export default function ReportsModule() {
   }, []);
 
   React.useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
+      if (parsed.role !== 'Super Admin') {
+        setSelectedBiz(parsed.businesses?.[0] || 'Assigned Business');
+      }
+    }
     fetchReports();
   }, [fetchReports]);
 
@@ -48,7 +57,7 @@ export default function ReportsModule() {
   const tax = data.tax || [];
 
   const StatItem = ({ title, value, icon: Icon, color, borderColor, bgColor }: any) => (
-    <div className={`px-4 py-2 rounded-full border ${borderColor} ${bgColor} flex items-center gap-3 transition-all hover:brightness-95 cursor-default`}>
+    <div className={`px-3 py-1 rounded-full border ${borderColor} ${bgColor} flex items-center gap-3 transition-all hover:brightness-95 cursor-default`}>
       <Icon className={`w-3.5 h-3.5 ${color}`} />
       <div className="flex items-center gap-1.5 whitespace-nowrap">
         <span className={`text-[11px] font-black uppercase tracking-tight ${color}`}>{title}:</span>
@@ -59,42 +68,34 @@ export default function ReportsModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-5 py-2.5 flex items-center justify-between">
-        <div>
-          <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">Business Analytics & Reports</h4>
-          <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1.5 mt-0.5">
-            Enterprise Performance Insights
-            <span className="w-1 h-1 bg-slate-200 rounded-full" />
-            <span className="text-emerald-500 font-black">LIVE</span>
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Synced</p>
-          <p className="text-[10px] font-bold text-slate-500">12:22 PM</p>
-        </div>
-      </div>
 
       {/* Toolbar */}
-      <div className="bg-white border-b border-slate-200 px-5 py-2 flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-5 py-1.5 flex items-center justify-between">
         <div className="flex gap-2.5">
           <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all">
             <Calendar className="w-3 h-3" />
             Last 30 Days
           </button>
-          <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all">
-            <Filter className="w-3 h-3" />
-            Filters
-          </button>
+
           <select 
             value={selectedBiz}
             onChange={(e) => setSelectedBiz(e.target.value)}
-            className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all outline-none"
+            disabled={user?.role !== 'Super Admin'}
+            className={cn(
+              "flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all outline-none",
+              user?.role !== 'Super Admin' && "opacity-80 pointer-events-none"
+            )}
           >
-            <option>All Entities</option>
-            {businesses.map((b: any) => (
-              <option key={b.id}>{b.name}</option>
-            ))}
+            {user?.role === 'Super Admin' ? (
+              <>
+                <option>All Entities</option>
+                {businesses.map((b: any) => (
+                  <option key={b.id}>{b.name}</option>
+                ))}
+              </>
+            ) : (
+              <option>{user?.businesses?.[0] || 'Assigned Business'}</option>
+            )}
           </select>
         </div>
         <div className="flex gap-1.5">
@@ -112,7 +113,7 @@ export default function ReportsModule() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         
         {/* Pill-Style KPI Badges */}
         <div className="flex flex-wrap gap-3">
@@ -123,12 +124,12 @@ export default function ReportsModule() {
         </div>
 
         {/* Top Feature Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* 1. Available Templates */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Available Templates</h5>
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 h-[250px] overflow-y-auto">
-              <div className="space-y-2">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 h-[180px] overflow-y-auto">
+              <div className="space-y-1">
                 {templates.map((t: any, i: number) => (
                   <ExportItem key={i} {...t} />
                 ))}
@@ -137,15 +138,15 @@ export default function ReportsModule() {
           </div>
 
           {/* 2. Top Performance Leaderboard */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Top Performers</h5>
               <Trophy className="w-3 h-3 text-amber-500" />
             </div>
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[250px] overflow-y-auto">
-              <div className="p-2">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[180px] overflow-y-auto">
+              <div className="p-1">
                 {[...businesses].sort((a, b) => parseFloat(b.inc.replace(/[$,]/g, '')) - parseFloat(a.inc.replace(/[$,]/g, ''))).slice(0, 5).map((biz, i) => (
-                  <div key={biz.id} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all group">
+                  <div key={biz.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-xl transition-all group">
                     <div className="flex items-center gap-3">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-[9px] ${
                         i === 0 ? 'bg-amber-100 text-amber-600' : 
@@ -167,9 +168,9 @@ export default function ReportsModule() {
           </div>
 
           {/* 3. Consolidated Cash & Tax Overview */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Cash & Tax Overview</h5>
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[250px] flex flex-col">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[180px] flex flex-col">
               <div className="bg-slate-50/50 px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-3 h-3 text-slate-400" />
@@ -179,7 +180,7 @@ export default function ReportsModule() {
               </div>
               <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
                 {banks.map((bank: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between p-3 hover:bg-slate-50 transition-colors">
+                  <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-2">
                       <CreditCard className="w-3.5 h-3.5 text-slate-300" />
                       <div className="flex flex-col">
@@ -190,7 +191,7 @@ export default function ReportsModule() {
                     <span className="text-[10px] font-black text-slate-800">{bank.bl}</span>
                   </div>
                 ))}
-                <div className="p-3 bg-slate-50/50">
+                <div className="p-2 bg-slate-50/50">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Statutory Obligations</p>
                   {tax.slice(0, 2).map((t: any, i: number) => (
                     <div key={i} className="flex items-center justify-between mb-1">
@@ -215,16 +216,17 @@ export default function ReportsModule() {
           
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse table-fixed min-w-[900px]">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business Entity</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Revenue</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Expenses</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Net Result</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assets</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[22%]">Business Entity</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[15%]">Admin Name</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Category</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Revenue</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Expenses</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[15%]">Net Result</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[9%]">Assets</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-right w-[9%]">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -236,28 +238,36 @@ export default function ReportsModule() {
                     
                     return (
                       <tr key={biz.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-colors group">
-                        <td className="p-4">
+                        <td className="px-4 py-2">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-[#2c3e50] group-hover:text-white transition-colors">
                               <Building2 className="w-4 h-4" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs font-bold text-slate-700">{biz.name}</span>
+                              <span className="text-xs font-bold text-slate-700 truncate block">{biz.name}</span>
                               <span className="text-[10px] text-slate-400 font-medium">ID: {biz.slug}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td className="px-4 py-2">
                           <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 border border-slate-200">
+                              {biz.admin?.split(' ').map((n: string) => n[0]).join('')}
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-600 truncate">{biz.admin}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2">
+                          <div className="flex items-center justify-center gap-2">
                             <Briefcase className="w-3 h-3 text-slate-300" />
                             <span className="text-[11px] font-bold text-slate-600">
                               {biz.id % 2 === 0 ? 'Logistics' : 'Retail'}
                             </span>
                           </div>
                         </td>
-                        <td className="p-4 text-xs font-black text-emerald-600">{biz.inc}</td>
-                        <td className="p-4 text-xs font-black text-red-500">{biz.exp}</td>
-                        <td className="p-4">
+                        <td className="px-4 py-2 text-xs font-black text-emerald-600 uppercase tracking-tighter text-center">{biz.inc}</td>
+                        <td className="px-4 py-2 text-xs font-black text-red-500 uppercase tracking-tighter text-center">{biz.exp}</td>
+                        <td className="px-4 py-2">
                           <div className="flex flex-col gap-1">
                             <span className={`text-xs font-black ${netVal >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                               {netVal >= 0 ? '+' : ''}${netVal.toLocaleString()}
@@ -273,13 +283,13 @@ export default function ReportsModule() {
                             </div>
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td className="px-4 py-2">
                           <div className="flex flex-col text-[10px] font-bold text-slate-500">
                             <span>{biz.skus} SKUs</span>
                             <span>{biz.flt} Vehicles</span>
                           </div>
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="px-4 py-2 text-right">
                           <span className={`text-[9px] font-black px-2.5 py-1 rounded-md ${
                             biz.st === 'Active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
                             biz.st === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 

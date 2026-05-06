@@ -20,6 +20,8 @@ export async function GET() {
     dojo: ACCOUNTING_DOJO,
     insurance: ACCOUNTING_INSURANCE,
     vat: ACCOUNTING_VAT,
+    summary: ACCOUNTING_SUMMARY,
+    options: FORM_OPTIONS.accountingCategories,
     suppliers: FORM_OPTIONS.accountingSuppliers,
     paymentModes: FORM_OPTIONS.accountingPaymentModes,
     recordTypes: FORM_OPTIONS.accountingRecordTypes,
@@ -31,5 +33,7 @@ export async function GET() {
     renewalReminders: FORM_OPTIONS.accountingRenewalReminders,
     vatStatuses: FORM_OPTIONS.accountingVatStatuses,
     dojoMethods: FORM_OPTIONS.accountingDojoMethods,
+    inventoryCategories: FORM_OPTIONS.inventoryCategories,
+    inventoryItems: FORM_OPTIONS.inventoryItems,
   });
 }

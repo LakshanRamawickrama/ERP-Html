@@ -382,16 +382,16 @@ export const PROPERTY_LICENCES = [
 // ─── Dashboard Widget Data ─────────────────────────────────────────────────────
 
 export const DASHBOARD_BUSINESSES = [
-  { id: 1, name: 'Alpha Trading Co.', slug: 'alpha-trading', inc: '$125,400', exp: '$42,100', skus: '1,240', flt: 12, st: 'Active' },
-  { id: 2, name: 'Beta Logistics Ltd.', slug: 'beta-logistics', inc: '$84,200', exp: '$31,500', skus: '450', flt: 24, st: 'Active' },
-  { id: 3, name: 'Whiterock Retail Ltd.', slug: 'whiterock-retail', inc: '$210,500', exp: '$98,400', skus: '3,800', flt: 4, st: 'Active' },
-  { id: 4, name: 'Zenith Logistics Hub', slug: 'zenith-logistics', inc: '$15,000', exp: '$2,000', skus: '120', flt: 0, st: 'Pending' },
-  { id: 5, name: 'Prime Supplies UK', slug: 'prime-supplies', inc: '$58,000', exp: '$12,800', skus: '6,200', flt: 2, st: 'Active' },
-  { id: 6, name: 'Global Logistics Partners', slug: 'global-logistics', inc: '$92,300', exp: '$28,500', skus: '1,100', flt: 35, st: 'Active' },
-  { id: 7, name: 'Smart Solutions Ltd.', slug: 'smart-solutions', inc: '$45,000', exp: '$12,000', skus: '850', flt: 3, st: 'Active' },
-  { id: 8, name: 'Ocean View Exports', slug: 'ocean-view', inc: '$112,000', exp: '$45,600', skus: '2,400', flt: 8, st: 'Active' },
-  { id: 9, name: 'TechConnect Inc.', slug: 'techconnect', inc: '$38,500', exp: '$15,200', skus: '320', flt: 1, st: 'Suspended' },
-  { id: 10, name: 'Consulting Ltd.', slug: 'consulting-ltd', inc: '$12,400', exp: '$4,100', skus: '15', flt: 0, st: 'Active' },
+  { id: 1, name: 'Alpha Trading Co.', slug: 'alpha-trading', admin: 'John Smith', inc: '$125,400', exp: '$42,100', skus: '1,240', flt: 12, st: 'Active' },
+  { id: 2, name: 'Beta Logistics Ltd.', slug: 'beta-logistics', admin: 'Sarah Jenkins', inc: '$84,200', exp: '$31,500', skus: '450', flt: 24, st: 'Active' },
+  { id: 3, name: 'Whiterock Retail Ltd.', slug: 'whiterock-retail', admin: 'Mike Ross', inc: '$210,500', exp: '$98,400', skus: '3,800', flt: 4, st: 'Active' },
+  { id: 4, name: 'Zenith Logistics Hub', slug: 'zenith-logistics', admin: 'Rachel Zane', inc: '$15,000', exp: '$2,000', skus: '120', flt: 0, st: 'Pending' },
+  { id: 5, name: 'Prime Supplies UK', slug: 'prime-supplies', admin: 'Harvey Specter', inc: '$58,000', exp: '$12,800', skus: '6,200', flt: 2, st: 'Active' },
+  { id: 6, name: 'Global Logistics Partners', slug: 'global-logistics', admin: 'Louis Litt', inc: '$92,300', exp: '$28,500', skus: '1,100', flt: 35, st: 'Active' },
+  { id: 7, name: 'Smart Solutions Ltd.', slug: 'smart-solutions', admin: 'Donna Paulsen', inc: '$45,000', exp: '$12,000', skus: '850', flt: 3, st: 'Active' },
+  { id: 8, name: 'Ocean View Exports', slug: 'ocean-view', admin: 'Robert Zane', inc: '$112,000', exp: '$45,600', skus: '2,400', flt: 8, st: 'Active' },
+  { id: 9, name: 'TechConnect Inc.', slug: 'techconnect', admin: 'Alex Williams', inc: '$38,500', exp: '$15,200', skus: '320', flt: 1, st: 'Suspended' },
+  { id: 10, name: 'Consulting Ltd.', slug: 'consulting-ltd', admin: 'Katrina Bennett', inc: '$12,400', exp: '$4,100', skus: '15', flt: 0, st: 'Active' },
 ];
 
 export const DASHBOARD_FLEET = [
@@ -541,11 +541,13 @@ export const LOGIN_CREDENTIALS = {
     username: 'superadmin',
     password: 'superadmin123',
     altPassword: 'admin123',
+    businesses: ['All Entities']
   },
   companyAdmin: {
     email: 'admin@central.com',
     username: 'admin',
     password: 'admin123',
+    businesses: ['Whiterock Retail Ltd.']
   },
 };
 
@@ -599,3 +601,11 @@ export const FORM_OPTIONS = {
   fleetAgreementStatuses: ['Active', 'Pending', 'Expired'],
   businessCategories: ['Retail', 'Manufacturing', 'Service Provider', 'Holding Company', 'Other'],
 };
+
+export const REMINDERS = [
+  { id: '1', title: 'Vehicle Insurance Renewal', business: 'Logistics Pro Ltd', description: 'Annual HGV insurance renewal for fleet group A. Requires updated driver list.', date: '2026-05-15', priority: 'High', type: 'Fleet' },
+  { id: '2', title: 'Confirmation Statement', business: 'Tech solutions Global', description: 'Submit CS01 form to Companies House. Check shareholder details.', date: '2026-06-01', priority: 'High', type: 'Legal' },
+  { id: '3', title: 'Quarterly VAT Filing', business: 'All Business Units', description: 'Standard rate VAT submission for Q1. Reconcile Dojo settlements.', date: '2026-05-30', priority: 'Medium', type: 'Accounting' },
+  { id: '4', title: 'Office Lease Review', business: 'Main HQ - London', description: 'Review break clause and rent escalation terms with legal team.', date: '2026-07-12', priority: 'Low', type: 'Property' },
+  { id: '5', title: 'Update System Passwords', business: 'Internal System', description: 'Security protocol: rotate all administrative and database passwords.', date: '2026-05-10', priority: 'High', type: 'Manual' },
+];
