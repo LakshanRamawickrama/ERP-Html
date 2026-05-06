@@ -21,6 +21,8 @@ import {
   FileText
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
+import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+
 
 type TabType = 'suppliers' | 'orders';
 
@@ -32,6 +34,9 @@ export default function SupplierModule() {
   const [data, setData] = useState<any>({ suppliers: [], orders: [] });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
 
   useEffect(() => {
     fetch('/api/suppliers').then(res => res.json()).then(setData);
@@ -63,7 +68,13 @@ export default function SupplierModule() {
     setShowDeleteModal(true);
   };
 
+  const handleViewDoc = (docTitle: string, type?: string) => {
+    setSelectedDoc({ title: docTitle, type: type });
+    setIsDrawerOpen(true);
+  };
+
   const confirmDelete = () => {
+
     if (deleteId) {
       console.log('Deleting:', deleteId);
       // TODO: API call
@@ -195,8 +206,16 @@ export default function SupplierModule() {
                       data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} onEdit={() => handleEdit(`supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(`supplier-${i}`)} />) || null
                     )}
                     {activeTab === 'orders' && (
-                      data.orders?.map((o: any, i: number) => <OrderRow key={i} {...o} onEdit={() => handleEdit(`order-${i}`, o, 'orders')} />) || null
+                      data.orders?.map((o: any, i: number) => (
+                        <OrderRow 
+                          key={i} 
+                          {...o} 
+                          onEdit={() => handleEdit(`order-${i}`, o, 'orders')} 
+                          onView={() => handleViewDoc(`Purchase Order ${o.num}`, 'Procurement')}
+                        />
+                      )) || null
                     )}
+
                   </tbody>
                 </table>
               </div>
@@ -210,7 +229,14 @@ export default function SupplierModule() {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
       />
+
+      <DocumentDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        documentData={selectedDoc}
+      />
     </div>
+
   );
 }
 
@@ -298,7 +324,7 @@ function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelet
   );
 }
 
-function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit }: any) {
+function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit, onView }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -327,14 +353,21 @@ function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit }: 
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+          <button 
+            onClick={onEdit} 
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"
+          >
             <Edit className="w-3.5 h-3.5" />
           </button>
-          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+          <button 
+            onClick={onView}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"
+          >
              <Printer className="w-3.5 h-3.5" />
           </button>
         </div>
       </td>
+
     </tr>
   );
 }

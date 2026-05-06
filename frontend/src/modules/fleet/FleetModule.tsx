@@ -21,6 +21,8 @@ import {
   Trash2
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
+import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+
 
 type TabType = 'vehicles' | 'deliveries' | 'parcels';
 
@@ -33,6 +35,9 @@ export default function FleetModule() {
   const [data, setData] = useState<any>({ reminders: [], vehicles: [], deliveries: [], parcels: [] });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
 
   React.useEffect(() => {
     fetch('/api/fleet').then(res => res.json()).then(setData);
@@ -64,7 +69,13 @@ export default function FleetModule() {
     setShowDeleteModal(true);
   };
 
+  const handleViewDoc = (docTitle: string, type?: string) => {
+    setSelectedDoc({ title: docTitle, type: type });
+    setIsDrawerOpen(true);
+  };
+
   const confirmDelete = () => {
+
     if (deleteId) {
       console.log('Deleting fleet record:', deleteId);
       // TODO: API call
@@ -256,8 +267,17 @@ export default function FleetModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'vehicles' && (
-                      data.vehicles?.map((v: any, i: number) => <VehicleRow key={i} {...v} onEdit={() => handleEdit(`vehicle-${i}`, v, 'vehicles')} onDelete={() => handleDeleteClick(`vehicle-${i}`)} />) || null
+                      data.vehicles?.map((v: any, i: number) => (
+                        <VehicleRow 
+                          key={i} 
+                          {...v} 
+                          onEdit={() => handleEdit(`vehicle-${i}`, v, 'vehicles')} 
+                          onDelete={() => handleDeleteClick(`vehicle-${i}`)}
+                          onViewDoc={(title: string) => handleViewDoc(title, 'Fleet Compliance')}
+                        />
+                      )) || null
                     )}
+
                     {activeTab === 'deliveries' && (
                       data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} onEdit={() => handleEdit(`delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(`delivery-${i}`)} />) || null
                     )}
@@ -277,7 +297,14 @@ export default function FleetModule() {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
       />
+
+      <DocumentDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        documentData={selectedDoc}
+      />
     </div>
+
   );
 }
 
@@ -334,7 +361,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit, onDelete }: any) {
+function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit, onDelete, onViewDoc }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -362,17 +389,18 @@ function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit, onDelete 
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <span title="MOT Doc">
+          <span title="MOT Doc" onClick={() => onViewDoc(`MOT Certificate - ${plate}`)}>
             <FileText className="w-4 h-4 text-red-500 cursor-pointer hover:scale-110 transition-transform" />
           </span>
-          <span title="Insurance Doc">
+          <span title="Insurance Doc" onClick={() => onViewDoc(`Insurance Policy - ${plate}`)}>
             <FileText className="w-4 h-4 text-amber-500 cursor-pointer hover:scale-110 transition-transform" />
           </span>
-          <span title="Tax Doc">
+          <span title="Tax Doc" onClick={() => onViewDoc(`Road Tax Log - ${plate}`)}>
             <FileText className="w-4 h-4 text-slate-500 cursor-pointer hover:scale-110 transition-transform" />
           </span>
         </div>
       </td>
+
       <td className="px-4 py-4">
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">{status}</span>
       </td>

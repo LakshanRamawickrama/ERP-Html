@@ -16,6 +16,8 @@ import {
   Trash2
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
+import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+
 
 export default function LegalModule() {
   const [isWide, setIsWide] = useState(false);
@@ -24,6 +26,9 @@ export default function LegalModule() {
   const [formData, setFormData] = useState<any>({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
 
   useEffect(() => {
     fetch('/api/legal').then(res => res.json()).then(setData);
@@ -51,7 +56,13 @@ export default function LegalModule() {
     }
   };
 
+  const handleViewDoc = (doc: any) => {
+    setSelectedDoc(doc);
+    setIsDrawerOpen(true);
+  };
+
   const docs = data.docs || [];
+
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -131,7 +142,16 @@ export default function LegalModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {docs.map((doc: any, i: number) => <DocRow key={i} {...doc} onEdit={() => handleEdit(`doc-${i}`, doc)} onDelete={() => handleDeleteClick(`doc-${i}`)} />)}
+                    {docs.map((doc: any, i: number) => (
+                      <DocRow 
+                        key={i} 
+                        {...doc} 
+                        onEdit={() => handleEdit(`doc-${i}`, doc)} 
+                        onDelete={() => handleDeleteClick(`doc-${i}`)}
+                        onView={() => handleViewDoc(doc)}
+                      />
+                    ))}
+
                   </tbody>
                 </table>
               </div>
@@ -145,23 +165,34 @@ export default function LegalModule() {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
       />
+
+      <DocumentDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        documentData={selectedDoc}
+      />
     </div>
+
   );
 }
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function DocRow({ title, type, auth, file, status, onEdit, onDelete }: any) {
+function DocRow({ title, type, auth, file, status, onEdit, onDelete, onView }: any) {
   return (
-    <tr className="hover:bg-slate-50/50">
+    <tr className="hover:bg-slate-50/50 group">
       <td className="px-4 py-3 font-bold text-slate-800">{title}</td>
       <td className="px-4 py-3 text-slate-500 font-medium">{type}</td>
       <td className="px-4 py-3 text-slate-400 text-xs">{auth}</td>
       <td className="px-4 py-3">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded">
+        <button 
+          onClick={onView}
+          className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded hover:bg-white hover:shadow-sm transition-all cursor-pointer"
+        >
           <FileText className="w-3 h-3 text-red-500" /> {file}
-        </span>
+        </button>
       </td>
+
       <td className="px-4 py-3">
         <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase ${
           status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'

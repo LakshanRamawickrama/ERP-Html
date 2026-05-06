@@ -23,12 +23,17 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+
 
 export default function ReportsModule() {
   const [data, setData] = React.useState<any>({ stats: [], templates: [], businesses: [] });
   const [selectedBiz, setSelectedBiz] = React.useState('All Entities');
   const [user, setUser] = React.useState<any>(null);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [selectedDoc, setSelectedDoc] = React.useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+
 
   const fetchReports = React.useCallback(() => {
     setRefreshing(true);
@@ -56,7 +61,13 @@ export default function ReportsModule() {
   const banks = data.banks || [];
   const tax = data.tax || [];
 
+  const handleViewDoc = (docTitle: string, format: string) => {
+    setSelectedDoc({ title: docTitle, type: `Report (${format})` });
+    setIsDrawerOpen(true);
+  };
+
   const StatItem = ({ title, value, icon: Icon, color, borderColor, bgColor }: any) => (
+
     <div className={`px-3 py-1 rounded-full border ${borderColor} ${bgColor} flex items-center gap-3 transition-all hover:brightness-95 cursor-default`}>
       <Icon className={`w-3.5 h-3.5 ${color}`} />
       <div className="flex items-center gap-1.5 whitespace-nowrap">
@@ -131,9 +142,14 @@ export default function ReportsModule() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 h-[180px] overflow-y-auto">
               <div className="space-y-1">
                 {templates.map((t: any, i: number) => (
-                  <ExportItem key={i} {...t} />
+                  <ExportItem 
+                    key={i} 
+                    {...t} 
+                    onClick={() => handleViewDoc(t.label, t.format)}
+                  />
                 ))}
               </div>
+
             </div>
           </div>
 
@@ -307,14 +323,25 @@ export default function ReportsModule() {
           </div>
         </div>
       </div>
+
+      <DocumentDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        documentData={selectedDoc}
+      />
     </div>
+
   );
 }
 
 
-function ExportItem({ label, format }: any) {
+function ExportItem({ label, format, onClick }: any) {
   return (
-    <div className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors group cursor-pointer">
+    <div 
+      onClick={onClick}
+      className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors group cursor-pointer"
+    >
+
       <span className="text-xs font-bold text-slate-600 group-hover:text-[#2c3e50]">{label}</span>
       <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${
         format === 'PDF' ? 'bg-red-50 text-red-600' : 
