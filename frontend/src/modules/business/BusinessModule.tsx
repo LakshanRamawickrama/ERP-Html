@@ -17,16 +17,14 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
   const isSuperAdmin = userRole === 'Super Admin';
   const [activeTab, setActiveTab] = useState<TabType>(isSuperAdmin ? 'entities' : 'structure');
   const [isWide, setIsWide] = useState(false);
-  const [entities, setEntities] = useState<any[]>([]);
-  const [structures, setStructures] = useState<any[]>([]);
+  const [data, setData] = useState<any>({ entities: [], structures: [], options: { categories: [] } });
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
     fetch('/api/business')
       .then(res => res.json())
-      .then(data => {
-        setEntities(data.entities || []);
-        setStructures(data.structures || []);
+      .then(d => {
+        setData(d);
         setLoading(false);
       })
       .catch(err => {
@@ -34,6 +32,9 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
         setLoading(false);
       });
   }, []);
+
+  const entities = data.entities || [];
+  const structures = data.structures || [];
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -76,7 +77,7 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
                   <form className="space-y-4">
                     <Field label="Business Name" placeholder="e.g. Acme Corp" />
                     <Field label="Company Number" placeholder="CH-12345678" />
-                    <Field label="Business Category" isSelect options={['Retail', 'Manufacturing', 'Service Provider', 'Holding Company', 'Other']} />
+                    <Field label="Business Category" isSelect options={data.options?.categories || []} />
                     <Field label="Tax ID / VAT Number" />
                     <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
                       Register Business
@@ -154,13 +155,13 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
                       </tr>
                     ) : activeTab === 'entities' ? (
                       <>
-                        {entities.map((e, idx) => (
+                        {entities.map((e: any, idx: number) => (
                           <EntityRow key={idx} isWide={isWide} name={e.name} num={e.num} cat={e.cat} hq={e.hq} />
                         ))}
                       </>
                     ) : (
                       <>
-                        {structures.map((s, idx) => (
+                        {structures.map((s: any, idx: number) => (
                           <StructureRow key={idx} isWide={isWide} name={s.name} crn={s.crn} manager={s.manager} sic={s.sic} due={s.due} />
                         ))}
                       </>

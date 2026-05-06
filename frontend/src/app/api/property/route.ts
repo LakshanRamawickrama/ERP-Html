@@ -8,5 +8,8 @@ export async function GET() {
     waste: PROPERTY_WASTE,
     licences: PROPERTY_LICENCES,
     assetTypes: FORM_OPTIONS.propertyAssetTypes,
+    assets: FORM_OPTIONS.propertyAssets,
+    priorities: FORM_OPTIONS.propertyPriorities,
+    statuses: FORM_OPTIONS.propertyStatuses,
   });
 }

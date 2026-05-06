@@ -121,7 +121,7 @@ export default function AccountingModule() {
                         options={data.options || []} 
                         onChange={(e: any) => setRecordCategory(e.target.value)}
                       />
-                      {recordCategory === 'Supplier Payments' && <Field label="Supplier" isSelect options={['Global Supplies Ltd', 'Tech Connect Inc', 'Office Depot']} />}
+                      {recordCategory === 'Supplier Payments' && <Field label="Supplier" isSelect options={data.suppliers || []} />}
                       {recordCategory === 'Rent' && (
                         <div className="grid grid-cols-2 gap-4">
                           <Field label="Term Start" type="date" />
@@ -130,16 +130,16 @@ export default function AccountingModule() {
                       )}
                       {recordCategory === 'Mortgage' && (
                         <div className="grid grid-cols-2 gap-4">
-                          <Field label="Paying Mode" isSelect options={['Monthly', 'Quarterly', 'Annually']} />
+                          <Field label="Paying Mode" isSelect options={data.paymentModes || []} />
                           <Field label="Interest Rate (%)" type="number" step="0.01" />
                         </div>
                       )}
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Type" isSelect options={['Expense', 'Income']} />
+                        <Field label="Type" isSelect options={data.recordTypes || []} />
                         <Field label="Amount ($)" type="number" step="0.01" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Payment Status" isSelect options={['Paid', 'Pending', 'Overdue']} />
+                        <Field label="Payment Status" isSelect options={data.paymentStatuses || []} />
                         <Field label="Date" type="date" />
                       </div>
                       <Field label="Upload Document" type="file" />
@@ -155,7 +155,7 @@ export default function AccountingModule() {
                         <Field label="Amount ($)" type="number" step="0.01" />
                         <Field label="Due Date" type="date" />
                       </div>
-                      <Field label="Status" isSelect options={['Sent', 'Paid', 'Overdue', 'Cancelled']} />
+                      <Field label="Status" isSelect options={data.invoiceStatuses || []} />
                       <Field label="Attach PDF" type="file" />
                       <Field label="Internal Notes" isTextArea />
                     </>
@@ -169,9 +169,9 @@ export default function AccountingModule() {
                         <Field label="Account Number" />
                         <Field label="Sort Code" placeholder="00-00-00" />
                       </div>
-                      <Field label="Type" isSelect options={['Business Current', 'Business Savings', 'Merchant Account', 'Corporate Card', 'Petty Cash']} />
+                      <Field label="Type" isSelect options={data.bankTypes || []} />
                       <Field label="IBAN (Optional)" />
-                      <Field label="Status" isSelect options={['Active', 'Inactive']} />
+                      <Field label="Status" isSelect options={data.bankStatuses || []} />
                     </>
                   )}
 
@@ -191,7 +191,7 @@ export default function AccountingModule() {
                         <Field label="Start Date" type="date" />
                         <Field label="End Date" type="date" />
                       </div>
-                      <Field label="Status" isSelect options={['Active', 'Pending', 'Paid Off', 'Defaulted']} />
+                      <Field label="Status" isSelect options={data.loanStatuses || []} />
                     </>
                   )}
 
@@ -205,7 +205,7 @@ export default function AccountingModule() {
                         <Field label="Start Date" type="date" />
                         <Field label="Expiry Date" type="date" />
                       </div>
-                      <Field label="Renewal Reminder" isSelect options={['30 Days Before', '15 Days Before', '7 Days Before']} />
+                      <Field label="Renewal Reminder" isSelect options={data.renewalReminders || []} />
                     </>
                   )}
 
@@ -221,7 +221,7 @@ export default function AccountingModule() {
                         <Field label="Filing Date" type="date" />
                         <Field label="Payment Due" type="date" />
                       </div>
-                      <Field label="Status" isSelect options={['Draft', 'Filed', 'Paid', 'Overdue']} />
+                      <Field label="Status" isSelect options={data.vatStatuses || []} />
                     </>
                   )}
 
@@ -233,9 +233,9 @@ export default function AccountingModule() {
                         <Field label="Fee ($)" type="number" step="0.01" />
                       </div>
                       <Field label="Net Amount ($)" type="number" disabled placeholder="Calculated automatically" />
-                      <Field label="Payment Method" isSelect options={['Card', 'Digital Wallet']} />
+                      <Field label="Payment Method" isSelect options={data.dojoMethods || []} />
                       <Field label="Settlement Date" type="date" />
-                      <Field label="Status" isSelect options={['Paid', 'Pending', 'Overdue']} />
+                      <Field label="Status" isSelect options={data.paymentStatuses || []} />
                     </>
                   )}
 

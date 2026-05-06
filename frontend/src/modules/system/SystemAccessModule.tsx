@@ -71,11 +71,11 @@ export default function SystemAccessModule() {
             <div className="lg:col-span-4">
               <Card title="Add New Credential" icon={Plus} iconColor="bg-slate-800">
                 <form className="space-y-4">
-                  <Field label="Service Name *" isSelect options={['Till Access', 'PayPoint', 'PayZone', 'Lottery', 'Other']} />
+                  <Field label="Service Name *" isSelect options={data.options?.services || []} />
                   <Field label="Account / Username *" placeholder="Login ID or Username" />
                   <Field label="Password / PIN" type="password" placeholder="••••••••" />
                   <div className="grid grid-cols-2 gap-4">
-                    <Field label="Status" isSelect options={['Active', 'Inactive']} />
+                    <Field label="Status" isSelect options={data.options?.statuses || []} />
                     <Field label="Support Tel No" type="tel" placeholder="+94 11 ..." />
                   </div>
                   <Field label="Notes" isTextArea placeholder="URL, Renewal dates, etc." />

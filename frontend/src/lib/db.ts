@@ -271,12 +271,12 @@ export const PROPERTY_RECORDS = [
   },
 ];
 
-export const ENTITIES = [
+export const BUSINESS_ENTITIES = [
   { name: 'Main Retail Store', num: 'CH-98765432', cat: 'Retail', hq: 'London, UK' },
   { name: 'Logistics Hub', num: 'CH-11223344', cat: 'Logistics', hq: 'Manchester, UK' },
 ];
 
-export const STRUCTURES = [
+export const BUSINESS_STRUCTURES = [
   { name: 'Whiterock Retail Ltd', crn: '12345678', manager: 'John Smith', sic: '47110', due: '2026-12-15' },
   { name: 'Zenith Logistics Hub', crn: '87654321', manager: 'Sarah Jenkins', sic: '52101', due: '2026-11-20' },
 ];
@@ -541,8 +541,23 @@ export const LOGIN_CREDENTIALS = {
 
 export const FORM_OPTIONS = {
   accountingCategories: ['Supplier Payments', 'Rent', 'Mortgage', 'Accountant Fees', 'Bank Charges', 'Insurance', 'VAT / Tax'],
+  accountingSuppliers: ['Global Supplies Ltd', 'Tech Connect Inc', 'Office Depot'],
+  accountingPaymentModes: ['Monthly', 'Quarterly', 'Annually'],
+  accountingRecordTypes: ['Expense', 'Income'],
+  accountingPaymentStatuses: ['Paid', 'Pending', 'Overdue'],
+  accountingInvoiceStatuses: ['Sent', 'Paid', 'Overdue', 'Cancelled'],
+  accountingBankTypes: ['Business Current', 'Business Savings', 'Merchant Account', 'Corporate Card', 'Petty Cash'],
+  accountingBankStatuses: ['Active', 'Inactive'],
+  accountingLoanStatuses: ['Active', 'Pending', 'Paid Off', 'Defaulted'],
+  accountingRenewalReminders: ['30 Days Before', '15 Days Before', '7 Days Before'],
+  accountingVatStatuses: ['Draft', 'Filed', 'Paid', 'Overdue'],
+  accountingDojoMethods: ['Card', 'Digital Wallet'],
   inventoryCategories: ['Food & Beverages', 'Groceries', 'Electronics', 'Stationery', '+ Add New Category...'],
+  inventoryItems: ['Milk Packet 1L', 'Sugar 1kg'],
   propertyAssetTypes: ['HVAC', 'Electrical', 'Plumbing', 'Safety', 'Furniture', 'IT Infrastructure'],
+  propertyAssets: ['Main Office HVAC', 'Elevator A', 'Fire Suppression System', 'Other'],
+  propertyPriorities: ['Urgent', 'Medium', 'Low'],
+  propertyStatuses: ['Active', 'Expired', 'Pending'],
   legalDocTypes: [
     'License Applications',
     'Change of DPS',
@@ -553,4 +568,17 @@ export const FORM_OPTIONS = {
   ],
   userRoles: ['Admin', 'Manager', 'Staff'],
   userBusinesses: ['All Entities', 'Main Retail Store', 'Logistics Hub'],
+  supplierCategories: ['Raw Materials', 'Services', 'Office Supplies', 'IT Hardware', 'Logistics', 'Other'],
+  supplierStatuses: ['Active', 'Inactive', 'On Hold'],
+  supplierNames: ['Global Logistics Partners', 'Prime Office Supplies', 'TechConnect Inc'],
+  orderProductCategories: ['Electronics', 'Stationery', 'Services', 'Logistics'],
+  orderStatuses: ['Pending', 'Paid', 'Overdue'],
+  systemServiceNames: ['Till Access', 'PayPoint', 'PayZone', 'Lottery', 'Other'],
+  systemStatuses: ['Active', 'Inactive'],
+  fleetBusinesses: ['Main Retail Store', 'Logistics Hub', 'Whiterock Retail Ltd', 'Zenith Logistics Hub'],
+  fleetVehicles: ['CAR 1 (ABC-1234)', 'VAN 2 (XYZ-5678)'],
+  fleetDeliveryStatuses: ['Pending', 'In Transit', 'Delivered', 'Cancelled'],
+  fleetVehicleShort: ['CAR 1', 'VAN 2'],
+  fleetAgreementStatuses: ['Active', 'Pending', 'Expired'],
+  businessCategories: ['Retail', 'Manufacturing', 'Service Provider', 'Holding Company', 'Other'],
 };

@@ -82,32 +82,32 @@ export default function SupplierModule() {
                     <>
                       <Field label="Supplier ID" placeholder="AUTO-GENERATED" disabled value={data.metadata?.nextId || "SUP-..."} />
                       <Field label="Supplier Name" placeholder="e.g. Acme Supplies Ltd" />
-                      <Field label="Category" isSelect options={['Raw Materials', 'Services', 'Office Supplies', 'IT Hardware', 'Logistics', 'Other']} />
+                      <Field label="Category" isSelect options={data.options?.categories || []} />
                       <div className="grid grid-cols-1 gap-4">
                         <Field label="Email Address" type="email" placeholder="contact@vendor.com" />
                         <Field label="Phone Number" type="tel" placeholder="+44 20 0000 0000" />
                       </div>
                       <Field label="Business Address" isTextArea placeholder="Full headquarters address..." />
-                      <Field label="Status" isSelect options={['Active', 'Inactive', 'On Hold']} />
+                      <Field label="Status" isSelect options={data.options?.statuses || []} />
                       <Field label="Internal Notes" isTextArea placeholder="Payment terms, delivery preferences, etc." />
                     </>
                   )}
 
                   {activeTab === 'orders' && (
                     <>
-                      <Field label="Select Supplier" isSelect options={['Global Logistics Partners', 'Prime Office Supplies', 'TechConnect Inc']} />
+                      <Field label="Select Supplier" isSelect options={data.options?.names || []} />
                       <Field label="PO Number" placeholder="e.g. PO-2026-001" />
                       <Field label="Order Amount ($)" type="number" step="0.01" />
                       <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Product Details</div>
                          <div className="grid grid-cols-2 gap-3">
-                            <Field label="Product Category" isSelect options={['Electronics', 'Stationery', 'Services', 'Logistics']} />
+                             <Field label="Product Category" isSelect options={data.options?.productCategories || []} />
                             <Field label="Quantity" type="number" />
                          </div>
                          <Field label="Product Name" placeholder="e.g. Paper Reams (A4)" />
                       </div>
                       <Field label="Delivery Due Date" type="date" />
-                      <Field label="Order Status" isSelect options={['Pending', 'Paid', 'Overdue']} />
+                       <Field label="Order Status" isSelect options={data.options?.orderStatuses || []} />
                     </>
                   )}
 

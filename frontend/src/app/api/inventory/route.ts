@@ -7,5 +7,6 @@ export async function GET() {
     stock: INVENTORY_STOCK,
     moves: INVENTORY_MOVES,
     inventoryCategories: FORM_OPTIONS.inventoryCategories,
+    inventoryItems: FORM_OPTIONS.inventoryItems,
   });
 }

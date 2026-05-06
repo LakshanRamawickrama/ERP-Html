@@ -83,7 +83,7 @@ export default function InventoryModule() {
                   )}
                   {activeTab === 'move' && (
                     <>
-                      <Field label="Select Item *" isSelect options={['Milk Packet 1L', 'Sugar 1kg']} />
+                      <Field label="Select Item *" isSelect options={data.inventoryItems || []} />
                       <div className="flex gap-4 p-2 bg-slate-50 rounded-lg border border-slate-200">
                         <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
                           <input type="radio" name="mType" defaultChecked /> Stock In (+)

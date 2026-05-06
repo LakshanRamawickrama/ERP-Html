@@ -104,7 +104,7 @@ export default function FleetModule() {
                     <>
                       <Field label="Vehicle Name" placeholder="e.g. CAR 1" />
                       <Field label="Plate Number" placeholder="ABC-1234" />
-                      <Field label="Assigned Business" isSelect options={['Main Retail Store', 'Logistics Hub', 'Whiterock Retail Ltd', 'Zenith Logistics Hub']} />
+                      <Field label="Assigned Business" isSelect options={data.options?.businesses || []} />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Insurance Exp." type="date" />
                         <Field label="Insurance Doc" type="file" />
@@ -123,7 +123,7 @@ export default function FleetModule() {
 
                   {activeTab === 'deliveries' && (
                     <>
-                      <Field label="Select Vehicle" isSelect options={['CAR 1 (ABC-1234)', 'VAN 2 (XYZ-5678)']} />
+                      <Field label="Select Vehicle" isSelect options={data.options?.vehicles || []} />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Pickup Date" type="date" />
                         <Field label="Delivery Date" type="date" />
@@ -131,7 +131,7 @@ export default function FleetModule() {
                       <Field label="Delivery Address" placeholder="123 Street, City" />
                       <Field label="Contact Person" placeholder="Receiver's name" />
                       <Field label="Contact Number" placeholder="+44 7..." />
-                      <Field label="Status" isSelect options={['Pending', 'In Transit', 'Delivered', 'Cancelled']} />
+                      <Field label="Status" isSelect options={data.options?.deliveryStatuses || []} />
                       <Field label="Notes" isTextArea placeholder="Gate code, specific instructions..." />
                     </>
                   )}
@@ -139,12 +139,12 @@ export default function FleetModule() {
                   {activeTab === 'parcels' && (
                     <>
                       <Field label="Service Provider" placeholder="DHL, FedEx, UPS..." />
-                      <Field label="Assigned Vehicle" isSelect options={['CAR 1', 'VAN 2']} />
+                      <Field label="Assigned Vehicle" isSelect options={data.options?.vehicleShort || []} />
                       <Field label="Service Date" type="date" />
                       <Field label="Area / Address" placeholder="City Central Coverage" />
                       <Field label="Contact Name" placeholder="Partner manager name" />
                       <Field label="Contact Number" placeholder="Partner phone" />
-                      <Field label="Agreement Status" isSelect options={['Active', 'Pending', 'Expired']} />
+                      <Field label="Agreement Status" isSelect options={data.options?.agreementStatuses || []} />
                       <Field label="Notes" isTextArea placeholder="Weekly billing, special rates..." />
                     </>
                   )}
