@@ -26,7 +26,7 @@ export default function UserModule() {
     fetch('/api/users').then(res => res.json()).then(setData);
   }, []);
 
-  const systemMap = data.systemMap || [];
+  const systemMap = data.map || [];
 
   const toggleCat = (name: string) => {
     setExpandedCats(prev => prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]);
@@ -80,8 +80,8 @@ export default function UserModule() {
                 <form className="space-y-4">
                   <Field label="Full Name" placeholder="John Doe" />
                   <Field label="Email Address" type="email" placeholder="john@example.com" />
-                  <Field label="Assigned Roles" isSelect options={['Admin', 'Manager', 'Staff']} />
-                  <Field label="Assigned Businesses" isSelect options={['All Entities', 'Main Retail Store', 'Logistics Hub']} />
+                  <Field label="Assigned Roles" isSelect options={data.roles || []} />
+                  <Field label="Assigned Businesses" isSelect options={data.businesses || []} />
                   <Field label="Password" type="password" />
                   <Field label="Confirm Password" type="password" />
                   <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all">
@@ -96,7 +96,7 @@ export default function UserModule() {
             <div className="lg:col-span-4">
               <Card title="Configure Role" icon={Lock} iconColor="bg-slate-800">
                 <form className="space-y-4">
-                  <Field label="Administrative Role Assignment" isSelect options={['Admin (Main Retail Store)', 'Admin (Whiterock Retail Ltd)', 'Admin (Logistics Hub)']} />
+                  <Field label="Administrative Role Assignment" isSelect options={data.businesses || []} />
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <p className="text-[10px] font-bold text-slate-400 uppercase border-b pb-2 mb-3">Role Identity</p>
                     <p className="text-[11px] text-slate-500 italic leading-relaxed">Saving this role will create a new selectable permission set in the User Registry.</p>
@@ -144,7 +144,7 @@ export default function UserModule() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {systemMap.map(cat => (
+                        {systemMap.map((cat: any) => (
                           <React.Fragment key={cat.name}>
                             <tr 
                               className="category-row hover:bg-slate-50 cursor-pointer group"
@@ -160,7 +160,7 @@ export default function UserModule() {
                               <td className="px-4 py-3 text-center"><input type="checkbox" className="checkbox-standard" onClick={e => e.stopPropagation()} /></td>
                               <td className="px-4 py-3 text-center"><input type="checkbox" className="checkbox-standard" onClick={e => e.stopPropagation()} /></td>
                             </tr>
-                            {expandedCats.includes(cat.name) && cat.sub.map(s => (
+                            {expandedCats.includes(cat.name) && cat.sub.map((s: any) => (
                               <tr key={s} className="bg-slate-50/30">
                                 <td className="px-4 py-2 pl-12 text-[11px] text-slate-500 font-medium italic flex items-center gap-2">
                                   <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />

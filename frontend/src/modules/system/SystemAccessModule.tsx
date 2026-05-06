@@ -17,6 +17,11 @@ import {
 export default function SystemAccessModule() {
   const [isWide, setIsWide] = useState(false);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
+  const [data, setData] = useState<any>({ credentials: [], alerts: [] });
+
+  React.useEffect(() => {
+    fetch('/api/system').then(res => res.json()).then(setData);
+  }, []);
 
   const togglePassword = (id: string) => {
     setShowPassword(prev => ({ ...prev, [id]: !prev[id] }));
@@ -43,8 +48,9 @@ export default function SystemAccessModule() {
           </button>
         </div>
         <div className="flex items-center gap-3">
-          <AlertPill label="PayPoint Portal" msg="Password expires in 5 days" type="soon" />
-          <AlertPill label="Lottery Terminal" msg="Maintenance Scheduled" type="info" />
+          {data.alerts?.map((alert: any, i: number) => (
+            <AlertPill key={i} {...alert} />
+          ))}
           <div className="h-6 w-px bg-slate-200 mx-2" />
           <button 
             onClick={() => setIsWide(!isWide)}
@@ -96,26 +102,14 @@ export default function SystemAccessModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    <CredentialRow 
-                      id="cred-1"
-                      service="Till Access" 
-                      account="Till-Main-01" 
-                      status="Active" 
-                      support="+94 11 234 5678" 
-                      password="TILL_PASSWORD_123"
-                      show={showPassword['cred-1']}
-                      onToggle={() => togglePassword('cred-1')}
-                    />
-                    <CredentialRow 
-                      id="cred-2"
-                      service="PayPoint Portal" 
-                      account="admin_bp_retail" 
-                      status="Active" 
-                      support="+44 20 8765 4321" 
-                      password="PAYPOINT_LOGIN_99"
-                      show={showPassword['cred-2']}
-                      onToggle={() => togglePassword('cred-2')}
-                    />
+                    {data.credentials?.map((cred: any) => (
+                      <CredentialRow 
+                        key={cred.id}
+                        {...cred}
+                        show={showPassword[cred.id]}
+                        onToggle={() => togglePassword(cred.id)}
+                      />
+                    ))}
                   </tbody>
                 </table>
               </div>

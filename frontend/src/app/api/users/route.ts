@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { USER_SYSTEM_MAP, USER_REGISTRY } from '@/lib/db';
+import { USER_REGISTRY, SYSTEM_MAP, FORM_OPTIONS } from '@/lib/db';
 
 export async function GET() {
   return NextResponse.json({
-    systemMap: USER_SYSTEM_MAP,
-    registry: USER_REGISTRY,
+    users: USER_REGISTRY,
+    map: SYSTEM_MAP,
+    roles: FORM_OPTIONS.userRoles,
+    businesses: FORM_OPTIONS.userBusinesses,
   });
 }

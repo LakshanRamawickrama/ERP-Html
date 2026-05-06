@@ -17,11 +17,13 @@ import {
 
 export default function LegalModule() {
   const [isWide, setIsWide] = useState(false);
-  const [docs, setDocs] = useState<any[]>([]);
+  const [data, setData] = useState<any>({ docs: [], summary: { expiredDocs: 0 } });
 
   useEffect(() => {
-    fetch('/api/legal').then(res => res.json()).then(d => setDocs(d.docs || []));
+    fetch('/api/legal').then(res => res.json()).then(setData);
   }, []);
+
+  const docs = data.docs || [];
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -40,7 +42,7 @@ export default function LegalModule() {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 px-3 py-1 bg-red-50 border border-red-100 rounded-full text-[10px] font-bold text-red-700">
             <AlertTriangle className="w-3 h-3" />
-            <span>Expired Docs: <span className="opacity-80">1</span></span>
+            <span>Expired Docs: <span className="opacity-80">{data.summary?.expiredDocs || 0}</span></span>
           </div>
         </div>
       </div>
@@ -54,14 +56,7 @@ export default function LegalModule() {
               <Card title="Register Document" icon={PlusCircle} iconColor="bg-[#2c3e50]">
                 <form className="space-y-4">
                   <Field label="Document Title" placeholder="Trade License" />
-                  <Field label="Document Type" isSelect options={[
-                    'License Applications', 
-                    'Change of DPS', 
-                    'Change of Premisses Slip', 
-                    'Food Statement Agency Forms',
-                    'Refusal Logs',
-                    'Temp Records'
-                  ]} />
+                  <Field label="Document Type" isSelect options={data.options || []} />
                   <Field label="Issuing Authority" placeholder="City Council" />
                   
                   <div className="space-y-2">
@@ -104,7 +99,7 @@ export default function LegalModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {docs.map((doc, i) => <DocRow key={i} {...doc} />)}
+                    {docs.map((doc: any, i: number) => <DocRow key={i} {...doc} />)}
                   </tbody>
                 </table>
               </div>

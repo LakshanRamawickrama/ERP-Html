@@ -45,7 +45,7 @@ export default function InventoryModule() {
 
         {/* Alert Pills */}
         <div className="hidden lg:flex gap-2 py-2 ml-6">
-          {alerts.map(a => (
+          {alerts.map((a: any) => (
             <div key={a.id} className={`flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-bold ${
               a.level === 'out' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'
             }`}>
@@ -71,7 +71,7 @@ export default function InventoryModule() {
                   {activeTab === 'stock' && (
                     <>
                       <Field label="Item Name *" placeholder="e.g. Milk Packet 1L" />
-                      <Field label="Category *" isSelect options={['Food & Beverages', 'Groceries', 'Electronics', 'Stationery', '+ Add New Category...']} />
+                      <Field label="Category *" isSelect options={data.inventoryCategories || []} />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Stock Level" type="number" />
                         <Field label="Reorder Level" type="number" />

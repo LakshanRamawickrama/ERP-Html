@@ -80,7 +80,7 @@ export default function SupplierModule() {
                 <form className="space-y-4">
                   {activeTab === 'suppliers' && (
                     <>
-                      <Field label="Supplier ID" placeholder="AUTO-GENERATED" disabled value="SUP-104" />
+                      <Field label="Supplier ID" placeholder="AUTO-GENERATED" disabled value={data.metadata?.nextId || "SUP-..."} />
                       <Field label="Supplier Name" placeholder="e.g. Acme Supplies Ltd" />
                       <Field label="Category" isSelect options={['Raw Materials', 'Services', 'Office Supplies', 'IT Hardware', 'Logistics', 'Other']} />
                       <div className="grid grid-cols-1 gap-4">

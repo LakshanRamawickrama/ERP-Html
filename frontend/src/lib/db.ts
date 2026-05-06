@@ -478,3 +478,79 @@ export const DASHBOARD_EMAILS = [
   { email: 'admin@company.com', label: 'Primary Account', status: 'Connected', type: 'primary' },
   { email: 'support@company.com', label: 'Support Inbox', status: 'Connected', type: 'support' },
 ];
+
+// ─── Additional Consolidated Mock Data ───────────────────────────────────────
+
+export const SYSTEM_CREDENTIALS = [
+  {
+    id: 'cred-1',
+    service: 'Till Access',
+    account: 'Till-Main-01',
+    status: 'Active',
+    support: '+94 11 234 5678',
+    password: 'TILL_PASSWORD_123',
+  },
+  {
+    id: 'cred-2',
+    service: 'PayPoint Portal',
+    account: 'admin_bp_retail',
+    status: 'Active',
+    support: '+44 20 8765 4321',
+    password: 'PAYPOINT_LOGIN_99',
+  },
+];
+
+export const SYSTEM_ALERTS = [
+  { label: 'PayPoint Portal', msg: 'Password expires in 5 days', type: 'soon' },
+  { label: 'Lottery Terminal', msg: 'Maintenance Scheduled', type: 'info' },
+];
+
+export const ACCOUNTING_SUMMARY = {
+  income: '$12,450.00',
+  expenses: '$8,320.00',
+};
+
+export const REPORT_STATS = [
+  { title: 'Total Revenue', value: '$124,500', trend: '+12.5%', isUp: true },
+  { title: 'Operating Costs', value: '$42,300', trend: '-3.2%', isUp: false },
+  { title: 'Active Inventories', value: '1,204', trend: '+40', isUp: true },
+  { title: 'Fleet Efficiency', value: '94%', trend: '+2.1%', isUp: true },
+];
+
+export const LEGAL_SUMMARY = {
+  expiredDocs: 1,
+};
+
+export const SUPPLIER_METADATA = {
+  nextId: 'SUP-104',
+};
+
+export const LOGIN_CREDENTIALS = {
+  superAdmin: {
+    email: 'superadmin@central.com',
+    username: 'superadmin',
+    password: 'superadmin123',
+    altPassword: 'admin123',
+  },
+  companyAdmin: {
+    email: 'admin@central.com',
+    username: 'admin',
+    password: 'admin123',
+  },
+};
+
+export const FORM_OPTIONS = {
+  accountingCategories: ['Supplier Payments', 'Rent', 'Mortgage', 'Accountant Fees', 'Bank Charges', 'Insurance', 'VAT / Tax'],
+  inventoryCategories: ['Food & Beverages', 'Groceries', 'Electronics', 'Stationery', '+ Add New Category...'],
+  propertyAssetTypes: ['HVAC', 'Electrical', 'Plumbing', 'Safety', 'Furniture', 'IT Infrastructure'],
+  legalDocTypes: [
+    'License Applications',
+    'Change of DPS',
+    'Change of Premisses Slip',
+    'Food Statement Agency Forms',
+    'Refusal Logs',
+    'Temp Records',
+  ],
+  userRoles: ['Admin', 'Manager', 'Staff'],
+  userBusinesses: ['All Entities', 'Main Retail Store', 'Logistics Hub'],
+};

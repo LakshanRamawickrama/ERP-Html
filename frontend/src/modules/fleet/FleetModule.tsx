@@ -67,7 +67,7 @@ export default function FleetModule() {
 
         <div className="flex items-center gap-4">
           <div className="hidden xl:flex gap-2">
-            {reminders.map(r => (
+            {reminders.map((r: any) => (
               <div key={r.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-bold ${
                 r.level === 'expired' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'
               }`}>

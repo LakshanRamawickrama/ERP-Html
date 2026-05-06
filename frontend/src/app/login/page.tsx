@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Lock, 
@@ -22,23 +22,35 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const [creds, setCreds] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/credentials').then(res => res.json()).then(setCreds);
+  }, []);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
+    if (!creds) {
+      setError('System initializing. Please try again.');
+      setIsLoading(false);
+      return;
+    }
+
     // Mock authentication delay
     setTimeout(() => {
       // Handle both legacy and current credential formats
-      const isSuperAdmin = (email === 'superadmin@central.com' && password === 'superadmin123') || 
-                          (email === 'superadmin' && password === 'admin123');
+      const isSuperAdmin = (email === creds.superAdmin.email && password === creds.superAdmin.password) || 
+                          (email === creds.superAdmin.username && password === creds.superAdmin.altPassword);
       
-      const isCompanyAdmin = (email === 'admin@central.com' && password === 'admin123') || 
-                            (email === 'admin' && password === 'admin123');
+      const isCompanyAdmin = (email === creds.companyAdmin.email && password === creds.companyAdmin.password) || 
+                            (email === creds.companyAdmin.username && password === creds.companyAdmin.password);
 
       if (isSuperAdmin) {
         localStorage.setItem('user', JSON.stringify({
-          email: email.includes('@') ? email : 'superadmin@central.com',
+          email: email.includes('@') ? email : creds.superAdmin.email,
           role: 'Super Admin',
           name: 'Super Administrator'
         }));
@@ -46,7 +58,7 @@ export default function LoginPage() {
       } 
       else if (isCompanyAdmin) {
         localStorage.setItem('user', JSON.stringify({
-          email: email.includes('@') ? email : 'admin@central.com',
+          email: email.includes('@') ? email : creds.companyAdmin.email,
           role: 'Company Admin',
           name: 'Company Administrator'
         }));

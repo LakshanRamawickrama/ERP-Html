@@ -59,8 +59,8 @@ export default function AccountingModule() {
             <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Financial Ecosystem & Ledger Management</p>
           </div>
           <div className="flex gap-3">
-             <Pill type="income" label="Total Income" value="$12,450.00" />
-             <Pill type="expense" label="Total Expenses" value="$8,320.00" />
+             <Pill type="income" label="Total Income" value={data.summary?.income || "$0.00"} />
+             <Pill type="expense" label="Total Expenses" value={data.summary?.expenses || "$0.00"} />
           </div>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function AccountingModule() {
       {/* Tab Navigation */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">
         <div className="flex gap-6 overflow-x-auto no-scrollbar">
-          {tabs.map((tab) => (
+          {tabs.map((tab: any) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
@@ -118,7 +118,7 @@ export default function AccountingModule() {
                       <Field 
                         label="Category" 
                         isSelect 
-                        options={['Supplier Payments', 'Rent', 'Mortgage', 'Accountant Fees', 'Bank Charges', 'Insurance', 'VAT / Tax']} 
+                        options={data.options || []} 
                         onChange={(e: any) => setRecordCategory(e.target.value)}
                       />
                       {recordCategory === 'Supplier Payments' && <Field label="Supplier" isSelect options={['Global Supplies Ltd', 'Tech Connect Inc', 'Office Depot']} />}

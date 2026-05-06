@@ -68,7 +68,7 @@ export default function PropertyModule() {
                     <>
                       <Field label="Asset Name" placeholder="e.g. Unit 5 Air Con" />
                       <Field label="Location / Floor" placeholder="Floor 2, Room 204" />
-                      <Field label="Asset Type" isSelect options={['HVAC', 'Electrical', 'Plumbing', 'Safety', 'Furniture', 'IT Infrastructure']} />
+                      <Field label="Asset Type" isSelect options={data.assetTypes || []} />
                       <Field label="Assigned Person" placeholder="Name of responsible person" />
                       <Field label="Contact Number" placeholder="+1 (555) 000-0000" />
                       <Field label="Notes" isTextArea placeholder="Specific instructions or property details" />

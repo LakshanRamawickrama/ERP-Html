@@ -16,6 +16,12 @@ import {
 } from 'lucide-react';
 
 export default function ReportsModule() {
+  const [stats, setStats] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/api/reports').then(res => res.json()).then(data => setStats(data.stats || []));
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
       {/* Header */}
@@ -48,10 +54,9 @@ export default function ReportsModule() {
         
         {/* Analytics Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <StatCard title="Total Revenue" value="$124,500" trend="+12.5%" isUp={true} />
-          <StatCard title="Operating Costs" value="$42,300" trend="-3.2%" isUp={false} />
-          <StatCard title="Active Inventories" value="1,204" trend="+40" isUp={true} />
-          <StatCard title="Fleet Efficiency" value="94%" trend="+2.1%" isUp={true} />
+          {stats.map((stat, i) => (
+            <StatCard key={i} {...stat} />
+          ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
