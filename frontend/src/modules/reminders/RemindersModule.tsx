@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
-export default function RemindersModule() {
+export default function RemindersModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -30,16 +30,29 @@ export default function RemindersModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate fetching from multiple sources
-    const mockReminders = [
-      { id: '1', title: 'Vehicle Insurance Renewal', business: 'Logistics Pro Ltd', description: 'Annual HGV insurance renewal for fleet group A. Requires updated driver list.', date: '2026-05-15', priority: 'High', type: 'Fleet', icon: Truck },
-      { id: '2', title: 'Confirmation Statement', business: 'Tech solutions Global', description: 'Submit CS01 form to Companies House. Check shareholder details.', date: '2026-06-01', priority: 'High', type: 'Legal', icon: FileText },
-      { id: '3', title: 'Quarterly VAT Filing', business: 'All Business Units', description: 'Standard rate VAT submission for Q1. Reconcile Dojo settlements.', date: '2026-05-30', priority: 'Medium', type: 'Accounting', icon: ShieldAlert },
-      { id: '4', title: 'Office Lease Review', business: 'Main HQ - London', description: 'Review break clause and rent escalation terms with legal team.', date: '2026-07-12', priority: 'Low', type: 'Property', icon: Bell },
-      { id: '5', title: 'Update System Passwords', business: 'Internal System', description: 'Security protocol: rotate all administrative and database passwords.', date: '2026-05-10', priority: 'High', type: 'Manual', icon: Bell },
-    ];
-    setReminders(mockReminders);
-    setLoading(false);
+    const fetchReminders = async () => {
+      try {
+        const res = await fetch('/api/reminders');
+        const data = await res.json();
+        
+        // Map types to icons
+        const withIcons = data.map((r: any) => ({
+          ...r,
+          icon: r.type === 'Fleet' ? Truck : 
+                r.type === 'Legal' ? FileText :
+                r.type === 'Accounting' ? ShieldAlert :
+                r.type === 'Property' ? Bell : Bell
+        }));
+        
+        setReminders(withIcons);
+      } catch (error) {
+        console.error('Failed to fetch reminders:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchReminders();
   }, []);
 
   const handleAddReminder = (e: React.FormEvent) => {
@@ -66,6 +79,9 @@ export default function RemindersModule() {
   };
 
   const filtered = reminders.filter(r => {
+    // Business Filter
+    if (selectedBusiness !== 'All Entities' && r.business !== selectedBusiness) return false;
+
     if (filter === 'all') return true;
     if (filter === 'High' || filter === 'Medium' || filter === 'Low') return r.priority === filter;
     
@@ -154,9 +170,6 @@ export default function RemindersModule() {
                 </div>
 
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </button>
                   <button 
                     onClick={() => handleDeleteClick(reminder.id)}
                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"

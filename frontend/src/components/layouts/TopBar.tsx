@@ -11,9 +11,19 @@ interface TopBarProps {
   user: any;
   onProfileClick: () => void;
   businesses?: any[];
+  selectedBusiness?: string;
+  onBusinessChange?: (business: string) => void;
 }
 
-export default function TopBar({ title, userRole, user, onProfileClick, businesses = [] }: TopBarProps) {
+export default function TopBar({ 
+  title, 
+  userRole, 
+  user, 
+  onProfileClick, 
+  businesses = [],
+  selectedBusiness = 'All Entities',
+  onBusinessChange
+}: TopBarProps) {
   const getInitials = (name: string) => {
     return name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U';
   };
@@ -30,18 +40,18 @@ export default function TopBar({ title, userRole, user, onProfileClick, business
           <label className="text-[12px] font-medium text-[#64748b] m-0">Organization</label>
           <select 
             className={cn(
-              "bg-transparent text-[13px] font-bold text-[#1e293b] outline-none border-none cursor-pointer pr-1",
+              "bg-transparent text-[13px] font-bold text-[#1e293b] outline-none border-none cursor-pointer pr-1 appearance-none",
               userRole !== UserRole.SUPER_ADMIN && "pointer-events-none opacity-80"
             )}
             disabled={userRole !== UserRole.SUPER_ADMIN}
-            value={userRole === UserRole.SUPER_ADMIN ? 'All Entities' : (user.businesses?.[0] || 'Assigned Business')}
-            onChange={() => {}} // Placeholder for now
+            value={selectedBusiness}
+            onChange={(e) => onBusinessChange?.(e.target.value)}
           >
             {userRole === UserRole.SUPER_ADMIN ? (
               <>
                 <option>All Entities</option>
                 {businesses.map((b: any) => (
-                  <option key={b.id}>{b.name}</option>
+                  <option key={b.id || b.name}>{b.name}</option>
                 ))}
               </>
             ) : (

@@ -601,3 +601,11 @@ export const FORM_OPTIONS = {
   fleetAgreementStatuses: ['Active', 'Pending', 'Expired'],
   businessCategories: ['Retail', 'Manufacturing', 'Service Provider', 'Holding Company', 'Other'],
 };
+
+export const REMINDERS = [
+  { id: '1', title: 'Vehicle Insurance Renewal', business: 'Logistics Pro Ltd', description: 'Annual HGV insurance renewal for fleet group A. Requires updated driver list.', date: '2026-05-15', priority: 'High', type: 'Fleet' },
+  { id: '2', title: 'Confirmation Statement', business: 'Tech solutions Global', description: 'Submit CS01 form to Companies House. Check shareholder details.', date: '2026-06-01', priority: 'High', type: 'Legal' },
+  { id: '3', title: 'Quarterly VAT Filing', business: 'All Business Units', description: 'Standard rate VAT submission for Q1. Reconcile Dojo settlements.', date: '2026-05-30', priority: 'Medium', type: 'Accounting' },
+  { id: '4', title: 'Office Lease Review', business: 'Main HQ - London', description: 'Review break clause and rent escalation terms with legal team.', date: '2026-07-12', priority: 'Low', type: 'Property' },
+  { id: '5', title: 'Update System Passwords', business: 'Internal System', description: 'Security protocol: rotate all administrative and database passwords.', date: '2026-05-10', priority: 'High', type: 'Manual' },
+];

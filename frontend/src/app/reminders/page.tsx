@@ -11,6 +11,8 @@ export default function RemindersPage() {
   const [user, setUser] = React.useState<any>(null);
   const [userRole, setUserRole] = React.useState<UserRole | null>(null);
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);
+  const [selectedBusiness, setSelectedBusiness] = React.useState('All Entities');
+  const [businesses, setBusinesses] = React.useState<any[]>([]);
 
   React.useEffect(() => {
     const savedUser = localStorage.getItem('user');
@@ -19,6 +21,10 @@ export default function RemindersPage() {
       setUser(userData);
       setUserRole(userData.role as UserRole);
     }
+    fetch('/api/business')
+      .then(res => res.json())
+      .then(data => setBusinesses(data.entities || []))
+      .catch(err => console.error('Error fetching businesses:', err));
   }, []);
 
   if (!userRole || !user) return null;
@@ -40,9 +46,12 @@ export default function RemindersPage() {
           userRole={userRole}
           user={user}
           onProfileClick={() => setIsProfileOpen(true)}
+          businesses={businesses}
+          selectedBusiness={selectedBusiness}
+          onBusinessChange={setSelectedBusiness}
         />
         <div className="flex-1 overflow-hidden">
-          <RemindersModule />
+          <RemindersModule selectedBusiness={selectedBusiness} />
         </div>
       </main>
     </div>
