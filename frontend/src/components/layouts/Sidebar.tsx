@@ -4,17 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { UserRole, RolePermissions, Permission } from '@/constants/roles';
-import { 
-  LayoutDashboard, 
-  Briefcase, 
-  Users, 
-  Truck, 
-  Boxes, 
-  Key, 
-  Package, 
-  Receipt, 
-  Gavel, 
-  Building, 
+import {
+  LayoutDashboard,
+  Briefcase,
+  Users,
+  Truck,
+  Boxes,
+  Key,
+  Package,
+  Receipt,
+  Gavel,
+  Building,
   ChartLine,
   LogOut
 } from 'lucide-react';
@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { label: 'Fleet Management', href: '/fleet', icon: Truck, permission: 'MANAGE_FLEET' },
     { label: 'Inventory Management', href: '/inventory', icon: Boxes, permission: 'MANAGE_INVENTORY' },
     { label: 'System Access', href: '/system-access', icon: Key, permission: 'SYSTEM_ACCESS' },
-    { label: 'Suppliers', href: '/suppliers', icon: Truck, permission: 'MANAGE_INVENTORY' },
+    { label: 'Suppliers', href: '/suppliers', icon: Package, permission: 'MANAGE_INVENTORY' },
     { label: 'Accounting', href: '/accounting', icon: Receipt, permission: 'VIEW_ACCOUNTING' },
     { label: 'Legal & Compliance', href: '/legal', icon: Gavel, permission: 'LEGAL_COMPLIANCE' },
     { label: 'Property Management', href: '/property', icon: Building, permission: 'PROPERTY_MANAGEMENT' },
@@ -73,9 +73,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 mx-2 my-1 p-2 rounded-lg transition-colors whitespace-nowrap ${
-                isActive ? 'bg-[#34495e] text-white' : 'text-[#bdc3c7] hover:bg-[#34495e] hover:text-white'
-              }`}
+              className={`flex items-center gap-3 mx-2 my-1 p-2 rounded-lg transition-colors whitespace-nowrap ${isActive ? 'bg-[#34495e] text-white' : 'text-[#bdc3c7] hover:bg-[#34495e] hover:text-white'
+                }`}
             >
               <div className="min-w-[38px] flex justify-center">
                 <item.icon className="w-4 h-4" />
@@ -90,8 +89,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
 
       {/* Footer / Logout */}
       <div className="p-2 border-t border-white/10">
-        <button 
-          onClick={handleLogout} 
+        <button
+          onClick={handleLogout}
           className="w-full flex items-center gap-3 p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors whitespace-nowrap"
         >
           <div className="min-w-[38px] flex justify-center">
