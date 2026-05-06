@@ -15,6 +15,7 @@ import {
   DASHBOARD_RENEWALS,
   DASHBOARD_PL,
   DASHBOARD_EMAILS,
+  REMINDERS,
 } from '@/lib/db';
 
 export async function GET() {
@@ -34,5 +35,6 @@ export async function GET() {
     renewals: DASHBOARD_RENEWALS,
     pl: DASHBOARD_PL,
     emails: DASHBOARD_EMAILS,
+    reminders: REMINDERS,
   });
 }

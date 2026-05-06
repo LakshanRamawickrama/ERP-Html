@@ -30,7 +30,9 @@ import {
   CalendarClock,
   Star,
   Circle,
-  ArrowRight
+  ArrowRight,
+  Bell,
+  ShieldAlert
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -354,10 +356,10 @@ export default function Dashboard() {
               </table>
             </Widget>
 
-            {/* 6. TO-DO LIST */}
+            {/* 6. SYSTEM REMINDERS */}
             <Widget 
-              title="To-Do List" 
-              icon={ListTodo} 
+              title="System Reminders" 
+              icon={Bell} 
               color="bg-[#8b5cf6]"
               headerAction={
                 <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
@@ -365,39 +367,37 @@ export default function Dashboard() {
                 </Link>
               }
             >
-              <div className="space-y-1">
-                {dash.todos.map((todo: any, i: number) => (
-                  <div key={i} className="flex items-center gap-2 py-1 border-b border-[#f1f5f9] last:border-0 group">
-                    <input 
-                      type="checkbox" 
-                      checked={todo.d} 
-                      onChange={() => handleToggleTodo(i)}
-                      className="w-[14px] h-[14px] accent-[#4f46e5] cursor-pointer" 
-                    />
-                    <label className={`text-[11px] flex-1 cursor-pointer m-0 truncate ${todo.d ? 'text-[#94a3b8] line-through' : 'text-[#1e293b]'}`}>{todo.t}</label>
-                    <button 
-                      onClick={() => handleDeleteTodo(i)}
-                      className="opacity-0 group-hover:opacity-100 text-[#ef4444]"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
+              <div className="space-y-2">
+                {(dash.reminders || []).slice(0, 4).map((reminder: any) => (
+                  <Link key={reminder.id} href="/reminders" className="p-2.5 bg-[#f8fafc] border border-slate-100 rounded-xl flex items-center gap-3 group hover:border-indigo-100 hover:shadow-sm transition-all block cursor-pointer">
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                      reminder.priority === 'High' ? 'bg-red-50 text-red-500' : 
+                      reminder.priority === 'Medium' ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'
+                    )}>
+                      {reminder.type === 'Fleet' ? <Truck className="w-4 h-4" /> : 
+                       reminder.type === 'Legal' ? <FileText className="w-4 h-4" /> :
+                       reminder.type === 'Accounting' ? <ShieldAlert className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h6 className="text-[11px] font-bold text-slate-800 truncate m-0">{reminder.title}</h6>
+                      <p className="text-[9px] text-slate-500 font-medium truncate m-0">{reminder.business}</p>
+                    </div>
+                    <span className={cn(
+                      "text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter",
+                      reminder.priority === 'High' ? 'bg-red-100 text-red-700' : 
+                      reminder.priority === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                    )}>
+                      {reminder.priority}
+                    </span>
+                  </Link>
                 ))}
-                <div className="flex gap-2 mt-2">
-                  <input 
-                    type="text" 
-                    value={todoInput}
-                    onChange={e => setTodoInput(e.target.value)}
-                    placeholder="Add task..." 
-                    className="flex-1 text-[11px] p-1.5 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5]" 
-                  />
-                  <button 
-                    onClick={handleAddTodo}
-                    className="bg-[#3b82f6] text-white px-3 py-1 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#2563eb]"
-                  >
-                    + Add
-                  </button>
-                </div>
+                {(!dash.reminders || dash.reminders.length === 0) && (
+                  <div className="py-8 text-center">
+                    <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                    <p className="text-[10px] text-slate-400 font-medium">No active reminders</p>
+                  </div>
+                )}
               </div>
             </Widget>
 
