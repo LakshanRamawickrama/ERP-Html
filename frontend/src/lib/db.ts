@@ -323,6 +323,16 @@ export const ACCOUNTING_DOJO = [
   { date: '2026-04-30', amount: '$1,000.00', fee: '$17.50', net: '$982.50', status: 'Paid' },
 ];
 
+export const ACCOUNTING_INSURANCE = [
+  { type: 'Public Liability', provider: 'Aviva Business', policy: 'POL-882233', premium: '$1,200/yr', expiry: '2026-12-15', status: 'Active' },
+  { type: 'Employer Liability', provider: 'AXA Insurance', policy: 'AXA-990011', premium: '$850/yr', expiry: '2026-11-20', status: 'Active' },
+];
+
+export const ACCOUNTING_VAT = [
+  { type: 'VAT Return Q1', period: 'Jan - Mar 2026', amount: '$4,250.00', date: '2026-04-10', status: 'Paid' },
+  { type: 'VAT Return Q2', period: 'Apr - Jun 2026', amount: '$3,800.00', date: '2026-07-10', status: 'Pending' },
+];
+
 export const USER_SYSTEM_MAP = [
   { name: 'Dashboard', sub: [] },
   { name: 'Business Management', sub: ['Companies House Structure', 'Basic Details'] },

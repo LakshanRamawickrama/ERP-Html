@@ -85,7 +85,7 @@ export default function PropertyModule() {
                     <>
                       <Field label="Issue Description" placeholder="e.g. Broken window" />
                       <Field label="Request Date" type="date" />
-                      <Field label="Select Asset" isSelect options={data.assets || []} />
+                      <Field label="Select Asset" isSelect options={data.assetOptions || []} />
                       <Field label="Priority" isSelect options={data.priorities || []} />
                       <Field label="Assigned Technician" placeholder="Name of technician" />
                       <Field label="Request Notes" isTextArea placeholder="Describe specific details of the issue" />

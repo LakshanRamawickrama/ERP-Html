@@ -1,5 +1,15 @@
 import { NextResponse } from 'next/server';
-import { ACCOUNTING_HISTORY, ACCOUNTING_INVOICES, ACCOUNTING_BANKS, ACCOUNTING_LOANS, ACCOUNTING_DOJO, ACCOUNTING_SUMMARY, FORM_OPTIONS } from '@/lib/db';
+import { 
+  ACCOUNTING_HISTORY, 
+  ACCOUNTING_INVOICES, 
+  ACCOUNTING_BANKS, 
+  ACCOUNTING_LOANS, 
+  ACCOUNTING_DOJO, 
+  ACCOUNTING_SUMMARY, 
+  ACCOUNTING_INSURANCE,
+  ACCOUNTING_VAT,
+  FORM_OPTIONS 
+} from '@/lib/db';
 
 export async function GET() {
   return NextResponse.json({
@@ -8,6 +18,8 @@ export async function GET() {
     banks: ACCOUNTING_BANKS,
     loans: ACCOUNTING_LOANS,
     dojo: ACCOUNTING_DOJO,
+    insurance: ACCOUNTING_INSURANCE,
+    vat: ACCOUNTING_VAT,
     suppliers: FORM_OPTIONS.accountingSuppliers,
     paymentModes: FORM_OPTIONS.accountingPaymentModes,
     recordTypes: FORM_OPTIONS.accountingRecordTypes,

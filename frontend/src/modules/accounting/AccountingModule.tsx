@@ -33,7 +33,7 @@ export default function AccountingModule() {
   const [isWide, setIsWide] = useState(false);
   const [recordCategory, setRecordCategory] = useState('');
 
-  const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [] });
+  const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
 
   React.useEffect(() => {
     fetch('/api/accounting').then(res => res.json()).then(setData);
@@ -343,6 +343,12 @@ export default function AccountingModule() {
                     {activeTab === 'dojo' && (
                       data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} />) || null
                     )}
+                    {activeTab === 'insurance' && (
+                      data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} />) || null
+                    )}
+                    {activeTab === 'tax' && (
+                      data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} />) || null
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -469,6 +475,37 @@ function DojoRow({ date, amount, fee, net, status }: any) {
       <td className="px-4 py-4 font-extrabold text-slate-800">{net}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
       <td className="px-4 py-4"><RowActions showEye /></td>
+    </tr>
+  );
+}
+
+function InsuranceRow({ type, provider, policy, premium, expiry, status }: any) {
+  return (
+    <tr className="hover:bg-slate-50/50 transition-colors">
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800">{type}</div>
+        <div className="text-[10px] text-slate-400 font-medium">{provider}</div>
+      </td>
+      <td className="px-4 py-4 font-mono text-slate-600 text-xs">{policy}</td>
+      <td className="px-4 py-4 font-bold text-slate-800">{premium}</td>
+      <td className="px-4 py-4 text-slate-500 font-mono text-xs">{expiry}</td>
+      <td className="px-4 py-4"><StatusBadge status={status} /></td>
+      <td className="px-4 py-4"><RowActions showDownload /></td>
+    </tr>
+  );
+}
+
+function TaxRow({ type, period, amount, date, status }: any) {
+  return (
+    <tr className="hover:bg-slate-50/50 transition-colors">
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800">{type}</div>
+        <div className="text-[10px] text-slate-400 font-medium">{period}</div>
+      </td>
+      <td className="px-4 py-4 font-bold text-slate-800">{amount}</td>
+      <td className="px-4 py-4 text-slate-500 font-mono text-xs">{date}</td>
+      <td className="px-4 py-4"><StatusBadge status={status} /></td>
+      <td className="px-4 py-4"><RowActions showDownload /></td>
     </tr>
   );
 }
