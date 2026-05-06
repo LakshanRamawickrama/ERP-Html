@@ -169,22 +169,18 @@ export default function Dashboard() {
             {/* 1. BUSINESS DETAILS (SUPER_ADMIN ONLY) */}
             {userRole === UserRole.SUPER_ADMIN && (
               <Widget title="Business Details" icon={Briefcase} color="bg-[#3b82f6]">
-                <table className="wt" style={{ tableLayout: 'fixed' }}>
+                <table className="wt">
                   <thead>
                     <tr>
-                      <th style={{ width: '30px' }}>#</th>
                       <th className="text-left">BUSINESS NAME</th>
-                      <th style={{ width: '70px' }}>INCOME</th>
-                      <th style={{ width: '70px' }}>EXPENSES</th>
-                      <th style={{ width: '45px' }}>SKUS</th>
-                      <th style={{ width: '45px' }}>FLEET</th>
-                      <th className="text-center" style={{ width: '80px' }}>STATUS</th>
+                      <th className="text-right" style={{ width: '100px' }}>INCOME</th>
+                      <th className="text-right" style={{ width: '100px' }}>EXPENSES</th>
+                      <th className="text-center" style={{ width: '100px' }}>STATUS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dash.businesses.map((row: any) => (
                       <tr key={row.id}>
-                        <td>{row.id}</td>
                         <td className="truncate">
                           <Link 
                             href={`/business/${row.slug}`}
@@ -193,10 +189,8 @@ export default function Dashboard() {
                             {row.name}
                           </Link>
                         </td>
-                        <td className="text-[#198754] font-bold">{row.inc}</td>
-                        <td className="text-[#dc3545]">{row.exp}</td>
-                        <td>{row.skus}</td>
-                        <td>{row.flt}</td>
+                        <td className="text-right text-[#198754] font-bold">{row.inc}</td>
+                        <td className="text-right text-[#dc3545]">{row.exp}</td>
                         <td className="text-center">
                           <span className={`status-pill ${row.st === 'Active' ? 'bg-[#198754]' : row.st === 'Pending' ? 'bg-[#ffc107]' : 'bg-[#dc3545]'}`}>
                             {row.st}
@@ -463,7 +457,7 @@ export default function Dashboard() {
                   <tr>
                     <th className="text-left">PO #</th>
                     <th className="text-left">SUPPLIER</th>
-                    <th className="text-left">AMOUNT</th>
+                    <th className="text-right">AMOUNT</th>
                     <th className="text-center">STATUS</th>
                   </tr>
                 </thead>
@@ -472,7 +466,7 @@ export default function Dashboard() {
                     <tr key={i}>
                       <td><strong>{row.p}</strong></td>
                       <td className="truncate">{row.s}</td>
-                      <td><strong>{row.a}</strong></td>
+                      <td className="text-right"><strong>{row.a}</strong></td>
                       <td className="text-center">
                         <span className={`status-pill ${row.st === 'Paid' ? 'bg-[#198754]' : row.st === 'Overdue' ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
                           {row.st}
@@ -491,7 +485,7 @@ export default function Dashboard() {
                   <tr>
                     <th className="text-left">INV #</th>
                     <th className="text-left">CLIENT</th>
-                    <th className="text-left">AMOUNT</th>
+                    <th className="text-right">AMOUNT</th>
                     <th className="text-center">STATUS</th>
                   </tr>
                 </thead>
@@ -500,7 +494,7 @@ export default function Dashboard() {
                     <tr key={i}>
                       <td><strong>{row.i}</strong></td>
                       <td className="truncate">{row.c}</td>
-                      <td><strong>{row.a}</strong></td>
+                      <td className="text-right"><strong>{row.a}</strong></td>
                       <td className="text-center">
                         <span className={`status-pill ${row.s === 'Paid' ? 'bg-[#198754]' : row.s === 'Overdue' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>
                           {row.s}

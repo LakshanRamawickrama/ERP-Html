@@ -21,10 +21,8 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         
         if user:
-            # Manually generate JWT to avoid issues with missing numeric IDs in MongoDB User model
-            refresh = RefreshToken()
-            refresh['user_id'] = user.username
-            refresh['email'] = user.email
+            # Generate JWT Token
+            refresh = RefreshToken.for_user(user)
             
             # Look up role and assigned business in StaffProfile
             try:

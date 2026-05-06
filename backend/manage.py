@@ -3,13 +3,6 @@
 import os
 import sys
 
-# Monkeypatch for djongo compatibility with Django 4.0+
-import django.utils.encoding
-import django.utils.safestring
-import six
-django.utils.six = six
-django.utils.encoding.six = six
-django.utils.safestring.six = six
 
 def main():
     """Run administrative tasks."""

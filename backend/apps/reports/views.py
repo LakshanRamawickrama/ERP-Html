@@ -13,12 +13,10 @@ from apps.users.models import StaffProfile
 class ReportsDataView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        # Fallback to superadmin if user profile not found
-        email = getattr(request.user, 'email', 'superadmin@erp.com')
-        profile = StaffProfile.objects.filter(email=email).first()
+        profile = StaffProfile.objects.filter(email=request.user.email).first()
         business_scope = profile.assigned_business if profile else 'All'
 
-        if business_scope == 'All' or getattr(request.user, 'is_superuser', True):
+        if business_scope == 'All' or request.user.is_superuser:
             v_count = Vehicle.objects.count()
             s_count = Supplier.objects.count()
             p_count = Product.objects.count()
@@ -27,7 +25,7 @@ class ReportsDataView(APIView):
             v_count = Vehicle.objects.filter(business=business_scope).count()
             s_count = Supplier.objects.count()
             p_count = Product.objects.count()
-            e_count = 1
+            e_count = BusinessEntity.objects.filter(name=business_scope).count()
 
         return Response({
             "stats": [
@@ -46,13 +44,11 @@ class ReportsDataView(APIView):
 class DashboardDataView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        # Robust user lookup
-        email = getattr(request.user, 'email', None)
-        if not email:
-            # Try to get from username if email is missing in JWT
-            email = f"{request.user.username}@erp.com" 
-            
-        profile = StaffProfile.objects.filter(email=email).first()
+        # Safely handle user email and username for both authenticated and anonymous users
+        user_email = getattr(request.user, 'email', None)
+        user_name = getattr(request.user, 'username', 'Guest')
+        
+        profile = StaffProfile.objects.filter(email=user_email).first() if user_email else None
         business_scope = profile.assigned_business if profile else 'All'
         
         is_scoped = business_scope != 'All' and not getattr(request.user, 'is_superuser', False)
@@ -77,7 +73,7 @@ class DashboardDataView(APIView):
         return Response({
             "businesses": [
                 {
-                    "id": str(e.pk),
+                    "id": str(e.id),
                     "name": e.name,
                     "slug": e.name.lower().replace(' ', '-'),
                     "inc": "$125,400",
@@ -96,7 +92,7 @@ class DashboardDataView(APIView):
                 } for v in vehicles
             ],
             "notes": [
-                "Renew trade licence before May 20",
+                "Renew trade licence before May 20" if not is_scoped else f"Renew {business_scope} licence",
                 "Insurance expiring this month for fleet",
                 "Follow up with Global Logistics"
             ],
@@ -104,7 +100,7 @@ class DashboardDataView(APIView):
                 {
                     "type": r.type,
                     "period": r.period,
-                    "amount": f"${r.amount:,.0f}",
+                    "amount": f"${r.amount:,.0f}" if r.amount is not None else "$0",
                     "status": r.status
                 } for r in vat
             ],
@@ -125,7 +121,7 @@ class DashboardDataView(APIView):
                 {
                     "i": inv.number,
                     "c": inv.client,
-                    "a": f"${inv.amount:,.0f}",
+                    "a": f"${inv.amount:,.0f}" if inv.amount is not None else "$0",
                     "s": inv.status
                 } for inv in invoices
             ],
@@ -151,15 +147,15 @@ class DashboardDataView(APIView):
                 } for p in low_stock
             ],
             "activity": [
-                {"t": "2m", "a": f"User {request.user.username} active."},
-                {"t": "1h", "a": "System healthy."},
+                {"t": "2m", "a": f"{user_name} viewed dashboard."},
+                {"t": "15m", "a": "System backup successful."},
             ],
             "renewals": [
                 {"e": "Alpha Trading", "d": "3 Days", "u": True},
             ],
             "reminders": [
                 {
-                    "id": str(r.pk),
+                    "id": str(r.id),
                     "title": r.title,
                     "business": business_scope,
                     "priority": r.priority,
@@ -174,6 +170,6 @@ class DashboardDataView(APIView):
                 "netProfit": "$196,172",
             },
             "emails": [
-                {"email": email or "admin@erp.com", "label": "Primary Account", "status": "Connected", "type": "primary"}
+                {"email": user_email or "N/A", "label": "Primary Account", "status": "Connected", "type": "primary"}
             ]
         })
