@@ -21,7 +21,8 @@ import {
   Receipt,
   RefreshCw,
   Trophy,
-  ArrowUpRight
+  ArrowUpRight,
+  FileText
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -34,18 +35,19 @@ export default function ReportsModule() {
   const [refreshing, setRefreshing] = React.useState(false);
   const [selectedDoc, setSelectedDoc] = React.useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
-
+  const [showExportMenu, setShowExportMenu] = React.useState(false);
+  const [dateRange, setDateRange] = React.useState("30");
 
   const fetchReports = React.useCallback(() => {
     setRefreshing(true);
     const token = localStorage.getItem('token');
-    fetch(API_ENDPOINTS.REPORTS, {
+    fetch(`${API_ENDPOINTS.REPORTS}?days=${dateRange}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(setData)
       .finally(() => setTimeout(() => setRefreshing(false), 800));
-  }, []);
+  }, [dateRange]);
 
   React.useEffect(() => {
     const savedUser = localStorage.getItem('user');
@@ -65,9 +67,103 @@ export default function ReportsModule() {
   const banks = data.banks || [];
   const tax = data.tax || [];
 
-  const handleViewDoc = (docTitle: string, format: string) => {
-    setSelectedDoc({ title: docTitle, type: `Report (${format})` });
+  const handleViewDoc = (docTitle: string, format: string, contentData?: any[]) => {
+    setSelectedDoc({ title: docTitle, type: `Report (${format})`, content: contentData });
     setIsDrawerOpen(true);
+  };
+
+  const downloadExcel = (dataToExport: any[], filename: string) => {
+    if (!dataToExport || dataToExport.length === 0) return;
+    
+    const headers = Object.keys(dataToExport[0]).filter(k => k !== 'id' && k !== 'slug');
+    
+    let tableHtml = '<table border="1"><thead><tr>';
+    headers.forEach(h => {
+      tableHtml += `<th style="background-color: #f8fafc; font-weight: bold; text-align: left; padding: 8px;">${h.toUpperCase()}</th>`;
+    });
+    tableHtml += '</tr></thead><tbody>';
+    
+    for (const row of dataToExport) {
+      tableHtml += '<tr>';
+      headers.forEach(header => {
+        const val = row[header] ? String(row[header]) : '';
+        tableHtml += `<td style="padding: 6px;">${val}</td>`;
+      });
+      tableHtml += '</tr>';
+    }
+    tableHtml += '</tbody></table>';
+
+    const excelHtml = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>${filename}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+      <body>${tableHtml}</body>
+      </html>
+    `;
+
+    const blob = new Blob([excelHtml], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${filename}.xls`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadPDF = (dataToExport: any[], filename: string) => {
+    if (!dataToExport || dataToExport.length === 0) return;
+    
+    const headers = Object.keys(dataToExport[0]).filter(k => k !== 'id' && k !== 'slug');
+    
+    let tableHtml = `
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; color: #334155; }
+        h1 { color: #0f172a; font-size: 24px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: -0.025em; font-weight: 900; }
+        p.subtitle { color: #64748b; font-size: 12px; margin-bottom: 32px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 12px 8px; text-align: left; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid #e2e8f0; }
+        tr:nth-child(even) { background-color: #fbfcfd; }
+        .footer { margin-top: 60px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+      </style>
+      <h1>${filename.replace(/_/g, ' ')}</h1>
+      <p class="subtitle">Official Enterprise Report</p>
+      <table>
+        <thead><tr>
+    `;
+    
+    headers.forEach(h => {
+      tableHtml += `<th>${h}</th>`;
+    });
+    tableHtml += '</tr></thead><tbody>';
+    
+    for (const row of dataToExport) {
+      tableHtml += '<tr>';
+      headers.forEach(header => {
+        tableHtml += `<td>${row[header] || ''}</td>`;
+      });
+      tableHtml += '</tr>';
+    }
+    
+    tableHtml += `
+        </tbody>
+      </table>
+      <div class="footer">Confidential. Generated by ERP Global System on ${new Date().toLocaleDateString()}</div>
+    `;
+
+    const printWindow = window.open('', '', 'height=800,width=1000');
+    if (printWindow) {
+      printWindow.document.write('<html><head><title>' + filename + '</title></head><body>');
+      printWindow.document.write(tableHtml);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 300);
+    }
   };
 
   const StatItem = ({ title, value, icon: Icon, color, borderColor, bgColor }: any) => (
@@ -87,33 +183,18 @@ export default function ReportsModule() {
       {/* Toolbar */}
       <div className="bg-white border-b border-slate-200 px-5 py-1.5 flex items-center justify-between">
         <div className="flex gap-2.5">
-          <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all">
-            <Calendar className="w-3 h-3" />
-            Last 30 Days
-          </button>
-
           <select 
-            value={selectedBiz}
-            onChange={(e) => setSelectedBiz(e.target.value)}
-            disabled={user?.role !== 'super_admin'}
-            className={cn(
-              "flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all outline-none",
-              user?.role !== 'Super Admin' && "opacity-80 pointer-events-none"
-            )}
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value)}
+            className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all outline-none"
           >
-            {user?.role === 'super_admin' ? (
-              <>
-                <option>All Entities</option>
-                {businesses.map((b: any) => (
-                  <option key={b.id}>{b.name}</option>
-                ))}
-              </>
-            ) : (
-              <option>{user?.businesses?.[0] || 'Assigned Business'}</option>
-            )}
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">This Quarter</option>
+            <option value="365">This Year</option>
           </select>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 relative">
           <button 
             onClick={fetchReports}
             className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all"
@@ -121,10 +202,40 @@ export default function ReportsModule() {
             <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin text-blue-500' : ''}`} />
             Sync
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1 bg-[#2c3e50] text-white rounded text-[10px] font-bold shadow-sm hover:brightness-110 transition-all">
-            <Download className="w-3 h-3" />
-            Export
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-1.5 px-3 py-1 bg-[#2c3e50] text-white rounded text-[10px] font-bold shadow-sm hover:brightness-110 transition-all"
+            >
+              <Download className="w-3 h-3" />
+              Export
+            </button>
+            
+            {showExportMenu && (
+              <div className="absolute right-0 mt-1 w-36 bg-white border border-slate-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                <button 
+                  onClick={() => {
+                    downloadPDF(businesses, "Enterprise_Performance_Report");
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors border-b border-slate-100"
+                >
+                  <FileText className="w-3.5 h-3.5 text-red-500" />
+                  Export as PDF
+                </button>
+                <button 
+                  onClick={() => {
+                    downloadExcel(businesses, "Enterprise_Report");
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                  Export as Excel
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

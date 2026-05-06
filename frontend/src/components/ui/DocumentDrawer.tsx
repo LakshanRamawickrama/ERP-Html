@@ -22,6 +22,7 @@ interface DocumentDrawerProps {
     author?: string;
     date?: string;
     fileSize?: string;
+    content?: any[];
   } | null;
 }
 
@@ -116,12 +117,35 @@ export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawer
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="h-4 bg-slate-50 rounded-full w-full" />
-                    <div className="h-4 bg-slate-50 rounded-full w-[90%]" />
-                    <div className="h-4 bg-slate-50 rounded-full w-[95%]" />
-                    <div className="h-4 bg-slate-50 rounded-full w-[80%]" />
-                  </div>
+                  {documentData?.content ? (
+                    <div className="overflow-x-auto my-6">
+                      <table className="w-full text-left border-collapse text-[10px]">
+                        <thead>
+                          <tr className="border-b border-slate-200 bg-slate-50">
+                            {Object.keys(documentData.content[0] || {}).filter(k => k !== 'id' && k !== 'slug').map((k) => (
+                              <th key={k} className="p-2 font-bold text-slate-500 uppercase">{k}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {documentData.content.map((row: any, i: number) => (
+                            <tr key={i} className="border-b border-slate-100">
+                              {Object.entries(row).filter(([k]) => k !== 'id' && k !== 'slug').map(([k, v]: any, j: number) => (
+                                <td key={j} className="p-2 text-slate-600 font-medium">{String(v)}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="h-4 bg-slate-50 rounded-full w-full" />
+                      <div className="h-4 bg-slate-50 rounded-full w-[90%]" />
+                      <div className="h-4 bg-slate-50 rounded-full w-[95%]" />
+                      <div className="h-4 bg-slate-50 rounded-full w-[80%]" />
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-12 pt-8">
                     <div className="space-y-3">

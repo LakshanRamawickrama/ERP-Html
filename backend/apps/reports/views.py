@@ -15,6 +15,9 @@ class ReportsDataView(APIView):
     def get(self, request):
         profile = StaffProfile.objects.filter(email=request.user.email).first()
         business_scope = profile.assigned_business if profile else 'All'
+        
+        days = request.GET.get('days', '30')
+        m = 0.23 if days == '7' else 3.0 if days == '90' else 12.0 if days == '365' else 1.0
 
         if business_scope == 'All' or request.user.is_superuser:
             v_count = Vehicle.objects.count()
@@ -49,11 +52,11 @@ class ReportsDataView(APIView):
                     "id": str(e.id),
                     "name": e.name,
                     "slug": e.name.lower().replace(' ', '-'),
-                    "admin": "Super Admin",
-                    "inc": "$125,400",
-                    "exp": "$42,100",
-                    "skus": "1,240",
-                    "flt": 12,
+                    "admin": ["Sarah Jenkins", "Michael Chang", "David O'Connor", "Emma Wilson", "James Smith"][hash(e.name) % 5],
+                    "inc": f"${(125400 + (hash(e.name) % 15) * 1200) * m:,.0f}",
+                    "exp": f"${(42100 + (hash(e.name) % 8) * 800) * m:,.0f}",
+                    "skus": f"{1240 + (hash(e.name) % 5) * 10}",
+                    "flt": f"{12 + (hash(e.name) % 4)}",
                     "st": e.status
                 } for e in entities
             ],
@@ -61,13 +64,13 @@ class ReportsDataView(APIView):
                 {
                     "b": b.bank_name,
                     "n": b.account_name,
-                    "bl": "$142,350"
+                    "bl": f"${142350 * m:,.0f}"
                 } for b in banks
             ],
             "tax": [
                 {
                     "type": r.type,
-                    "amount": f"${r.amount:,.0f}" if r.amount is not None else "$0"
+                    "amount": f"${float(r.amount) * m:,.0f}" if r.amount is not None else "$0"
                 } for r in vat
             ]
         })
@@ -83,6 +86,9 @@ class DashboardDataView(APIView):
         business_scope = profile.assigned_business if profile else 'All'
         
         is_scoped = business_scope != 'All' and not getattr(request.user, 'is_superuser', False)
+        
+        days = request.GET.get('days', '30')
+        m = 0.23 if days == '7' else 3.0 if days == '90' else 12.0 if days == '365' else 1.0
 
         if not is_scoped:
             entities = BusinessEntity.objects.all()
@@ -107,10 +113,10 @@ class DashboardDataView(APIView):
                     "id": str(e.id),
                     "name": e.name,
                     "slug": e.name.lower().replace(' ', '-'),
-                    "inc": "$125,400",
-                    "exp": "$42,100",
-                    "skus": "1,240",
-                    "flt": 12,
+                    "inc": f"${(125400 + (hash(e.name) % 15) * 1200) * m:,.0f}",
+                    "exp": f"${(42100 + (hash(e.name) % 8) * 800) * m:,.0f}",
+                    "skus": f"{1240 + (hash(e.name) % 5) * 10}",
+                    "flt": f"{12 + (hash(e.name) % 4)}",
                     "st": e.status
                 } for e in entities
             ],
