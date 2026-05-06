@@ -29,7 +29,8 @@ import {
   History,
   CalendarClock,
   Star,
-  Circle
+  Circle,
+  ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -354,7 +355,16 @@ export default function Dashboard() {
             </Widget>
 
             {/* 6. TO-DO LIST */}
-            <Widget title="To-Do List" icon={ListTodo} color="bg-[#8b5cf6]">
+            <Widget 
+              title="To-Do List" 
+              icon={ListTodo} 
+              color="bg-[#8b5cf6]"
+              headerAction={
+                <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
+                  Manage All <ArrowRight className="w-2.5 h-2.5" />
+                </Link>
+              }
+            >
               <div className="space-y-1">
                 {dash.todos.map((todo: any, i: number) => (
                   <div key={i} className="flex items-center gap-2 py-1 border-b border-[#f1f5f9] last:border-0 group">
@@ -567,7 +577,16 @@ export default function Dashboard() {
             )}
 
             {/* 15. UPCOMING RENEWALS */}
-            <Widget title="Upcoming Renewals" icon={CalendarClock} color="bg-[#8b5cf6]">
+            <Widget 
+              title="Upcoming Renewals" 
+              icon={CalendarClock} 
+              color="bg-[#8b5cf6]"
+              headerAction={
+                <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
+                  View Schedule <ArrowRight className="w-2.5 h-2.5" />
+                </Link>
+              }
+            >
                <table className="wt">
                 <thead>
                   <tr>

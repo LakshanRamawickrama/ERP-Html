@@ -16,7 +16,8 @@ import {
   Gavel,
   Building,
   ChartLine,
-  LogOut
+  LogOut,
+  Bell
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -45,6 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { label: 'Legal & Compliance', href: '/legal', icon: Gavel, permission: 'LEGAL_COMPLIANCE' },
     { label: 'Property Management', href: '/property', icon: Building, permission: 'PROPERTY_MANAGEMENT' },
     { label: 'Reports', href: '/reports', icon: ChartLine, permission: 'VIEW_REPORTS' },
+    { label: 'Reminders', href: '/reminders', icon: Bell, permission: 'VIEW_DASHBOARD' },
   ];
 
   return (
