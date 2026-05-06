@@ -6,22 +6,50 @@ import {
   Gavel, 
   FileText, 
   PlusCircle, 
-  Eye, 
+  Edit, 
   Maximize2,
   Minimize2,
   AlertTriangle,
   UploadCloud,
   ShieldCheck,
-  FileBadge
+  FileBadge,
+  Trash2
 } from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 export default function LegalModule() {
   const [isWide, setIsWide] = useState(false);
   const [data, setData] = useState<any>({ docs: [], summary: { expiredDocs: 0 } });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/legal').then(res => res.json()).then(setData);
   }, []);
+
+  const handleEdit = (id: string, rowData: any) => {
+    setEditingId(id);
+    setFormData(rowData);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting document:', deleteId);
+      // TODO: API call
+    }
+  };
 
   const docs = data.docs || [];
 
@@ -48,11 +76,11 @@ export default function LegalModule() {
           {/* Form Column */}
           {!isWide && (
             <div className="lg:col-span-4">
-              <Card title="Register Document" icon={PlusCircle} iconColor="bg-[#2c3e50]">
+              <Card title={editingId ? "Edit Document" : "Register Document"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
                 <form className="space-y-4">
-                  <Field label="Document Title" placeholder="Trade License" />
-                  <Field label="Document Type" isSelect options={data.options || []} />
-                  <Field label="Issuing Authority" placeholder="City Council" />
+                  <Field label="Document Title" placeholder="Trade License" value={formData.title} />
+                  <Field label="Document Type" isSelect options={data.options || []} value={formData.type} />
+                  <Field label="Issuing Authority" placeholder="City Council" value={formData.auth} />
                   
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Document File</label>
@@ -62,10 +90,19 @@ export default function LegalModule() {
                     </div>
                   </div>
 
-                  <Field label="Notes" isTextArea />
+                  <Field label="Notes" isTextArea value={formData.notes} />
                   <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-colors">
-                    Save Document
+                    {editingId ? "Update Document" : "Save Document"}
                   </button>
+                  {editingId && (
+                    <button 
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all mt-2"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </form>
               </Card>
             </div>
@@ -94,7 +131,7 @@ export default function LegalModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {docs.map((doc: any, i: number) => <DocRow key={i} {...doc} />)}
+                    {docs.map((doc: any, i: number) => <DocRow key={i} {...doc} onEdit={() => handleEdit(`doc-${i}`, doc)} onDelete={() => handleDeleteClick(`doc-${i}`)} />)}
                   </tbody>
                 </table>
               </div>
@@ -102,13 +139,19 @@ export default function LegalModule() {
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function DocRow({ title, type, auth, file, status }: any) {
+function DocRow({ title, type, auth, file, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{title}</td>
@@ -125,26 +168,50 @@ function DocRow({ title, type, auth, file, status }: any) {
         }`}>{status}</span>
       </td>
       <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-          <Eye className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={onEdit}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all"
+          >
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={onDelete}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function Field({ label, placeholder, isSelect, options = [], isTextArea }: any) {
+function Field({ label, placeholder, isSelect, options = [], isTextArea, value }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500">
+        <select 
+          defaultValue={value}
+          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+        >
           {options.map((opt: string) => <option key={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea rows={2} className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder={placeholder} />
+        <textarea 
+          rows={2} 
+          defaultValue={value}
+          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" 
+          placeholder={placeholder} 
+        />
       ) : (
-        <input type="text" className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder={placeholder} />
+        <input 
+          type="text" 
+          defaultValue={value}
+          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" 
+          placeholder={placeholder} 
+        />
       )}
     </div>
   );

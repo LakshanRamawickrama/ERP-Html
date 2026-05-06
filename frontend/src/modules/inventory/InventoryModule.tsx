@@ -11,8 +11,10 @@ import {
   Maximize2,
   Minimize2,
   AlertTriangle,
-  ClipboardList
+  ClipboardList,
+  Trash2
 } from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 type TabType = 'stock' | 'move';
 
@@ -23,6 +25,8 @@ export default function InventoryModule() {
   const [formData, setFormData] = useState<any>({});
 
   const [data, setData] = useState<any>({ alerts: [], stock: [], moves: [] });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
     fetch('/api/inventory').then(res => res.json()).then(setData);
@@ -47,6 +51,18 @@ export default function InventoryModule() {
       console.log('Creating:', formData);
     }
     handleCancelEdit();
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting inventory record:', deleteId);
+      // TODO: API call
+    }
   };
 
   const alerts = data.alerts || [];
@@ -169,11 +185,11 @@ export default function InventoryModule() {
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'stock' ? (
                       data.stock?.map((item: any, i: number) => (
-                        <StockRow key={i} {...item} isWide={isWide} onEdit={() => handleEdit(`stock-${i}`, item, 'stock')} />
+                        <StockRow key={i} {...item} isWide={isWide} onEdit={() => handleEdit(`stock-${i}`, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${i}`)} />
                       )) || null
                     ) : (
                       data.moves?.map((move: any, i: number) => (
-                        <MoveRow key={i} {...move} />
+                        <MoveRow key={i} {...move} onDelete={() => handleDeleteClick(`move-${i}`)} />
                       )) || null
                     )}
                   </tbody>
@@ -183,6 +199,12 @@ export default function InventoryModule() {
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
@@ -202,7 +224,7 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function StockRow({ name, cat, stock, status, isWide, onEdit }: any) {
+function StockRow({ name, cat, stock, status, isWide, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
@@ -213,15 +235,20 @@ function StockRow({ name, cat, stock, status, isWide, onEdit }: any) {
         <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">{status}</span>
       </td>
       <td className="px-4 py-3 text-slate-500">
-        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all">
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function MoveRow({ date, item, type, qty, notes }: any) {
+function MoveRow({ date, item, type, qty, notes, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 text-slate-500 font-mono tracking-tight">{date}</td>
@@ -235,6 +262,11 @@ function MoveRow({ date, item, type, qty, notes }: any) {
       </td>
       <td className="px-4 py-3 font-bold">{qty}</td>
       <td className="px-4 py-3 text-slate-500 text-xs italic">{notes}</td>
+      <td className="px-4 py-3">
+        <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </td>
     </tr>
   );
 }

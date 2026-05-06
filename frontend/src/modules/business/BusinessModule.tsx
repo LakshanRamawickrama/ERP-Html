@@ -9,7 +9,10 @@ import {
   Edit, 
   Eye, 
   Maximize2,
-  Minimize2,} from 'lucide-react';
+  Minimize2,
+  Trash2
+} from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 type TabType = 'entities' | 'structure';
 
@@ -19,6 +22,10 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
   const [isWide, setIsWide] = useState(false);
   const [data, setData] = useState<any>({ entities: [], structures: [], options: { categories: [] } });
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
     fetch('/api/business')
@@ -32,6 +39,29 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
         setLoading(false);
       });
   }, []);
+
+  const handleEdit = (id: string, rowData: any, tab: TabType) => {
+    setEditingId(id);
+    setFormData(rowData);
+    setActiveTab(tab);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting business record:', deleteId);
+      // TODO: API call
+    }
+  };
 
   const entities = data.entities || [];
   const structures = data.structures || [];
@@ -68,36 +98,54 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
           {!isWide && (
             <div className="lg:col-span-4">
               {activeTab === 'entities' ? (
-                <Card title="Register New Entity" icon={PlusCircle} iconColor="bg-[#2c3e50]">
+                <Card title={editingId ? "Edit Business Entity" : "Register New Entity"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
                   <form className="space-y-4">
-                    <Field label="Business Name" placeholder="e.g. Acme Corp" />
-                    <Field label="Company Number" placeholder="CH-12345678" />
-                    <Field label="Business Category" isSelect options={data.options?.categories || []} />
-                    <Field label="Tax ID / VAT Number" />
+                    <Field label="Business Name" placeholder="e.g. Acme Corp" value={formData.name} />
+                    <Field label="Company Number" placeholder="CH-12345678" value={formData.num} />
+                    <Field label="Business Category" isSelect options={data.options?.categories || []} value={formData.cat} />
+                    <Field label="Tax ID / VAT Number" value={formData.taxId} />
                     <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
-                      Register Business
+                      {editingId ? "Update Business" : "Register Business"}
                     </button>
+                    {editingId && (
+                      <button 
+                        type="button"
+                        onClick={handleCancelEdit}
+                        className="w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-all mt-2"
+                      >
+                        Cancel Edit
+                      </button>
+                    )}
                   </form>
                 </Card>
               ) : (
-                <Card title="Companies House Registration" icon={Landmark} iconColor="bg-[#2c3e50]">
+                <Card title={editingId ? "Edit Company Registry" : "Companies House Registration"} icon={editingId ? Edit : Landmark} iconColor="bg-[#2c3e50]">
                   <form className="space-y-4">
-                    <Field label="Full Company Name" placeholder="e.g. Whiterock Retail Ltd" />
-                    <Field label="Registration Number (CRN)" placeholder="8-digit number" />
-                    <Field label="Who Manages It (Directors)" placeholder="Name of Directors / Managers" />
+                    <Field label="Full Company Name" placeholder="e.g. Whiterock Retail Ltd" value={formData.name} />
+                    <Field label="Registration Number (CRN)" placeholder="8-digit number" value={formData.crn} />
+                    <Field label="Who Manages It (Directors)" placeholder="Name of Directors / Managers" value={formData.manager} />
                     <div className="grid grid-cols-2 gap-4">
-                      <Field label="Incorporation Date" type="date" />
-                      <Field label="SIC Code" placeholder="Nature of Business" />
+                      <Field label="Incorporation Date" type="date" value={formData.incDate} />
+                      <Field label="SIC Code" placeholder="Nature of Business" value={formData.sic} />
                     </div>
-                    <Field label="Registered Office Address" isTextArea />
-                    <Field label="Confirmation Statement Due" type="date" />
+                    <Field label="Registered Office Address" isTextArea value={formData.addr} />
+                    <Field label="Confirmation Statement Due" type="date" value={formData.due} />
                     <div className="grid grid-cols-2 gap-4">
                       <Field label="Balance Sheet (PDF)" type="file" />
                       <Field label="P&L Statement (PDF)" type="file" />
                     </div>
                     <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
-                      Register Company Details
+                      {editingId ? "Update Company Details" : "Register Company Details"}
                     </button>
+                    {editingId && (
+                      <button 
+                        type="button"
+                        onClick={handleCancelEdit}
+                        className="w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-all mt-2"
+                      >
+                        Cancel Edit
+                      </button>
+                    )}
                   </form>
                 </Card>
               )}
@@ -151,13 +199,13 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
                     ) : activeTab === 'entities' ? (
                       <>
                         {entities.map((e: any, idx: number) => (
-                          <EntityRow key={idx} isWide={isWide} name={e.name} num={e.num} cat={e.cat} hq={e.hq} />
+                          <EntityRow key={idx} isWide={isWide} name={e.name} num={e.num} cat={e.cat} hq={e.hq} onEdit={() => handleEdit(`entity-${idx}`, e, 'entities')} onDelete={() => handleDeleteClick(`entity-${idx}`)} />
                         ))}
                       </>
                     ) : (
                       <>
                         {structures.map((s: any, idx: number) => (
-                          <StructureRow key={idx} isWide={isWide} name={s.name} crn={s.crn} manager={s.manager} sic={s.sic} due={s.due} />
+                          <StructureRow key={idx} isWide={isWide} name={s.name} crn={s.crn} manager={s.manager} sic={s.sic} due={s.due} onEdit={() => handleEdit(`structure-${idx}`, s, 'structure')} onDelete={() => handleDeleteClick(`structure-${idx}`)} />
                         ))}
                       </>
                     )}
@@ -168,13 +216,19 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function EntityRow({ name, num, cat, hq, isWide }: any) {
+function EntityRow({ name, num, cat, hq, isWide, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
@@ -185,15 +239,23 @@ function EntityRow({ name, num, cat, hq, isWide }: any) {
         <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">Active</span>
       </td>
       <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={onDelete}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function StructureRow({ name, crn, manager, sic, due, isWide }: any) {
+function StructureRow({ name, crn, manager, sic, due, isWide, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
@@ -208,27 +270,44 @@ function StructureRow({ name, crn, manager, sic, due, isWide }: any) {
         <span className="text-red-500 flex items-center gap-1 text-[10px] cursor-pointer hover:underline font-bold"><FilePdf className="w-3 h-3" /> P&L</span>
       </td>
       <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-          <Eye className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={onDelete}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, value }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500">
+        <select 
+          defaultValue={value}
+          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+        >
           {options.map((opt: string) => <option key={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea rows={2} className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder={placeholder} />
+        <textarea 
+          rows={2} 
+          defaultValue={value}
+          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" 
+          placeholder={placeholder} 
+        />
       ) : (
         <input 
           type={type} 
+          defaultValue={value}
           className={`w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 ${type === 'file' ? 'file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200' : ''}`} 
           placeholder={placeholder} 
         />

@@ -17,8 +17,10 @@ import {
   FileSearch,
   Box,
   User,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 type TabType = 'vehicles' | 'deliveries' | 'parcels';
 
@@ -29,6 +31,8 @@ export default function FleetModule() {
   const [formData, setFormData] = useState<any>({});
 
   const [data, setData] = useState<any>({ reminders: [], vehicles: [], deliveries: [], parcels: [] });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
     fetch('/api/fleet').then(res => res.json()).then(setData);
@@ -53,6 +57,18 @@ export default function FleetModule() {
       console.log('Creating:', formData);
     }
     handleCancelEdit();
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting fleet record:', deleteId);
+      // TODO: API call
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -240,13 +256,13 @@ export default function FleetModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'vehicles' && (
-                      data.vehicles?.map((v: any, i: number) => <VehicleRow key={i} {...v} onEdit={() => handleEdit(`vehicle-${i}`, v, 'vehicles')} />) || null
+                      data.vehicles?.map((v: any, i: number) => <VehicleRow key={i} {...v} onEdit={() => handleEdit(`vehicle-${i}`, v, 'vehicles')} onDelete={() => handleDeleteClick(`vehicle-${i}`)} />) || null
                     )}
                     {activeTab === 'deliveries' && (
-                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} onEdit={() => handleEdit(`delivery-${i}`, d, 'deliveries')} />) || null
+                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} onEdit={() => handleEdit(`delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(`delivery-${i}`)} />) || null
                     )}
                     {activeTab === 'parcels' && (
-                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} onEdit={() => handleEdit(`parcel-${i}`, p, 'parcels')} />) || null
+                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} onEdit={() => handleEdit(`parcel-${i}`, p, 'parcels')} onDelete={() => handleDeleteClick(`parcel-${i}`)} />) || null
                     )}
                   </tbody>
                 </table>
@@ -255,6 +271,12 @@ export default function FleetModule() {
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
@@ -312,7 +334,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit }: any) {
+function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -355,15 +377,20 @@ function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit }: any) {
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">{status}</span>
       </td>
       <td className="px-4 py-4">
-        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function DeliveryRow({ date, v, vNum, addr, contact, notes, status, onEdit }: any) {
+function DeliveryRow({ date, v, vNum, addr, contact, notes, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 text-xs font-medium">{date}</td>
@@ -388,15 +415,20 @@ function DeliveryRow({ date, v, vNum, addr, contact, notes, status, onEdit }: an
         <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full border border-blue-100 uppercase">{status}</span>
       </td>
       <td className="px-4 py-4">
-        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-          <FileSearch className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+            <FileSearch className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
 
-function ParcelRow({ provider, v, vNum, area, contact, status, onEdit }: any) {
+function ParcelRow({ provider, v, vNum, area, contact, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -420,9 +452,14 @@ function ParcelRow({ provider, v, vNum, area, contact, status, onEdit }: any) {
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">{status}</span>
       </td>
       <td className="px-4 py-4">
-        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-          <Edit className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+            <Edit className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );

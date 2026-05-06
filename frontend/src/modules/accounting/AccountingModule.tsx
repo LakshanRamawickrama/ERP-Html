@@ -25,6 +25,7 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
 type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax' | 'dojo';
 
@@ -34,6 +35,8 @@ export default function AccountingModule() {
   const [recordCategory, setRecordCategory] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
 
@@ -66,6 +69,20 @@ export default function AccountingModule() {
       // TODO: API call to create
     }
     handleCancelEdit();
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting record:', deleteId);
+      // TODO: API call to delete
+      // After success:
+      // setData(prev => ({ ...prev, history: prev.history.filter((_, i) => `record-${i}` !== deleteId) }));
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -381,25 +398,25 @@ export default function AccountingModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'records' && (
-                      data.history?.map((r: any, i: number) => <RecordRow key={i} {...r} onEdit={() => handleEdit(`record-${i}`, r, 'records')} />) || null
+                      data.history?.map((r: any, i: number) => <RecordRow key={i} {...r} onEdit={() => handleEdit(`record-${i}`, r, 'records')} onDelete={() => handleDeleteClick(`record-${i}`)} />) || null
                     )}
                     {activeTab === 'invoices' && (
-                      data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} onEdit={() => handleEdit(`invoice-${i}`, r, 'invoices')} />) || null
+                      data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} onEdit={() => handleEdit(`invoice-${i}`, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${i}`)} />) || null
                     )}
                     {activeTab === 'bank' && (
-                      data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} onEdit={() => handleEdit(`bank-${i}`, r, 'bank')} />) || null
+                      data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} onEdit={() => handleEdit(`bank-${i}`, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${i}`)} />) || null
                     )}
                     {activeTab === 'loans' && (
-                      data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} onEdit={() => handleEdit(`loan-${i}`, r, 'loans')} />) || null
+                      data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} onEdit={() => handleEdit(`loan-${i}`, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${i}`)} />) || null
                     )}
                     {activeTab === 'dojo' && (
-                      data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} onEdit={() => handleEdit(`dojo-${i}`, r, 'dojo')} />) || null
+                      data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} onEdit={() => handleEdit(`dojo-${i}`, r, 'dojo')} onDelete={() => handleDeleteClick(`dojo-${i}`)} />) || null
                     )}
                     {activeTab === 'insurance' && (
-                      data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} onEdit={() => handleEdit(`insurance-${i}`, r, 'insurance')} />) || null
+                      data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} onEdit={() => handleEdit(`insurance-${i}`, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${i}`)} />) || null
                     )}
                     {activeTab === 'tax' && (
-                      data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} onEdit={() => handleEdit(`tax-${i}`, r, 'tax')} />) || null
+                      data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} onEdit={() => handleEdit(`tax-${i}`, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${i}`)} />) || null
                     )}
                   </tbody>
                 </table>
@@ -408,6 +425,12 @@ export default function AccountingModule() {
           </div>
         </div>
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
@@ -466,7 +489,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function RecordRow({ date, title, sub, category, amount, status, onEdit }: any) {
+function RecordRow({ date, title, sub, category, amount, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 font-mono tracking-tighter text-xs">{date}</td>
@@ -479,12 +502,12 @@ function RecordRow({ date, title, sub, category, amount, status, onEdit }: any) 
       </td>
       <td className="px-4 py-4 font-bold text-slate-800">{amount}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} /></td>
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} /></td>
     </tr>
   );
 }
 
-function InvoiceRow({ num, client, amount, due, status, onEdit }: any) {
+function InvoiceRow({ num, client, amount, due, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 font-bold text-slate-800">{num}</td>
@@ -492,12 +515,12 @@ function InvoiceRow({ num, client, amount, due, status, onEdit }: any) {
       <td className="px-4 py-4 font-bold text-slate-800">{amount}</td>
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{due}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} /></td>
+      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} /></td>
     </tr>
   );
 }
 
-function BankRow({ bank, acc, num, sort, type, status, onEdit }: any) {
+function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -512,12 +535,12 @@ function BankRow({ bank, acc, num, sort, type, status, onEdit }: any) {
         <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold border border-blue-100">{type}</span>
       </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} /></td>
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} /></td>
     </tr>
   );
 }
 
-function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit }: any) {
+function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -533,12 +556,12 @@ function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit }: any
         <div className="text-[10px] text-slate-400 font-medium">{rate} APR</div>
       </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} /></td>
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} /></td>
     </tr>
   );
 }
 
-function DojoRow({ date, amount, fee, net, status, onEdit }: any) {
+function DojoRow({ date, amount, fee, net, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{date}</td>
@@ -546,12 +569,12 @@ function DojoRow({ date, amount, fee, net, status, onEdit }: any) {
       <td className="px-4 py-4 text-red-500 font-medium">{fee}</td>
       <td className="px-4 py-4 font-extrabold text-slate-800">{net}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showEye onEdit={onEdit} /></td>
+      <td className="px-4 py-4"><RowActions showEye onEdit={onEdit} onDelete={onDelete} /></td>
     </tr>
   );
 }
 
-function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit }: any) {
+function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -562,12 +585,12 @@ function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit 
       <td className="px-4 py-4 font-bold text-slate-800">{premium}</td>
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{expiry}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} /></td>
+      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} /></td>
     </tr>
   );
 }
 
-function TaxRow({ type, period, amount, date, status, onEdit }: any) {
+function TaxRow({ type, period, amount, date, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -577,7 +600,7 @@ function TaxRow({ type, period, amount, date, status, onEdit }: any) {
       <td className="px-4 py-4 font-bold text-slate-800">{amount}</td>
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{date}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} /></td>
+      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} /></td>
     </tr>
   );
 }
@@ -598,7 +621,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function RowActions({ showDownload, showEye, onEdit }: any) {
+function RowActions({ showDownload, showEye, onEdit, onDelete }: any) {
   return (
     <div className="flex gap-2">
       <button 
@@ -617,7 +640,10 @@ function RowActions({ showDownload, showEye, onEdit }: any) {
           <Download className="w-3.5 h-3.5" />
         </button>
       )}
-      <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+      <button 
+        onClick={onDelete}
+        className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+      >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
     </div>
