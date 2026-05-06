@@ -46,7 +46,7 @@ class ReportsDataView(APIView):
             ],
             "businesses": [
                 {
-                    "id": e.id,
+                    "id": str(e.id),
                     "name": e.name,
                     "slug": e.name.lower().replace(' ', '-'),
                     "admin": "Super Admin",
