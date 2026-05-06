@@ -13,6 +13,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
+import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 
 type TabType = 'entities' | 'structure';
 
@@ -26,6 +27,8 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
   const [formData, setFormData] = useState<any>({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   React.useEffect(() => {
     fetch('/api/business')
@@ -61,6 +64,11 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
       console.log('Deleting business record:', deleteId);
       // TODO: API call
     }
+  };
+
+  const handleViewDoc = (docTitle: string) => {
+    setSelectedDoc({ title: docTitle });
+    setIsDrawerOpen(true);
   };
 
   const entities = data.entities || [];
@@ -205,7 +213,7 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
                     ) : (
                       <>
                         {structures.map((s: any, idx: number) => (
-                          <StructureRow key={idx} isWide={isWide} name={s.name} crn={s.crn} manager={s.manager} sic={s.sic} due={s.due} onEdit={() => handleEdit(`structure-${idx}`, s, 'structure')} onDelete={() => handleDeleteClick(`structure-${idx}`)} />
+                          <StructureRow key={idx} isWide={isWide} name={s.name} crn={s.crn} manager={s.manager} sic={s.sic} due={s.due} onEdit={() => handleEdit(`structure-${idx}`, s, 'structure')} onDelete={() => handleDeleteClick(`structure-${idx}`)} onView={handleViewDoc} />
                         ))}
                       </>
                     )}
@@ -221,6 +229,12 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
+      />
+
+      <DocumentDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        documentData={selectedDoc}
       />
     </div>
   );
@@ -255,7 +269,7 @@ function EntityRow({ name, num, cat, hq, isWide, onEdit, onDelete }: any) {
   );
 }
 
-function StructureRow({ name, crn, manager, sic, due, isWide, onEdit, onDelete }: any) {
+function StructureRow({ name, crn, manager, sic, due, isWide, onEdit, onDelete, onView }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
@@ -266,8 +280,18 @@ function StructureRow({ name, crn, manager, sic, due, isWide, onEdit, onDelete }
         <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">{due}</span>
       </td>
       <td className="px-4 py-3 flex gap-2">
-        <span className="text-red-500 flex items-center gap-1 text-[10px] cursor-pointer hover:underline font-bold"><FilePdf className="w-3 h-3" /> BS</span>
-        <span className="text-red-500 flex items-center gap-1 text-[10px] cursor-pointer hover:underline font-bold"><FilePdf className="w-3 h-3" /> P&L</span>
+        <span 
+          onClick={() => onView(`${name} - Balance Sheet`)}
+          className="text-red-500 flex items-center gap-1 text-[10px] cursor-pointer hover:underline font-bold"
+        >
+          <FilePdf className="w-3 h-3" /> BS
+        </span>
+        <span 
+          onClick={() => onView(`${name} - P&L Statement`)}
+          className="text-red-500 flex items-center gap-1 text-[10px] cursor-pointer hover:underline font-bold"
+        >
+          <FilePdf className="w-3 h-3" /> P&L
+        </span>
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
