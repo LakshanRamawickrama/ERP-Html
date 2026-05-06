@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Gavel, 
@@ -31,7 +32,7 @@ export default function LegalModule() {
 
 
   useEffect(() => {
-    fetch('/api/legal').then(res => res.json()).then(setData);
+    fetch(API_ENDPOINTS.LEGAL).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any) => {

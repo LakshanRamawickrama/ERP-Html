@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Bell, 
@@ -32,7 +33,7 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
   useEffect(() => {
     const fetchReminders = async () => {
       try {
-        const res = await fetch('/api/reminders');
+        const res = await fetch(API_ENDPOINTS.REMINDERS);
         const data = await res.json();
         
         // Map types to icons

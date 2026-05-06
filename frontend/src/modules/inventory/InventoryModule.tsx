@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Boxes, 
@@ -29,7 +30,7 @@ export default function InventoryModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
-    fetch('/api/inventory').then(res => res.json()).then(setData);
+    fetch(API_ENDPOINTS.INVENTORY).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {

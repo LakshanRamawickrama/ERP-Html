@@ -1,0 +1,8 @@
+Django>=5.0
+djangorestframework
+django-cors-headers
+django-filter
+django-mongodb-backend
+pymongo[srv]
+sqlparse
+six

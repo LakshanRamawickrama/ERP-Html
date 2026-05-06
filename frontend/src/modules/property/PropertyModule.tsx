@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Building2, 
@@ -38,7 +39,7 @@ export default function PropertyModule() {
 
 
   useEffect(() => {
-    fetch('/api/property').then(res => res.json()).then(setData);
+    fetch(API_ENDPOINTS.PROPERTY).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {

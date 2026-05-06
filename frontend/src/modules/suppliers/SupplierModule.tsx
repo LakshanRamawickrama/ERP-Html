@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Truck, 
@@ -39,7 +40,7 @@ export default function SupplierModule() {
 
 
   useEffect(() => {
-    fetch('/api/suppliers').then(res => res.json()).then(setData);
+    fetch(API_ENDPOINTS.SUPPLIERS).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {

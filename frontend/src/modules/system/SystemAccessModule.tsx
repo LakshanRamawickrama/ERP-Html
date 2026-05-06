@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Lock,
@@ -20,7 +21,7 @@ export default function SystemAccessModule() {
   const [data, setData] = useState<any>({ credentials: [], alerts: [] });
 
   React.useEffect(() => {
-    fetch('/api/system').then(res => res.json()).then(setData);
+    fetch(API_ENDPOINTS.SYSTEM).then(res => res.json()).then(setData);
   }, []);
 
   const togglePassword = (id: string) => {

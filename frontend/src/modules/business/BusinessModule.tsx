@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Briefcase, 
@@ -31,7 +32,7 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   React.useEffect(() => {
-    fetch('/api/business')
+    fetch(API_ENDPOINTS.BUSINESS)
       .then(res => res.json())
       .then(d => {
         setData(d);
@@ -52,6 +53,34 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({});
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = editingId 
+      ? `${API_ENDPOINTS.BUSINESS}entities/${editingId}/` 
+      : `${API_ENDPOINTS.BUSINESS}entities/`;
+    
+    const method = editingId ? 'PATCH' : 'POST';
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setLoading(true);
+        const res = await fetch(API_ENDPOINTS.BUSINESS);
+        const newData = await res.json();
+        setData(newData);
+        setLoading(false);
+        handleCancelEdit();
+      }
+    } catch (err) {
+      console.error('Failed to save business data:', err);
+    }
   };
 
   const handleDeleteClick = (id: string) => {
@@ -107,7 +136,7 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
             <div className="lg:col-span-4">
               {activeTab === 'entities' ? (
                 <Card title={editingId ? "Edit Business Entity" : "Register New Entity"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
-                  <form className="space-y-4">
+                  <form className="space-y-4" onSubmit={handleSubmit}>
                     <Field label="Business Name" placeholder="e.g. Acme Corp" value={formData.name} />
                     <Field label="Company Number" placeholder="CH-12345678" value={formData.num} />
                     <Field label="Business Category" isSelect options={data.options?.categories || []} value={formData.cat} />

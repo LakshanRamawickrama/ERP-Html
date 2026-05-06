@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Users, 
@@ -29,7 +30,7 @@ export default function UserModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
-    fetch('/api/users').then(res => res.json()).then(setData);
+    fetch(API_ENDPOINTS.USERS).then(res => res.json()).then(setData);
   }, []);
 
   const systemMap = data.systemMap || [];

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   FileText, 
@@ -46,7 +47,7 @@ export default function AccountingModule() {
   const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
 
   React.useEffect(() => {
-    fetch('/api/accounting').then(res => res.json()).then(setData);
+    fetch(API_ENDPOINTS.ACCOUNTING).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {

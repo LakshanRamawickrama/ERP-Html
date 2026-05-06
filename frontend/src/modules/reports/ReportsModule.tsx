@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { 
   Download, 
@@ -37,7 +38,7 @@ export default function ReportsModule() {
 
   const fetchReports = React.useCallback(() => {
     setRefreshing(true);
-    fetch('/api/reports')
+    fetch(API_ENDPOINTS.REPORTS)
       .then(res => res.json())
       .then(setData)
       .finally(() => setTimeout(() => setRefreshing(false), 800));
