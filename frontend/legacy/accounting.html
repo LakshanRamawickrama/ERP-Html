@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting - Business Central</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 70px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 240px;
+        }
+
+        .sidebar-brand {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            min-height: 70px;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 20px;
+            min-width: 38px;
+            text-align: center;
+            color: #ecf0f1;
+        }
+
+        .sidebar-brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-brand-text {
+            opacity: 1;
+        }
+
+        .sidebar-brand-text h5 {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-nav-list {
+            flex: 1;
+            padding: 16px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .nav-link {
+            color: #bdc3c7;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin: 3px 10px;
+            white-space: nowrap;
+            transition: 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #34495e;
+            color: white;
+        }
+
+        .nav-link .nav-icon {
+            font-size: 16px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-link .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .nav-link .nav-label {
+            opacity: 1;
+        }
+
+        .main-wrapper {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* Tabs */
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fff !important;
+        }
+
+        .btn-minimal {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-minimal:hover {
+            background-color: #34495e;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .bg-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .bg-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .bg-overdue {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .bg-inactive {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .view-section {
+            display: none;
+            padding: 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Wide View Logic */
+        .view-section.wide .form-col {
+            display: none;
+        }
+
+        .view-section.wide .table-col {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .extra-col {
+            display: none;
+        }
+
+        .view-section.wide .extra-col {
+            display: table-cell;
+        }
+
+        .reminder-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .reminder-pill.overdue {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .reminder-pill.pending {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            font-size: 13px;
+        }
+
+        /* ── Custom Modal ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content-custom {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header-custom {
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .modal-body-custom {
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .modal-footer-custom {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-modal {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+
+        .btn-modal-cancel {
+            background: #e0e0e0;
+            color: #555;
+        }
+
+        .btn-modal-confirm {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .btn-modal-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        /* Bank Details Toggle Animation */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-down {
+            animation: fadeInDown 0.3s ease-out;
+        }
+    </style>
+    <script src="auth.js"></script>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text">
+                <h5>Business Central</h5>
+                <small>Super Admin</small>
+            </div>
+        </div>
+        <ul class="sidebar-nav-list">
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span
+                        class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span
+                        class="nav-label">Business Management</span></a></li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span
+                        class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+                        class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+                        class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+                        class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span
+                        class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link active"><i
+                        class="fas fa-file-invoice-dollar nav-icon"></i><span class="nav-label">Accounting</span></a>
+            </li>
+            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span
+                        class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span
+                        class="nav-label">Property Management</span></a></li>
+            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+                        class="nav-label">Reports</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">Accounting Module</h4>
+            <p class="text-muted small mb-0">Manage Financial Records, Invoices, and Statements</p>
+        </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-records" onclick="switchView('records')">Financial Records</button>
+            <button class="tab-btn" id="tab-invoices" onclick="switchView('invoices')">Invoices</button>
+            <button class="tab-btn" id="tab-bank" onclick="switchView('bank')">Bank Details</button>
+            <button class="tab-btn" id="tab-loans" onclick="switchView('loans')">Loans</button>
+            <button class="tab-btn" id="tab-insurance" onclick="switchView('insurance')">Insurance</button>
+            <button class="tab-btn" id="tab-tax" onclick="switchView('tax')">VAT / Tax</button>
+            <button class="tab-btn" id="tab-dojo" onclick="switchView('dojo')">Dojo Settlements</button>
+            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap py-1" id="kpi-list">
+                <div class="reminder-pill pending">
+                    <i class="fas fa-arrow-down"></i>
+                    <span><strong>Income:</strong> <span class="pill-sub" id="rs-income">$6,200.00</span></span>
+                </div>
+                <div class="reminder-pill overdue">
+                    <i class="fas fa-arrow-up"></i>
+                    <span><strong>Expenses:</strong> <span class="pill-sub" id="rs-expense">$4,785.00</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. BANK DETAILS VIEW -->
+        <div id="view-bank" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="bankFormIcon" class="fas fa-university me-2"></i><span
+                                id="bankFormTitle">Add Bank Account</span></div>
+                        <div class="card-body">
+                            <form id="bankForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editBankId">
+                                    <div class="col-12"><label class="form-label">Bank Name</label><input type="text"
+                                            class="form-control form-control-sm" id="bankName" required></div>
+                                    <div class="col-12"><label class="form-label">Account Name</label><input type="text"
+                                            class="form-control form-control-sm" id="bankAccName" required></div>
+                                    <div class="col-12"><label class="form-label">Account Number</label><input
+                                            type="text" class="form-control form-control-sm" id="bankAccNum" required>
+                                    </div>
+                                    <div class="col-6"><label class="form-label">Sort Code</label><input type="text"
+                                            class="form-control form-control-sm" id="bankSortCode"
+                                            placeholder="00-00-00"></div>
+                                    <div class="col-6"><label class="form-label">Type</label>
+                                        <select class="form-select form-select-sm" id="bankType">
+                                            <option>Business Current</option>
+                                            <option>Business Savings</option>
+                                            <option>Merchant Account</option>
+                                            <option>Corporate Card</option>
+                                            <option>Petty Cash</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">IBAN (Optional)</label><input
+                                            type="text" class="form-control form-control-sm" id="bankIban"></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="bankStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="bankSubmitBtn" class="btn btn-minimal w-100 mt-3">Save
+                                    Account</button>
+                                <button type="button" id="cancelBankEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetBankForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Bank Accounts Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('bank')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Bank Name</th>
+                                        <th>Account Name</th>
+                                        <th>Number / Sort</th>
+                                        <th class="extra-col">IBAN</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bankTable">
+                                    <tr id="bank-1">
+                                        <td class="td-bank-name"><strong>Business Central Bank</strong></td>
+                                        <td class="td-bank-acc-name">LAKSHAN RAMAWICKRAMA ERP</td>
+                                        <td class="td-bank-info">88776655 <br><small class="text-muted">00-11-22</small>
+                                        </td>
+                                        <td class="td-bank-iban extra-col text-muted small">GB12 BCB 0011 2288 7766 55
+                                        </td>
+                                        <td class="td-bank-type"><span
+                                                class="badge bg-info-subtle text-info border border-info-subtle">Business
+                                                Current</span></td>
+                                        <td class="td-bank-status"><span class="status-badge bg-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editBank('bank-1')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteBank('bank-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. LOANS VIEW -->
+        <div id="view-loans" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="loanFormIcon"
+                                class="fas fa-hand-holding-usd me-2"></i><span id="loanFormTitle">New Loan Entry</span>
+                        </div>
+                        <div class="card-body">
+                            <form id="loanForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editLoanId">
+                                    <div class="col-12"><label class="form-label">Loan Name / Type</label><input
+                                            type="text" class="form-control form-control-sm" id="loanName"
+                                            placeholder="e.g. Business Expansion Loan" required></div>
+                                    <div class="col-12"><label class="form-label">Lender (Bank / Company)</label><input
+                                            type="text" class="form-control form-control-sm" id="loanLender" required>
+                                    </div>
+                                    <div class="col-6"><label class="form-label">Total Loan Amount ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanTotal"
+                                            step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Outstanding (O/S) ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanOS" step="0.01"
+                                            required></div>
+                                    <div class="col-6"><label class="form-label">Monthly Payment ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanMonthly"
+                                            step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Interest Rate (%)</label><input
+                                            type="number" class="form-control form-control-sm" id="loanRate" step="0.01"
+                                            required></div>
+                                    <div class="col-6"><label class="form-label">Start Date</label><input type="date"
+                                            class="form-control form-control-sm" id="loanStart" required></div>
+                                    <div class="col-6"><label class="form-label">End Date</label><input type="date"
+                                            class="form-control form-control-sm" id="loanEnd" required></div>
+                                    <div class="col-12"><label class="form-label">Next Payment Date</label><input
+                                            type="date" class="form-control form-control-sm" id="loanNextDate" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="loanStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Paid Off">Paid Off</option>
+                                            <option value="Defaulted">Defaulted</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="loanSubmitBtn" class="btn btn-minimal w-100 mt-3">Register
+                                    Loan</button>
+                                <button type="button" id="cancelLoanEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetLoanForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Loans Registry & Monitoring</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('loans')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Loan / Lender</th>
+                                        <th>Total / O/S</th>
+                                        <th>Monthly / Rate</th>
+                                        <th class="extra-col">Term (Start - End)</th>
+                                        <th class="extra-col">Next Payment</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loansTable">
+                                    <tr id="loan-1">
+                                        <td class="td-loan-info"><strong>SME Growth Loan</strong> <br><small
+                                                class="text-muted">Business Central Bank</small></td>
+                                        <td class="td-loan-amounts">T: $50,000 <br><small class="text-danger">O/S:
+                                                $32,450</small></td>
+                                        <td class="td-loan-rate">$1,200 <br><small class="text-muted">5.2% APR</small>
+                                        </td>
+                                        <td class="td-loan-term extra-col small text-muted">2024-01-15 <br>2028-01-15
+                                        </td>
+                                        <td class="td-loan-next extra-col text-primary small fw-bold">2026-05-15</td>
+                                        <td class="td-loan-status"><span class="status-badge bg-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editLoan('loan-1')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteLoan('loan-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. FINANCIAL RECORDS VIEW -->
+        <div id="view-records" class="view-section active">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="formIcon" class="fas fa-plus-circle me-2"></i><span
+                                id="formTitle">Add Financial Record</span></div>
+                        <div class="card-body">
+                            <form id="recordForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editRowId">
+                                    <div class="col-12">
+                                        <label class="form-label">Record Title</label>
+                                        <input type="text" class="form-control form-control-sm" id="recMainTitle" placeholder="e.g. Monthly Rent Payment" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Category</label>
+                                        <div class="input-group">
+                                            <select class="form-select form-select-sm" id="recTitle" required>
+                                                <option value="" selected disabled>Select Category...</option>
+                                                <option>Supplier Payments</option>
+                                                <option>Rent</option>
+                                                <option>Mortgage</option>
+                                                <option>Accountant Fees</option>
+                                                <option>Bank Charges</option>
+
+                                            </select>
+                                            <button class="btn btn-outline-secondary btn-sm" type="button"
+                                                onclick="addCategory()" title="Add New Category">+</button>
+                                            <button class="btn btn-outline-danger btn-sm" type="button"
+                                                onclick="removeCategory()" title="Remove Selected Category">-</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="supplierContainer" style="display: none;">
+                                        <label class="form-label">Supplier</label>
+                                        <select class="form-select form-select-sm" id="recSupplier">
+                                            <option value="" selected disabled>Select Supplier...</option>
+                                            <option>Global Supplies Ltd</option>
+                                            <option>Tech Connect Inc</option>
+                                            <option>Office Depot</option>
+                                            <option>Prime Logistics</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12" id="rentTermContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="form-label">Rent Term Start</label>
+                                                <input type="date" class="form-control form-control-sm" id="rentStart">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Rent Term End</label>
+                                                <input type="date" class="form-control form-control-sm" id="rentEnd">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="mortgageContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="form-label">Paying Mode</label>
+                                                <select class="form-select form-select-sm" id="mortMode">
+                                                    <option>Monthly</option>
+                                                    <option>Quarterly</option>
+                                                    <option>Annually</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Term (Years)</label>
+                                                <input type="number" class="form-control form-control-sm" id="mortTerm"
+                                                    placeholder="e.g. 25">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Interest Rate (%)</label>
+                                                <input type="number" class="form-control form-control-sm" id="mortRate"
+                                                    step="0.01" placeholder="0.00">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Repayment ($)</label>
+                                                <input type="number" class="form-control form-control-sm" id="mortRepay"
+                                                    step="0.01" placeholder="0.00">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="insuranceContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6"><label class="form-label">Insurance Type</label><input
+                                                    type="text" class="form-control form-control-sm" id="insType"
+                                                    placeholder="e.g. Liability"></div>
+                                            <div class="col-6"><label class="form-label">Provider Name</label><input
+                                                    type="text" class="form-control form-control-sm" id="insProvider">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Policy Number</label><input
+                                                    type="text" class="form-control form-control-sm" id="insPolicy">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Premium Amount
+                                                    ($)</label><input type="number" class="form-control form-control-sm"
+                                                    id="insPremium" step="0.01"></div>
+                                            <div class="col-6"><label class="form-label">Start Date</label><input
+                                                    type="date" class="form-control form-control-sm" id="insStart">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Expiry Date</label><input
+                                                    type="date" class="form-control form-control-sm" id="insExpiry">
+                                            </div>
+                                            <div class="col-12"><label class="form-label">Renewal
+                                                    Reminder</label><select class="form-select form-select-sm"
+                                                    id="insReminder">
+                                                    <option>30 Days Before</option>
+                                                    <option>15 Days Before</option>
+                                                    <option>7 Days Before</option>
+                                                </select></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12" id="taxContainer" style="display: none;">
+                                        <div class="row g-2">
+                                            <div class="col-6"><label class="form-label">Tax Type</label><input
+                                                    type="text" class="form-control form-control-sm" id="taxType"
+                                                    placeholder="e.g. Corporation Tax"></div>
+                                            <div class="col-6"><label class="form-label">Tax Amount ($)</label><input
+                                                    type="number" class="form-control form-control-sm" id="taxAmount"
+                                                    step="0.01"></div>
+                                            <div class="col-6"><label class="form-label">Period Start</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxStart">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Period End</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxEnd"></div>
+                                            <div class="col-6"><label class="form-label">Filing Date</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxFiling">
+                                            </div>
+                                            <div class="col-6"><label class="form-label">Payment Due</label><input
+                                                    type="date" class="form-control form-control-sm" id="taxDue"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Type</label>
+                                        <select class="form-select form-select-sm" id="recCat" required>
+                                            <option value="Income">Income</option>
+                                            <option value="Expense">Expense</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Amount ($)</label><input type="number"
+                                            class="form-control form-control-sm" id="recAmount" step="0.01" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Payment Status</label>
+                                        <select class="form-select form-select-sm" id="recStatus">
+                                            <option value="Paid">Paid</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Overdue">Overdue</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Date</label><input type="date"
+                                            class="form-control form-control-sm" id="recDate" required></div>
+                                    <div class="col-12"><label class="form-label">Upload Document</label><input
+                                            type="file" class="form-control form-control-sm" id="recDoc"></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea
+                                            class="form-control form-control-sm" id="recNotes" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" id="submitBtn" class="btn btn-minimal w-100 mt-3">Save
+                                    Record</button>
+                                <button type="button" id="cancelEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetRecordForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Transaction History</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('records')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th class="extra-col">Doc / Notes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recordsTable">
+                                    <tr id="rec-001">
+                                        <td class="td-date">2026-04-01</td>
+                                        <td class="td-title"><strong>HQ Office Rent</strong><br><small class="text-muted">Rent (Apr 2026 – Mar 2027)</small></td>
+                                        <td class="td-cat">Expense</td>
+                                        <td class="td-amount" data-val="2500">$2,500.00</td>
+                                        <td class="td-notes extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> rent-apr2026.pdf</td>
+                                        <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-001')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-001', 2500, 'Expense')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-002">
+                                        <td class="td-date">2026-04-05</td>
+                                        <td class="td-title"><strong>Freight Contract Revenue</strong><br><small class="text-muted">Sales Reports</small></td>
+                                        <td class="td-cat">Income</td>
+                                        <td class="td-amount" data-val="5000">$5,000.00</td>
+                                        <td class="td-notes extra-col text-muted small">Alpha Trading – Q1 contract</td>
+                                        <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-002')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-002', 5000, 'Income')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-003">
+                                        <td class="td-date">2026-04-10</td>
+                                        <td class="td-title"><strong>Office Supplies Purchase</strong><br><small class="text-muted">Supplier Payments (Prime Office Supplies)</small></td>
+                                        <td class="td-cat">Expense</td>
+                                        <td class="td-amount" data-val="450">$450.00</td>
+                                        <td class="td-notes extra-col text-muted small">Stationery restock – PO-2026-501</td>
+                                        <td class="td-status"><span class="status-badge bg-pending">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-003')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-003', 450, 'Expense')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-004">
+                                        <td class="td-date">2026-04-15</td>
+                                        <td class="td-title"><strong>Consulting Services Income</strong><br><small class="text-muted">Sales Reports</small></td>
+                                        <td class="td-cat">Income</td>
+                                        <td class="td-amount" data-val="1200">$1,200.00</td>
+                                        <td class="td-notes extra-col text-muted small">Consulting Ltd – Q1 advisory fees</td>
+                                        <td class="td-status"><span class="status-badge bg-pending">Sent</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-004')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-004', 1200, 'Income')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-005">
+                                        <td class="td-date">2026-04-20</td>
+                                        <td class="td-title"><strong>Fleet Maintenance</strong><br><small class="text-muted">Supplier Payments (Global Logistics Partners)</small></td>
+                                        <td class="td-cat">Expense</td>
+                                        <td class="td-amount" data-val="1800">$1,800.00</td>
+                                        <td class="td-notes extra-col text-muted small">TRK-007 & VAN-002 service</td>
+                                        <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-005')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-005', 1800, 'Expense')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="rec-006">
+                                        <td class="td-date">2026-04-28</td>
+                                        <td class="td-title"><strong>Bank Charges – April</strong><br><small class="text-muted">Bank Charges</small></td>
+                                        <td class="td-cat">Expense</td>
+                                        <td class="td-amount" data-val="35">$35.00</td>
+                                        <td class="td-notes extra-col text-muted small">Monthly account maintenance fee</td>
+                                        <td class="td-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('rec-006')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('rec-006', 35, 'Expense')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. INVOICES VIEW -->
+        <div id="view-invoices" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="invFormIcon" class="fas fa-file-invoice me-2"></i><span
+                                id="invFormTitle">Create New Invoice</span></div>
+                        <div class="card-body">
+                            <form id="invoiceForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editInvId">
+                                    <div class="col-12"><label class="form-label">Client Name</label><input type="text"
+                                            class="form-control form-control-sm" id="invClient" required></div>
+                                    <div class="col-12"><label class="form-label">Invoice Number</label><input
+                                            type="text" class="form-control form-control-sm" id="invNum"
+                                            placeholder="INV-001" required></div>
+                                    <div class="col-12"><label class="form-label">Amount ($)</label><input type="number"
+                                            class="form-control form-control-sm" id="invAmount" step="0.01" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Due Date</label><input type="date"
+                                            class="form-control form-control-sm" id="invDue" required></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="invStatus">
+                                            <option>Sent</option>
+                                            <option>Paid</option>
+                                            <option>Overdue</option>
+                                            <option>Cancelled</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Attach Document (PDF/Image)</label>
+                                        <input type="file" class="form-control form-control-sm" id="invDoc">
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Internal Notes</label>
+                                        <textarea class="form-control form-control-sm" id="invNotes"
+                                            rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" id="invSubmitBtn" class="btn btn-minimal w-100 mt-3">Generate
+                                    Invoice</button>
+                                <button type="button" id="cancelInvEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetInvoiceForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Invoices Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('invoices')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Inv #</th>
+                                        <th>Client</th>
+                                        <th>Amount</th>
+                                        <th>Due Date</th>
+                                        <th class="extra-col">Doc</th>
+                                        <th class="extra-col">Notes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoicesTable">
+                                    <tr id="inv-001">
+                                        <td class="td-inv-num"><strong>INV-2026-001</strong></td>
+                                        <td class="td-inv-client">Alpha Trading Co.</td>
+                                        <td class="td-inv-amount" data-val="5000">$5,000.00</td>
+                                        <td class="td-inv-due">2026-04-30</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> INV-2026-001.pdf</td>
+                                        <td class="td-inv-notes extra-col text-muted small">Freight Contract – Q1 2026</td>
+                                        <td class="td-inv-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-001')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-001')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="inv-002">
+                                        <td class="td-inv-num"><strong>INV-2026-002</strong></td>
+                                        <td class="td-inv-client">Consulting Ltd</td>
+                                        <td class="td-inv-amount" data-val="1200">$1,200.00</td>
+                                        <td class="td-inv-due">2026-05-20</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-image me-1"></i> receipt-q1.png</td>
+                                        <td class="td-inv-notes extra-col text-muted small">Q1 Advisory Fees</td>
+                                        <td class="td-inv-status"><span class="status-badge bg-pending">Sent</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-002')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-002')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="inv-003">
+                                        <td class="td-inv-num"><strong>INV-2026-003</strong></td>
+                                        <td class="td-inv-client">Beta Logistics Ltd.</td>
+                                        <td class="td-inv-amount" data-val="3800">$3,800.00</td>
+                                        <td class="td-inv-due">2026-04-15</td>
+                                        <td class="td-inv-doc extra-col text-muted small"><i class="fas fa-file-pdf me-1"></i> INV-2026-003.pdf</td>
+                                        <td class="td-inv-notes extra-col text-muted small">Logistics services – March 2026</td>
+                                        <td class="td-inv-status"><span class="status-badge bg-overdue">Overdue</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('inv-003')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('inv-003')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. INSURANCE VIEW -->
+        <div id="view-insurance" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="insFormIcon" class="fas fa-shield-alt me-2"></i><span
+                                id="insFormTitle">New Insurance Policy</span></div>
+                        <div class="card-body">
+                            <form id="insuranceForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editInsId">
+                                    <div class="col-12"><label class="form-label">Insurance Type</label><input
+                                            type="text" class="form-control form-control-sm" id="insType"
+                                            placeholder="e.g. Public Liability" required></div>
+                                    <div class="col-12"><label class="form-label">Provider Name</label><input
+                                            type="text" class="form-control form-control-sm" id="insProvider" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Policy Number</label><input
+                                            type="text" class="form-control form-control-sm" id="insPolicy" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Premium Amount ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="insPremium"
+                                            step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Start Date</label><input type="date"
+                                            class="form-control form-control-sm" id="insStart" required></div>
+                                    <div class="col-6"><label class="form-label">Expiry Date</label><input type="date"
+                                            class="form-control form-control-sm" id="insExpiry" required></div>
+                                    <div class="col-12"><label class="form-label">Renewal Reminder</label>
+                                        <select class="form-select form-select-sm" id="insReminder">
+                                            <option>30 Days Before</option>
+                                            <option>15 Days Before</option>
+                                            <option>7 Days Before</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="insStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Expired">Expired</option>
+                                            <option value="Pending Renewal">Pending Renewal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="insSubmitBtn" class="btn btn-minimal w-100 mt-3">Save
+                                    Policy</button>
+                                <button type="button" id="cancelInsEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetInsuranceForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Insurance Policies Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('insurance')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Type / Provider</th>
+                                        <th>Policy #</th>
+                                        <th>Premium</th>
+                                        <th class="extra-col">Term (Start - End)</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="insuranceTable">
+                                    <tr id="ins-1">
+                                        <td class="td-ins-info"><strong>Public Liability</strong> <br><small
+                                                class="text-muted">Allianz Insurance</small></td>
+                                        <td class="td-ins-policy">POL-887766</td>
+                                        <td class="td-ins-premium">$1,250.00</td>
+                                        <td class="td-ins-term extra-col small text-muted">2024-01-01 <br>2025-01-01
+                                        </td>
+                                        <td class="td-ins-status"><span class="status-badge bg-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editInsurance('ins-1')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteInsurance('ins-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. VAT / TAX VIEW -->
+        <div id="view-tax" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="taxFormIcon"
+                                class="fas fa-file-invoice-dollar me-2"></i><span id="taxFormTitle">New Tax
+                                Filing</span></div>
+                        <div class="card-body">
+                            <form id="taxForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editTaxId">
+                                    <div class="col-12"><label class="form-label">Tax Type</label><input type="text"
+                                            class="form-control form-control-sm" id="taxType"
+                                            placeholder="e.g. VAT Q1 2024" required></div>
+                                    <div class="col-6"><label class="form-label">Period Start</label><input type="date"
+                                            class="form-control form-control-sm" id="taxStart" required></div>
+                                    <div class="col-6"><label class="form-label">Period End</label><input type="date"
+                                            class="form-control form-control-sm" id="taxEnd" required></div>
+                                    <div class="col-12"><label class="form-label">Tax Amount ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="taxAmount"
+                                            step="0.01" required></div>
+                                    <div class="col-6"><label class="form-label">Filing Date</label><input type="date"
+                                            class="form-control form-control-sm" id="taxFiling" required></div>
+                                    <div class="col-6"><label class="form-label">Payment Due</label><input type="date"
+                                            class="form-control form-control-sm" id="taxDue" required></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="taxStatus">
+                                            <option value="Draft">Draft</option>
+                                            <option value="Filed">Filed</option>
+                                            <option value="Paid">Paid</option>
+                                            <option value="Overdue">Overdue</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="taxSubmitBtn" class="btn btn-minimal w-100 mt-3">Register
+                                    Filing</button>
+                                <button type="button" id="cancelTaxEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetTaxForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>VAT & Tax Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('tax')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tax Type / Period</th>
+                                        <th>Amount</th>
+                                        <th>Filing Date</th>
+                                        <th class="extra-col">Payment Due</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="taxTable">
+                                    <tr id="tax-1">
+                                        <td class="td-tax-info"><strong>Corporation Tax 2023</strong> <br><small
+                                                class="text-muted">Jan - Dec 2023</small></td>
+                                        <td class="td-tax-amount">$15,450.00</td>
+                                        <td class="td-tax-filing">2024-03-15</td>
+                                        <td class="td-tax-due extra-col">2024-04-01</td>
+                                        <td class="td-tax-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editTax('tax-1')"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteTax('tax-1')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. DOJO SETTLEMENTS VIEW -->
+        <div id="view-dojo" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-credit-card me-2"></i>New Dojo Transaction</div>
+                        <div class="card-body">
+                            <form id="dojoForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Provider Name</label><input type="text" class="form-control form-control-sm" id="dojoProvider" value="Dojo" readonly></div>
+                                    <div class="col-12"><label class="form-label">Transaction Date</label><input type="date" class="form-control form-control-sm" id="dojoTransDate" required></div>
+                                    <div class="col-6"><label class="form-label">Amount Received ($)</label><input type="number" class="form-control form-control-sm" id="dojoAmount" step="0.01" oninput="calcDojoNet()" required></div>
+                                    <div class="col-6"><label class="form-label">Fee Charged ($)</label><input type="number" class="form-control form-control-sm" id="dojoFee" step="0.01" oninput="calcDojoNet()" required></div>
+                                    <div class="col-12"><label class="form-label">Net Amount ($)</label><input type="number" class="form-control form-control-sm bg-light" id="dojoNet" readonly></div>
+                                    <div class="col-12"><label class="form-label">Payment Method</label>
+                                        <select class="form-select form-select-sm" id="dojoMethod">
+                                            <option>Card</option>
+                                            <option>Digital Wallet</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Settlement Date</label><input type="date" class="form-control form-control-sm" id="dojoSettlementDate"></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="dojoStatus">
+                                            <option>Paid</option>
+                                            <option>Pending</option>
+                                            <option>Overdue</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Log Settlement</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Dojo Settlement Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('dojo')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Trans Date</th>
+                                        <th>Provider</th>
+                                        <th>Amount</th>
+                                        <th>Fee</th>
+                                        <th>Net Amount</th>
+                                        <th>Settlement</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dojoTable">
+                                    <tr>
+                                        <td>2026-04-30</td>
+                                        <td><strong>Dojo</strong></td>
+                                        <td>$1,000.00</td>
+                                        <td>$17.50</td>
+                                        <td><strong>$982.50</strong></td>
+                                        <td>2026-05-01</td>
+                                        <td><span class="status-badge bg-active">Paid</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom" id="modalHeader">Confirm Action</div>
+            <div class="modal-body-custom" id="modalBody">Are you sure you want to proceed?</div>
+            <div id="modalInputContainer" style="display: none;">
+                <input type="text" id="modalInput" class="modal-input" placeholder="Enter value...">
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-modal btn-modal-cancel" id="btnCancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btnConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('recTitle').addEventListener('change', function () {
+            const supplierCont = document.getElementById('supplierContainer');
+            const rentCont = document.getElementById('rentTermContainer');
+            const mortgageCont = document.getElementById('mortgageContainer');
+            const insuranceCont = document.getElementById('insuranceContainer');
+            const taxCont = document.getElementById('taxContainer');
+            const typeSelect = document.getElementById('recCat');
+
+            // Reset visibility
+            supplierCont.style.display = 'none';
+            rentCont.style.display = 'none';
+            mortgageCont.style.display = 'none';
+            insuranceCont.style.display = 'none';
+            taxCont.style.display = 'none';
+            document.getElementById('recSupplier').required = false;
+
+            if (this.value === 'Supplier Payments') {
+                supplierCont.style.display = 'block';
+                document.getElementById('recSupplier').required = true;
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'Rent') {
+                rentCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'Mortgage') {
+                mortgageCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'Insurance') {
+                insuranceCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            } else if (this.value === 'VAT / Tax') {
+                taxCont.style.display = 'block';
+                typeSelect.value = 'Expense';
+            }
+        });
+
+        let totalIncome = 6200; let totalExpense = 4785;
+        const modal = document.getElementById('customModal');
+        const mHeader = document.getElementById('modalHeader');
+        const mBody = document.getElementById('modalBody');
+        const mInputCont = document.getElementById('modalInputContainer');
+        const mInput = document.getElementById('modalInput');
+        const btnConfirm = document.getElementById('btnConfirm');
+        const btnCancel = document.getElementById('btnCancel');
+
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => { v.classList.remove('active'); v.classList.remove('wide'); });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
+
+        function toggleWideView(viewId) {
+            const section = document.getElementById('view-' + viewId); section.classList.toggle('wide');
+            const btn = section.querySelector('.card-header button');
+            btn.innerHTML = section.classList.contains('wide') ? '<i class="fas fa-compress-alt me-1"></i> Standard View' : '<i class="fas fa-expand-alt me-1"></i> Wide View';
+        }
+
+        function updateKPIs() {
+            document.getElementById('rs-income').textContent = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('rs-expense').textContent = `$${totalExpense.toFixed(2)}`;
+        }
+
+        function openModal({ title, body, showInput, confirmText, confirmClass, onConfirm }) {
+            mHeader.innerText = title;
+            mBody.innerText = body;
+            mInputCont.style.display = showInput ? 'block' : 'none';
+            mInput.value = '';
+            btnConfirm.innerText = confirmText || 'OK';
+            btnConfirm.className = `btn-modal ${confirmClass || 'btn-modal-confirm'}`;
+            btnCancel.style.display = onConfirm ? 'inline-block' : 'none';
+
+            btnConfirm.onclick = () => {
+                const val = showInput ? mInput.value : true;
+                if (onConfirm) onConfirm(val);
+                closeModal();
+            };
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function addCategory() {
+            openModal({
+                title: 'Add New Category',
+                body: 'Please enter the name of the new financial category:',
+                showInput: true,
+                onConfirm: (newCat) => {
+                    if (newCat && newCat.trim() !== '') {
+                        const select = document.getElementById('recTitle');
+                        const option = document.createElement('option');
+                        option.text = newCat.trim();
+                        option.value = newCat.trim();
+                        select.add(option);
+                        select.value = newCat.trim();
+                        openModal({ title: 'Success', body: 'Category added successfully!' });
+                    }
+                }
+            });
+        }
+
+        function removeCategory() {
+            const select = document.getElementById('recTitle');
+            const selectedVal = select.value;
+            if (selectedVal && selectedVal !== "") {
+                openModal({
+                    title: 'Remove Category',
+                    body: `Are you sure you want to remove the category "${selectedVal}"?`,
+                    confirmText: 'Remove',
+                    confirmClass: 'btn-modal-danger',
+                    onConfirm: () => {
+                        select.remove(select.selectedIndex);
+                        select.value = "";
+                        openModal({ title: 'Deleted', body: 'Category removed from list.' });
+                    }
+                });
+            } else {
+                openModal({ title: 'Notice', body: 'Please select a category to remove.' });
+            }
+        }
+
+        function deleteRecord(id, amount, cat) {
+            openModal({
+                title: 'Delete Record',
+                body: 'Are you sure you want to permanently delete this financial record?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        if (cat === 'Income') totalIncome -= amount;
+                        else totalExpense -= amount;
+                        updateKPIs();
+                        openModal({ title: 'Record Deleted', body: 'The transaction has been removed.' });
+                    }
+                }
+            });
+        }
+
+        function editRecord(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const date = row.querySelector('.td-date').innerText;
+            const title = row.querySelector('.td-title').innerText.trim();
+            const cat = row.querySelector('.td-cat').innerText;
+            const amount = parseFloat(row.querySelector('.td-amount').getAttribute('data-val'));
+            const status = row.querySelector('.td-status span').innerText;
+            const notes = row.querySelector('.td-notes').innerText;
+
+            document.getElementById('editRowId').value = id;
+            document.getElementById('recMainTitle').value = title;
+            document.getElementById('recCat').value = cat;
+            document.getElementById('recAmount').value = amount;
+            document.getElementById('recStatus').value = status;
+            document.getElementById('recDate').value = date;
+            document.getElementById('recNotes').value = notes;
+
+            // Handle visibility on edit
+            const supplierCont = document.getElementById('supplierContainer');
+            const rentCont = document.getElementById('rentTermContainer');
+            const mortgageCont = document.getElementById('mortgageContainer');
+            const insuranceCont = document.getElementById('insuranceContainer');
+            const taxCont = document.getElementById('taxContainer');
+
+            supplierCont.style.display = 'none';
+            rentCont.style.display = 'none';
+            mortgageCont.style.display = 'none';
+            insuranceCont.style.display = 'none';
+            taxCont.style.display = 'none';
+
+            if (title === 'Supplier Payments') supplierCont.style.display = 'block';
+            else if (title === 'Rent') rentCont.style.display = 'block';
+            else if (title === 'Mortgage') mortgageCont.style.display = 'block';
+            else if (title === 'Insurance') insuranceCont.style.display = 'block';
+            else if (title === 'VAT / Tax') taxCont.style.display = 'block';
+
+            document.getElementById('formTitle').innerText = 'Edit Financial Record';
+            document.getElementById('formIcon').className = 'fas fa-edit me-2';
+            document.getElementById('submitBtn').innerText = 'Update Record';
+            document.getElementById('cancelEdit').style.display = 'block';
+
+            document.getElementById('recordForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetRecordForm() {
+            document.getElementById('recordForm').reset();
+            document.getElementById('editRowId').value = '';
+            document.getElementById('recMainTitle').value = '';
+            document.getElementById('formTitle').innerText = 'Add Financial Record';
+            document.getElementById('formIcon').className = 'fas fa-plus-circle me-2';
+            document.getElementById('submitBtn').innerText = 'Save Record';
+            document.getElementById('cancelEdit').style.display = 'none';
+            document.getElementById('supplierContainer').style.display = 'none';
+            document.getElementById('rentTermContainer').style.display = 'none';
+            document.getElementById('mortgageContainer').style.display = 'none';
+            document.getElementById('insuranceContainer').style.display = 'none';
+            document.getElementById('taxContainer').style.display = 'none';
+        }
+
+        document.getElementById('recordForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editRowId').value;
+            const mainTitle = document.getElementById('recMainTitle').value;
+            const title = document.getElementById('recTitle').value;
+            const supplier = document.getElementById('recSupplier').value;
+            const rentS = document.getElementById('rentStart').value;
+            const rentE = document.getElementById('rentEnd').value;
+            const mMode = document.getElementById('mortMode').value;
+            const mTerm = document.getElementById('mortTerm').value;
+            const insType = document.getElementById('insType').value;
+            const insProvider = document.getElementById('insProvider').value;
+            const taxT = document.getElementById('taxType').value;
+            const taxA = document.getElementById('taxAmount').value;
+
+            let displayTitle = mainTitle;
+            let subDetails = "";
+            if (supplier) subDetails = ` (${supplier})`;
+            else if (rentS && rentE) subDetails = ` (${rentS} to ${rentE})`;
+            else if (mMode && mTerm) subDetails = ` (${mMode}, ${mTerm}yr)`;
+            else if (insType && insProvider) subDetails = ` (${insType} - ${insProvider})`;
+            else if (taxT && taxA) subDetails = ` (${taxT} - $${parseFloat(taxA).toLocaleString()})`;
+
+            const fullDisplay = `<strong>${displayTitle}</strong><br><small class="text-muted">${title}${subDetails}</small>`;
+
+            const cat = document.getElementById('recCat').value;
+            const amount = parseFloat(document.getElementById('recAmount').value);
+            const status = document.getElementById('recStatus').value;
+            const date = document.getElementById('recDate').value;
+            const notes = document.getElementById('recNotes').value || '-';
+            const doc = document.getElementById('recDoc').files[0];
+            const docName = doc ? `<i class="fas fa-paperclip me-1"></i> ${doc.name}` : '';
+            const statusClass = status === 'Paid' ? 'bg-active' : (status === 'Overdue' ? 'bg-overdue' : 'bg-pending');
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                const oldAmount = parseFloat(row.querySelector('.td-amount').getAttribute('data-val'));
+                const oldCat = row.querySelector('.td-cat').innerText;
+
+                if (oldCat === 'Income') totalIncome -= oldAmount; else totalExpense -= oldAmount;
+                if (cat === 'Income') totalIncome += amount; else totalExpense += amount;
+
+                row.innerHTML = `
+                    <td class="td-date">${date}</td>
+                    <td class="td-title">${fullDisplay}</td>
+                    <td class="td-cat">${cat}</td>
+                    <td class="td-amount" data-val="${amount}">$${amount.toFixed(2)}</td>
+                    <td class="td-notes extra-col text-muted small">${docName} ${notes}</td>
+                    <td class="td-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" onclick="editRecord('${editId}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('${editId}', ${amount}, '${cat}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                openModal({ title: 'Success', body: 'Record updated successfully!' });
+            } else {
+                const rid = 'rec-' + Date.now();
+                if (cat === 'Income') totalIncome += amount; else totalExpense += amount;
+                const row = `
+                    <tr id="${rid}">
+                        <td class="td-date">${date}</td>
+                        <td class="td-title">${fullDisplay}</td>
+                        <td class="td-cat">${cat}</td>
+                        <td class="td-amount" data-val="${amount}">$${amount.toFixed(2)}</td>
+                        <td class="td-notes extra-col text-muted small">${docName} ${notes}</td>
+                        <td class="td-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-dark" onclick="editRecord('${rid}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('${rid}', ${amount}, '${cat}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('recordsTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'Financial record saved!' });
+            }
+            updateKPIs();
+            resetRecordForm();
+        });
+
+        // DOJO FUNCTIONS
+        function calcDojoNet() {
+            const amount = parseFloat(document.getElementById('dojoAmount').value) || 0;
+            const fee = parseFloat(document.getElementById('dojoFee').value) || 0;
+            document.getElementById('dojoNet').value = (amount - fee).toFixed(2);
+        }
+
+        document.getElementById('dojoForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const date = document.getElementById('dojoTransDate').value;
+            const provider = document.getElementById('dojoProvider').value;
+            const amount = parseFloat(document.getElementById('dojoAmount').value).toFixed(2);
+            const fee = parseFloat(document.getElementById('dojoFee').value).toFixed(2);
+            const net = document.getElementById('dojoNet').value;
+            const settlement = document.getElementById('dojoSettlementDate').value || '-';
+            const status = document.getElementById('dojoStatus').value;
+            const statusClass = status === 'Settled' ? 'bg-active' : 'bg-pending';
+
+            const row = `<tr>
+                <td>${date}</td>
+                <td><strong>${provider}</strong></td>
+                <td>$${amount}</td>
+                <td>$${fee}</td>
+                <td><strong>$${net}</strong></td>
+                <td>${settlement}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+            </tr>`;
+            document.getElementById('dojoTable').insertAdjacentHTML('afterbegin', row);
+            openModal({ title: 'Success', body: 'Dojo Settlement Logged!' });
+            this.reset();
+            document.getElementById('dojoProvider').value = 'Dojo';
+        });
+
+        function resetInvoiceForm() {
+            document.getElementById('invoiceForm').reset();
+            document.getElementById('editInvId').value = '';
+            document.getElementById('invFormTitle').innerText = 'Create New Invoice';
+            document.getElementById('invFormIcon').className = 'fas fa-file-invoice me-2';
+            document.getElementById('invSubmitBtn').innerText = 'Generate Invoice';
+            document.getElementById('cancelInvEdit').style.display = 'none';
+        }
+
+        function editInvoice(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const num = row.querySelector('.td-inv-num').innerText;
+            const client = row.querySelector('.td-inv-client').innerText;
+            const amount = parseFloat(row.querySelector('.td-inv-amount').getAttribute('data-val'));
+            const due = row.querySelector('.td-inv-due').innerText;
+            const status = row.querySelector('.td-inv-status span').innerText;
+            const notes = row.querySelector('.td-inv-notes').innerText;
+
+            document.getElementById('editInvId').value = id;
+            document.getElementById('invNum').value = num;
+            document.getElementById('invClient').value = client;
+            document.getElementById('invAmount').value = amount;
+            document.getElementById('invDue').value = due;
+            document.getElementById('invStatus').value = status;
+            document.getElementById('invNotes').value = notes;
+
+            document.getElementById('invFormTitle').innerText = 'Edit Invoice';
+            document.getElementById('invFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('invSubmitBtn').innerText = 'Update Invoice';
+            document.getElementById('cancelInvEdit').style.display = 'block';
+            document.getElementById('invoiceForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteInvoice(id) {
+            openModal({
+                title: 'Delete Invoice',
+                body: 'Are you sure you want to permanently delete this invoice?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'The invoice has been removed from the registry.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editInvId').value;
+            const client = document.getElementById('invClient').value;
+            const num = document.getElementById('invNum').value;
+            const amount = parseFloat(document.getElementById('invAmount').value);
+            const due = document.getElementById('invDue').value;
+            const status = document.getElementById('invStatus').value;
+            const notes = document.getElementById('invNotes').value || '-';
+            const doc = document.getElementById('invDoc').files[0];
+            const docName = doc ? `<i class="fas fa-file-pdf me-1"></i> ${doc.name}` : '';
+            const statusClass = status === 'Paid' ? 'bg-active' : (status === 'Overdue' ? 'bg-overdue' : 'bg-pending');
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = `
+                    <td class="td-inv-num"><strong>${num}</strong></td>
+                    <td class="td-inv-client">${client}</td>
+                    <td class="td-inv-amount" data-val="${amount}">$${amount.toFixed(2)}</td>
+                    <td class="td-inv-due">${due}</td>
+                    <td class="td-inv-doc extra-col text-muted small">${docName}</td>
+                    <td class="td-inv-notes extra-col text-muted small">${notes}</td>
+                    <td class="td-inv-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('${editId}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('${editId}')"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                    </td>
+                `;
+                openModal({ title: 'Success', body: 'Invoice updated successfully!' });
+            } else {
+                const rid = 'inv-' + Date.now();
+                const row = `
+                    <tr id="${rid}">
+                        <td class="td-inv-num"><strong>${num}</strong></td>
+                        <td class="td-inv-client">${client}</td>
+                        <td class="td-inv-amount" data-val="${amount}">$${amount.toFixed(2)}</td>
+                        <td class="td-inv-due">${due}</td>
+                        <td class="td-inv-doc extra-col text-muted small">${docName}</td>
+                        <td class="td-inv-notes extra-col text-muted small">${notes}</td>
+                        <td class="td-inv-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-dark" onclick="editInvoice('${rid}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteInvoice('${rid}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('invoicesTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New invoice generated and registered!' });
+            }
+            resetInvoiceForm();
+        });
+
+        // --- Bank Management Logic ---
+        function resetBankForm() {
+            document.getElementById('bankForm').reset();
+            document.getElementById('editBankId').value = '';
+            document.getElementById('bankFormTitle').innerText = 'Add Bank Account';
+            document.getElementById('bankFormIcon').className = 'fas fa-university me-2';
+            document.getElementById('bankSubmitBtn').innerText = 'Save Account';
+            document.getElementById('cancelBankEdit').style.display = 'none';
+        }
+
+        function editBank(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const name = row.querySelector('.td-bank-name').innerText;
+            const accName = row.querySelector('.td-bank-acc-name').innerText;
+            const infoText = row.querySelector('.td-bank-info').innerText;
+            const [num, sort] = infoText.split('\n');
+            const iban = row.querySelector('.td-bank-iban').innerText;
+            const type = row.querySelector('.td-bank-type span').innerText;
+            const status = row.querySelector('.td-bank-status span').innerText;
+
+            document.getElementById('editBankId').value = id;
+            document.getElementById('bankName').value = name;
+            document.getElementById('bankAccName').value = accName;
+            document.getElementById('bankAccNum').value = num.trim();
+            document.getElementById('bankSortCode').value = (sort || '').trim();
+            document.getElementById('bankIban').value = iban;
+            document.getElementById('bankType').value = type;
+            document.getElementById('bankStatus').value = status;
+
+            document.getElementById('bankFormTitle').innerText = 'Edit Bank Account';
+            document.getElementById('bankFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('bankSubmitBtn').innerText = 'Update Account';
+            document.getElementById('cancelBankEdit').style.display = 'block';
+            document.getElementById('bankForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteBank(id) {
+            openModal({
+                title: 'Delete Bank Account',
+                body: 'Are you sure you want to remove this bank account from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Bank account removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('bankForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editBankId').value;
+            const name = document.getElementById('bankName').value;
+            const accName = document.getElementById('bankAccName').value;
+            const num = document.getElementById('bankAccNum').value;
+            const sort = document.getElementById('bankSortCode').value || '-';
+            const iban = document.getElementById('bankIban').value || '-';
+            const type = document.getElementById('bankType').value;
+            const status = document.getElementById('bankStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : 'bg-inactive';
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = `
+                    <td class="td-bank-name"><strong>${name}</strong></td>
+                    <td class="td-bank-acc-name">${accName}</td>
+                    <td class="td-bank-info">${num} <br><small class="text-muted">${sort}</small></td>
+                    <td class="td-bank-iban extra-col text-muted small">${iban}</td>
+                    <td class="td-bank-type"><span class="badge bg-info-subtle text-info border border-info-subtle">${type}</span></td>
+                    <td class="td-bank-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" onclick="editBank('${editId}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteBank('${editId}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                openModal({ title: 'Success', body: 'Bank account updated successfully!' });
+            } else {
+                const rid = 'bank-' + Date.now();
+                const row = `
+                    <tr id="${rid}">
+                        <td class="td-bank-name"><strong>${name}</strong></td>
+                        <td class="td-bank-acc-name">${accName}</td>
+                        <td class="td-bank-info">${num} <br><small class="text-muted">${sort}</small></td>
+                        <td class="td-bank-iban extra-col text-muted small">${iban}</td>
+                        <td class="td-bank-type"><span class="badge bg-info-subtle text-info border border-info-subtle">${type}</span></td>
+                        <td class="td-bank-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-dark" onclick="editBank('${rid}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBank('${rid}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('bankTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New bank account added!' });
+            }
+            resetBankForm();
+        });
+
+        // --- Loans Management Logic ---
+        function resetLoanForm() {
+            document.getElementById('loanForm').reset();
+            document.getElementById('editLoanId').value = '';
+            document.getElementById('loanFormTitle').innerText = 'New Loan Entry';
+            document.getElementById('loanFormIcon').className = 'fas fa-hand-holding-usd me-2';
+            document.getElementById('loanSubmitBtn').innerText = 'Register Loan';
+            document.getElementById('cancelLoanEdit').style.display = 'none';
+        }
+
+        function editLoan(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const info = row.querySelector('.td-loan-info').innerText.split('\n');
+            const amounts = row.querySelector('.td-loan-amounts').innerText.split('\n');
+            const rateInfo = row.querySelector('.td-loan-rate').innerText.split('\n');
+            const term = row.querySelector('.td-loan-term').innerText.split('\n');
+            const next = row.querySelector('.td-loan-next').innerText;
+            const status = row.querySelector('.td-loan-status span').innerText;
+
+            document.getElementById('editLoanId').value = id;
+            document.getElementById('loanName').value = info[0];
+            document.getElementById('loanLender').value = info[1];
+            document.getElementById('loanTotal').value = amounts[0].replace('T: $', '').replace(',', '');
+            document.getElementById('loanOS').value = amounts[1].replace('O/S: $', '').replace(',', '');
+            document.getElementById('loanMonthly').value = rateInfo[0].replace('$', '').replace(',', '');
+            document.getElementById('loanRate').value = rateInfo[1].replace('% APR', '');
+            document.getElementById('loanStart').value = term[0];
+            document.getElementById('loanEnd').value = term[1];
+            document.getElementById('loanNextDate').value = next;
+            document.getElementById('loanStatus').value = status;
+
+            document.getElementById('loanFormTitle').innerText = 'Edit Loan Details';
+            document.getElementById('loanFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('loanSubmitBtn').innerText = 'Update Loan';
+            document.getElementById('cancelLoanEdit').style.display = 'block';
+            document.getElementById('loanForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteLoan(id) {
+            openModal({
+                title: 'Delete Loan Record',
+                body: 'Are you sure you want to remove this loan record from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Loan record removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('loanForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editLoanId').value;
+            const name = document.getElementById('loanName').value;
+            const lender = document.getElementById('loanLender').value;
+            const total = parseFloat(document.getElementById('loanTotal').value);
+            const os = parseFloat(document.getElementById('loanOS').value);
+            const monthly = parseFloat(document.getElementById('loanMonthly').value);
+            const rate = parseFloat(document.getElementById('loanRate').value);
+            const start = document.getElementById('loanStart').value;
+            const end = document.getElementById('loanEnd').value;
+            const next = document.getElementById('loanNextDate').value;
+            const status = document.getElementById('loanStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : (status === 'Paid Off' ? 'bg-active' : (status === 'Defaulted' ? 'bg-overdue' : 'bg-pending'));
+
+            const content = `
+                <td class="td-loan-info"><strong>${name}</strong> <br><small class="text-muted">${lender}</small></td>
+                <td class="td-loan-amounts">T: $${total.toLocaleString()} <br><small class="text-danger">O/S: $${os.toLocaleString()}</small></td>
+                <td class="td-loan-rate">$${monthly.toLocaleString()} <br><small class="text-muted">${rate}% APR</small></td>
+                <td class="td-loan-term extra-col small text-muted">${start} <br>${end}</td>
+                <td class="td-loan-next extra-col text-primary small fw-bold">${next}</td>
+                <td class="td-loan-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark" onclick="editLoan('${editId || 'temp'}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteLoan('${editId || 'temp'}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = content.replace(/'temp'/g, `'${editId}'`);
+                openModal({ title: 'Success', body: 'Loan record updated successfully!' });
+            } else {
+                const rid = 'loan-' + Date.now();
+                const row = `<tr id="${rid}">${content.replace(/'temp'/g, `'${rid}'`)}</tr>`;
+                document.getElementById('loansTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New loan registered!' });
+            }
+            resetLoanForm();
+        });
+        // --- Insurance Management Logic ---
+        function resetInsuranceForm() {
+            document.getElementById('insuranceForm').reset();
+            document.getElementById('editInsId').value = '';
+            document.getElementById('insFormTitle').innerText = 'New Insurance Policy';
+            document.getElementById('insFormIcon').className = 'fas fa-shield-alt me-2';
+            document.getElementById('insSubmitBtn').innerText = 'Save Policy';
+            document.getElementById('cancelInsEdit').style.display = 'none';
+        }
+
+        function editInsurance(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const info = row.querySelector('.td-ins-info').innerText.split('\n');
+            const policy = row.querySelector('.td-ins-policy').innerText;
+            const premium = row.querySelector('.td-ins-premium').innerText;
+            const term = row.querySelector('.td-ins-term').innerText.split('\n');
+            const status = row.querySelector('.td-ins-status span').innerText;
+
+            document.getElementById('editInsId').value = id;
+            document.getElementById('insType').value = info[0];
+            document.getElementById('insProvider').value = info[1];
+            document.getElementById('insPolicy').value = policy;
+            document.getElementById('insPremium').value = premium.replace('$', '').replace(',', '');
+            document.getElementById('insStart').value = term[0];
+            document.getElementById('insExpiry').value = term[1];
+            document.getElementById('insStatus').value = status;
+
+            document.getElementById('insFormTitle').innerText = 'Edit Policy Details';
+            document.getElementById('insFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('insSubmitBtn').innerText = 'Update Policy';
+            document.getElementById('cancelInsEdit').style.display = 'block';
+            document.getElementById('insuranceForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteInsurance(id) {
+            openModal({
+                title: 'Delete Policy',
+                body: 'Are you sure you want to remove this insurance policy from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Insurance policy removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('insuranceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editInsId').value;
+            const type = document.getElementById('insType').value;
+            const provider = document.getElementById('insProvider').value;
+            const policy = document.getElementById('insPolicy').value;
+            const premium = parseFloat(document.getElementById('insPremium').value);
+            const start = document.getElementById('insStart').value;
+            const expiry = document.getElementById('insExpiry').value;
+            const status = document.getElementById('insStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : (status === 'Expired' ? 'bg-overdue' : 'bg-pending');
+
+            const content = `
+                <td class="td-ins-info"><strong>${type}</strong> <br><small class="text-muted">${provider}</small></td>
+                <td class="td-ins-policy">${policy}</td>
+                <td class="td-ins-premium">$${premium.toLocaleString()}</td>
+                <td class="td-ins-term extra-col small text-muted">${start} <br>${expiry}</td>
+                <td class="td-ins-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark" onclick="editInsurance('${editId || 'temp'}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteInsurance('${editId || 'temp'}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = content.replace(/'temp'/g, `'${editId}'`);
+                openModal({ title: 'Success', body: 'Policy updated successfully!' });
+            } else {
+                const rid = 'ins-' + Date.now();
+                const row = `<tr id="${rid}">${content.replace(/'temp'/g, `'${rid}'`)}</tr>`;
+                document.getElementById('insuranceTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New policy registered!' });
+            }
+            resetInsuranceForm();
+        });
+
+        // --- Tax Management Logic ---
+        function resetTaxForm() {
+            document.getElementById('taxForm').reset();
+            document.getElementById('editTaxId').value = '';
+            document.getElementById('taxFormTitle').innerText = 'New Tax Filing';
+            document.getElementById('taxFormIcon').className = 'fas fa-file-invoice-dollar me-2';
+            document.getElementById('taxSubmitBtn').innerText = 'Register Filing';
+            document.getElementById('cancelTaxEdit').style.display = 'none';
+        }
+
+        function editTax(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const info = row.querySelector('.td-tax-info').innerText.split('\n');
+            const amount = row.querySelector('.td-tax-amount').innerText;
+            const filing = row.querySelector('.td-tax-filing').innerText;
+            const due = row.querySelector('.td-tax-due').innerText;
+            const status = row.querySelector('.td-tax-status span').innerText;
+
+            document.getElementById('editTaxId').value = id;
+            document.getElementById('taxType').value = info[0];
+            document.getElementById('taxStart').value = info[1].split(' - ')[0] || ''; // Simplified extraction
+            document.getElementById('taxEnd').value = info[1].split(' - ')[1] || '';
+            document.getElementById('taxAmount').value = amount.replace('$', '').replace(',', '');
+            document.getElementById('taxFiling').value = filing;
+            document.getElementById('taxDue').value = due;
+            document.getElementById('taxStatus').value = status;
+
+            document.getElementById('taxFormTitle').innerText = 'Edit Tax Filing';
+            document.getElementById('taxFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('taxSubmitBtn').innerText = 'Update Filing';
+            document.getElementById('cancelTaxEdit').style.display = 'block';
+            document.getElementById('taxForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteTax(id) {
+            openModal({
+                title: 'Delete Filing',
+                body: 'Are you sure you want to remove this tax filing from the registry?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'Tax filing removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('taxForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editTaxId').value;
+            const type = document.getElementById('taxType').value;
+            const start = document.getElementById('taxStart').value;
+            const end = document.getElementById('taxEnd').value;
+            const amount = parseFloat(document.getElementById('taxAmount').value);
+            const filing = document.getElementById('taxFiling').value;
+            const due = document.getElementById('taxDue').value;
+            const status = document.getElementById('taxStatus').value;
+
+            const statusClass = status === 'Paid' ? 'bg-active' : (status === 'Overdue' ? 'bg-overdue' : (status === 'Filed' ? 'bg-active' : 'bg-pending'));
+
+            const content = `
+                <td class="td-tax-info"><strong>${type}</strong> <br><small class="text-muted">${start} - ${end}</small></td>
+                <td class="td-tax-amount">$${amount.toLocaleString()}</td>
+                <td class="td-tax-filing">${filing}</td>
+                <td class="td-tax-due extra-col">${due}</td>
+                <td class="td-tax-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark" onclick="editTax('${editId || 'temp'}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteTax('${editId || 'temp'}')"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = content.replace(/'temp'/g, `'${editId}'`);
+                openModal({ title: 'Success', body: 'Tax filing updated successfully!' });
+            } else {
+                const rid = 'tax-' + Date.now();
+                const row = `<tr id="${rid}">${content.replace(/'temp'/g, `'${rid}'`)}</tr>`;
+                document.getElementById('taxTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'New tax filing registered!' });
+            }
+            resetTaxForm();
+        });
+        // --- Dojo Settlement Logic ---
+        function calcDojoNet() {
+            const amount = parseFloat(document.getElementById('dojoAmount').value) || 0;
+            const fee = parseFloat(document.getElementById('dojoFee').value) || 0;
+            document.getElementById('dojoNet').value = (amount - fee).toFixed(2);
+        }
+
+        document.getElementById('dojoForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const date = document.getElementById('dojoTransDate').value;
+            const provider = document.getElementById('dojoProvider').value;
+            const amount = parseFloat(document.getElementById('dojoAmount').value).toFixed(2);
+            const fee = parseFloat(document.getElementById('dojoFee').value).toFixed(2);
+            const net = document.getElementById('dojoNet').value;
+            const settlement = document.getElementById('dojoSettlementDate').value || '-';
+            const status = document.getElementById('dojoStatus').value;
+            const statusClass = status === 'Paid' ? 'bg-active' : (status === 'Overdue' ? 'bg-overdue' : 'bg-pending');
+
+            const row = `<tr>
+                <td>${date}</td>
+                <td><strong>${provider}</strong></td>
+                <td>$${amount}</td>
+                <td>$${fee}</td>
+                <td><strong>$${net}</strong></td>
+                <td>${settlement}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+            </tr>`;
+            document.getElementById('dojoTable').insertAdjacentHTML('afterbegin', row);
+            alert('Dojo Settlement Logged!');
+            this.reset();
+            document.getElementById('dojoProvider').value = 'Dojo';
+        });
+    </script>
+</body>
+
+</html>

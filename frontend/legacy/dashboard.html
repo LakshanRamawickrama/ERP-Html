@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Business Central ERP</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="auth.js"></script>
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      background: #f8fafc;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #1e293b;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden
+    }
+
+    .sidebar {
+      background: #2c3e50;
+      color: #ecf0f1;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 70px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, .12);
+      z-index: 1100;
+      transition: width .3s ease;
+      overflow: hidden
+    }
+
+    .sidebar:hover {
+      width: 240px
+    }
+
+    .sidebar-brand {
+      padding: 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      min-height: 70px
+    }
+
+    .sidebar-brand-icon {
+      font-size: 20px;
+      min-width: 38px;
+      text-align: center;
+      color: #ecf0f1
+    }
+
+    .sidebar-brand-text {
+      opacity: 0;
+      transition: opacity .3s ease
+    }
+
+    .sidebar:hover .sidebar-brand-text {
+      opacity: 1
+    }
+
+    .sidebar-brand-text h5 {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.2
+    }
+
+    .sidebar-brand-text small {
+      font-size: 11px;
+      color: rgba(236, 240, 241, .7);
+      display: block;
+      margin-top: 2px
+    }
+
+    .sidebar-nav-list {
+      flex: 1;
+      padding: 16px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      list-style: none;
+      margin: 0
+    }
+
+    .sidebar-nav-list::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .sidebar-nav-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .2);
+      border-radius: 2px
+    }
+
+    .nav-link {
+      color: #bdc3c7;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 8px;
+      margin: 3px 10px;
+      white-space: nowrap;
+      transition: background-color .2s, color .2s;
+      text-decoration: none
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background-color: #34495e;
+      color: white
+    }
+
+    .nav-link .nav-icon {
+      font-size: 16px;
+      min-width: 18px;
+      text-align: center
+    }
+
+    .nav-link .nav-label {
+      opacity: 0;
+      transition: opacity .3s ease
+    }
+
+    .sidebar:hover .nav-link .nav-label {
+      opacity: 1
+    }
+
+    .main-wrapper {
+      margin-left: 70px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+      flex-shrink: 0
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px
+    }
+
+    .company-switcher {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0
+    }
+
+    .company-switcher label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      margin: 0
+    }
+
+    .company-switcher select {
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      outline: none;
+      cursor: pointer
+    }
+
+    .role-badge {
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .role-badge.superadmin {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #b7f4d8
+    }
+
+    .role-badge.company-admin {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe
+    }
+
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: .4rem;
+      padding: .5rem .75rem .2rem;
+      flex-shrink: 0
+    }
+
+    @media(max-width:1400px) {
+      .kpi-strip {
+        grid-template-columns: repeat(4, 1fr)
+      }
+    }
+
+    @media(max-width:1100px) {
+      .kpi-strip {
+        grid-template-columns: repeat(3, 1fr)
+      }
+    }
+
+    @media(max-width:768px) {
+      .kpi-strip {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    .kpi-card {
+      background: white;
+      border-radius: 8px;
+      padding: 6px 10px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .kpi-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: white;
+      flex-shrink: 0
+    }
+
+    .kpi-label {
+      font-size: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #64748b
+    }
+
+    .kpi-value {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+      line-height: 1
+    }
+
+    .bg-gg {
+      background: linear-gradient(135deg, #10b981, #059669)
+    }
+
+    .bg-gr {
+      background: linear-gradient(135deg, #ef4444, #dc2626)
+    }
+
+    .bg-gb {
+      background: linear-gradient(135deg, #3b82f6, #2563eb)
+    }
+
+    .bg-go {
+      background: linear-gradient(135deg, #f59e0b, #d97706)
+    }
+
+    .bg-gt {
+      background: linear-gradient(135deg, #14b8a6, #0d9488)
+    }
+
+    .bg-gp {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed)
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: .75rem 1.25rem 1.5rem
+    }
+
+    .content-area::-webkit-scrollbar {
+      width: 6px
+    }
+
+    .content-area::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px
+    }
+
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem
+    }
+
+    @media(max-width:1200px) {
+      .widget-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    @media(max-width:800px) {
+      .widget-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .widget-card {
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column
+    }
+
+    .widget-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc
+    }
+
+    .widget-header-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: white;
+      flex-shrink: 0
+    }
+
+    .widget-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0
+    }
+
+    .widget-body {
+      padding: 6px 10px;
+      flex: 1
+    }
+
+    .wt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5px
+    }
+
+    .wt th {
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #64748b;
+      padding: 4px 5px;
+      border-bottom: 2px solid #f1f5f9;
+      white-space: nowrap
+    }
+
+    .wt td {
+      padding: 4px 5px;
+      border-bottom: 1px solid #f8fafc;
+      vertical-align: middle
+    }
+
+    .wt tr:last-child td {
+      border-bottom: none
+    }
+
+    .wt tr:hover td {
+      background: #f8fafc
+    }
+
+    .pl-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px;
+      border-radius: 4px;
+      margin-bottom: 2px;
+      font-size: 11px
+    }
+
+    .pl-row.divider {
+      border-top: 1px solid #e2e8f0;
+      margin-top: 3px;
+      padding-top: 6px
+    }
+
+    .pl-row.total {
+      background: #f0fdf4;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #059669;
+      border-radius: 5px;
+      margin-top: 3px
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 0;
+      border-bottom: 1px solid #f1f5f9
+    }
+
+    .todo-item:last-child {
+      border-bottom: none
+    }
+
+    .todo-item input[type=checkbox] {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      accent-color: #4f46e5;
+      flex-shrink: 0
+    }
+
+    .todo-item label {
+      flex: 1;
+      font-size: 12px;
+      cursor: pointer;
+      margin: 0
+    }
+
+    .todo-item label.done {
+      text-decoration: line-through;
+      color: #94a3b8
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 11px;
+      opacity: .5
+    }
+
+    .btn-del:hover {
+      opacity: 1
+    }
+
+    .todo-add {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px
+    }
+
+    .todo-add input {
+      flex: 1;
+      font-size: 11.5px;
+      padding: 4px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      outline: none
+    }
+
+    .todo-add input:focus {
+      border-color: #4f46e5
+    }
+
+    .note-item {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px
+    }
+
+    .note-item p {
+      flex: 1;
+      margin: 0;
+      font-size: 11.5px;
+      line-height: 1.4
+    }
+
+    .notes-add {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 6px
+    }
+
+    .notes-add textarea {
+      font-size: 11.5px;
+      padding: 6px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      resize: vertical;
+      min-height: 50px;
+      outline: none
+    }
+
+    .notes-add textarea:focus {
+      border-color: #4f46e5
+    }
+
+    .email-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9
+    }
+
+    .email-item:last-child {
+      border-bottom: none
+    }
+
+    .email-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #4f46e5;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .email-meta {
+      flex: 1;
+      min-width: 0
+    }
+
+    .email-from {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e293b
+    }
+
+    .email-subject {
+      font-size: 11px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .email-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0
+    }
+
+    .email-date {
+      font-size: 10px;
+      color: #94a3b8
+    }
+
+    .email-login-area {
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .email-login-area h6 {
+      font-size: 11px;
+      margin-bottom: 8px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .email-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .email-input-group input {
+      padding: 6px 10px;
+      font-size: 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .email-input-group input:focus {
+      border-color: #3b82f6;
+    }
+
+    .email-input-group button {
+      padding: 6px;
+      font-size: 11px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .email-input-group button:hover {
+      background: #2563eb;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .pw-pass {
+      font-family: monospace;
+      letter-spacing: .05em
+    }
+
+    .pw-toggle {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 11px
+    }
+
+    .pw-toggle:hover {
+      color: #4f46e5
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 8px;
+      margin-bottom: 2px
+    }
+
+    .quick-actions .btn {
+      white-space: nowrap;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+      border: 1px solid #e2e8f0
+    }
+
+    .quick-actions::-webkit-scrollbar {
+      height: 4px
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 10.5px
+    }
+
+    .activity-item:last-child {
+      border-bottom: none
+    }
+
+    .activity-time {
+      color: #94a3b8;
+      font-size: 9px;
+      white-space: nowrap
+    }
+
+    .activity-text b {
+      color: #1e293b
+    }
+
+    .top-search {
+      position: relative;
+      flex: 1;
+      max-width: 300px;
+      margin: 0 15px
+    }
+
+    .top-search input {
+      width: 100%;
+      padding: 5px 10px 5px 30px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 12px;
+      outline: none;
+      transition: all .2s
+    }
+
+    .top-search input:focus {
+      background: white;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, .1)
+    }
+
+    .top-search i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 12px
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-tachometer-alt" id="sideIcon"></i></div>
+      <div class="sidebar-brand-text">
+        <h5 id="sideTitle">Business Central</h5><small id="sideSmall">ERP Dashboard</small>
+      </div>
+    </div>
+    <ul class="sidebar-nav-list">
+      <li><a href="dashboard.html" class="nav-link active"><i class="fas fa-tachometer-alt nav-icon"></i><span
+            class="nav-label">Dashboard</span></a></li>
+      <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span
+            class="nav-label">Business Management</span></a></li>
+      <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span
+            class="nav-label">User Management</span></a></li>
+      <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+            class="nav-label">Fleet Management</span></a></li>
+      <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+            class="nav-label">Inventory Management</span></a></li>
+      <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+            class="nav-label">System Access</span></a></li>
+      <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span
+            class="nav-label">Suppliers</span></a></li>
+      <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span
+            class="nav-label">Accounting</span></a></li>
+      <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span
+            class="nav-label">Legal &amp; Compliance</span></a></li>
+      <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span
+            class="nav-label">Property Management</span></a></li>
+      <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+            class="nav-label">Reports</span></a></li>
+    </ul>
+  </div>
+  <div class="main-wrapper">
+    <div class="topbar">
+      <h5 class="topbar-title" id="mainTitle">
+        <i class="fas fa-tachometer-alt text-primary me-2" id="mainIcon"></i>
+        <span id="mainTitleText">Super Admin Dashboard</span>
+      </h5>
+      <div class="top-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search businesses, users, fleet or reports...">
+      </div>
+      <div class="topbar-right">
+        <div class="company-switcher" id="companySwitcherWrap">
+          <label>Organization</label>
+          <select id="companySwitcher" onchange="switchCompany(this.value)">
+            <option value="all">All Entities</option>
+            <option value="c1">Alpha Trading Co.</option>
+            <option value="c2">Beta Logistics Ltd.</option>
+          </select>
+        </div>
+        <span class="role-badge superadmin" id="roleBadge" onclick="toggleRole()" style="cursor:pointer" title="Click to toggle Role">Super Admin</span>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="widget-grid">
+
+        <!-- 1. BUSINESS DETAILS -->
+        <div class="widget-card" id="widgetBusinessDetails">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gb"><i class="fas fa-briefcase"></i></div><span
+              class="widget-title">Business Details</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Business Name</th>
+                  <th>Income</th>
+                  <th>Expenses</th>
+                  <th>SKUs</th>
+                  <th>Fleet</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="businessTableBody">
+                <tr>
+                  <td>1</td>
+                  <td><strong>Alpha Trading Co.</strong></td>
+                  <td class="text-success fw-bold">$125,400</td>
+                  <td class="text-danger">$42,100</td>
+                  <td>1,240</td>
+                  <td>12</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td><strong>Beta Logistics Ltd.</strong></td>
+                  <td class="text-success fw-bold">$84,200</td>
+                  <td class="text-danger">$31,500</td>
+                  <td>450</td>
+                  <td>24</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td><strong>Whiterock Retail Ltd.</strong></td>
+                  <td class="text-success fw-bold">$210,500</td>
+                  <td class="text-danger">$98,400</td>
+                  <td>3,800</td>
+                  <td>4</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td><strong>Zenith Logistics Hub</strong></td>
+                  <td class="text-success fw-bold">$15,000</td>
+                  <td class="text-danger">$2,000</td>
+                  <td>120</td>
+                  <td>0</td>
+                  <td><span class="badge bg-warning text-dark">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td><strong>Prime Supplies UK</strong></td>
+                  <td class="text-success fw-bold">$58,000</td>
+                  <td class="text-danger">$12,800</td>
+                  <td>6,200</td>
+                  <td>2</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td><strong>Global Logistics Partners</strong></td>
+                  <td class="text-success fw-bold">$92,300</td>
+                  <td class="text-danger">$28,500</td>
+                  <td>1,100</td>
+                  <td>35</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td><strong>Smart Solutions Ltd.</strong></td>
+                  <td class="text-success fw-bold">$45,000</td>
+                  <td class="text-danger">$12,000</td>
+                  <td>850</td>
+                  <td>3</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>8</td>
+                  <td><strong>Ocean View Exports</strong></td>
+                  <td class="text-success fw-bold">$112,000</td>
+                  <td class="text-danger">$45,600</td>
+                  <td>2,400</td>
+                  <td>8</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td>9</td>
+                  <td><strong>TechConnect Inc.</strong></td>
+                  <td class="text-success fw-bold">$38,500</td>
+                  <td class="text-danger">$15,200</td>
+                  <td>320</td>
+                  <td>1</td>
+                  <td><span class="badge bg-danger text-white">Suspended</span></td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td><strong>Consulting Ltd.</strong></td>
+                  <td class="text-success fw-bold">$12,400</td>
+                  <td class="text-danger">$4,100</td>
+                  <td>15</td>
+                  <td>0</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. FLEET MANAGEMENT -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gt"><i class="fas fa-truck"></i></div><span class="widget-title">Fleet
+              Management</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Plate</th>
+                  <th>Ins. Expiry</th>
+                  <th>MOT</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>CAR 1</strong></td>
+                  <td>ABC-1234</td>
+                  <td>2026-06-15</td>
+                  <td>2026-08-20</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN 2</strong></td>
+                  <td>DEF-5678</td>
+                  <td>2026-05-03</td>
+                  <td>2026-07-10</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TRK-007</strong></td>
+                  <td>GHI-9012</td>
+                  <td>2026-05-06</td>
+                  <td>2026-09-01</td>
+                  <td><span class="badge bg-warning text-dark">Maintenance</span></td>
+                </tr>
+                <tr>
+                  <td><strong>CAR 2</strong></td>
+                  <td>WP-BC-5678</td>
+                  <td>2026-12-01</td>
+                  <td>2026-11-15</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN-002</strong></td>
+                  <td>JKL-3456</td>
+                  <td>2026-05-04</td>
+                  <td>2026-06-30</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TRK-010</strong></td>
+                  <td>MNO-7890</td>
+                  <td>2026-07-12</td>
+                  <td>2026-10-05</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN-005</strong></td>
+                  <td>PQR-1234</td>
+                  <td>2026-05-20</td>
+                  <td>2026-09-15</td>
+                  <td><span class="badge bg-warning text-dark">Repair</span></td>
+                </tr>
+                <tr>
+                  <td><strong>CAR-003</strong></td>
+                  <td>STU-5678</td>
+                  <td>2026-11-30</td>
+                  <td>2026-12-20</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TRK-022</strong></td>
+                  <td>VWX-9012</td>
+                  <td>2026-05-01</td>
+                  <td>2026-08-11</td>
+                  <td><span class="badge bg-danger text-white">Impounded</span></td>
+                </tr>
+                <tr>
+                  <td><strong>VAN-011</strong></td>
+                  <td>YZA-3456</td>
+                  <td>2026-08-15</td>
+                  <td>2026-11-01</td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. EMAILS -->
+        <div class="widget-card" id="widgetEmails">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gr"><i class="fas fa-envelope"></i></div><span class="widget-title">Gmails
+              / Emails</span>
+            <button id="emailHeaderBtn" class="btn btn-xs btn-outline-primary ms-auto" style="font-size:9px" onclick="toggleEmailView('add')">Add Email</button>
+          </div>
+          <div class="widget-body">
+            <!-- Email Accounts State -->
+            <div id="emailAccountsArea">
+              <div class="email-item" onclick="toggleEmailView('add')">
+                <div class="email-avatar" style="background:#4f46e5; color: white;"><i class="fab fa-google"></i></div>
+                <div class="email-meta">
+                  <div class="email-from">admin@company.com</div>
+                  <div class="email-subject">Primary Account</div>
+                </div>
+                <div class="email-right"><span class="badge bg-success text-white">Connected</span></div>
+              </div>
+              <div class="email-item" onclick="toggleEmailView('add')">
+                <div class="email-avatar" style="background:#ea4335; color: white;"><i class="fab fa-google"></i></div>
+                <div class="email-meta">
+                  <div class="email-from">support@company.com</div>
+                  <div class="email-subject">Support Inbox</div>
+                </div>
+                <div class="email-right"><span class="badge bg-success text-white">Connected</span></div>
+              </div>
+            </div>
+
+            <!-- Email Login State -->
+            <div id="emailLoginArea" class="email-login-area hidden">
+              <h6>Connect your Account</h6>
+              <div class="email-input-group">
+                <input type="email" id="emailUser" placeholder="Email Address (e.g. admin@company.com)">
+                <input type="password" id="emailPass" placeholder="Password">
+                <button onclick="handleEmailLogin()">Sync Inbox</button>
+              </div>
+            </div>
+
+            <!-- Email List State -->
+            <div id="emailListArea" class="hidden">
+              <div class="email-item">
+                <div class="email-avatar">H</div>
+                <div class="email-meta">
+                  <div class="email-from">HMRC</div>
+                  <div class="email-subject">VAT Return Reminder Q2 2026</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-30</span><span
+                    class="badge bg-danger text-white">Unread</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#059669">P</div>
+                <div class="email-meta">
+                  <div class="email-from">Prime Office Supplies</div>
+                  <div class="email-subject">Invoice PO-2026-501</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-28</span><span
+                    class="badge bg-secondary text-white">Read</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#0ea5e9">A</div>
+                <div class="email-meta">
+                  <div class="email-from">Allianz Insurance</div>
+                  <div class="email-subject">Policy Renewal Notice</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-25</span><span
+                    class="badge bg-danger text-white">Unread</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#8b5cf6">T</div>
+                <div class="email-meta">
+                  <div class="email-from">TechConnect Inc</div>
+                  <div class="email-subject">Overdue PO-2026-503</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-22</span><span
+                    class="badge bg-secondary text-white">Read</span></div>
+              </div>
+              <div class="email-item">
+                <div class="email-avatar" style="background:#f59e0b">C</div>
+                <div class="email-meta">
+                  <div class="email-from">Companies House</div>
+                  <div class="email-subject">Confirmation Statement Due</div>
+                </div>
+                <div class="email-right"><span class="email-date">2026-04-20</span><span
+                    class="badge bg-secondary text-white">Read</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. NOTES -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-note-sticky"></i></div><span
+              class="widget-title">Notes</span>
+          </div>
+          <div class="widget-body">
+            <div id="notesList">
+              <div class="note-item">
+                <p>Renew trade licence before May 20 — contact City Planning Dept</p><button class="btn-del"
+                  onclick="deleteNote(this)"><i class="fas fa-trash-can"></i></button>
+              </div>
+              <div class="note-item">
+                <p>TRK-007 and VAN-002 insurance both expiring this month — call broker</p><button class="btn-del"
+                  onclick="deleteNote(this)"><i class="fas fa-trash-can"></i></button>
+              </div>
+            </div>
+            <div class="notes-add">
+              <textarea id="noteInput" placeholder="Write a note…"></textarea>
+              <button class="btn btn-warning btn-sm text-dark" onclick="addNote()"><i class="fas fa-plus"></i> Add
+                Note</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. VAT / TAX -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-file-invoice-dollar"></i></div><span
+              class="widget-title">VAT / Tax</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Period</th>
+                  <th>Amount</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Corporation Tax 2025</td>
+                  <td>Jan–Dec 2025</td>
+                  <td><strong>$15,450</strong></td>
+                  <td>2026-04-01</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+                <tr>
+                  <td>VAT Q1 2026</td>
+                  <td>Jan–Mar 2026</td>
+                  <td><strong>$8,320</strong></td>
+                  <td>2026-05-07</td>
+                  <td><span class="badge bg-warning text-dark">Filed</span></td>
+                </tr>
+                <tr>
+                  <td>VAT Q2 2026</td>
+                  <td>Apr–Jun 2026</td>
+                  <td><strong>$0</strong></td>
+                  <td>2026-08-07</td>
+                  <td><span class="badge bg-secondary text-white">Draft</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. TO-DO LIST -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gp"><i class="fas fa-list-check"></i></div><span
+              class="widget-title">To-Do List</span>
+          </div>
+          <div class="widget-body">
+            <div id="todoList">
+              <div class="todo-item"><input type="checkbox" id="td1" checked onchange="toggleTodo(this)"><label
+                  for="td1" class="done">Renew TRK-007 insurance</label><button class="btn-del"
+                  onclick="deleteTodo(this)"><i class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td2" onchange="toggleTodo(this)"><label for="td2">File
+                  VAT Q2 2026</label><button class="btn-del" onclick="deleteTodo(this)"><i
+                    class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td3" onchange="toggleTodo(this)"><label for="td3">Review
+                  supplier PO-2026-503 overdue</label><button class="btn-del" onclick="deleteTodo(this)"><i
+                    class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td4" checked onchange="toggleTodo(this)"><label
+                  for="td4" class="done">Update GDPR compliance cert</label><button class="btn-del"
+                  onclick="deleteTodo(this)"><i class="fas fa-trash-can"></i></button></div>
+              <div class="todo-item"><input type="checkbox" id="td5" onchange="toggleTodo(this)"><label
+                  for="td5">Schedule fleet MOT for VAN 2</label><button class="btn-del" onclick="deleteTodo(this)"><i
+                    class="fas fa-trash-can"></i></button></div>
+            </div>
+            <div class="todo-add">
+              <input type="text" id="todoInput" placeholder="Add a new task…"
+                onkeydown="if(event.key==='Enter')addTodo()">
+              <button class="btn btn-primary btn-sm" onclick="addTodo()"><i class="fas fa-plus"></i> Add</button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- 6. PASSWORDS -->
+        <div class="widget-card" id="widgetPasswordVault">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gp"><i class="fas fa-lock"></i></div><span class="widget-title">Password
+              Vault</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Site</th>
+                  <th>Username</th>
+                  <th>Password</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HMRC Online</td>
+                  <td>admin@businesscentral.com</td>
+                  <td><span class="pw-pass" data-pw="Hmrc@2026!">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Companies House</td>
+                  <td>john.smith@bc.com</td>
+                  <td><span class="pw-pass" data-pw="CH-Secure99">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Allianz Portal</td>
+                  <td>insurance@bc.com</td>
+                  <td><span class="pw-pass" data-pw="Allianz#Portal1">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Dojo Payments</td>
+                  <td>payments@bc.com</td>
+                  <td><span class="pw-pass" data-pw="DojoP@y2026">••••••••</span></td>
+                  <td><button class="pw-toggle" onclick="togglePw(this)"><i class="fas fa-eye"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- 8. PROFIT & LOSS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gg"><i class="fas fa-chart-pie"></i></div><span
+              class="widget-title">Profit &amp; Loss Statement</span>
+          </div>
+          <div class="widget-body">
+            <div class="pl-row"><span><i class="fas fa-circle text-success me-2" style="font-size:9px"></i>Total
+                Income</span><strong class="text-success">$482,800</strong></div>
+            <div class="pl-row"><span><i class="fas fa-circle text-danger me-2" style="font-size:9px"></i>Total
+                Expenses</span><strong class="text-danger">$237,585</strong></div>
+            <div class="pl-row divider"><span class="fw-bold">Gross Profit</span><strong>$245,215</strong></div>
+            <div class="pl-row"><span><i class="fas fa-circle text-warning me-2" style="font-size:9px"></i>Tax
+                (20%)</span><strong class="text-warning">$49,043</strong></div>
+            <div class="pl-row total"><span><i class="fas fa-star me-2" style="font-size:10px"></i>Net
+                Profit</span><strong>$196,172</strong></div>
+          </div>
+        </div>
+
+        <!-- 9. SUPPLIER PAYMENTS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-truck-ramp-box"></i></div><span
+              class="widget-title">Supplier Payments</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>PO #</th>
+                  <th>Supplier</th>
+                  <th>Amount</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PO-2026-501</strong></td>
+                  <td>Prime Office Supplies</td>
+                  <td>$450</td>
+                  <td>2026-05-10</td>
+                  <td><span class="badge bg-warning text-dark">Pending</span></td>
+                </tr>
+                <tr>
+                  <td><strong>PO-2026-502</strong></td>
+                  <td>Global Logistics Partners</td>
+                  <td>$1,800</td>
+                  <td>2026-04-30</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+                <tr>
+                  <td><strong>PO-2026-503</strong></td>
+                  <td>TechConnect Inc</td>
+                  <td>$2,750</td>
+                  <td>2026-04-20</td>
+                  <td><span class="badge bg-danger text-white">Overdue</span></td>
+                </tr>
+                <tr>
+                  <td><strong>PO-2026-504</strong></td>
+                  <td>Allianz Insurance</td>
+                  <td>$1,250</td>
+                  <td>2026-05-01</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 10. SALES REPORT -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gb"><i class="fas fa-chart-line"></i></div><span
+              class="widget-title">Sales Report</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Client</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>INV-2026-001</strong></td>
+                  <td>Alpha Trading Co.</td>
+                  <td>$5,000</td>
+                  <td>2026-04-30</td>
+                  <td><span class="badge bg-success text-white">Paid</span></td>
+                </tr>
+                <tr>
+                  <td><strong>INV-2026-002</strong></td>
+                  <td>Consulting Ltd</td>
+                  <td>$1,200</td>
+                  <td>2026-05-20</td>
+                  <td><span class="badge bg-warning text-dark">Sent</span></td>
+                </tr>
+                <tr>
+                  <td><strong>INV-2026-003</strong></td>
+                  <td>Beta Logistics Ltd.</td>
+                  <td>$3,800</td>
+                  <td>2026-04-15</td>
+                  <td><span class="badge bg-danger text-white">Overdue</span></td>
+                </tr>
+                <tr>
+                  <td><strong>INV-2026-004</strong></td>
+                  <td>Zenith Logistics Hub</td>
+                  <td>$7,500</td>
+                  <td>2026-05-25</td>
+                  <td><span class="badge bg-warning text-dark">Sent</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 11. BANK — full width -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gg"><i class="fas fa-building-columns"></i></div><span
+              class="widget-title">Bank Accounts</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Bank Name</th>
+                  <th>Account Name</th>
+                  <th>Account No.</th>
+                  <th>Type</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Business Central Bank</strong></td>
+                  <td>LAKSHAN RAMAWICKRAMA ERP</td>
+                  <td>88776655</td>
+                  <td>Business Current</td>
+                  <td><strong class="text-success">$142,350</strong></td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Barclays Business</strong></td>
+                  <td>Alpha Trading Co.</td>
+                  <td>12345678</td>
+                  <td>Business Savings</td>
+                  <td><strong class="text-success">$58,200</strong></td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+                <tr>
+                  <td><strong>HSBC Corporate</strong></td>
+                  <td>Beta Logistics Ltd.</td>
+                  <td>87654321</td>
+                  <td>Merchant Account</td>
+                  <td><strong class="text-success">$23,750</strong></td>
+                  <td><span class="badge bg-success text-white">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 12. MAINTENANCE REQUESTS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gr"><i class="fas fa-screwdriver-wrench"></i></div><span
+              class="widget-title">Maintenance Requests</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Asset</th>
+                  <th>Issue</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Main Office HVAC</td>
+                  <td>Leak in Drain</td>
+                  <td><span class="badge bg-danger">Urgent</span></td>
+                  <td>Pending</td>
+                </tr>
+                <tr>
+                  <td>Elevator A</td>
+                  <td>Annual Service</td>
+                  <td><span class="badge bg-warning text-dark">Medium</span></td>
+                  <td>Scheduled</td>
+                </tr>
+                <tr>
+                  <td>Van 2 (DEF-5678)</td>
+                  <td>Brake Check</td>
+                  <td><span class="badge bg-danger">Urgent</span></td>
+                  <td>In Progress</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 13. INVENTORY ALERTS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-go"><i class="fas fa-triangle-exclamation"></i></div><span
+              class="widget-title">Low Stock Alerts</span>
+          </div>
+          <div class="widget-body" style="overflow-x:auto">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Current</th>
+                  <th>Min.</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sugar 1kg</td>
+                  <td><strong>5</strong></td>
+                  <td>20</td>
+                  <td><span class="text-danger">Reorder</span></td>
+                </tr>
+                <tr>
+                  <td>Notebook A4</td>
+                  <td><strong>0</strong></td>
+                  <td>10</td>
+                  <td><span class="text-danger">Out of Stock</span></td>
+                </tr>
+                <tr>
+                  <td>Milk Packet 1L</td>
+                  <td>150</td>
+                  <td>20</td>
+                  <td><span class="text-success">Good</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 14. RECENT SYSTEM ACTIVITY -->
+        <div class="widget-card" id="widgetRecentActivity">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gb"><i class="fas fa-history"></i></div><span class="widget-title">Recent
+              System Activity</span>
+          </div>
+          <div class="widget-body">
+            <div class="activity-item">
+              <span class="activity-time">2 mins ago</span>
+              <span class="activity-text"><b>Admin</b> updated <b>VAT Q1 2026</b> to Filed.</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">15 mins ago</span>
+              <span class="activity-text"><b>John Smith</b> created new user <b>Sarah Jenkins</b>.</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">1 hour ago</span>
+              <span class="activity-text"><b>System</b> backed up <b>Database Alpha</b> successfully.</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-time">3 hours ago</span>
+              <span class="activity-text"><b>Fleet Bot</b> flagged <b>TRK-007</b> for maintenance.</span>
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- 18. UPCOMING RENEWALS -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <div class="widget-header-icon bg-gp" style="background:#8b5cf6"><i class="fas fa-clock-rotate-left"></i>
+            </div><span class="widget-title">Upcoming Renewals</span>
+          </div>
+          <div class="widget-body">
+            <table class="wt">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Type</th>
+                  <th>Due In</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Alpha Trading</td>
+                  <td>Trade License</td>
+                  <td><span class="text-danger fw-bold">3 Days</span></td>
+                </tr>
+                <tr>
+                  <td>TRK-007 (Fleet)</td>
+                  <td>Insurance</td>
+                  <td>12 Days</td>
+                </tr>
+                <tr>
+                  <td>Main Hub Retail</td>
+                  <td>Safety Cert</td>
+                  <td>28 Days</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  </div><!-- /widget-grid -->
+  </div><!-- /content-area -->
+  </div><!-- /main-wrapper -->
+
+  <script>
+    let activeRole = 'superadmin';
+
+    function toggleRole() {
+      const badge = document.getElementById('roleBadge');
+      const title = document.getElementById('mainTitleText');
+      const icon = document.getElementById('mainIcon');
+      const sTitle = document.getElementById('sideTitle');
+      const sSmall = document.getElementById('sideSmall');
+      const switcher = document.getElementById('companySwitcherWrap');
+      
+      const cardsToHide = [
+        'widgetBusinessDetails',
+        'widgetEmails',
+        'widgetPasswordVault',
+        'widgetRecentActivity'
+      ];
+
+      if (activeRole === 'superadmin') {
+        activeRole = 'admin';
+        if (title) title.innerText = 'Admin Dashboard';
+        if (icon) icon.className = 'fas fa-user-shield text-primary me-2';
+        if (sTitle) sTitle.innerText = 'Admin Panel';
+        if (sSmall) sSmall.innerText = 'Business Manager';
+        if (badge) {
+          badge.innerText = 'Company Admin';
+          badge.className = 'role-badge company-admin';
+        }
+        if (switcher) {
+          switcher.style.opacity = '0.5';
+          switcher.style.pointerEvents = 'none';
+        }
+        cardsToHide.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.setProperty('display', 'none', 'important');
+        });
+        applyGlobalFilter('c1');
+      } else {
+        activeRole = 'superadmin';
+        if (title) title.innerText = 'Super Admin Dashboard';
+        if (icon) icon.className = 'fas fa-tachometer-alt text-primary me-2';
+        if (sTitle) sTitle.innerText = 'Business Central';
+        if (sSmall) sSmall.innerText = 'ERP Dashboard';
+        if (badge) {
+          badge.innerText = 'Super Admin';
+          badge.className = 'role-badge superadmin';
+        }
+        if (switcher) {
+          switcher.style.opacity = '1';
+          switcher.style.pointerEvents = 'auto';
+        }
+        cardsToHide.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.setProperty('display', 'flex', 'important');
+        });
+        applyGlobalFilter('all');
+      }
+    }
+
+    function applyGlobalFilter(val) {
+      const rows = document.querySelectorAll('#businessTableBody tr');
+      rows.forEach((row, index) => {
+        if (val === 'all') row.style.display = 'table-row';
+        else {
+          if (index === 0) row.style.display = 'table-row';
+          else row.style.display = 'none';
+        }
+      });
+    }
+
+    function switchCompany(val) {
+      applyGlobalFilter(val);
+    }
+
+    function toggleEmailView(view) {
+      const accountsArea = document.getElementById('emailAccountsArea');
+      const loginArea = document.getElementById('emailLoginArea');
+      const listArea = document.getElementById('emailListArea');
+      const headerBtn = document.getElementById('emailHeaderBtn');
+
+      if (accountsArea) accountsArea.classList.add('hidden');
+      if (loginArea) loginArea.classList.add('hidden');
+      if (listArea) listArea.classList.add('hidden');
+
+      if (view === 'add') {
+        if (loginArea) loginArea.classList.remove('hidden');
+        if (headerBtn) {
+          headerBtn.innerHTML = 'Back';
+          headerBtn.setAttribute('onclick', "toggleEmailView('accounts')");
+        }
+      } else if (view === 'inbox') {
+        if (listArea) listArea.classList.remove('hidden');
+        if (headerBtn) {
+          headerBtn.innerHTML = 'Back to Accounts';
+          headerBtn.setAttribute('onclick', "toggleEmailView('accounts')");
+        }
+      } else {
+        // accounts view
+        if (accountsArea) accountsArea.classList.remove('hidden');
+        if (headerBtn) {
+          headerBtn.innerHTML = 'Add Email';
+          headerBtn.setAttribute('onclick', "toggleEmailView('add')");
+        }
+      }
+    }
+
+    function handleEmailLogin() {
+      const email = document.getElementById('emailUser').value;
+      const pass = document.getElementById('emailPass').value;
+      if (email && pass) {
+        toggleEmailView('inbox');
+      } else {
+        alert("Please enter both email and password.");
+      }
+    }
+  </script>
+</body>
+</html>

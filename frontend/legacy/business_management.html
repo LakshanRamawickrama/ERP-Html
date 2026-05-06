@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Management - Business Central</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 70px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 240px;
+        }
+
+        .sidebar-brand {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            min-height: 70px;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 20px;
+            min-width: 38px;
+            text-align: center;
+            color: #ecf0f1;
+        }
+
+        .sidebar-brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-brand-text {
+            opacity: 1;
+        }
+
+        .sidebar-brand-text h5 {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-nav-list {
+            flex: 1;
+            padding: 16px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .nav-link {
+            color: #bdc3c7;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin: 3px 10px;
+            white-space: nowrap;
+            transition: 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #34495e;
+            color: white;
+        }
+
+        .nav-link .nav-icon {
+            font-size: 16px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-link .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .nav-link .nav-label {
+            opacity: 1;
+        }
+
+        .main-wrapper {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* Tabs */
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fff !important;
+        }
+
+        .btn-minimal {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-minimal:hover {
+            background-color: #34495e;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .bg-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .bg-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .view-section {
+            display: none;
+            padding: 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Wide View Logic */
+        .view-section.wide .form-col {
+            display: none;
+        }
+
+        .view-section.wide .table-col {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .extra-col {
+            display: none;
+        }
+
+        .view-section.wide .extra-col {
+            display: table-cell;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            font-size: 13px;
+        }
+    </style>
+    <script src="auth.js"></script>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text">
+                <h5>Business Central</h5>
+                <small>Super Admin</small>
+            </div>
+        </div>
+        <ul class="sidebar-nav-list">
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span
+                        class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link active"><i
+                        class="fas fa-briefcase nav-icon"></i><span class="nav-label">Business Management</span></a>
+            </li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span
+                        class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+                        class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+                        class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+                        class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span
+                        class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span
+                        class="nav-label">Accounting</span></a></li>
+            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span
+                        class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span
+                        class="nav-label">Property Management</span></a></li>
+            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+                        class="nav-label">Reports</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">Business Management</h4>
+            <p class="text-muted small mb-0">Unified Module for Portfolio Entities and Corporate Structure</p>
+        </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-entities" onclick="switchView('entities')">Basic Details </button>
+            <button class="tab-btn" id="tab-structure" onclick="switchView('structure')">Companies House
+                Structure</button>
+        </div>
+
+        <!-- 1. BUSINESS PORTFOLIO VIEW -->
+        <div id="view-entities" class="view-section active">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-plus-circle me-2"></i>Register New Entity</div>
+                        <div class="card-body">
+                            <form id="bizForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Business Name</label><input
+                                            type="text" class="form-control form-control-sm" id="bName"
+                                            placeholder="e.g. Acme Corp" required></div>
+                                    <div class="col-12"><label class="form-label">Company Number</label><input
+                                            type="text" class="form-control form-control-sm" id="bNum"
+                                            placeholder="CH-12345678" required></div>
+                                    <div class="col-12"><label class="form-label">Business Category</label>
+                                        <select class="form-select form-select-sm" id="bCat">
+                                            <option>Retail</option>
+                                            <option>Manufacturing</option>
+                                            <option>Service Provider</option>
+                                            <option>Holding Company</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Tax ID / VAT Number</label><input
+                                            type="text" class="form-control form-control-sm" id="bTax"></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Register Business</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Active Business Entities</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('entities')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Business Name</th>
+                                        <th>Company No.</th>
+                                        <th>Category</th>
+                                        <th class="extra-col">HQ Location</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bizTable">
+                                    <tr>
+                                        <td><strong>Main Retail Store</strong></td>
+                                        <td>CH-98765432</td>
+                                        <td>Retail</td>
+                                        <td class="extra-col">London, UK</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Logistics Hub</strong></td>
+                                        <td>CH-11223344</td>
+                                        <td>Logistics</td>
+                                        <td class="extra-col">Manchester, UK</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. COMPANIES HOUSE STRUCTURE VIEW -->
+        <div id="view-structure" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-landmark me-2"></i>Companies House Registration
+                        </div>
+                        <div class="card-body">
+                            <form id="structureForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Full Company Name</label><input
+                                            type="text" class="form-control form-control-sm" id="cName"
+                                            placeholder="e.g. Whiterock Retail Ltd" required></div>
+                                    <div class="col-12"><label class="form-label">Registration Number
+                                            (CRN)</label><input type="text" class="form-control form-control-sm"
+                                            id="cCRN" placeholder="8-digit number" required></div>
+                                    <div class="col-12"><label class="form-label">Who Manages It
+                                            (Directors)</label><input type="text" class="form-control form-control-sm"
+                                            id="cManagers" placeholder="Name of Directors / Managers" required></div>
+                                    <div class="col-6"><label class="form-label">Incorporation Date</label><input
+                                            type="date" class="form-control form-control-sm" id="cDate"></div>
+                                    <div class="col-6"><label class="form-label">SIC Code</label><input type="text"
+                                            class="form-control form-control-sm" id="cSIC"
+                                            placeholder="Nature of Business"></div>
+                                    <div class="col-12"><label class="form-label">Registered Office
+                                            Address</label><textarea class="form-control form-control-sm" id="cAddress"
+                                            rows="2"></textarea></div>
+                                    <div class="col-12"><label class="form-label">Confirmation Statement
+                                            Due</label><input type="date" class="form-control form-control-sm"
+                                            id="cDue"></div>
+                                    <div class="col-6"><label class="form-label">Balance Sheet (PDF)</label><input
+                                            type="file" class="form-control form-control-sm" id="cBS" accept=".pdf">
+                                    </div>
+                                    <div class="col-6"><label class="form-label">P&L Statement (PDF)</label><input
+                                            type="file" class="form-control form-control-sm" id="cPL" accept=".pdf">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Register Company
+                                    Details</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Companies House Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('structure')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Company Name</th>
+                                        <th>CRN</th>
+                                        <th>Managed By</th>
+                                        <th class="extra-col">SIC Code</th>
+                                        <th>Filing Due</th>
+                                        <th>Statutory Docs</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="structureTable">
+                                    <tr>
+                                        <td><strong>Whiterock Retail Ltd</strong></td>
+                                        <td>12345678</td>
+                                        <td>John Smith</td>
+                                        <td class="extra-col">47110</td>
+                                        <td><span class="status-badge bg-active">2026-12-15</span></td>
+                                        <td>
+                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i
+                                                    class="fas fa-file-pdf"></i> BS</a>
+                                            <a href="#" class="text-danger" title="P&L Statement"><i
+                                                    class="fas fa-file-pdf"></i> P&L</a>
+                                        </td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-eye"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Zenith Logistics Hub</strong></td>
+                                        <td>87654321</td>
+                                        <td>Sarah Jenkins</td>
+                                        <td class="extra-col">52101</td>
+                                        <td><span class="status-badge bg-active">2026-11-20</span></td>
+                                        <td>
+                                            <a href="#" class="text-danger me-2" title="Balance Sheet"><i
+                                                    class="fas fa-file-pdf"></i> BS</a>
+                                            <a href="#" class="text-danger" title="P&L Statement"><i
+                                                    class="fas fa-file-pdf"></i> P&L</a>
+                                        </td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-eye"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.isSuperAdmin !== 'undefined' && !window.isSuperAdmin) {
+                const tabEntities = document.getElementById('tab-entities');
+                if (tabEntities) tabEntities.style.display = 'none';
+                
+                // Default to structure view for regular admins
+                switchView('structure');
+            }
+        });
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => {
+                v.classList.remove('active');
+                v.classList.remove('wide');
+            });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
+
+        function toggleWideView(viewId) {
+            const section = document.getElementById('view-' + viewId);
+            section.classList.toggle('wide');
+            const btn = section.querySelector('.card-header button');
+            if (section.classList.contains('wide')) {
+                btn.innerHTML = '<i class="fas fa-compress-alt me-1"></i> Standard View';
+            } else {
+                btn.innerHTML = '<i class="fas fa-expand-alt me-1"></i> Wide View';
+            }
+        }
+
+        document.getElementById('bizForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('bName').value;
+            const num = document.getElementById('bNum').value;
+            const cat = document.getElementById('bCat').value;
+
+            const row = `<tr>
+                <td><strong>${name}</strong></td>
+                <td>${num}</td>
+                <td>${cat}</td>
+                <td class="extra-col">-</td>
+                <td><span class="status-badge bg-active">Active</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+            document.getElementById('bizTable').insertAdjacentHTML('afterbegin', row);
+
+            alert('Business registered!');
+            this.reset();
+        });
+
+        document.getElementById('structureForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('cName').value;
+            const crn = document.getElementById('cCRN').value;
+            const managers = document.getElementById('cManagers').value;
+            const sic = document.getElementById('cSIC').value || '-';
+            const due = document.getElementById('cDue').value || '-';
+
+            const bsFile = document.getElementById('cBS').files[0];
+            const plFile = document.getElementById('cPL').files[0];
+
+            const bsHtml = bsFile ? `<a href="#" class="text-danger me-2" title="${bsFile.name}"><i class="fas fa-file-pdf"></i> BS</a>` : '-';
+            const plHtml = plFile ? `<a href="#" class="text-danger" title="${plFile.name}"><i class="fas fa-file-pdf"></i> P&L</a>` : '';
+
+            const row = `<tr>
+                <td><strong>${name}</strong></td>
+                <td>${crn}</td>
+                <td>${managers}</td>
+                <td class="extra-col">${sic}</td>
+                <td><span class="status-badge bg-active">${due}</span></td>
+                <td>${bsHtml} ${plHtml}</td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></button></td>
+            </tr>`;
+            document.getElementById('structureTable').insertAdjacentHTML('afterbegin', row);
+            alert('Company details registered!');
+            this.reset();
+        });
+    </script>
+
+</body>
+
+</html>

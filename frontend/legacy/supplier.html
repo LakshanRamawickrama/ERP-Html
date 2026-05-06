@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Management - Business Central</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 70px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 240px;
+        }
+
+        .sidebar-brand {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            min-height: 70px;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 20px;
+            min-width: 38px;
+            text-align: center;
+            color: #ecf0f1;
+        }
+
+        .sidebar-brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-brand-text {
+            opacity: 1;
+        }
+
+        .sidebar-brand-text h5 {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-nav-list {
+            flex: 1;
+            padding: 16px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .nav-link {
+            color: #bdc3c7;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin: 3px 10px;
+            white-space: nowrap;
+            transition: 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #34495e;
+            color: white;
+        }
+
+        .nav-link .nav-icon {
+            font-size: 16px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-link .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .nav-link .nav-label {
+            opacity: 1;
+        }
+
+        .main-wrapper {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* Tabs */
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fff !important;
+        }
+
+        .btn-minimal {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-minimal:hover {
+            background-color: #34495e;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .bg-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .bg-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .bg-inactive {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .bg-on-hold {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .view-section {
+            display: none;
+            padding: 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Wide View Logic */
+        .view-section.wide .form-col {
+            display: none;
+        }
+
+        .view-section.wide .table-col {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .extra-col {
+            display: none;
+        }
+
+        .view-section.wide .extra-col {
+            display: table-cell;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            font-size: 13px;
+        }
+
+        /* Custom Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content-custom {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header-custom {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c3e50;
+        }
+
+        .modal-body-custom {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .modal-footer-custom {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-modal {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+
+        .btn-modal-cancel {
+            background: #f1f2f6;
+            color: #2c3e50;
+        }
+
+        .btn-modal-confirm {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .btn-modal-danger {
+            background: #e74c3c;
+            color: white;
+        }
+    </style>
+    <script src="auth.js"></script>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text">
+                <h5>Business Central</h5>
+                <small>Super Admin</small>
+            </div>
+        </div>
+        <ul class="sidebar-nav-list">
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span
+                        class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span
+                        class="nav-label">Business Management</span></a></li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span
+                        class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+                        class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+                        class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+                        class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link active"><i class="fas fa-truck-loading nav-icon"></i><span
+                        class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span
+                        class="nav-label">Accounting</span></a></li>
+            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span
+                        class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link"><i class="fas fa-building nav-icon"></i><span
+                        class="nav-label">Property Management</span></a></li>
+            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+                        class="nav-label">Reports</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">Supplier Management</h4>
+            <p class="text-muted small mb-0">Unified Module for Vendor Relations and Procurement</p>
+        </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-suppliers" onclick="switchView('suppliers')">Supplier
+                Directory</button>
+            <button class="tab-btn" id="tab-orders" onclick="switchView('orders')">Purchase Orders</button>
+        </div>
+
+        <!-- 1. SUPPLIERS VIEW -->
+        <div id="view-suppliers" class="view-section active">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="suppFormIcon" class="fas fa-plus-circle me-2"></i><span
+                                id="suppFormTitle">Add New Supplier</span></div>
+                        <div class="card-body">
+                            <form id="supplierForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editSuppId">
+                                    <div class="col-12">
+                                        <label class="form-label">Supplier ID</label>
+                                        <input type="text" class="form-control form-control-sm bg-light" id="sID"
+                                            readonly>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Supplier Name</label>
+                                        <input type="text" class="form-control form-control-sm" id="sName"
+                                            placeholder="e.g. Acme Supplies" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Category</label>
+                                        <select class="form-select form-select-sm" id="sCat">
+                                            <option>Raw Materials</option>
+                                            <option>Services</option>
+                                            <option>Office Supplies</option>
+                                            <option>IT Hardware</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Email Address</label><input
+                                            type="email" class="form-control form-control-sm" id="sEmail" required>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Phone Number</label><input type="tel"
+                                            class="form-control form-control-sm" id="sPhone"></div>
+                                    <div class="col-12"><label class="form-label">Address</label><textarea
+                                            class="form-control form-control-sm" id="sAddress" rows="2"></textarea>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="sStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                            <option value="On Hold">On Hold</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Notes</label>
+                                        <textarea class="form-control form-control-sm" id="sNotes" rows="2" placeholder="Payment terms, delivery preferences, etc."></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" id="suppSubmitBtn" class="btn btn-minimal w-100 mt-3">Register
+                                    Supplier</button>
+                                <button type="button" id="cancelSuppEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetSupplierForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Vendor Partners</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('suppliers')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Supplier Name</th>
+                                        <th>Category</th>
+                                        <th>Email</th>
+                                        <th class="extra-col">Phone</th>
+                                        <th class="extra-col">Address</th>
+                                        <th class="extra-col">Notes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="supplierTable">
+                                    <tr id="supp-101">
+                                        <td class="td-s-name">
+                                            <span class="text-muted small d-block td-s-id">SUP-101</span>
+                                            <strong class="td-s-display-name">Global Logistics Partners</strong>
+                                        </td>
+                                        <td class="td-s-cat">Services</td>
+                                        <td class="td-s-email">contact@global.com</td>
+                                        <td class="td-s-phone extra-col">+44 20 7123 4567</td>
+                                        <td class="td-s-address extra-col text-muted small">123 Logistics Way, London</td>
+                                        <td class="td-s-notes extra-col text-muted small">Primary carrier for London region</td>
+                                        <td class="td-s-status"><span class="status-badge bg-active">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark"
+                                                onclick="editSupplier('supp-101')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteSupplier('supp-101')"><i
+                                                    class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="supp-102">
+                                        <td class="td-s-name">
+                                            <span class="text-muted small d-block td-s-id">SUP-102</span>
+                                            <strong class="td-s-display-name">Prime Office Supplies</strong>
+                                        </td>
+                                        <td class="td-s-cat">Office Supplies</td>
+                                        <td class="td-s-email">sales@prime.com</td>
+                                        <td class="td-s-phone extra-col">+44 20 8987 6543</td>
+                                        <td class="td-s-address extra-col text-muted small">45 Stationery Road, Manchester</td>
+                                        <td class="td-s-notes extra-col text-muted small">Net 30 payment terms</td>
+                                        <td class="td-s-status"><span class="status-badge bg-active">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('supp-102')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('supp-102')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="supp-103">
+                                        <td class="td-s-name">
+                                            <span class="text-muted small d-block td-s-id">SUP-103</span>
+                                            <strong class="td-s-display-name">TechConnect Inc</strong>
+                                        </td>
+                                        <td class="td-s-cat">IT Hardware</td>
+                                        <td class="td-s-email">support@techconnect.com</td>
+                                        <td class="td-s-phone extra-col">+1 415 555 0123</td>
+                                        <td class="td-s-address extra-col text-muted small">Silicon Valley, CA, USA</td>
+                                        <td class="td-s-notes extra-col text-muted small">Awaiting contract renewal</td>
+                                        <td class="td-s-status"><span class="status-badge bg-inactive">On Hold</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('supp-103')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('supp-103')"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. PURCHASE ORDERS VIEW -->
+        <div id="view-orders" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i id="orderFormIcon" class="fas fa-shopping-cart me-2"></i><span
+                                id="orderFormTitle">New Purchase Order</span></div>
+                        <div class="card-body">
+                            <form id="orderForm">
+                                <div class="row g-3">
+                                    <input type="hidden" id="editOrderId">
+                                    <div class="col-12"><label class="form-label">Select Supplier</label>
+                                        <select class="form-select form-select-sm" id="oSupplier" required>
+                                            <option value="">Choose...</option>
+                                            <option value="Global Logistics Partners">Global Logistics Partners</option>
+                                            <option value="Prime Office Supplies">Prime Office Supplies</option>
+                                            <option value="TechConnect Inc">TechConnect Inc</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">PO Number</label><input type="text"
+                                            class="form-control form-control-sm" id="oNum" placeholder="PO-1001"
+                                            required></div>
+                                    <div class="col-12"><label class="form-label">Order Amount ($)</label><input
+                                            type="number" class="form-control form-control-sm" id="oAmount" step="0.01"
+                                            required></div>
+                                    <div class="col-12">
+                                        <label class="form-label">Product Details</label>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <select class="form-select form-select-sm" id="oProdCat">
+                                                    <option value="" disabled selected>Category</option>
+                                                    <option>Electronics</option>
+                                                    <option>Stationery</option>
+                                                    <option>Services</option>
+                                                    <option>Logistics</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control form-control-sm" id="oQty" placeholder="Qty">
+                                            </div>
+                                            <div class="col-12">
+                                                <input type="text" class="form-control form-control-sm" id="oProdName" placeholder="Product Name (e.g. Paper Reams)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Delivery Due</label><input type="date"
+                                            class="form-control form-control-sm" id="oDue" required></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="oStatus">
+                                            <option value="Paid">Paid</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Overdue">Overdue</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="orderSubmitBtn" class="btn btn-minimal w-100 mt-3">Create
+                                    PO</button>
+                                <button type="button" id="cancelOrderEdit"
+                                    class="btn btn-sm btn-outline-secondary w-100 mt-2" style="display: none;"
+                                    onclick="resetOrderForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Procurement History</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('orders')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>PO #</th>
+                                        <th>Supplier</th>
+                                        <th>Product / Qty</th>
+                                        <th>Amount</th>
+                                        <th>Due Date</th>
+                                        <th class="extra-col">Created</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderTable">
+                                    <tr id="po-501">
+                                        <td class="td-o-num"><strong>PO-2026-501</strong></td>
+                                        <td class="td-o-supp">Prime Office Supplies</td>
+                                        <td class="td-o-prod">Paper Reams (10 Units)</td>
+                                        <td class="td-o-amount" data-val="450.00">$450.00</td>
+                                        <td class="td-o-due">2026-05-10</td>
+                                        <td class="td-o-date extra-col">2026-04-28</td>
+                                        <td class="td-o-status"><span class="status-badge bg-pending">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-501')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-501')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="po-502">
+                                        <td class="td-o-num"><strong>PO-2026-502</strong></td>
+                                        <td class="td-o-supp">Global Logistics Partners</td>
+                                        <td class="td-o-prod">Freight Services (1 Unit)</td>
+                                        <td class="td-o-amount" data-val="1800.00">$1,800.00</td>
+                                        <td class="td-o-due">2026-04-30</td>
+                                        <td class="td-o-date extra-col">2026-04-20</td>
+                                        <td class="td-o-status"><span class="status-badge bg-active">Paid</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-502')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-502')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr id="po-503">
+                                        <td class="td-o-num"><strong>PO-2026-503</strong></td>
+                                        <td class="td-o-supp">TechConnect Inc</td>
+                                        <td class="td-o-prod">Laptop Docking Stations (5 Units)</td>
+                                        <td class="td-o-amount" data-val="2750.00">$2,750.00</td>
+                                        <td class="td-o-due">2026-04-20</td>
+                                        <td class="td-o-date extra-col">2026-04-10</td>
+                                        <td class="td-o-status"><span class="status-badge bg-overdue">Overdue</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('po-503')"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('po-503')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Custom Modal Structure -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom" id="modalHeader">Confirm Action</div>
+            <div class="modal-body-custom" id="modalBody">Are you sure you want to proceed?</div>
+            <div class="modal-footer-custom">
+                <button class="btn-modal btn-modal-cancel" id="btnCancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" id="btnConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('customModal');
+        const mHeader = document.getElementById('modalHeader');
+        const mBody = document.getElementById('modalBody');
+        const btnConfirm = document.getElementById('btnConfirm');
+        const btnCancel = document.getElementById('btnCancel');
+
+        function openModal({ title, body, confirmText, confirmClass, onConfirm }) {
+            mHeader.innerText = title;
+            mBody.innerText = body;
+            btnConfirm.innerText = confirmText || 'OK';
+            btnConfirm.className = `btn-modal ${confirmClass || 'btn-modal-confirm'}`;
+            btnCancel.style.display = onConfirm ? 'inline-block' : 'none';
+
+            btnConfirm.onclick = () => {
+                if (onConfirm) onConfirm();
+                closeModal();
+            };
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() { modal.style.display = 'none'; }
+
+        function deleteSupplier(id) {
+            openModal({
+                title: 'Delete Supplier',
+                body: 'Are you sure you want to permanently delete this supplier? This action cannot be undone.',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'The supplier has been removed.' });
+                    }
+                }
+            });
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => {
+                v.classList.remove('active');
+                v.classList.remove('wide');
+            });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
+
+        function toggleWideView(viewId) {
+            const section = document.getElementById('view-' + viewId);
+            section.classList.toggle('wide');
+            const btn = section.querySelector('.card-header button');
+            if (section.classList.contains('wide')) {
+                btn.innerHTML = '<i class="fas fa-compress-alt me-1"></i> Standard View';
+            } else {
+                btn.innerHTML = '<i class="fas fa-expand-alt me-1"></i> Wide View';
+            }
+        }
+
+        let nextSuppId = 104;
+        function generateSupplierID() {
+            document.getElementById('sID').value = 'SUP-' + nextSuppId;
+        }
+        generateSupplierID();
+
+        function resetSupplierForm() {
+            document.getElementById('supplierForm').reset();
+            document.getElementById('editSuppId').value = '';
+            document.getElementById('suppFormTitle').innerText = 'Add New Supplier';
+            document.getElementById('suppFormIcon').className = 'fas fa-plus-circle me-2';
+            document.getElementById('suppSubmitBtn').innerText = 'Register Supplier';
+            document.getElementById('cancelSuppEdit').style.display = 'none';
+            generateSupplierID();
+        }
+
+        function editSupplier(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const sid = row.querySelector('.td-s-id').innerText.trim();
+            const name = row.querySelector('.td-s-display-name').innerText.trim();
+            const cat = row.querySelector('.td-s-cat').innerText.trim();
+            const email = row.querySelector('.td-s-email').innerText.trim();
+            document.getElementById('sPhone').value = row.querySelector('.td-s-phone').innerText;
+            document.getElementById('sAddress').value = row.querySelector('.td-s-address').innerText;
+            document.getElementById('sNotes').value = row.querySelector('.td-s-notes').innerText;
+            document.getElementById('sStatus').value = row.querySelector('.td-s-status').innerText.trim();
+
+            document.getElementById('editSuppId').value = id;
+            document.getElementById('sID').value = sid;
+            document.getElementById('sName').value = name;
+            document.getElementById('sCat').value = cat;
+            document.getElementById('sEmail').value = email;
+
+            document.getElementById('suppFormTitle').innerText = 'Edit Supplier';
+            document.getElementById('suppFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('suppSubmitBtn').innerText = 'Update Supplier';
+            document.getElementById('cancelSuppEdit').style.display = 'block';
+            document.getElementById('supplierForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('supplierForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editSuppId').value;
+            const id = document.getElementById('sID').value;
+            const name = document.getElementById('sName').value;
+            const cat = document.getElementById('sCat').value;
+            const email = document.getElementById('sEmail').value;
+            const phone = document.getElementById('sPhone').value || '-';
+            const address = document.getElementById('sAddress').value || '-';
+            const status = document.getElementById('sStatus').value;
+            const notes = document.getElementById('sNotes').value || '-';
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.querySelector('.td-s-display-name').innerText = name;
+                row.querySelector('.td-s-cat').innerText = cat;
+                row.querySelector('.td-s-email').innerText = email;
+                row.querySelector('.td-s-phone').innerText = phone || '-';
+                row.querySelector('.td-s-address').innerText = address || '-';
+                row.querySelector('.td-s-notes').innerText = notes;
+                row.querySelector('.td-s-status').innerHTML = `<span class="status-badge bg-${status.toLowerCase().replace(' ', '-')}">${status}</span>`;
+                alert('Supplier updated successfully!');
+            } else {
+                const newId = 'supp-' + Date.now();
+                const row = `<tr id="${newId}">
+                    <td class="td-s-name"><span class="text-muted small d-block td-s-id">${id}</span><strong class="td-s-display-name">${name}</strong></td>
+                    <td class="td-s-cat">${cat}</td>
+                    <td class="td-s-email">${email}</td>
+                    <td class="td-s-phone extra-col">${phone || '-'}</td>
+                    <td class="td-s-address extra-col text-muted small">${address || '-'}</td>
+                    <td class="td-s-notes extra-col text-muted small">${notes}</td>
+                    <td class="td-s-status"><span class="status-badge bg-${status.toLowerCase().replace(' ', '-')}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" onclick="editSupplier('${newId}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier('${newId}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+                document.getElementById('supplierTable').insertAdjacentHTML('afterbegin', row);
+                nextSuppId++;
+            }
+
+            // Add to PO dropdown (simple logic, might duplicate if not careful, but okay for mock)
+            const sel = document.getElementById('oSupplier');
+            if (![...sel.options].some(o => o.value === name)) {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                sel.appendChild(opt);
+            }
+
+            resetSupplierForm();
+        });
+
+        function resetOrderForm() {
+            document.getElementById('orderForm').reset();
+            document.getElementById('editOrderId').value = '';
+            document.getElementById('orderFormTitle').innerText = 'New Purchase Order';
+            document.getElementById('orderFormIcon').className = 'fas fa-shopping-cart me-2';
+            document.getElementById('orderSubmitBtn').innerText = 'Create PO';
+            document.getElementById('cancelOrderEdit').style.display = 'none';
+        }
+
+        function editOrder(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const num = row.querySelector('.td-o-num').innerText;
+            const supp = row.querySelector('.td-o-supp').innerText;
+            const amount = parseFloat(row.querySelector('.td-o-amount').getAttribute('data-val'));
+            const due = row.querySelector('.td-o-due').innerText;
+            const status = row.querySelector('.td-o-status span').innerText;
+
+            document.getElementById('editOrderId').value = id;
+            document.getElementById('oNum').value = num;
+            document.getElementById('oSupplier').value = supp;
+            document.getElementById('oAmount').value = amount;
+            document.getElementById('oDue').value = due;
+            document.getElementById('oStatus').value = status;
+
+            // Extract product and qty from the hidden or visible text
+            const prodCell = row.querySelector('.td-o-prod');
+            if (prodCell) {
+                const text = prodCell.innerText;
+                const match = text.match(/(.*) \((\d+)\)/);
+                if (match) {
+                    document.getElementById('oProdName').value = match[1];
+                    document.getElementById('oQty').value = match[2];
+                }
+            }
+
+            document.getElementById('orderFormTitle').innerText = 'Edit Purchase Order';
+            document.getElementById('orderFormIcon').className = 'fas fa-edit me-2';
+            document.getElementById('orderSubmitBtn').innerText = 'Update Order';
+            document.getElementById('cancelOrderEdit').style.display = 'block';
+            document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteOrder(id) {
+            openModal({
+                title: 'Delete Purchase Order',
+                body: 'Are you sure you want to remove this purchase order from history?',
+                confirmText: 'Delete',
+                confirmClass: 'btn-modal-danger',
+                onConfirm: () => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.remove();
+                        openModal({ title: 'Deleted', body: 'The purchase order has been removed.' });
+                    }
+                }
+            });
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editId = document.getElementById('editOrderId').value;
+            const supplier = document.getElementById('oSupplier').value;
+            const num = document.getElementById('oNum').value;
+            const amount = parseFloat(document.getElementById('oAmount').value);
+            const due = document.getElementById('oDue').value;
+            const status = document.getElementById('oStatus').value;
+            const prod = document.getElementById('oProdName').value || 'Item';
+            const qty = document.getElementById('oQty').value || '1';
+            const date = new Date().toISOString().split('T')[0];
+
+            const statusClass = status === 'Paid' ? 'bg-active' : (status === 'Overdue' ? 'bg-overdue' : 'bg-pending');
+
+            if (editId) {
+                const row = document.getElementById(editId);
+                row.innerHTML = `
+                    <td class="td-o-num"><strong>${num}</strong></td>
+                    <td class="td-o-supp">${supplier}</td>
+                    <td class="td-o-prod">${prod} (${qty})</td>
+                    <td class="td-o-amount" data-val="${amount}">$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="td-o-due">${due}</td>
+                    <td class="td-o-date extra-col">${date}</td>
+                    <td class="td-o-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" onclick="editOrder('${editId}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('${editId}')"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                    </td>
+                `;
+                openModal({ title: 'Success', body: 'Purchase order updated!' });
+            } else {
+                const rid = 'po-' + Date.now();
+                const row = `
+                    <tr id="${rid}">
+                        <td class="td-o-num"><strong>${num}</strong></td>
+                        <td class="td-o-supp">${supplier}</td>
+                        <td class="td-o-prod">${prod} (${qty})</td>
+                        <td class="td-o-amount" data-val="${amount}">$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td class="td-o-due">${due}</td>
+                        <td class="td-o-date extra-col">${date}</td>
+                        <td class="td-o-status"><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-dark" onclick="editOrder('${rid}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('${rid}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-outline-dark"><i class="fas fa-print"></i></button>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('orderTable').insertAdjacentHTML('afterbegin', row);
+                openModal({ title: 'Success', body: 'Purchase order created!' });
+            }
+            resetOrderForm();
+        });
+    </script>
+
+</body>
+
+</html>

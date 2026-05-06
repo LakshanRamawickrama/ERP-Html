@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Management - Business Central</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 70px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 240px;
+        }
+
+        .sidebar-brand {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            min-height: 70px;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 20px;
+            min-width: 38px;
+            text-align: center;
+            color: #ecf0f1;
+        }
+
+        .sidebar-brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .sidebar-brand-text {
+            opacity: 1;
+        }
+
+        .sidebar-brand-text h5 {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-nav-list {
+            flex: 1;
+            padding: 16px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .nav-link {
+            color: #bdc3c7;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin: 3px 10px;
+            white-space: nowrap;
+            transition: 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #34495e;
+            color: white;
+        }
+
+        .nav-link .nav-icon {
+            font-size: 16px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-link .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .nav-link .nav-label {
+            opacity: 1;
+        }
+
+        .main-wrapper {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* Tabs */
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active {
+            color: #2c3e50;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fff !important;
+        }
+
+        .btn-minimal {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-minimal:hover {
+            background-color: #34495e;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .bg-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .bg-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .bg-urgent {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .view-section {
+            display: none;
+            padding: 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Wide View Logic */
+        .view-section.wide .form-col {
+            display: none;
+        }
+
+        .view-section.wide .table-col {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .extra-col {
+            display: none;
+        }
+
+        .view-section.wide .extra-col {
+            display: table-cell;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            font-size: 13px;
+        }
+    </style>
+    <script src="auth.js"></script>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="sidebar-brand-text">
+                <h5>Business Central</h5>
+                <small>Super Admin</small>
+            </div>
+        </div>
+        <ul class="sidebar-nav-list">
+            <li><a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span
+                        class="nav-label">Dashboard</span></a></li>
+            <li><a href="business_management.html" class="nav-link"><i class="fas fa-briefcase nav-icon"></i><span
+                        class="nav-label">Business Management</span></a></li>
+            <li><a href="user_management.html" class="nav-link"><i class="fas fa-users nav-icon"></i><span
+                        class="nav-label">User Management</span></a></li>
+            <li><a href="fleet_management.html" class="nav-link"><i class="fas fa-truck nav-icon"></i><span
+                        class="nav-label">Fleet Management</span></a></li>
+            <li><a href="inventory_management.html" class="nav-link"><i class="fas fa-boxes nav-icon"></i><span
+                        class="nav-label">Inventory Management</span></a></li>
+            <li><a href="system_access.html" class="nav-link"><i class="fas fa-key nav-icon"></i><span
+                        class="nav-label">System Access</span></a></li>
+            <li><a href="supplier.html" class="nav-link"><i class="fas fa-truck-loading nav-icon"></i><span
+                        class="nav-label">Suppliers</span></a></li>
+            <li><a href="accounting.html" class="nav-link"><i class="fas fa-file-invoice-dollar nav-icon"></i><span
+                        class="nav-label">Accounting</span></a></li>
+            <li><a href="legal_compliance.html" class="nav-link"><i class="fas fa-gavel nav-icon"></i><span
+                        class="nav-label">Legal & Compliance</span></a></li>
+            <li><a href="property_management.html" class="nav-link active"><i class="fas fa-building nav-icon"></i><span
+                        class="nav-label">Property Management</span></a></li>
+            <li><a href="reports.html" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span
+                        class="nav-label">Reports</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h4 class="mb-0 fw-bold">Property Maintenance</h4>
+            <p class="text-muted small mb-0">Unified Module for Building Assets and Service Requests</p>
+        </div>
+
+        <!-- Tab Toggle Views -->
+        <div class="nav-tabs-custom">
+            <button class="tab-btn active" id="tab-inventory" onclick="switchView('inventory')">Property
+                Inventory</button>
+            <button class="tab-btn" id="tab-requests" onclick="switchView('requests')">Maintenance Requests</button>
+            <button class="tab-btn" id="tab-waste" onclick="switchView('waste')">Waste Collection</button>
+            <button class="tab-btn" id="tab-licence" onclick="switchView('licence')">Licences</button>
+        </div>
+
+        <!-- 1. PROPERTY INVENTORY VIEW -->
+        <div id="view-inventory" class="view-section active">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-plus-circle me-2"></i>Add Property Asset</div>
+                        <div class="card-body">
+                            <form id="assetForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Asset Name</label><input type="text"
+                                            class="form-control form-control-sm" id="aName"
+                                            placeholder="e.g. Unit 5 Air Con" required></div>
+                                    <div class="col-12"><label class="form-label">Location / Floor</label><input
+                                            type="text" class="form-control form-control-sm" id="aLoc"
+                                            placeholder="Floor 2, Room 204" required></div>
+                                    <div class="col-12"><label class="form-label">Asset Type</label>
+                                        <input type="text" class="form-control form-control-sm" id="aType"
+                                            list="assetTypes" placeholder="e.g. HVAC, Electrical...">
+                                        <datalist id="assetTypes">
+                                            <option value="HVAC">
+                                            <option value="Electrical">
+                                            <option value="Plumbing">
+                                            <option value="Furniture">
+                                            <option value="IT Infrastructure">
+                                        </datalist>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Assigned Person</label><input
+                                            type="text" class="form-control form-control-sm" id="aPerson"
+                                            placeholder="Name of responsible person"></div>
+                                    <div class="col-12"><label class="form-label">Contact Number</label><input
+                                            type="text" class="form-control form-control-sm" id="aContact"
+                                            placeholder="+1 (555) 000-0000"></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea
+                                            class="form-control form-control-sm" id="aNotes" rows="2"
+                                            placeholder="Specific instructions or property details"></textarea></div>
+                                    <div class="col-12">
+                                        <label class="form-label">Asset Documents (Manuals/Warranties)</label>
+                                        <div class="upload-box p-3 text-center border border-dashed rounded bg-light" style="border-style: dashed !important; cursor: pointer;" onclick="document.getElementById('aFile').click()">
+                                            <i class="fas fa-file-contract fa-2x mb-2 text-muted"></i>
+                                            <p class="small mb-0 text-muted">Click or Drag & Drop Manual/Warranty</p>
+                                            <input type="file" id="aFile" hidden>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Register Asset</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Building Asset Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('inventory')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Asset</th>
+                                        <th>Location</th>
+                                        <th>Type</th>
+                                        <th>Document</th>
+                                        <th class="extra-col">Assigned Person</th>
+                                        <th class="extra-col">Contact</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assetTable">
+                                    <tr>
+                                        <td><strong>Main Office HVAC</strong></td>
+                                        <td>Floor 1, West Wing</td>
+                                        <td>HVAC</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="fas fa-file-pdf me-1"></i>hvac_manual.pdf</span></td>
+                                        <td class="extra-col">Robert Chen</td>
+                                        <td class="extra-col">+1 234-567-890</td>
+                                        <td><span class="status-badge bg-active">Operational</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Elevator A</strong></td>
+                                        <td>Main Lobby</td>
+                                        <td>Mechanical</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="fas fa-file-contract me-1"></i>safety_cert.pdf</span></td>
+                                        <td class="extra-col">Sarah Jenkins</td>
+                                        <td class="extra-col">+1 234-999-888</td>
+                                        <td><span class="status-badge bg-active">Operational</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Fire Suppression System</strong></td>
+                                        <td>Server Room</td>
+                                        <td>Safety</td>
+                                        <td><span class="badge bg-light text-dark border"><i class="fas fa-file-shield me-1"></i>fire_cert.pdf</span></td>
+                                        <td class="extra-col">Safety Team</td>
+                                        <td class="extra-col">Emergency Ext 9</td>
+                                        <td><span class="status-badge bg-active">Operational</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MAINTENANCE REQUESTS VIEW -->
+        <div id="view-requests" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-tools me-2"></i>New Maintenance Request</div>
+                        <div class="card-body">
+                            <form id="requestForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Issue Description</label><input
+                                            type="text" class="form-control form-control-sm" id="rDesc"
+                                            placeholder="e.g. Broken window" required></div>
+                                    <div class="col-12"><label class="form-label">Request Date</label><input type="date"
+                                            class="form-control form-control-sm" id="rDate" required></div>
+                                    <div class="col-12"><label class="form-label">Select Asset </label>
+                                        <input type="text" class="form-control form-control-sm" id="rAsset"
+                                            list="assetSuggestions" placeholder="Type or choose asset..." required>
+                                        <datalist id="assetSuggestions">
+                                            <option value="Main Office HVAC">
+                                            <option value="Elevator A">
+                                            <option value="Fire Suppression System">
+                                            <option value="CAR 1 (ABC-1234)">
+                                            <option value="TRUCK 2 (DEF-5678)">
+                                            <option value="VAN 3 (GHI-9012)">
+                                        </datalist>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Priority</label>
+                                        <select class="form-select form-select-sm" id="rPrio">
+                                            <option>Urgent</option>
+                                            <option>Medium</option>
+                                            <option>Low</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Assigned Technician</label><input
+                                            type="text" class="form-control form-control-sm" id="rTech"
+                                            placeholder="Name of technician"></div>
+                                    <div class="col-12"><label class="form-label">Request Notes</label><textarea
+                                            class="form-control form-control-sm" id="rNotes" rows="2"
+                                            placeholder="Describe specific details of the issue"></textarea></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Log Request</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Pending & Active Requests</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('requests')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Issue</th>
+                                        <th>Priority</th>
+                                        <th class="extra-col">Asset</th>
+                                        <th class="extra-col">Technician</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requestTable">
+                                    <tr>
+                                        <td>2026-04-29</td>
+                                        <td><strong>Leak in Bathroom</strong></td>
+                                        <td><span class="status-badge bg-urgent">Urgent</span></td>
+                                        <td class="extra-col">Floor 2 Restroom</td>
+                                        <td class="extra-col">Mike Plumb</td>
+                                        <td><span class="status-badge bg-pending">In Progress</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-check"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-04-30</td>
+                                        <td><strong>Flickering Lights</strong></td>
+                                        <td><span class="status-badge bg-pending">Medium</span></td>
+                                        <td class="extra-col">Canteen Area</td>
+                                        <td class="extra-col">Unassigned</td>
+                                        <td><span class="status-badge bg-pending">Pending</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-check"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. WASTE COLLECTION VIEW -->
+        <div id="view-waste" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-trash-alt me-2"></i>Schedule Waste Collection
+                        </div>
+                        <div class="card-body">
+                            <form id="wasteForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Contact Name</label><input type="text"
+                                            class="form-control form-control-sm" id="wName"
+                                            placeholder="e.g. Building Manager" required></div>
+                                    <div class="col-12"><label class="form-label">Phone Number</label><input type="tel"
+                                            class="form-control form-control-sm" id="wPhone"
+                                            placeholder="e.g. +1 555-0199" required></div>
+                                    <div class="col-12"><label class="form-label">Collection Address</label><input
+                                            type="text" class="form-control form-control-sm" id="wAddress"
+                                            placeholder="Full address or unit location" required></div>
+                                    <div class="col-12"><label class="form-label">Pick-up Date</label><input type="date"
+                                            class="form-control form-control-sm" id="wDate" required></div>
+                                    <div class="col-12"><label class="form-label">Notes</label><textarea
+                                            class="form-control form-control-sm" id="wNotes" rows="2"
+                                            placeholder="e.g. Large items, hazardous waste..."></textarea></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Schedule Collection</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Waste Collection Schedule</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('waste')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Pick-up Date</th>
+                                        <th>Contact Person</th>
+                                        <th>Address / Location</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wasteTable">
+                                    <tr>
+                                        <td>2026-05-01</td>
+                                        <td><strong>John Doe</strong><br><small class="text-muted">+1
+                                                234-567-888</small></td>
+                                        <td>Building A, Service Entrance</td>
+                                        <td><span class="status-badge bg-active">Scheduled</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                    class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 4. LICENCE VIEW -->
+        <div id="view-licence" class="view-section">
+            <div class="row g-4">
+                <div class="col-lg-4 form-col">
+                    <div class="card">
+                        <div class="card-header py-3"><i class="fas fa-id-card me-2"></i>New Licence Registry</div>
+                        <div class="card-body">
+                            <form id="licenceForm">
+                                <div class="row g-3">
+                                    <div class="col-12"><label class="form-label">Licence Type</label><input type="text"
+                                            class="form-control form-control-sm" id="lType"
+                                            placeholder="e.g. HMO Licence" required></div>
+                                    <div class="col-12"><label class="form-label">Business Name</label><input type="text"
+                                            class="form-control form-control-sm" id="lBusName"
+                                            placeholder="e.g. Property Central Ltd" required></div>
+                                    <div class="col-6"><label class="form-label">Issue Date</label><input type="date"
+                                            class="form-control form-control-sm" id="lIssue" required></div>
+                                    <div class="col-6"><label class="form-label">Expiry Date</label><input type="date"
+                                            class="form-control form-control-sm" id="lExpiry" required></div>
+                                    <div class="col-12"><label class="form-label">Issuing Authority</label><input
+                                            type="text" class="form-control form-control-sm" id="lAuth"
+                                            placeholder="e.g. Local City Council" required></div>
+                                    <div class="col-12"><label class="form-label">Status</label>
+                                        <select class="form-select form-select-sm" id="lStatus">
+                                            <option value="Active">Active</option>
+                                            <option value="Expired">Expired</option>
+                                            <option value="Pending">Pending</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12"><label class="form-label">Upload Document</label><input
+                                            type="file" class="form-control form-control-sm" id="lDoc"></div>
+                                </div>
+                                <button type="submit" class="btn btn-minimal w-100 mt-3">Register Licence</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 table-col">
+                    <div class="card h-100">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <span>Licence & Permit Registry</span>
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWideView('licence')">
+                                <i class="fas fa-expand-alt me-1"></i> Wide View
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Licence / Business</th>
+                                        <th>Authority</th>
+                                        <th>Expiry</th>
+                                        <th class="extra-col">Issue Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="licenceTable">
+                                    <tr>
+                                        <td><strong>Trade Licence 2026</strong><br><small class="text-muted">Property Management Div</small></td>
+                                        <td>City Planning Dept</td>
+                                        <td>2027-05-20</td>
+                                        <td class="extra-col">2026-05-20</td>
+                                        <td><span class="status-badge bg-active">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-dark"><i
+                                                     class="fas fa-edit"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => {
+                v.classList.remove('active');
+                v.classList.remove('wide');
+            });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('tab-' + viewId).classList.add('active');
+        }
+
+        function toggleWideView(viewId) {
+            const section = document.getElementById('view-' + viewId);
+            section.classList.toggle('wide');
+            const btn = section.querySelector('.card-header button');
+            if (section.classList.contains('wide')) {
+                btn.innerHTML = '<i class="fas fa-compress-alt me-1"></i> Standard View';
+            } else {
+                btn.innerHTML = '<i class="fas fa-expand-alt me-1"></i> Wide View';
+            }
+        }
+
+        document.getElementById('assetForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('aName').value;
+            const location = document.getElementById('aLoc').value;
+            const type = document.getElementById('aType').value;
+            const person = document.getElementById('aPerson').value || 'Unassigned';
+            const contact = document.getElementById('aContact').value || '-';
+            const fileInput = document.getElementById('aFile');
+            const fileName = fileInput.files[0] ? fileInput.files[0].name : 'manual.pdf';
+
+            const row = `<tr>
+                <td><strong>${name}</strong></td>
+                <td>${location}</td>
+                <td>${type}</td>
+                <td><span class="badge bg-light text-dark border"><i class="fas fa-file-pdf me-1"></i>${fileName}</span></td>
+                <td class="extra-col">${person}</td>
+                <td class="extra-col">${contact}</td>
+                <td><span class="status-badge bg-active">Operational</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+            document.getElementById('assetTable').insertAdjacentHTML('afterbegin', row);
+            alert('Property asset registered!');
+            this.reset();
+        });
+
+        document.getElementById('requestForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const desc = document.getElementById('rDesc').value;
+            const asset = document.getElementById('rAsset').value;
+            const prio = document.getElementById('rPrio').value;
+            const tech = document.getElementById('rTech').value || 'Unassigned';
+            const notes = document.getElementById('rNotes').value || '-';
+            const date = document.getElementById('rDate').value || new Date().toISOString().split('T')[0];
+
+            const prioClass = prio === 'Urgent' ? 'bg-urgent' : (prio === 'Medium' ? 'bg-pending' : 'bg-active');
+
+            const row = `<tr>
+                <td>${date}</td>
+                <td><strong>${desc}</strong><br><small class="text-muted">${notes}</small></td>
+                <td><span class="status-badge ${prioClass}">${prio}</span></td>
+                <td class="extra-col">${asset}</td>
+                <td class="extra-col">${tech}</td>
+                <td><span class="status-badge bg-pending">Pending</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i></button></td>
+            </tr>`;
+            document.getElementById('requestTable').insertAdjacentHTML('afterbegin', row);
+            alert('Maintenance request logged!');
+            this.reset();
+        });
+        // Set default date for forms
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('rDate').value = today;
+        document.getElementById('wDate').value = today;
+
+        // Waste Form Handler
+        document.getElementById('wasteForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('wName').value;
+            const phone = document.getElementById('wPhone').value;
+            const address = document.getElementById('wAddress').value;
+            const date = document.getElementById('wDate').value;
+            const notes = document.getElementById('wNotes').value || '-';
+
+            const row = `<tr>
+                <td>${date}</td>
+                <td><strong>${name}</strong><br><small class="text-muted">${phone}</small></td>
+                <td>${address}<br><small class="text-muted">${notes}</small></td>
+                <td><span class="status-badge bg-active">Scheduled</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+            document.getElementById('wasteTable').insertAdjacentHTML('afterbegin', row);
+            alert('Waste collection scheduled!');
+            this.reset();
+            document.getElementById('wDate').value = today;
+        });
+
+        // Licence Form Handler
+        document.getElementById('licenceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const type = document.getElementById('lType').value;
+            const bus = document.getElementById('lBusName').value;
+            const issue = document.getElementById('lIssue').value;
+            const expiry = document.getElementById('lExpiry').value;
+            const auth = document.getElementById('lAuth').value;
+            const status = document.getElementById('lStatus').value;
+
+            const statusClass = status === 'Active' ? 'bg-active' : (status === 'Expired' ? 'bg-urgent' : 'bg-pending');
+
+            const row = `<tr>
+                <td><strong>${type}</strong><br><small class="text-muted">${bus}</small></td>
+                <td>${auth}</td>
+                <td>${expiry}</td>
+                <td class="extra-col">${issue}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-edit"></i></button></td>
+            </tr>`;
+            document.getElementById('licenceTable').insertAdjacentHTML('afterbegin', row);
+            alert('Licence registered!');
+            this.reset();
+        });
+    </script>
+
+</body>
+
+</html>

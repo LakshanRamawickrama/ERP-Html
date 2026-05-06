@@ -1,0 +1,40 @@
+import { NextResponse } from 'next/server';
+import {
+  DASHBOARD_BUSINESSES,
+  DASHBOARD_FLEET,
+  DASHBOARD_NOTES,
+  DASHBOARD_VAT,
+  DASHBOARD_TODOS,
+  DASHBOARD_PASSWORDS,
+  DASHBOARD_SUPPLIER_PAYMENTS,
+  DASHBOARD_SALES,
+  DASHBOARD_BANKS,
+  DASHBOARD_MAINTENANCE,
+  DASHBOARD_LOW_STOCK,
+  DASHBOARD_ACTIVITY,
+  DASHBOARD_RENEWALS,
+  DASHBOARD_PL,
+  DASHBOARD_EMAILS,
+  REMINDERS,
+} from '@/lib/db';
+
+export async function GET() {
+  return NextResponse.json({
+    businesses: DASHBOARD_BUSINESSES,
+    fleet: DASHBOARD_FLEET,
+    notes: DASHBOARD_NOTES,
+    vat: DASHBOARD_VAT,
+    todos: DASHBOARD_TODOS,
+    passwords: DASHBOARD_PASSWORDS,
+    supplierPayments: DASHBOARD_SUPPLIER_PAYMENTS,
+    sales: DASHBOARD_SALES,
+    banks: DASHBOARD_BANKS,
+    maintenance: DASHBOARD_MAINTENANCE,
+    lowStock: DASHBOARD_LOW_STOCK,
+    activity: DASHBOARD_ACTIVITY,
+    renewals: DASHBOARD_RENEWALS,
+    pl: DASHBOARD_PL,
+    emails: DASHBOARD_EMAILS,
+    reminders: REMINDERS,
+  });
+}

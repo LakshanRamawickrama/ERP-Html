@@ -1,0 +1,315 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  X, 
+  User, 
+  Mail, 
+  Shield, 
+  Building2, 
+  Lock, 
+  Edit2, 
+  Save, 
+  LogOut, 
+  Eye, 
+  EyeOff,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+
+interface ProfileDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  user: any;
+  onUpdateUser: (updatedUser: any) => void;
+}
+
+export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: ProfileDrawerProps) {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const router = useRouter();
+
+  // Form states
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [roles, setRoles] = useState('');
+  const [businesses, setBusinesses] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || user.name || '');
+      setEmail(user.email || '');
+      setRoles(Array.isArray(user.roles) ? user.roles.join(', ') : (user.role || ''));
+      setBusinesses(
+        Array.isArray(user.businesses) && user.businesses.length > 0
+          ? user.businesses.join(', ')
+          : (user.role === 'Super Admin' ? 'All Entities' : 'None Assigned')
+      );
+    }
+  }, [user]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
+
+  const handleSave = () => {
+    if (newPassword && newPassword !== confirmPassword) {
+      showToast('Passwords do not match', 'error');
+      return;
+    }
+
+    const updatedUser = {
+      ...user,
+      fullName,
+      name: fullName,
+      email,
+      roles: roles.split(',').map(s => s.trim()).filter(Boolean),
+      businesses: businesses.split(',').map(s => s.trim()).filter(Boolean),
+    };
+
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    onUpdateUser(updatedUser);
+    setIsEditMode(false);
+    showToast('Profile updated successfully', 'success');
+  };
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const getInitials = (name: string) => {
+    return name.trim().split(/\s+/).map(w => w[0]?.toUpperCase()).slice(0, 2).join('') || 'U';
+  };
+
+  if (!user) return null;
+
+  return (
+    <>
+      {/* Overlay */}
+      <div 
+        className={cn(
+          "fixed inset-0 bg-black/40 backdrop-blur-sm z-[2000] transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={onClose}
+      />
+
+      {/* Drawer */}
+      <div 
+        className={cn(
+          "fixed top-0 right-0 h-full w-[360px] max-w-[90vw] bg-white z-[2001] shadow-[-10px_0_50px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out flex flex-col",
+          isOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        {/* Header */}
+        <div className="relative bg-[#1e293b] pt-12 pb-8 px-6 flex flex-col items-center">
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+          >
+            <X size={18} />
+          </button>
+
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-white/10 shadow-xl overflow-hidden">
+              {user.photo ? (
+                <img src={user.photo} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                getInitials(fullName)
+              )}
+            </div>
+          </div>
+
+          <h3 className="text-white font-bold text-xl mt-4">{fullName}</h3>
+          <p className="text-slate-400 text-sm">@{user.username || user.email?.split('@')[0] || 'user'}</p>
+          
+          <div className={cn(
+            "mt-3 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider",
+            user.role === 'Super Admin' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+          )}>
+            {user.role}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+          {!isEditMode ? (
+            <div className="space-y-4">
+              <SectionTitle title="Account Details" />
+              
+              <InfoRow icon={<User size={14} />} label="Full Name" value={fullName} color="blue" />
+              <InfoRow icon={<Mail size={14} />} label="Email Address" value={email} color="emerald" />
+              <InfoRow icon={<Shield size={14} />} label="Assigned Roles" value={roles} color="purple" />
+              <InfoRow icon={<Building2 size={14} />} label="Assigned Businesses" value={businesses} color="amber" />
+              <InfoRow icon={<Lock size={14} />} label="Password" value="••••••••" color="rose" />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <SectionTitle title="Edit Profile" />
+              
+              <div className="space-y-4">
+                <InputField label="Full Name" value={fullName} onChange={setFullName} />
+                <InputField label="Email Address" value={email} onChange={setEmail} type="email" />
+                <InputField 
+                  label="Roles" 
+                  value={roles} 
+                  onChange={setRoles} 
+                  placeholder="Comma separated" 
+                  disabled={user.role === 'Company Admin'}
+                />
+                <InputField 
+                  label="Businesses" 
+                  value={businesses} 
+                  onChange={setBusinesses} 
+                  placeholder="Comma separated" 
+                  disabled={user.role === 'Company Admin'}
+                />
+                
+                <SectionTitle title="Change Password" />
+                
+                <div className="relative">
+                  <InputField 
+                    label="New Password" 
+                    value={newPassword} 
+                    onChange={setNewPassword} 
+                    type={showPassword ? "text" : "password"} 
+                  />
+                  <button 
+                    className="absolute right-3 top-9 text-slate-400 hover:text-slate-600"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <InputField 
+                    label="Confirm Password" 
+                    value={confirmPassword} 
+                    onChange={setConfirmPassword} 
+                    type={showConfirmPassword ? "text" : "password"} 
+                  />
+                  <button 
+                    className="absolute right-3 top-9 text-slate-400 hover:text-slate-600"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 space-y-3">
+          {!isEditMode ? (
+            <>
+              <button 
+                onClick={() => setIsEditMode(true)}
+                className="w-full py-3 bg-[#1e293b] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200"
+              >
+                <Edit2 size={16} />
+                Edit Profile
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="w-full py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+              >
+                <LogOut size={16} />
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                onClick={handleSave}
+                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+              >
+                <Save size={16} />
+                Save Changes
+              </button>
+              <button 
+                onClick={() => setIsEditMode(false)}
+                className="w-full py-3 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Toast Notification */}
+        {toast && (
+          <div className={cn(
+            "fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-2xl flex items-center gap-2 text-sm font-medium animate-in slide-in-from-bottom-2 duration-300",
+            toast.type === 'success' ? "bg-slate-900 text-white" : "bg-red-600 text-white"
+          )}>
+            {toast.type === 'success' ? <CheckCircle2 size={16} className="text-emerald-400" /> : <AlertCircle size={16} />}
+            {toast.message}
+          </div>
+        )}
+      </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+      `}</style>
+    </>
+  );
+}
+
+function SectionTitle({ title }: { title: string }) {
+  return (
+    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{title}</h4>
+  );
+}
+
+function InfoRow({ icon, label, value, color }: { icon: any, label: string, value: string, color: string }) {
+  const colors: any = {
+    blue: "bg-blue-500",
+    emerald: "bg-emerald-500",
+    purple: "bg-purple-500",
+    amber: "bg-amber-500",
+    rose: "bg-rose-500"
+  };
+
+  return (
+    <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-slate-200 transition-colors">
+      <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5 shadow-sm", colors[color])}>
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{label}</p>
+        <p className="text-[13px] font-semibold text-slate-700 truncate">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function InputField({ label, value, onChange, type = "text", placeholder = "", disabled = false }: { label: string, value: string, onChange: (v: string) => void, type?: string, placeholder?: string, disabled?: boolean }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">{label}</label>
+      <input 
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={cn(
+          "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-inner",
+          disabled && "opacity-60 cursor-not-allowed bg-slate-100"
+        )}
+      />
+    </div>
+  );
+}
