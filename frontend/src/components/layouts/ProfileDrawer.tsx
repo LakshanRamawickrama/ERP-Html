@@ -46,7 +46,11 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
       setFullName(user.fullName || user.name || '');
       setEmail(user.email || '');
       setRoles(Array.isArray(user.roles) ? user.roles.join(', ') : (user.role || ''));
-      setBusinesses(Array.isArray(user.businesses) ? user.businesses.join(', ') : 'All Entities');
+      setBusinesses(
+        Array.isArray(user.businesses) && user.businesses.length > 0
+          ? user.businesses.join(', ')
+          : (user.role === 'Super Admin' ? 'All Entities' : 'None Assigned')
+      );
     }
   }, [user]);
 
@@ -154,8 +158,20 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
               <div className="space-y-4">
                 <InputField label="Full Name" value={fullName} onChange={setFullName} />
                 <InputField label="Email Address" value={email} onChange={setEmail} type="email" />
-                <InputField label="Roles" value={roles} onChange={setRoles} placeholder="Comma separated" />
-                <InputField label="Businesses" value={businesses} onChange={setBusinesses} placeholder="Comma separated" />
+                <InputField 
+                  label="Roles" 
+                  value={roles} 
+                  onChange={setRoles} 
+                  placeholder="Comma separated" 
+                  disabled={user.role === 'Company Admin'}
+                />
+                <InputField 
+                  label="Businesses" 
+                  value={businesses} 
+                  onChange={setBusinesses} 
+                  placeholder="Comma separated" 
+                  disabled={user.role === 'Company Admin'}
+                />
                 
                 <SectionTitle title="Change Password" />
                 
@@ -279,7 +295,7 @@ function InfoRow({ icon, label, value, color }: { icon: any, label: string, valu
   );
 }
 
-function InputField({ label, value, onChange, type = "text", placeholder = "" }: { label: string, value: string, onChange: (v: string) => void, type?: string, placeholder?: string }) {
+function InputField({ label, value, onChange, type = "text", placeholder = "", disabled = false }: { label: string, value: string, onChange: (v: string) => void, type?: string, placeholder?: string, disabled?: boolean }) {
   return (
     <div className="space-y-1.5">
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">{label}</label>
@@ -288,7 +304,11 @@ function InputField({ label, value, onChange, type = "text", placeholder = "" }:
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-inner"
+        disabled={disabled}
+        className={cn(
+          "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-inner",
+          disabled && "opacity-60 cursor-not-allowed bg-slate-100"
+        )}
       />
     </div>
   );

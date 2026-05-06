@@ -34,11 +34,6 @@ export default function UserModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">User Management</h1>
-        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest leading-none mt-1">Manage Platform Access, Roles, and User Permissions</p>
-      </div>
 
       {/* Tab Navigation */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">

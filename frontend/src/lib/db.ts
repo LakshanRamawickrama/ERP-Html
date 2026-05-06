@@ -541,11 +541,13 @@ export const LOGIN_CREDENTIALS = {
     username: 'superadmin',
     password: 'superadmin123',
     altPassword: 'admin123',
+    businesses: ['All Entities']
   },
   companyAdmin: {
     email: 'admin@central.com',
     username: 'admin',
     password: 'admin123',
+    businesses: ['Whiterock Retail Ltd.']
   },
 };
 

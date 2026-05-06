@@ -30,11 +30,6 @@ export default function InventoryModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
-        <h4 className="text-lg font-bold text-slate-800">Inventory Management</h4>
-        <p className="text-xs text-slate-500">Track Stock Levels, Incoming Goods, and Dispatches</p>
-      </div>
 
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between overflow-x-auto no-scrollbar whitespace-nowrap">

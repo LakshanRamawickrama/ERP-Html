@@ -22,10 +22,12 @@ import {
   Trophy,
   ArrowUpRight
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function ReportsModule() {
   const [data, setData] = React.useState<any>({ stats: [], templates: [], businesses: [] });
   const [selectedBiz, setSelectedBiz] = React.useState('All Entities');
+  const [user, setUser] = React.useState<any>(null);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const fetchReports = React.useCallback(() => {
@@ -37,6 +39,14 @@ export default function ReportsModule() {
   }, []);
 
   React.useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
+      if (parsed.role !== 'Super Admin') {
+        setSelectedBiz(parsed.businesses?.[0] || 'Assigned Business');
+      }
+    }
     fetchReports();
   }, [fetchReports]);
 
@@ -58,21 +68,6 @@ export default function ReportsModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-5 py-1.5 flex items-center justify-between">
-        <div>
-          <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">Business Analytics & Reports</h4>
-          <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1.5 mt-0.5">
-            Enterprise Performance Insights
-            <span className="w-1 h-1 bg-slate-200 rounded-full" />
-            <span className="text-emerald-500 font-black">LIVE</span>
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Synced</p>
-          <p className="text-[10px] font-bold text-slate-500">12:22 PM</p>
-        </div>
-      </div>
 
       {/* Toolbar */}
       <div className="bg-white border-b border-slate-200 px-5 py-1.5 flex items-center justify-between">
@@ -85,12 +80,22 @@ export default function ReportsModule() {
           <select 
             value={selectedBiz}
             onChange={(e) => setSelectedBiz(e.target.value)}
-            className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all outline-none"
+            disabled={user?.role !== 'Super Admin'}
+            className={cn(
+              "flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all outline-none",
+              user?.role !== 'Super Admin' && "opacity-80 pointer-events-none"
+            )}
           >
-            <option>All Entities</option>
-            {businesses.map((b: any) => (
-              <option key={b.id}>{b.name}</option>
-            ))}
+            {user?.role === 'Super Admin' ? (
+              <>
+                <option>All Entities</option>
+                {businesses.map((b: any) => (
+                  <option key={b.id}>{b.name}</option>
+                ))}
+              </>
+            ) : (
+              <option>{user?.businesses?.[0] || 'Assigned Business'}</option>
+            )}
           </select>
         </div>
         <div className="flex gap-1.5">

@@ -51,38 +51,33 @@ export default function AccountingModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Module Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">Accounting Module</h1>
-            <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Financial Ecosystem & Ledger Management</p>
-          </div>
-          <div className="flex gap-3">
-             <Pill type="income" label="Total Income" value={data.summary?.income || "$0.00"} />
-             <Pill type="expense" label="Total Expenses" value={data.summary?.expenses || "$0.00"} />
-          </div>
-        </div>
-      </div>
 
       {/* Tab Navigation */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">
-        <div className="flex gap-6 overflow-x-auto no-scrollbar">
-          {tabs.map((tab: any) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabType)}
-              className={`py-4 text-xs font-bold transition-all border-b-2 whitespace-nowrap flex items-center gap-2 ${
-                activeTab === tab.id 
-                ? 'border-slate-800 text-slate-800' 
-                : 'border-transparent text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? 'text-slate-800' : 'text-slate-400'}`} />
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
+          <div className="flex gap-6">
+            {tabs.map((tab: any) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as TabType)}
+                className={`py-4 text-xs font-bold transition-all border-b-2 whitespace-nowrap flex items-center gap-2 ${
+                  activeTab === tab.id 
+                  ? 'border-slate-800 text-slate-800' 
+                  : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? 'text-slate-800' : 'text-slate-400'}`} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          
+          <div className="hidden xl:flex gap-3 ml-6">
+             <Pill type="income" label="Income" value={data.summary?.income || "$0.00"} />
+             <Pill type="expense" label="Expenses" value={data.summary?.expenses || "$0.00"} />
+          </div>
         </div>
+
         <button 
           onClick={() => setIsWide(!isWide)}
           className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all uppercase tracking-wider shadow-sm"

@@ -52,7 +52,8 @@ export default function LoginPage() {
         localStorage.setItem('user', JSON.stringify({
           email: email.includes('@') ? email : creds.superAdmin.email,
           role: 'Super Admin',
-          name: 'Super Administrator'
+          name: 'Super Administrator',
+          businesses: creds.superAdmin.businesses
         }));
         router.push('/dashboard');
       } 
@@ -60,7 +61,8 @@ export default function LoginPage() {
         localStorage.setItem('user', JSON.stringify({
           email: email.includes('@') ? email : creds.companyAdmin.email,
           role: 'Company Admin',
-          name: 'Company Administrator'
+          name: 'Company Administrator',
+          businesses: creds.companyAdmin.businesses
         }));
         router.push('/dashboard');
       } 

@@ -36,11 +36,6 @@ export default function FleetModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">Logistics / Fleet Management</h1>
-        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Unified Module for Vehicles, Deliveries, and Parcels</p>
-      </div>
 
       {/* Tab Navigation & Reminders */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">

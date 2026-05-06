@@ -38,11 +38,6 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
-        <h4 className="text-lg font-bold text-slate-800">Business Management</h4>
-        <p className="text-xs text-slate-500">Unified Module for Portfolio Entities and Corporate Structure</p>
-      </div>
 
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center gap-6">

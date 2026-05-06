@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layouts/Sidebar';
 import ProfileDrawer from '@/components/layouts/ProfileDrawer';
+import TopBar from '@/components/layouts/TopBar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/constants/roles';
@@ -30,6 +31,7 @@ import {
   Star,
   Circle
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function Dashboard() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
@@ -67,46 +69,13 @@ export default function Dashboard() {
       />
       
       <main className="ml-[70px] flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Topbar */}
-        <header className="bg-white border-b border-[#e2e8f0] px-6 py-2.5 flex items-center justify-between shadow-sm flex-shrink-0">
-          <h5 className="text-[16px] font-bold text-[#1e293b] m-0 flex items-center gap-2">
-            <LayoutDashboard className="w-4 h-4 text-[#3b82f6]" />
-            <span id="mainTitleText">{userRole === UserRole.SUPER_ADMIN ? 'Super Admin Dashboard' : 'Admin Dashboard'}</span>
-          </h5>
-
-          <div className="relative flex-1 max-w-[400px] mx-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#94a3b8]" />
-            <input 
-              type="text" 
-              placeholder="Search businesses, users, fleet or reports..." 
-              className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-lg py-1.5 pl-9 pr-3 text-[13px] outline-none focus:bg-white focus:border-[#3b82f6] transition-all"
-            />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-[#f8fafc] px-3 py-1.5 rounded-lg border border-[#e2e8f0]">
-              <label className="text-[12px] font-medium text-[#64748b] m-0">Organization</label>
-              <select className="bg-transparent text-[13px] font-bold text-[#1e293b] outline-none border-none cursor-pointer pr-1">
-                <option>All Entities</option>
-                {dash.businesses.map((b: any) => (
-                  <option key={b.id}>{b.name}</option>
-                ))}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-[#94a3b8]" />
-            </div>
-            
-            <button 
-              onClick={() => setIsProfileOpen(true)}
-              className="w-9 h-9 rounded-full bg-gradient-to-br from-[#4f46e5] to-[#7c3aed] flex items-center justify-center text-white text-[11px] font-bold shadow-lg hover:scale-105 transition-transform border-2 border-white overflow-hidden"
-            >
-              {user.photo ? (
-                <img src={user.photo} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                user.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'SA'
-              )}
-            </button>
-          </div>
-        </header>
+        <TopBar 
+          title={userRole === UserRole.SUPER_ADMIN ? 'Super Admin Dashboard' : 'Admin Dashboard'}
+          userRole={userRole}
+          user={user}
+          onProfileClick={() => setIsProfileOpen(true)}
+          businesses={dash.businesses}
+        />
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-[0.75rem_0.75rem_1.5rem] scrollbar-custom bg-[#f1f5f9]/30">

@@ -33,11 +33,6 @@ export default function PropertyModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4">
-        <h4 className="text-lg font-bold text-slate-800">Property Maintenance</h4>
-        <p className="text-xs text-slate-500">Unified Module for Building Assets and Service Requests</p>
-      </div>
 
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
@@ -141,8 +136,8 @@ export default function PropertyModule() {
                 </button>
               }
             >
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm whitespace-nowrap">
+              <div className="overflow-hidden">
+                <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     <tr>
                       {activeTab === 'inventory' && (
