@@ -1,6 +1,6 @@
 export enum UserRole {
-  SUPER_ADMIN = 'Super Admin',
-  COMPANY_ADMIN = 'Company Admin',
+  SUPER_ADMIN = 'super_admin',
+  ADMIN = 'admin',
 }
 
 export type Permission = 
@@ -15,7 +15,7 @@ export type Permission =
   | 'PROPERTY_MANAGEMENT' 
   | 'VIEW_REPORTS';
 
-export const RolePermissions: Record<UserRole, Permission[]> = {
+export const RolePermissions: Record<string, Permission[]> = {
   [UserRole.SUPER_ADMIN]: [
     'VIEW_DASHBOARD',
     'MANAGE_BUSINESS',
@@ -28,7 +28,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'PROPERTY_MANAGEMENT',
     'VIEW_REPORTS'
   ],
-  [UserRole.COMPANY_ADMIN]: [
+  [UserRole.ADMIN]: [
     'VIEW_DASHBOARD',
     'MANAGE_BUSINESS',
     'MANAGE_FLEET',
@@ -37,6 +37,10 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'LEGAL_COMPLIANCE',
     'PROPERTY_MANAGEMENT',
     'VIEW_REPORTS'
-    // Company Admin cannot manage users or system access based on legacy auth.js
   ],
+};
+
+export const RoleLabels: Record<string, string> = {
+  [UserRole.SUPER_ADMIN]: 'Super Admin',
+  [UserRole.ADMIN]: 'Administrator',
 };

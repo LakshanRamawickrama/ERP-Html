@@ -1,7 +1,18 @@
 from rest_framework import serializers
-from .models import Credential
+from core.mixins import MongoSerializerMixin
+from .models import SystemLog, SystemCredential, SystemAlert
 
-class CredentialSerializer(serializers.ModelSerializer):
+class SystemLogSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     class Meta:
-        model = Credential
+        model = SystemLog
+        fields = '__all__'
+
+class SystemCredentialSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = SystemCredential
+        fields = '__all__'
+
+class SystemAlertSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = SystemAlert
         fields = '__all__'

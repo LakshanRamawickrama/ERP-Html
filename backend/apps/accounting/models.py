@@ -40,3 +40,10 @@ class InsurancePolicy(models.Model):
     premium = models.DecimalField(max_digits=15, decimal_places=2)
     expiry_date = models.DateField()
     status = models.CharField(max_length=50)
+
+class VATRecord(models.Model):
+    type = models.CharField(max_length=255)
+    period = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    date = models.DateField()
+    status = models.CharField(max_length=50)

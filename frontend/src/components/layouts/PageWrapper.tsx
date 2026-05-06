@@ -6,6 +6,7 @@ import Sidebar from '@/components/layouts/Sidebar';
 import TopBar from '@/components/layouts/TopBar';
 import ProfileDrawer from '@/components/layouts/ProfileDrawer';
 import { UserRole } from '@/constants/roles';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface PageWrapperProps {
   children: React.ReactNode;
@@ -30,9 +31,15 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
     setUserRole(userData.role as UserRole);
 
     // Fetch businesses for TopBar organization selector
-    fetch('/api/reports')
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.BUSINESS, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
       .then(res => res.json())
-      .then(data => setBusinesses(data.businesses || []))
+      .then(data => setBusinesses(data.entities || []))
       .catch(() => {});
   }, [router]);
 

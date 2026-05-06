@@ -10,3 +10,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class StockMovement(models.Model):
+    date = models.DateField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    type = models.CharField(max_length=10) # IN/OUT
+    quantity = models.IntegerField()
+    notes = models.TextField(blank=True, null=True)

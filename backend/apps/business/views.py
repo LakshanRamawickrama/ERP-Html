@@ -1,14 +1,24 @@
-from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import BusinessEntity, CompanyStructure
 from .serializers import BusinessEntitySerializer, CompanyStructureSerializer
+from apps.users.models import StaffProfile
 
 class BusinessDataView(APIView):
-    """View to fetch aggregated data for the frontend dashboard"""
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        entities = BusinessEntity.objects.all()
-        structures = CompanyStructure.objects.all()
+        # Determine business scope
+        profile = StaffProfile.objects.filter(email=request.user.email).first()
+        business_scope = profile.assigned_business if profile else 'All'
+        
+        if business_scope == 'All' or request.user.is_superuser:
+            entities = BusinessEntity.objects.all()
+            structures = CompanyStructure.objects.all()
+        else:
+            entities = BusinessEntity.objects.filter(name=business_scope)
+            structures = CompanyStructure.objects.filter(name=business_scope)
         
         return Response({
             "entities": BusinessEntitySerializer(entities, many=True).data,
@@ -17,15 +27,3 @@ class BusinessDataView(APIView):
                 "categories": ["Retail", "Logistics", "Finance", "Tech", "Healthcare"]
             }
         })
-
-from core.permissions import IsSuperAdmin
-
-class BusinessEntityListCreateView(generics.ListCreateAPIView):
-    queryset = BusinessEntity.objects.all()
-    serializer_class = BusinessEntitySerializer
-    permission_classes = [IsSuperAdmin] # Only Super Admins can create entities
-
-class BusinessEntityDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = BusinessEntity.objects.all()
-    serializer_class = BusinessEntitySerializer
-    permission_classes = [IsSuperAdmin] # Only Super Admins can edit/delete

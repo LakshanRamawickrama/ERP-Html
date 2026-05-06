@@ -13,6 +13,7 @@ import {
   CircleDollarSign,
   Info
 } from 'lucide-react';
+import { API_ENDPOINTS } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
@@ -22,55 +23,40 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const [creds, setCreds] = useState<any>(null);
-
-  useEffect(() => {
-    fetch('/api/auth/credentials').then(res => res.json()).then(setCreds);
-  }, []);
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    if (!creds) {
-      setError('System initializing. Please try again.');
-      setIsLoading(false);
-      return;
-    }
+    try {
+      const response = await fetch(API_ENDPOINTS.LOGIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: email, password: password }),
+      });
 
-    // Mock authentication delay
-    setTimeout(() => {
-      // Handle both legacy and current credential formats
-      const isSuperAdmin = (email === creds.superAdmin.email && password === creds.superAdmin.password) || 
-                          (email === creds.superAdmin.username && password === creds.superAdmin.altPassword);
-      
-      const isCompanyAdmin = (email === creds.companyAdmin.email && password === creds.companyAdmin.password) || 
-                            (email === creds.companyAdmin.username && password === creds.companyAdmin.password);
+      const data = await response.json();
 
-      if (isSuperAdmin) {
+      if (response.ok && data.status === 'success') {
+        localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify({
-          email: email.includes('@') ? email : creds.superAdmin.email,
-          role: 'Super Admin',
-          name: 'Super Administrator',
-          businesses: creds.superAdmin.businesses
+          id: data.user_id,
+          name: data.username,
+          role: data.role,
+          business: data.business
         }));
         router.push('/dashboard');
-      } 
-      else if (isCompanyAdmin) {
-        localStorage.setItem('user', JSON.stringify({
-          email: email.includes('@') ? email : creds.companyAdmin.email,
-          role: 'Company Admin',
-          name: 'Company Administrator',
-          businesses: creds.companyAdmin.businesses
-        }));
-        router.push('/dashboard');
-      } 
-      else {
-        setError('Invalid identity or secret key. Access denied.');
+      } else {
+        setError(data.message || 'Invalid identity or secret key. Access denied.');
         setIsLoading(false);
       }
-    }, 800);
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Connection failed. Please ensure backend is running.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -215,7 +201,7 @@ export default function LoginPage() {
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-6">Master Access Keys</p>
                 <div className="grid grid-cols-2 gap-4">
                   <button 
-                    onClick={() => { setEmail('superadmin@central.com'); setPassword('superadmin123'); }}
+                    onClick={() => { setEmail('superadmin'); setPassword('superpassword123'); }}
                     className="group flex flex-col items-start p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-emerald-500/50 hover:bg-white transition-all text-left shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-center gap-2 mb-1">
@@ -225,12 +211,12 @@ export default function LoginPage() {
                     <span className="text-[10px] text-slate-500 font-mono">Fill Keys</span>
                   </button>
                   <button 
-                    onClick={() => { setEmail('admin@central.com'); setPassword('admin123'); }}
+                    onClick={() => { setEmail('admin'); setPassword('adminpassword123'); }}
                     className="group flex flex-col items-start p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-cyan-500/50 hover:bg-white transition-all text-left shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <ShieldCheck size={12} className="text-cyan-600" />
-                      <span className="text-[11px] font-black text-cyan-600 uppercase">Company Admin</span>
+                      <span className="text-[11px] font-black text-cyan-600 uppercase">Administrator</span>
                     </div>
                     <span className="text-[10px] text-slate-500 font-mono">Fill Keys</span>
                   </button>

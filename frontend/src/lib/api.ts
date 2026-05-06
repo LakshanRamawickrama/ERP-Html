@@ -12,6 +12,8 @@ export const API_ENDPOINTS = {
   USERS: `${API_BASE_URL}/users/`,
   SYSTEM: `${API_BASE_URL}/system/`,
   REPORTS: `${API_BASE_URL}/reports/`,
+  LOGIN: `${API_BASE_URL}/users/login/`,
+  DASHBOARD: `${API_BASE_URL}/reports/dashboard/`,
 };
 
 export default API_BASE_URL;

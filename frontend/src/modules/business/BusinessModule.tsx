@@ -57,11 +57,12 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const endpoint = activeTab === 'entities' ? 'entities/' : 'structures/';
     const url = editingId 
-      ? `${API_ENDPOINTS.BUSINESS}entities/${editingId}/` 
-      : `${API_ENDPOINTS.BUSINESS}entities/`;
+      ? `${API_ENDPOINTS.BUSINESS}${endpoint}${editingId}/` 
+      : `${API_ENDPOINTS.BUSINESS}${endpoint}`;
     
-    const method = editingId ? 'PATCH' : 'POST';
+    const method = editingId ? 'PUT' : 'POST';
 
     try {
       const response = await fetch(url, {
@@ -77,6 +78,8 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
         setData(newData);
         setLoading(false);
         handleCancelEdit();
+      } else {
+        console.error('Save failed:', await response.text());
       }
     } catch (err) {
       console.error('Failed to save business data:', err);
@@ -137,10 +140,30 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
               {activeTab === 'entities' ? (
                 <Card title={editingId ? "Edit Business Entity" : "Register New Entity"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
                   <form className="space-y-4" onSubmit={handleSubmit}>
-                    <Field label="Business Name" placeholder="e.g. Acme Corp" value={formData.name} />
-                    <Field label="Company Number" placeholder="CH-12345678" value={formData.num} />
-                    <Field label="Business Category" isSelect options={data.options?.categories || []} value={formData.cat} />
-                    <Field label="Tax ID / VAT Number" value={formData.taxId} />
+                    <Field 
+                      label="Business Name" 
+                      placeholder="e.g. Acme Corp" 
+                      value={formData.name || ''} 
+                      onChange={(v: string) => setFormData({...formData, name: v})}
+                    />
+                    <Field 
+                      label="Company Number" 
+                      placeholder="CH-12345678" 
+                      value={formData.company_number || ''} 
+                      onChange={(v: string) => setFormData({...formData, company_number: v})}
+                    />
+                    <Field 
+                      label="Business Category" 
+                      isSelect 
+                      options={data.options?.categories || []} 
+                      value={formData.category || ''} 
+                      onChange={(v: string) => setFormData({...formData, category: v})}
+                    />
+                    <Field 
+                      label="Tax ID / VAT Number" 
+                      value={formData.tax_id || ''} 
+                      onChange={(v: string) => setFormData({...formData, tax_id: v})}
+                    />
                     <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
                       {editingId ? "Update Business" : "Register Business"}
                     </button>
@@ -157,16 +180,45 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
                 </Card>
               ) : (
                 <Card title={editingId ? "Edit Company Registry" : "Companies House Registration"} icon={editingId ? Edit : Landmark} iconColor="bg-[#2c3e50]">
-                  <form className="space-y-4">
-                    <Field label="Full Company Name" placeholder="e.g. Whiterock Retail Ltd" value={formData.name} />
-                    <Field label="Registration Number (CRN)" placeholder="8-digit number" value={formData.crn} />
-                    <Field label="Who Manages It (Directors)" placeholder="Name of Directors / Managers" value={formData.manager} />
+                  <form className="space-y-4" onSubmit={handleSubmit}>
+                    <Field 
+                      label="Full Company Name" 
+                      placeholder="e.g. Whiterock Retail Ltd" 
+                      value={formData.name || ''} 
+                      onChange={(v: string) => setFormData({...formData, name: v})}
+                    />
+                    <Field 
+                      label="Registration Number (CRN)" 
+                      placeholder="8-digit number" 
+                      value={formData.crn || ''} 
+                      onChange={(v: string) => setFormData({...formData, crn: v})}
+                    />
+                    <Field 
+                      label="Who Manages It (Directors)" 
+                      placeholder="Name of Directors / Managers" 
+                      value={formData.manager || ''} 
+                      onChange={(v: string) => setFormData({...formData, manager: v})}
+                    />
                     <div className="grid grid-cols-2 gap-4">
-                      <Field label="Incorporation Date" type="date" value={formData.incDate} />
-                      <Field label="SIC Code" placeholder="Nature of Business" value={formData.sic} />
+                      <Field 
+                        label="SIC Code" 
+                        placeholder="Nature of Business" 
+                        value={formData.sic_code || ''} 
+                        onChange={(v: string) => setFormData({...formData, sic_code: v})}
+                      />
                     </div>
-                    <Field label="Registered Office Address" isTextArea value={formData.addr} />
-                    <Field label="Confirmation Statement Due" type="date" value={formData.due} />
+                    <Field 
+                      label="Registered Office Address" 
+                      isTextArea 
+                      value={formData.address || ''} 
+                      onChange={(v: string) => setFormData({...formData, address: v})}
+                    />
+                    <Field 
+                      label="Confirmation Statement Due" 
+                      type="date" 
+                      value={formData.filing_due || ''} 
+                      onChange={(v: string) => setFormData({...formData, filing_due: v})}
+                    />
                     <div className="grid grid-cols-2 gap-4">
                       <Field label="Balance Sheet (PDF)" type="file" />
                       <Field label="P&L Statement (PDF)" type="file" />
@@ -236,13 +288,34 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
                     ) : activeTab === 'entities' ? (
                       <>
                         {entities.map((e: any, idx: number) => (
-                          <EntityRow key={idx} isWide={isWide} name={e.name} num={e.num} cat={e.cat} hq={e.hq} onEdit={() => handleEdit(`entity-${idx}`, e, 'entities')} onDelete={() => handleDeleteClick(`entity-${idx}`)} />
+                          <EntityRow 
+                            key={idx} 
+                            isWide={isWide} 
+                            name={e.name} 
+                            num={e.company_number} 
+                            cat={e.category} 
+                            hq={e.hq_location} 
+                            status={e.status}
+                            onEdit={() => handleEdit(`entity-${e.id}`, e, 'entities')} 
+                            onDelete={() => handleDeleteClick(e.id)} 
+                          />
                         ))}
                       </>
                     ) : (
                       <>
                         {structures.map((s: any, idx: number) => (
-                          <StructureRow key={idx} isWide={isWide} name={s.name} crn={s.crn} manager={s.manager} sic={s.sic} due={s.due} onEdit={() => handleEdit(`structure-${idx}`, s, 'structure')} onDelete={() => handleDeleteClick(`structure-${idx}`)} onView={handleViewDoc} />
+                          <StructureRow 
+                            key={idx} 
+                            isWide={isWide} 
+                            name={s.name} 
+                            crn={s.crn} 
+                            manager={s.manager} 
+                            sic={s.sic_code} 
+                            due={s.filing_due} 
+                            onEdit={() => handleEdit(`structure-${s.id}`, s, 'structure')} 
+                            onDelete={() => handleDeleteClick(s.id)} 
+                            onView={handleViewDoc} 
+                          />
                         ))}
                       </>
                     )}
@@ -339,28 +412,32 @@ function StructureRow({ name, crn, manager, sic, due, isWide, onEdit, onDelete, 
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, value }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, value, onChange }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
         <select 
-          defaultValue={value}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
         >
+          <option value="">Select {label}</option>
           {options.map((opt: string) => <option key={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
         <textarea 
           rows={2} 
-          defaultValue={value}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" 
           placeholder={placeholder} 
         />
       ) : (
         <input 
           type={type} 
-          defaultValue={value}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           className={`w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 ${type === 'file' ? 'file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200' : ''}`} 
           placeholder={placeholder} 
         />

@@ -18,3 +18,19 @@ class MaintenanceRequest(models.Model):
     priority = models.CharField(max_length=50)
     technician = models.CharField(max_length=255)
     status = models.CharField(max_length=50, default='Pending')
+
+class WasteCollection(models.Model):
+    date = models.DateField()
+    contact_person = models.CharField(max_length=255)
+    phone = models.CharField(max_length=50)
+    address = models.TextField()
+    status = models.CharField(max_length=50)
+    notes = models.TextField(blank=True, null=True)
+
+class PropertyLicence(models.Model):
+    type = models.CharField(max_length=255)
+    business = models.CharField(max_length=255)
+    authority = models.CharField(max_length=255)
+    issue_date = models.DateField()
+    expiry_date = models.DateField()
+    status = models.CharField(max_length=50)

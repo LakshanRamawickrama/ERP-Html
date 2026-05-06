@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layouts/Sidebar';
 import ProfileDrawer from '@/components/layouts/ProfileDrawer';
 import TopBar from '@/components/layouts/TopBar';
+import { API_ENDPOINTS } from '@/lib/api';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/constants/roles';
@@ -59,7 +60,26 @@ export default function Dashboard() {
     const userData = JSON.parse(savedUser);
     setUser(userData);
     setUserRole(userData.role as UserRole);
-    fetch('/api/dashboard').then(res => res.json()).then(setDash);
+    
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.DASHBOARD, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        router.push('/login');
+        return;
+      }
+      return res.json();
+    })
+    .then(data => {
+      if (data) setDash(data);
+    })
+    .catch(err => console.error('Dashboard fetch error:', err));
   }, [router]);
 
   const handleAddEmail = (e: React.FormEvent) => {

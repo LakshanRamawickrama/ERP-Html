@@ -10,3 +10,10 @@ class Supplier(models.Model):
 
     def __str__(self):
         return self.name
+
+class PurchaseOrder(models.Model):
+    number = models.CharField(max_length=100, unique=True)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    date = models.DateField()
+    status = models.CharField(max_length=50)

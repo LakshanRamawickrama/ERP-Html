@@ -8,3 +8,15 @@ class SystemLog(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.action}"
+
+class SystemCredential(models.Model):
+    service = models.CharField(max_length=255)
+    account = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    support = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=50, default='Active')
+
+class SystemAlert(models.Model):
+    label = models.CharField(max_length=255)
+    message = models.TextField()
+    type = models.CharField(max_length=50) # soon, info, warning

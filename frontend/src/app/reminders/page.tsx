@@ -6,6 +6,7 @@ import Sidebar from '@/components/layouts/Sidebar';
 import TopBar from '@/components/layouts/TopBar';
 import ProfileDrawer from '@/components/layouts/ProfileDrawer';
 import { UserRole } from '@/constants/roles';
+import { API_ENDPOINTS } from '@/lib/api';
 
 export default function RemindersPage() {
   const [user, setUser] = React.useState<any>(null);
@@ -21,7 +22,7 @@ export default function RemindersPage() {
       setUser(userData);
       setUserRole(userData.role as UserRole);
     }
-    fetch('/api/business')
+    fetch(API_ENDPOINTS.BUSINESS)
       .then(res => res.json())
       .then(data => setBusinesses(data.entities || []))
       .catch(err => console.error('Error fetching businesses:', err));
