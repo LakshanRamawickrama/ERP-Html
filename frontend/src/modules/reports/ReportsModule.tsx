@@ -4,7 +4,6 @@ import React from 'react';
 import { Card } from '@/components/ui/Card';
 import { 
   Download, 
-  Filter, 
   Calendar, 
   TrendingUp, 
   TrendingDown,
@@ -82,10 +81,7 @@ export default function ReportsModule() {
             <Calendar className="w-3 h-3" />
             Last 30 Days
           </button>
-          <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all">
-            <Filter className="w-3 h-3" />
-            Filters
-          </button>
+
           <select 
             value={selectedBiz}
             onChange={(e) => setSelectedBiz(e.target.value)}
@@ -215,16 +211,17 @@ export default function ReportsModule() {
           
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse table-fixed min-w-[900px]">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business Entity</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Revenue</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Expenses</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Net Result</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assets</th>
-                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[22%]">Business Entity</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[15%]">Admin Name</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Category</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Revenue</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Expenses</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[15%]">Net Result</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[9%]">Assets</th>
+                    <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-right w-[9%]">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -236,28 +233,36 @@ export default function ReportsModule() {
                     
                     return (
                       <tr key={biz.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-colors group">
-                        <td className="p-4">
+                        <td className="px-5 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-[#2c3e50] group-hover:text-white transition-colors">
                               <Building2 className="w-4 h-4" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs font-bold text-slate-700">{biz.name}</span>
+                              <span className="text-xs font-bold text-slate-700 truncate block">{biz.name}</span>
                               <span className="text-[10px] text-slate-400 font-medium">ID: {biz.slug}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td className="px-5 py-3">
                           <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 border border-slate-200">
+                              {biz.admin?.split(' ').map((n: string) => n[0]).join('')}
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-600 truncate">{biz.admin}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center justify-center gap-2">
                             <Briefcase className="w-3 h-3 text-slate-300" />
                             <span className="text-[11px] font-bold text-slate-600">
                               {biz.id % 2 === 0 ? 'Logistics' : 'Retail'}
                             </span>
                           </div>
                         </td>
-                        <td className="p-4 text-xs font-black text-emerald-600">{biz.inc}</td>
-                        <td className="p-4 text-xs font-black text-red-500">{biz.exp}</td>
-                        <td className="p-4">
+                        <td className="px-5 py-3 text-xs font-black text-emerald-600 uppercase tracking-tighter text-center">{biz.inc}</td>
+                        <td className="px-5 py-3 text-xs font-black text-red-500 uppercase tracking-tighter text-center">{biz.exp}</td>
+                        <td className="px-5 py-3">
                           <div className="flex flex-col gap-1">
                             <span className={`text-xs font-black ${netVal >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                               {netVal >= 0 ? '+' : ''}${netVal.toLocaleString()}
@@ -273,13 +278,13 @@ export default function ReportsModule() {
                             </div>
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td className="px-5 py-3">
                           <div className="flex flex-col text-[10px] font-bold text-slate-500">
                             <span>{biz.skus} SKUs</span>
                             <span>{biz.flt} Vehicles</span>
                           </div>
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="px-5 py-3 text-right">
                           <span className={`text-[9px] font-black px-2.5 py-1 rounded-md ${
                             biz.st === 'Active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
                             biz.st === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 
