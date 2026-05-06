@@ -16,11 +16,14 @@ import {
 } from 'lucide-react';
 
 export default function ReportsModule() {
-  const [stats, setStats] = React.useState<any[]>([]);
+  const [data, setData] = React.useState<any>({ stats: [], templates: [] });
 
   React.useEffect(() => {
-    fetch('/api/reports').then(res => res.json()).then(data => setStats(data.stats || []));
+    fetch('/api/reports').then(res => res.json()).then(setData);
   }, []);
+
+  const stats = data.stats || [];
+  const templates = data.templates || [];
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -54,7 +57,7 @@ export default function ReportsModule() {
         
         {/* Analytics Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {stats.map((stat, i) => (
+          {stats.map((stat: any, i: number) => (
             <StatCard key={i} {...stat} />
           ))}
         </div>
@@ -74,10 +77,9 @@ export default function ReportsModule() {
           <div className="lg:col-span-4 space-y-6">
             <Card title="Available Templates" icon={FileSpreadsheet}>
               <div className="space-y-2">
-                <ExportItem label="Monthly Financial Audit" format="PDF" />
-                <ExportItem label="Inventory Stock Level" format="XLSX" />
-                <ExportItem label="Fleet Maintenance Log" format="CSV" />
-                <ExportItem label="User Access Report" format="JSON" />
+                {templates.map((t: any, i: number) => (
+                  <ExportItem key={i} {...t} />
+                ))}
               </div>
             </Card>
             

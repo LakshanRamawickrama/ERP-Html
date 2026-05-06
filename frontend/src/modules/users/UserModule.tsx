@@ -20,13 +20,13 @@ export default function UserModule() {
   const [isWide, setIsWide] = useState(false);
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
 
-  const [data, setData] = useState<any>({ systemMap: [], registry: [] });
+  const [data, setData] = useState<any>({ systemMap: [], registry: [], roles: [], businesses: [] });
 
   React.useEffect(() => {
     fetch('/api/users').then(res => res.json()).then(setData);
   }, []);
 
-  const systemMap = data.map || [];
+  const systemMap = data.systemMap || [];
 
   const toggleCat = (name: string) => {
     setExpandedCats(prev => prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]);

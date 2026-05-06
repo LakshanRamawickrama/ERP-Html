@@ -539,6 +539,13 @@ export const LOGIN_CREDENTIALS = {
   },
 };
 
+export const REPORT_TEMPLATES = [
+  { label: 'Monthly Financial Audit', format: 'PDF' },
+  { label: 'Inventory Stock Level', format: 'XLSX' },
+  { label: 'Fleet Maintenance Log', format: 'CSV' },
+  { label: 'User Access Report', format: 'JSON' },
+];
+
 export const FORM_OPTIONS = {
   accountingCategories: ['Supplier Payments', 'Rent', 'Mortgage', 'Accountant Fees', 'Bank Charges', 'Insurance', 'VAT / Tax'],
   accountingSuppliers: ['Global Supplies Ltd', 'Tech Connect Inc', 'Office Depot'],
