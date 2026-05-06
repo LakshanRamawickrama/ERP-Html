@@ -67,6 +67,16 @@ export default function PropertyModule() {
     setShowDeleteModal(true);
   };
 
+  const confirmDelete = () => {
+    if (deleteId) {
+      console.log('Deleting item with ID:', deleteId);
+      // In a real app, you would call an API here
+      // For now, we'll just close the modal
+      setShowDeleteModal(false);
+      setDeleteId(null);
+    }
+  };
+
   const handleViewDoc = (docTitle: string) => {
     setSelectedDoc({ title: docTitle });
     setIsDrawerOpen(true);
