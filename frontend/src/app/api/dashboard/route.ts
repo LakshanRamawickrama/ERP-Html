@@ -13,6 +13,8 @@ import {
   DASHBOARD_LOW_STOCK,
   DASHBOARD_ACTIVITY,
   DASHBOARD_RENEWALS,
+  DASHBOARD_PL,
+  DASHBOARD_EMAILS,
 } from '@/lib/db';
 
 export async function GET() {
@@ -30,5 +32,7 @@ export async function GET() {
     lowStock: DASHBOARD_LOW_STOCK,
     activity: DASHBOARD_ACTIVITY,
     renewals: DASHBOARD_RENEWALS,
+    pl: DASHBOARD_PL,
+    emails: DASHBOARD_EMAILS,
   });
 }

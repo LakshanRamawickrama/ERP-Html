@@ -38,7 +38,9 @@ export default function Dashboard() {
   const [dash, setDash] = useState<any>({
     businesses: [], fleet: [], notes: [], vat: [], todos: [],
     passwords: [], supplierPayments: [], sales: [], banks: [],
-    maintenance: [], lowStock: [], activity: [], renewals: []
+    maintenance: [], lowStock: [], activity: [], renewals: [],
+    pl: { income: '$0', expenses: '$0', grossProfit: '$0', tax: '$0', netProfit: '$0' },
+    emails: []
   });
   const router = useRouter();
 
@@ -86,8 +88,9 @@ export default function Dashboard() {
               <label className="text-[12px] font-medium text-[#64748b] m-0">Organization</label>
               <select className="bg-transparent text-[13px] font-bold text-[#1e293b] outline-none border-none cursor-pointer pr-1">
                 <option>All Entities</option>
-                <option>Alpha Trading Co.</option>
-                <option>Beta Logistics Ltd.</option>
+                {dash.businesses.map((b: any) => (
+                  <option key={b.id}>{b.name}</option>
+                ))}
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-[#94a3b8]" />
             </div>
@@ -207,22 +210,16 @@ export default function Dashboard() {
             {userRole === UserRole.SUPER_ADMIN && (
               <Widget title="Gmails / Emails" icon={Mail} color="bg-[#ef4444]" headerAction={<button className="text-[10px] bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] px-2 py-0.5 rounded font-bold hover:bg-[#bfdbfe]">Add Email</button>}>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-                    <div className="w-8 h-8 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[12px] font-bold"><Mail size={14} /></div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[11px] font-bold text-[#1e293b] truncate">admin@company.com</div>
-                      <div className="text-[9px] text-[#64748b]">Primary Account</div>
+                  {dash.emails.map((email: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                      <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold`}><Mail size={14} /></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[11px] font-bold text-[#1e293b] truncate">{email.email}</div>
+                        <div className="text-[9px] text-[#64748b]">{email.label}</div>
+                      </div>
+                      <span className="px-2 py-0.5 bg-[#198754] text-white text-[9px] font-bold rounded">{email.status}</span>
                     </div>
-                    <span className="px-2 py-0.5 bg-[#198754] text-white text-[9px] font-bold rounded">Connected</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-                    <div className="w-8 h-8 rounded-full bg-[#ea4335] text-white flex items-center justify-center text-[12px] font-bold"><Mail size={14} /></div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[11px] font-bold text-[#1e293b] truncate">support@company.com</div>
-                      <div className="text-[9px] text-[#64748b]">Support Inbox</div>
-                    </div>
-                    <span className="px-2 py-0.5 bg-[#198754] text-white text-[9px] font-bold rounded">Connected</span>
-                  </div>
+                  ))}
                 </div>
               </Widget>
             )}
@@ -295,11 +292,11 @@ export default function Dashboard() {
             {/* 8. PROFIT & LOSS */}
             <Widget title="Profit & Loss Statement" icon={PieChart} color="bg-[#10b981]">
               <div className="space-y-1">
-                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">$482,800</strong></div>
-                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">$237,585</strong></div>
-                <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>$245,215</strong></div>
-                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">$49,043</strong></div>
-                <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>$196,172</strong></div>
+                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{dash.pl.income}</strong></div>
+                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">{dash.pl.expenses}</strong></div>
+                <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>{dash.pl.grossProfit}</strong></div>
+                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">{dash.pl.tax}</strong></div>
+                <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{dash.pl.netProfit}</strong></div>
               </div>
             </Widget>
 
@@ -315,11 +312,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { p: 'PO-2026-501', s: 'Prime Office', a: '$450', st: 'Pending' },
-                    { p: 'PO-2026-502', s: 'Global Logistics', a: '$1,800', st: 'Paid' },
-                    { p: 'PO-2026-503', s: 'TechConnect', a: '$2,750', st: 'Overdue' },
-                  ].map((row, i) => (
+                  {dash.supplierPayments.map((row: any, i: number) => (
                     <tr key={i}>
                       <td><strong>{row.p}</strong></td>
                       <td className="truncate">{row.s}</td>
@@ -347,11 +340,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { i: 'INV-2026-001', c: 'Alpha Trading', a: '$5,000', s: 'Paid' },
-                    { i: 'INV-2026-002', c: 'Consulting Ltd', a: '$1,200', s: 'Sent' },
-                    { i: 'INV-2026-003', c: 'Beta Logistics', a: '$3,800', s: 'Overdue' },
-                  ].map((row, i) => (
+                  {dash.sales.map((row: any, i: number) => (
                     <tr key={i}>
                       <td><strong>{row.i}</strong></td>
                       <td className="truncate">{row.c}</td>
@@ -378,11 +367,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { b: 'BC Bank', n: 'LAKSHAN RAMAWICKRAMA', bl: '$142,350' },
-                    { b: 'Barclays', n: 'Alpha Trading Co.', bl: '$58,200' },
-                    { b: 'HSBC', n: 'Beta Logistics Ltd.', bl: '$23,750' },
-                  ].map((row, i) => (
+                  {dash.banks.map((row: any, i: number) => (
                     <tr key={i}>
                       <td><strong>{row.b}</strong></td>
                       <td className="truncate">{row.n}</td>
@@ -404,11 +389,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { a: 'Office HVAC', p: 'Urgent', s: 'Pending' },
-                    { a: 'Elevator A', p: 'Medium', s: 'Scheduled' },
-                    { a: 'Van 2', p: 'Urgent', s: 'In Progress' },
-                  ].map((row, i) => (
+                  {dash.maintenance.map((row: any, i: number) => (
                     <tr key={i}>
                       <td className="truncate">{row.a}</td>
                       <td><span className={`status-pill ${row.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>{row.p}</span></td>
@@ -430,11 +411,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { i: 'Sugar 1kg', c: 5, s: 'Reorder' },
-                    { i: 'Notebook A4', c: 0, s: 'Out of Stock' },
-                    { i: 'Milk 1L', c: 150, s: 'Good' },
-                  ].map((row, i) => (
+                  {dash.lowStock.map((row: any, i: number) => (
                     <tr key={i}>
                       <td className="truncate">{row.i}</td>
                       <td>{row.c}</td>
@@ -473,11 +450,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { e: 'Alpha Trading', d: '3 Days', u: true },
-                    { e: 'TRK-007 (Fleet)', d: '12 Days' },
-                    { e: 'Main Hub Retail', d: '28 Days' },
-                  ].map((row, i) => (
+                  {dash.renewals.map((row: any, i: number) => (
                     <tr key={i}>
                       <td className="truncate font-medium text-[#1e293b]">{row.e}</td>
                       <td className={`text-right font-bold ${row.u ? 'text-[#dc3545]' : 'text-slate-700'}`}>{row.d}</td>

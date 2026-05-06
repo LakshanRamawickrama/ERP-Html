@@ -465,3 +465,16 @@ export const DASHBOARD_RENEWALS = [
   { e: 'TRK-007 (Fleet)', d: '12 Days', u: false },
   { e: 'Main Hub Retail', d: '28 Days', u: false },
 ];
+
+export const DASHBOARD_PL = {
+  income: '$482,800',
+  expenses: '$237,585',
+  grossProfit: '$245,215',
+  tax: '$49,043',
+  netProfit: '$196,172',
+};
+
+export const DASHBOARD_EMAILS = [
+  { email: 'admin@company.com', label: 'Primary Account', status: 'Connected', type: 'primary' },
+  { email: 'support@company.com', label: 'Support Inbox', status: 'Connected', type: 'support' },
+];
