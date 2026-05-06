@@ -116,10 +116,10 @@ export default function ReportsModule() {
         
         {/* Pill-Style KPI Badges */}
         <div className="flex flex-wrap gap-3">
-          <StatItem title="Total Revenue" value="$793,300" icon={DollarSign} color="text-emerald-700" borderColor="border-emerald-200" bgColor="bg-emerald-50" />
-          <StatItem title="Op. Costs" value="$292,200" icon={TrendingDown} color="text-red-700" borderColor="border-red-200" bgColor="bg-red-50" />
-          <StatItem title="Net Profit" value="$501,100" icon={TrendingUp} color="text-blue-700" borderColor="border-blue-200" bgColor="bg-blue-50" />
-          <StatItem title="Inventory" value="16,495 Items" icon={Truck} color="text-amber-700" borderColor="border-amber-200" bgColor="bg-amber-50" />
+          <StatItem title="Total Revenue" value={stats[0]?.value || '$0'} icon={DollarSign} color="text-emerald-700" borderColor="border-emerald-200" bgColor="bg-emerald-50" />
+          <StatItem title="Op. Costs" value={stats[1]?.value || '$0'} icon={TrendingDown} color="text-red-700" borderColor="border-red-200" bgColor="bg-red-50" />
+          <StatItem title="Net Profit" value={stats[2]?.value || '$0'} icon={TrendingUp} color="text-blue-700" borderColor="border-blue-200" bgColor="bg-blue-50" />
+          <StatItem title="Inventory" value={`${stats[3]?.value || '0'} Items`} icon={Truck} color="text-amber-700" borderColor="border-amber-200" bgColor="bg-amber-50" />
         </div>
 
         {/* Top Feature Row */}
