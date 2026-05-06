@@ -26,11 +26,34 @@ type TabType = 'suppliers' | 'orders';
 export default function SupplierModule() {
   const [activeTab, setActiveTab] = useState<TabType>('suppliers');
   const [isWide, setIsWide] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
   const [data, setData] = useState<any>({ suppliers: [], orders: [] });
 
   useEffect(() => {
     fetch('/api/suppliers').then(res => res.json()).then(setData);
   }, []);
+
+  const handleEdit = (id: string, rowData: any, tab: TabType) => {
+    setEditingId(id);
+    setFormData(rowData);
+    setActiveTab(tab);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId) {
+      console.log('Updating:', editingId, formData);
+    } else {
+      console.log('Creating:', formData);
+    }
+    handleCancelEdit();
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -68,11 +91,11 @@ export default function SupplierModule() {
           {!isWide && (
             <div className="lg:col-span-4">
               <Card 
-                title={activeTab === 'suppliers' ? 'Register New Supplier' : 'Create Purchase Order'} 
-                icon={Plus} 
+                title={editingId ? (activeTab === 'suppliers' ? 'Edit Supplier' : 'Edit Purchase Order') : (activeTab === 'suppliers' ? 'Register New Supplier' : 'Create Purchase Order')} 
+                icon={editingId ? Edit : Plus} 
                 iconColor="bg-slate-800"
               >
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'suppliers' && (
                     <>
                       <Field label="Supplier ID" placeholder="AUTO-GENERATED" disabled value={data.metadata?.nextId || "SUP-..."} />
@@ -107,8 +130,17 @@ export default function SupplierModule() {
                   )}
 
                   <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all transform active:scale-[0.98]">
-                    {activeTab === 'suppliers' ? 'Register Supplier' : 'Generate PO'}
+                    {editingId ? 'Update Record' : (activeTab === 'suppliers' ? 'Register Supplier' : 'Generate PO')}
                   </button>
+                  {editingId && (
+                    <button 
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </form>
               </Card>
             </div>
@@ -145,10 +177,10 @@ export default function SupplierModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'suppliers' && (
-                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} />) || null
+                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} onEdit={() => handleEdit(`supplier-${i}`, s, 'suppliers')} />) || null
                     )}
                     {activeTab === 'orders' && (
-                      data.orders?.map((o: any, i: number) => <OrderRow key={i} {...o} />) || null
+                      data.orders?.map((o: any, i: number) => <OrderRow key={i} {...o} onEdit={() => handleEdit(`order-${i}`, o, 'orders')} />) || null
                     )}
                   </tbody>
                 </table>
@@ -201,7 +233,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function SupplierRow({ id, name, category, email, phone, status }: any) {
+function SupplierRow({ id, name, category, email, phone, status, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -230,7 +262,7 @@ function SupplierRow({ id, name, category, email, phone, status }: any) {
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
@@ -242,7 +274,7 @@ function SupplierRow({ id, name, category, email, phone, status }: any) {
   );
 }
 
-function OrderRow({ num, supplier, product, qty, amount, due, status }: any) {
+function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -271,7 +303,7 @@ function OrderRow({ num, supplier, product, qty, amount, due, status }: any) {
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">

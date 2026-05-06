@@ -19,12 +19,35 @@ type TabType = 'stock' | 'move';
 export default function InventoryModule() {
   const [activeTab, setActiveTab] = useState<TabType>('stock');
   const [isWide, setIsWide] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
 
   const [data, setData] = useState<any>({ alerts: [], stock: [], moves: [] });
 
   React.useEffect(() => {
     fetch('/api/inventory').then(res => res.json()).then(setData);
   }, []);
+
+  const handleEdit = (id: string, rowData: any, tab: TabType) => {
+    setEditingId(id);
+    setFormData(rowData);
+    setActiveTab(tab);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId) {
+      console.log('Updating:', editingId, formData);
+    } else {
+      console.log('Creating:', formData);
+    }
+    handleCancelEdit();
+  };
 
   const alerts = data.alerts || [];
 
@@ -58,11 +81,11 @@ export default function InventoryModule() {
           {!isWide && (
             <div className="lg:col-span-4">
               <Card 
-                title={activeTab === 'stock' ? "Add New Item" : "Log Movement"} 
-                icon={PlusCircle} 
+                title={editingId ? (activeTab === 'stock' ? "Edit Item" : "Edit Movement") : (activeTab === 'stock' ? "Add New Item" : "Log Movement")} 
+                icon={editingId ? Edit : PlusCircle} 
                 iconColor="bg-[#2c3e50]"
               >
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'stock' && (
                     <>
                       <Field label="Item Name *" placeholder="e.g. Milk Packet 1L" />
@@ -93,8 +116,17 @@ export default function InventoryModule() {
                     </>
                   )}
                   <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
-                    Register Record
+                    {editingId ? 'Update Record' : 'Register Record'}
                   </button>
+                  {editingId && (
+                    <button 
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-all"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </form>
               </Card>
             </div>
@@ -137,7 +169,7 @@ export default function InventoryModule() {
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'stock' ? (
                       data.stock?.map((item: any, i: number) => (
-                        <StockRow key={i} {...item} isWide={isWide} />
+                        <StockRow key={i} {...item} isWide={isWide} onEdit={() => handleEdit(`stock-${i}`, item, 'stock')} />
                       )) || null
                     ) : (
                       data.moves?.map((move: any, i: number) => (
@@ -170,7 +202,7 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function StockRow({ name, cat, stock, status, isWide }: any) {
+function StockRow({ name, cat, stock, status, isWide, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
@@ -181,7 +213,7 @@ function StockRow({ name, cat, stock, status, isWide }: any) {
         <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">{status}</span>
       </td>
       <td className="px-4 py-3 text-slate-500">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all">
+        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all">
           <Edit className="w-3.5 h-3.5" />
         </button>
       </td>

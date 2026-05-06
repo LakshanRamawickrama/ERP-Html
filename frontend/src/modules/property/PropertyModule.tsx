@@ -25,11 +25,34 @@ type TabType = 'inventory' | 'requests' | 'waste' | 'licence';
 export default function PropertyModule() {
   const [activeTab, setActiveTab] = useState<TabType>('inventory');
   const [isWide, setIsWide] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({});
   const [data, setData] = useState<any>({ assets: [], requests: [], waste: [], licences: [] });
 
   useEffect(() => {
     fetch('/api/property').then(res => res.json()).then(setData);
   }, []);
+
+  const handleEdit = (id: string, rowData: any, tab: TabType) => {
+    setEditingId(id);
+    setFormData(rowData);
+    setActiveTab(tab);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({});
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId) {
+      console.log('Updating:', editingId, formData);
+    } else {
+      console.log('Creating:', formData);
+    }
+    handleCancelEdit();
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -50,15 +73,22 @@ export default function PropertyModule() {
             <div className="lg:col-span-4">
               <Card 
                 title={
-                  activeTab === 'inventory' ? 'Add Property Asset' : 
-                  activeTab === 'requests' ? 'New Maintenance Request' : 
-                  activeTab === 'waste' ? 'Schedule Waste Collection' : 
-                  'New Licence Registry'
+                  editingId ? (
+                    activeTab === 'inventory' ? 'Edit Property Asset' : 
+                    activeTab === 'requests' ? 'Edit Maintenance Request' : 
+                    activeTab === 'waste' ? 'Edit Waste Collection' : 
+                    'Edit Licence'
+                  ) : (
+                    activeTab === 'inventory' ? 'Add Property Asset' : 
+                    activeTab === 'requests' ? 'New Maintenance Request' : 
+                    activeTab === 'waste' ? 'Schedule Waste Collection' : 
+                    'New Licence Registry'
+                  )
                 } 
-                icon={activeTab === 'requests' ? Wrench : activeTab === 'waste' ? Trash2 : activeTab === 'licence' ? IdCard : PlusCircle} 
+                icon={editingId ? Edit : (activeTab === 'requests' ? Wrench : activeTab === 'waste' ? Trash2 : activeTab === 'licence' ? IdCard : PlusCircle)} 
                 iconColor="bg-[#2c3e50]"
               >
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'inventory' && (
                     <>
                       <Field label="Asset Name" placeholder="e.g. Unit 5 Air Con" />
@@ -109,11 +139,22 @@ export default function PropertyModule() {
                     </>
                   )}
                   <button className="w-full py-3 bg-[#2c3e50] text-white rounded-xl text-sm font-bold shadow-lg hover:bg-[#34495e] transition-all transform active:scale-[0.98]">
-                    {activeTab === 'inventory' ? 'Register Asset' : 
-                     activeTab === 'requests' ? 'Log Request' : 
-                     activeTab === 'waste' ? 'Schedule Collection' : 
-                     'Register Licence'}
+                    {editingId ? 'Update Record' : (
+                      activeTab === 'inventory' ? 'Register Asset' : 
+                      activeTab === 'requests' ? 'Log Request' : 
+                      activeTab === 'waste' ? 'Schedule Collection' : 
+                      'Register Licence'
+                    )}
                   </button>
+                  {editingId && (
+                    <button 
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </form>
               </Card>
             </div>
@@ -182,16 +223,16 @@ export default function PropertyModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'inventory' && (
-                      data.assets?.map((r: any, i: number) => <PropertyRow key={i} {...r} />) || null
+                      data.assets?.map((r: any, i: number) => <PropertyRow key={i} {...r} onEdit={() => handleEdit(`asset-${i}`, r, 'inventory')} />) || null
                     )}
                     {activeTab === 'requests' && (
-                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} />) || null
+                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} />) || null
                     )}
                     {activeTab === 'waste' && (
-                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} />) || null
+                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} />) || null
                     )}
                     {activeTab === 'licence' && (
-                      data.licences?.map((r: any, i: number) => <LicenceRow key={i} {...r} />) || null
+                      data.licences?.map((r: any, i: number) => <LicenceRow key={i} {...r} onEdit={() => handleEdit(`licence-${i}`, r, 'licence')} />) || null
                     )}
                   </tbody>
                 </table>
@@ -219,7 +260,7 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function PropertyRow({ name, sub, type, doc, person, contact, status }: any) {
+function PropertyRow({ name, sub, type, doc, person, contact, status, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3">
@@ -243,7 +284,7 @@ function PropertyRow({ name, sub, type, doc, person, contact, status }: any) {
         <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">{status}</span>
       </td>
       <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
           <Edit className="w-3.5 h-3.5" />
         </button>
       </td>
@@ -251,7 +292,7 @@ function PropertyRow({ name, sub, type, doc, person, contact, status }: any) {
   );
 }
 
-function RequestRow({ date, issue, asset, tech, prio, status }: any) {
+function RequestRow({ date, issue, asset, tech, prio, status, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{date}</td>
@@ -267,7 +308,7 @@ function RequestRow({ date, issue, asset, tech, prio, status }: any) {
         <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded uppercase">{status}</span>
       </td>
       <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
           <CheckCircle2 className="w-3.5 h-3.5" />
         </button>
       </td>
@@ -275,7 +316,7 @@ function RequestRow({ date, issue, asset, tech, prio, status }: any) {
   );
 }
 
-function WasteRow({ date, contact, phone, addr, status }: any) {
+function WasteRow({ date, contact, phone, addr, status, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{date}</td>
@@ -288,7 +329,7 @@ function WasteRow({ date, contact, phone, addr, status }: any) {
         <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase">{status}</span>
       </td>
       <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
           <Edit className="w-3.5 h-3.5" />
         </button>
       </td>
@@ -296,7 +337,7 @@ function WasteRow({ date, contact, phone, addr, status }: any) {
   );
 }
 
-function LicenceRow({ type, biz, auth, expiry, issue, status }: any) {
+function LicenceRow({ type, biz, auth, expiry, issue, status, onEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3">
@@ -312,7 +353,7 @@ function LicenceRow({ type, biz, auth, expiry, issue, status }: any) {
         }`}>{status}</span>
       </td>
       <td className="px-4 py-3">
-        <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+        <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
           <Edit className="w-3.5 h-3.5" />
         </button>
       </td>
