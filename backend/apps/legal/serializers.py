@@ -3,6 +3,23 @@ from core.mixins import MongoSerializerMixin
 from .models import LegalDocument
 
 class LegalDocumentSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+    auth = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
+
     class Meta:
         model = LegalDocument
         fields = '__all__'
+
+    def get_auth(self, obj):
+        # Authority is not stored, return a placeholder based on type
+        authority_map = {
+            'License': 'City Council',
+            'Permit': 'Regulatory Authority',
+            'Contract': 'Internal HR',
+            'Agreement': 'Legal Department',
+            'NDA': 'Legal Department',
+        }
+        return authority_map.get(obj.type, 'Issuing Authority')
+
+    def get_file(self, obj):
+        return f"{obj.title[:20]}.pdf"

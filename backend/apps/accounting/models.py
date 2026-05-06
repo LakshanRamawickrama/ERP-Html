@@ -47,3 +47,11 @@ class VATRecord(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     date = models.DateField()
     status = models.CharField(max_length=50)
+
+class DojoSettlement(models.Model):
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    net = models.DecimalField(max_digits=15, decimal_places=2)
+    method = models.CharField(max_length=100, default='Card')  # Card, Contactless, Online
+    status = models.CharField(max_length=50, default='Settled')

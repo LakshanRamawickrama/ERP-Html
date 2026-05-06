@@ -47,7 +47,15 @@ export default function AccountingModule() {
   const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
 
   React.useEffect(() => {
-    fetch(API_ENDPOINTS.ACCOUNTING).then(res => res.json()).then(setData);
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.ACCOUNTING, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {

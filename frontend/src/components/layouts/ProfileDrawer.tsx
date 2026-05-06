@@ -49,7 +49,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
       setBusinesses(
         Array.isArray(user.businesses) && user.businesses.length > 0
           ? user.businesses.join(', ')
-          : (user.role === 'Super Admin' ? 'All Entities' : 'None Assigned')
+          : (user.role === 'super_admin' ? 'All Entities' : 'None Assigned')
       );
     }
   }, [user]);
@@ -133,7 +133,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
           
           <div className={cn(
             "mt-3 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider",
-            user.role === 'Super Admin' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+            user.role === 'super_admin' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
           )}>
             {user.role}
           </div>

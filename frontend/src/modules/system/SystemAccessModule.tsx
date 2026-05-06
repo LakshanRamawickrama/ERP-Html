@@ -21,7 +21,15 @@ export default function SystemAccessModule() {
   const [data, setData] = useState<any>({ credentials: [], alerts: [] });
 
   React.useEffect(() => {
-    fetch(API_ENDPOINTS.SYSTEM).then(res => res.json()).then(setData);
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.SYSTEM, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(setData);
   }, []);
 
   const togglePassword = (id: string) => {
@@ -30,15 +38,6 @@ export default function SystemAccessModule() {
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">System Access & Credentials</h1>
-            <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">Securely Manage Tills, PayPoint, and Service Logins</p>
-          </div>
-        </div>
-      </div>
 
       {/* Tab Navigation / Alert Bar */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">

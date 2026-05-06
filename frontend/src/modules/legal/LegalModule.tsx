@@ -32,7 +32,10 @@ export default function LegalModule() {
 
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.LEGAL).then(res => res.json()).then(setData);
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.LEGAL, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any) => {

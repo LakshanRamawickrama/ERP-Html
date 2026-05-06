@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import PageWrapper from '@/components/layouts/PageWrapper';
+import { API_ENDPOINTS } from '@/lib/api';
 import {
   ArrowLeft,
   Building2,
@@ -247,7 +248,13 @@ export default function BusinessDetailPage() {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`/api/business/${slug}`)
+    const token = localStorage.getItem('token');
+    fetch(`${API_ENDPOINTS.BUSINESS}${slug}/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
       .then(res => res.json())
       .then(d => setData(d))
       .catch(err => console.error(err));

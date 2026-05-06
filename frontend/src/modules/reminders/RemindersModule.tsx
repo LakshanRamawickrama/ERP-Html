@@ -33,7 +33,10 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
   useEffect(() => {
     const fetchReminders = async () => {
       try {
-        const res = await fetch(API_ENDPOINTS.REMINDERS);
+        const token = localStorage.getItem('token');
+        const res = await fetch(API_ENDPOINTS.REMINDERS, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await res.json();
         
         // Map types to icons

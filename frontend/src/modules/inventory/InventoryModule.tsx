@@ -30,7 +30,10 @@ export default function InventoryModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
-    fetch(API_ENDPOINTS.INVENTORY).then(res => res.json()).then(setData);
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.INVENTORY, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {

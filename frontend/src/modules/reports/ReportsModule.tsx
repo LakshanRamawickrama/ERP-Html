@@ -38,7 +38,10 @@ export default function ReportsModule() {
 
   const fetchReports = React.useCallback(() => {
     setRefreshing(true);
-    fetch(API_ENDPOINTS.REPORTS)
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.REPORTS, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
       .then(setData)
       .finally(() => setTimeout(() => setRefreshing(false), 800));
@@ -49,7 +52,7 @@ export default function ReportsModule() {
     if (savedUser) {
       const parsed = JSON.parse(savedUser);
       setUser(parsed);
-      if (parsed.role !== 'Super Admin') {
+      if (parsed.role !== 'super_admin') {
         setSelectedBiz(parsed.businesses?.[0] || 'Assigned Business');
       }
     }
@@ -92,13 +95,13 @@ export default function ReportsModule() {
           <select 
             value={selectedBiz}
             onChange={(e) => setSelectedBiz(e.target.value)}
-            disabled={user?.role !== 'Super Admin'}
+            disabled={user?.role !== 'super_admin'}
             className={cn(
               "flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100 transition-all outline-none",
               user?.role !== 'Super Admin' && "opacity-80 pointer-events-none"
             )}
           >
-            {user?.role === 'Super Admin' ? (
+            {user?.role === 'super_admin' ? (
               <>
                 <option>All Entities</option>
                 {businesses.map((b: any) => (

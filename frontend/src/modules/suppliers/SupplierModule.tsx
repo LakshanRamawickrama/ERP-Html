@@ -40,7 +40,15 @@ export default function SupplierModule() {
 
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.SUPPLIERS).then(res => res.json()).then(setData);
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.SUPPLIERS, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {

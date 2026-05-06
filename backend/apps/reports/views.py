@@ -21,11 +21,16 @@ class ReportsDataView(APIView):
             s_count = Supplier.objects.count()
             p_count = Product.objects.count()
             e_count = BusinessEntity.objects.count()
+            entities = BusinessEntity.objects.all()
         else:
             v_count = Vehicle.objects.filter(business=business_scope).count()
             s_count = Supplier.objects.count()
             p_count = Product.objects.count()
             e_count = BusinessEntity.objects.filter(name=business_scope).count()
+            entities = BusinessEntity.objects.filter(name=business_scope)
+
+        banks = BankAccount.objects.all()
+        vat = VATRecord.objects.all()
 
         return Response({
             "stats": [
@@ -38,6 +43,32 @@ class ReportsDataView(APIView):
                 {"label": "Annual Tax Summary", "format": "PDF"},
                 {"label": "Supplier Performance", "format": "XLSX"},
                 {"label": "Inventory Audit", "format": "CSV"}
+            ],
+            "businesses": [
+                {
+                    "id": e.id,
+                    "name": e.name,
+                    "slug": e.name.lower().replace(' ', '-'),
+                    "admin": "Super Admin",
+                    "inc": "$125,400",
+                    "exp": "$42,100",
+                    "skus": "1,240",
+                    "flt": 12,
+                    "st": e.status
+                } for e in entities
+            ],
+            "banks": [
+                {
+                    "b": b.bank_name,
+                    "n": b.account_name,
+                    "bl": "$142,350"
+                } for b in banks
+            ],
+            "tax": [
+                {
+                    "type": r.type,
+                    "amount": f"${r.amount:,.0f}" if r.amount is not None else "$0"
+                } for r in vat
             ]
         })
 

@@ -30,7 +30,15 @@ export default function UserModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   React.useEffect(() => {
-    fetch(API_ENDPOINTS.USERS).then(res => res.json()).then(setData);
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.USERS, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(setData);
   }, []);
 
   const systemMap = data.systemMap || [];
@@ -107,6 +115,41 @@ export default function UserModule() {
                   <Field label="Email Address" type="email" placeholder="john@example.com" value={formData.email} />
                   <Field label="Assigned Roles" isSelect options={data.roles || []} value={formData.roles} />
                   <Field label="Assigned Businesses" isSelect options={data.businesses || []} value={formData.scope} />
+                  
+                  <div className="space-y-2 mt-4">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Feature Access</label>
+                    <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                      {[
+                        'Business Management', 
+                        'Fleet Management', 
+                        'Inventory Management', 
+                        'Accounting', 
+                        'Legal & Compliance', 
+                        'Property Management', 
+                        'Reports',
+                        'Suppliers'
+                      ].map(mod => (
+                        <label key={mod} className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="checkbox-standard scale-90"
+                            checked={formData.access?.includes(mod) || formData.access === 'All'}
+                            onChange={(e) => {
+                              const current = formData.access === 'All' 
+                                ? ['Business Management', 'Fleet Management', 'Inventory Management', 'Accounting', 'Legal & Compliance', 'Property Management', 'Reports', 'Suppliers'] 
+                                : (formData.access?.split(', ') || []);
+                              const next = e.target.checked 
+                                ? [...current, mod] 
+                                : current.filter((m: string) => m !== mod);
+                              setFormData({ ...formData, access: next.join(', ') });
+                            }}
+                          />
+                          <span className="text-[11px] font-medium text-slate-600">{mod}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
                   {!editingId && (
                     <>
                       <Field label="Password" type="password" />
@@ -166,7 +209,17 @@ export default function UserModule() {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {data.registry?.map((u: any, i: number) => (
-                          <UserRow key={i} {...u} onEdit={() => handleEdit(`user-${i}`, u)} onDelete={() => handleDeleteClick(`user-${i}`)} />
+                          <UserRow 
+                            key={i} 
+                            name={u.name}
+                            email={u.email}
+                            roles={u.role}
+                            scope={u.assigned_business}
+                            access={u.access}
+                            status={u.status}
+                            onEdit={() => handleEdit(u.id, u)} 
+                            onDelete={() => handleDeleteClick(u.id)} 
+                          />
                         )) || null}
                       </tbody>
                     </>

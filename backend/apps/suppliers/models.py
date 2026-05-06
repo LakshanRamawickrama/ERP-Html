@@ -14,6 +14,8 @@ class Supplier(models.Model):
 class PurchaseOrder(models.Model):
     number = models.CharField(max_length=100, unique=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    product = models.CharField(max_length=255, default='General Supplies')
+    quantity = models.IntegerField(default=1)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     date = models.DateField()
     status = models.CharField(max_length=50)

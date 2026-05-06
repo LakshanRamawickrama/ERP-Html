@@ -12,5 +12,6 @@ urlpatterns = [
     path('api/reminders/', include('apps.reminders.urls')),
     path('api/suppliers/', include('apps.suppliers.urls')),
     path('api/users/', include('apps.users.urls')),
+    path('api/system/', include('apps.system.urls')),
     path('api/reports/', include('apps.reports.urls')),
 ]

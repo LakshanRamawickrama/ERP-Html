@@ -8,10 +8,30 @@ from .serializers import StaffProfileSerializer
 class UserDataView(APIView):
     def get(self, request):
         staff = StaffProfile.objects.all()
+        system_map = [
+            {
+                "name": "Core Management",
+                "sub": ["Business Management", "User Management", "System Access", "Role Permissions"]
+            },
+            {
+                "name": "Operations",
+                "sub": ["Fleet Management", "Inventory Management", "Suppliers"]
+            },
+            {
+                "name": "Financials",
+                "sub": ["Accounting", "Reports"]
+            },
+            {
+                "name": "Compliance & Assets",
+                "sub": ["Legal & Compliance", "Property Management", "Reminders"]
+            }
+        ]
+        
         return Response({
             "registry": StaffProfileSerializer(staff, many=True).data,
             "roles": ["super_admin", "admin"],
-            "businesses": ["Whiterock Retail", "Global Logistics"]
+            "businesses": ["Whiterock Retail", "Global Logistics"],
+            "systemMap": system_map
         })
 
 class LoginView(APIView):

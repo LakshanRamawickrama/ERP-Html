@@ -39,7 +39,10 @@ export default function PropertyModule() {
 
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.PROPERTY).then(res => res.json()).then(setData);
+    const token = localStorage.getItem('token');
+    fetch(API_ENDPOINTS.PROPERTY, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).then(res => res.json()).then(setData);
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {
@@ -61,6 +64,7 @@ export default function PropertyModule() {
         method: editingId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify(formData),
       });
@@ -69,7 +73,9 @@ export default function PropertyModule() {
         const result = await response.json();
         console.log('Success:', result);
         // Refresh data
-        const newData = await fetch(API_ENDPOINTS.PROPERTY).then(res => res.json());
+        const newData = await fetch(API_ENDPOINTS.PROPERTY, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }).then(res => res.json());
         setData(newData);
         handleCancelEdit();
       } else {

@@ -11,6 +11,11 @@ class SupplierSerializer(MongoSerializerMixin, serializers.ModelSerializer):
         fields = '__all__'
 
 class PurchaseOrderSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+    num = serializers.CharField(source='number', read_only=True)
+    supplier = serializers.CharField(source='supplier.name', read_only=True)
+    due = serializers.DateField(source='date', read_only=True)
+    qty = serializers.IntegerField(source='quantity', read_only=True)
+    
     class Meta:
         model = PurchaseOrder
         fields = '__all__'

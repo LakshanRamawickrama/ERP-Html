@@ -4,6 +4,7 @@ class StaffProfile(models.Model):
     name = models.CharField(max_length=255)
     role = models.CharField(max_length=100) # 'super_admin' or 'admin'
     assigned_business = models.CharField(max_length=255, default='All') # 'All' for super_admin, specific business name for admin
+    access = models.TextField(default='All') # Comma-separated list of modules like "Fleet, Inventory, Finance"
     email = models.EmailField()
     status = models.CharField(max_length=50, default='Active')
 

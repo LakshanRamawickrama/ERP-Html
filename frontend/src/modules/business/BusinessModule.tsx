@@ -16,10 +16,12 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 
+import { UserRole } from '@/constants/roles';
+
 type TabType = 'entities' | 'structure';
 
-export default function BusinessModule({ userRole }: { userRole?: string }) {
-  const isSuperAdmin = userRole === 'Super Admin';
+export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
+  const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
   const [activeTab, setActiveTab] = useState<TabType>(isSuperAdmin ? 'entities' : 'structure');
   const [isWide, setIsWide] = useState(false);
   const [data, setData] = useState<any>({ entities: [], structures: [], options: { categories: [] } });
@@ -32,7 +34,18 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   React.useEffect(() => {
-    fetch(API_ENDPOINTS.BUSINESS)
+    const token = localStorage.getItem('token');
+    if (!token) {
+        setLoading(false);
+        return;
+    }
+    
+    fetch(API_ENDPOINTS.BUSINESS, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
       .then(res => res.json())
       .then(d => {
         setData(d);
@@ -65,15 +78,25 @@ export default function BusinessModule({ userRole }: { userRole?: string }) {
     const method = editingId ? 'PUT' : 'POST';
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(formData)
       });
 
       if (response.ok) {
         setLoading(true);
-        const res = await fetch(API_ENDPOINTS.BUSINESS);
+        const token = localStorage.getItem('token');
+        const res = await fetch(API_ENDPOINTS.BUSINESS, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
         const newData = await res.json();
         setData(newData);
         setLoading(false);
