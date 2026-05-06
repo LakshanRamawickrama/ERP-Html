@@ -44,6 +44,10 @@ export default function Dashboard() {
     pl: { income: '$0', expenses: '$0', grossProfit: '$0', tax: '$0', netProfit: '$0' },
     emails: []
   });
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [newEmail, setNewEmail] = useState({ email: '', label: '', type: 'primary', password: '' });
+  const [noteInput, setNoteInput] = useState('');
+  const [todoInput, setTodoInput] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -54,6 +58,64 @@ export default function Dashboard() {
     setUserRole(userData.role as UserRole);
     fetch('/api/dashboard').then(res => res.json()).then(setDash);
   }, [router]);
+
+  const handleAddEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEmail.email) return;
+    
+    const emailObj = {
+      ...newEmail,
+      status: 'Connected',
+      id: Date.now().toString()
+    };
+    
+    setDash((prev: any) => ({
+      ...prev,
+      emails: [emailObj, ...prev.emails]
+    }));
+    
+    setNewEmail({ email: '', label: '', type: 'primary', password: '' });
+    setShowEmailModal(false);
+  };
+
+  const handleAddNote = () => {
+    if (!noteInput.trim()) return;
+    setDash((prev: any) => ({
+      ...prev,
+      notes: [noteInput, ...prev.notes]
+    }));
+    setNoteInput('');
+  };
+
+  const handleAddTodo = () => {
+    if (!todoInput.trim()) return;
+    setDash((prev: any) => ({
+      ...prev,
+      todos: [{ t: todoInput, d: false }, ...prev.todos]
+    }));
+    setTodoInput('');
+  };
+
+  const handleDeleteNote = (index: number) => {
+    setDash((prev: any) => ({
+      ...prev,
+      notes: prev.notes.filter((_: any, i: number) => i !== index)
+    }));
+  };
+
+  const handleDeleteTodo = (index: number) => {
+    setDash((prev: any) => ({
+      ...prev,
+      todos: prev.todos.filter((_: any, i: number) => i !== index)
+    }));
+  };
+
+  const handleToggleTodo = (index: number) => {
+    setDash((prev: any) => ({
+      ...prev,
+      todos: prev.todos.map((t: any, i: number) => i === index ? { ...t, d: !t.d } : t)
+    }));
+  };
 
   if (!userRole || !user) return null;
 
@@ -163,12 +225,25 @@ export default function Dashboard() {
                 {dash.notes.map((note: string, i: number) => (
                   <div key={i} className="bg-[#fffbeb] border border-[#fef3c7] rounded-lg p-2 relative group shadow-sm">
                     <p className="text-[11px] text-[#1e293b] leading-[1.3] m-0 pr-5">{note}</p>
-                    <button className="absolute right-1.5 top-2 text-[#ef4444] opacity-20 group-hover:opacity-100 transition-all"><Trash2 className="w-3 h-3" /></button>
+                    <button 
+                      onClick={() => handleDeleteNote(i)}
+                      className="absolute right-1.5 top-2 text-[#ef4444] opacity-20 group-hover:opacity-100 transition-all"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   </div>
                 ))}
                 <div className="space-y-2 pt-1">
-                  <textarea placeholder="Write a note..." className="w-full text-[11px] p-2 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5] min-h-[40px] resize-none" />
-                  <button className="w-full bg-[#ffc107] text-[#212529] py-1.5 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#eab308]">
+                  <textarea 
+                    value={noteInput}
+                    onChange={e => setNoteInput(e.target.value)}
+                    placeholder="Write a note..." 
+                    className="w-full text-[11px] p-2 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5] min-h-[40px] resize-none" 
+                  />
+                  <button 
+                    onClick={handleAddNote}
+                    className="w-full bg-[#ffc107] text-[#212529] py-1.5 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#eab308]"
+                  >
                     + Add Note
                   </button>
                 </div>
@@ -177,18 +252,79 @@ export default function Dashboard() {
 
             {/* 4. EMAILS (SUPER_ADMIN ONLY) */}
             {userRole === UserRole.SUPER_ADMIN && (
-              <Widget title="Gmails / Emails" icon={Mail} color="bg-[#ef4444]" headerAction={<button className="text-[10px] bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] px-2 py-0.5 rounded font-bold hover:bg-[#bfdbfe]">Add Email</button>}>
-                <div className="space-y-3">
-                  {dash.emails.map((email: any, i: number) => (
-                    <div key={i} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-                      <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold`}><Mail size={14} /></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[11px] font-bold text-[#1e293b] truncate">{email.email}</div>
-                        <div className="text-[9px] text-[#64748b]">{email.label}</div>
+              <Widget 
+                title="Gmails / Emails" 
+                icon={Mail} 
+                color="bg-[#ef4444]" 
+                headerAction={
+                  !showEmailModal && (
+                    <button 
+                      onClick={() => setShowEmailModal(true)}
+                      className="text-[10px] bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] px-2 py-0.5 rounded font-bold hover:bg-[#bfdbfe]"
+                    >
+                      + Add
+                    </button>
+                  )
+                }
+              >
+                <div className="space-y-3 min-h-[220px]">
+                  {showEmailModal ? (
+                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl animate-in slide-in-from-top-4 duration-300 shadow-inner h-full">
+                      <div className="space-y-2.5">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Connect New Inbox</label>
+                          <input 
+                            type="email" 
+                            placeholder="Email Address"
+                            className="w-full p-2 bg-white border border-slate-200 rounded-xl text-[10px] outline-none focus:border-[#ef4444] transition-all"
+                            value={newEmail.email}
+                            onChange={e => setNewEmail({...newEmail, email: e.target.value})}
+                          />
+                        </div>
+                        <input 
+                          type="password" 
+                          placeholder="App Password / SMTP Password"
+                          className="w-full p-2 bg-white border border-slate-200 rounded-xl text-[10px] outline-none focus:border-[#ef4444] transition-all"
+                          value={newEmail.password}
+                          onChange={e => setNewEmail({...newEmail, password: e.target.value})}
+                        />
+                        <input 
+                          type="text" 
+                          placeholder="Account Label (e.g. Primary)"
+                          className="w-full p-2 bg-white border border-slate-200 rounded-xl text-[10px] outline-none focus:border-[#ef4444] transition-all"
+                          value={newEmail.label}
+                          onChange={e => setNewEmail({...newEmail, label: e.target.value})}
+                        />
+                        <div className="flex gap-2 pt-1">
+                          <button 
+                            onClick={handleAddEmail}
+                            className="flex-[2] bg-[#ef4444] text-white py-2 rounded-xl text-[10px] font-bold shadow-lg shadow-red-100 hover:bg-[#dc2626] transition-all active:scale-95"
+                          >
+                            Save Account
+                          </button>
+                          <button 
+                            onClick={() => setShowEmailModal(false)}
+                            className="flex-1 bg-white border border-slate-200 text-slate-500 py-2 rounded-xl text-[10px] font-bold hover:bg-slate-100 transition-all active:scale-95"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                      <span className="px-2 py-0.5 bg-[#198754] text-white text-[9px] font-bold rounded">{email.status}</span>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="max-h-[220px] overflow-y-auto pr-1 scrollbar-custom space-y-3 animate-in fade-in duration-300">
+                      {dash.emails.map((email: any, i: number) => (
+                        <div key={i} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+                          <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold`}><Mail size={14} /></div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[11px] font-bold text-[#1e293b] truncate">{email.email}</div>
+                            <div className="text-[9px] text-[#64748b]">{email.label}</div>
+                          </div>
+                          <span className="px-2 py-0.5 bg-[#198754] text-white text-[9px] font-bold rounded">{email.status}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </Widget>
             )}
@@ -222,14 +358,35 @@ export default function Dashboard() {
               <div className="space-y-1">
                 {dash.todos.map((todo: any, i: number) => (
                   <div key={i} className="flex items-center gap-2 py-1 border-b border-[#f1f5f9] last:border-0 group">
-                    <input type="checkbox" defaultChecked={todo.d} className="w-[14px] h-[14px] accent-[#4f46e5] cursor-pointer" />
+                    <input 
+                      type="checkbox" 
+                      checked={todo.d} 
+                      onChange={() => handleToggleTodo(i)}
+                      className="w-[14px] h-[14px] accent-[#4f46e5] cursor-pointer" 
+                    />
                     <label className={`text-[11px] flex-1 cursor-pointer m-0 truncate ${todo.d ? 'text-[#94a3b8] line-through' : 'text-[#1e293b]'}`}>{todo.t}</label>
-                    <button className="opacity-0 group-hover:opacity-100 text-[#ef4444]"><Trash2 className="w-3 h-3" /></button>
+                    <button 
+                      onClick={() => handleDeleteTodo(i)}
+                      className="opacity-0 group-hover:opacity-100 text-[#ef4444]"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   </div>
                 ))}
                 <div className="flex gap-2 mt-2">
-                  <input type="text" placeholder="Add task..." className="flex-1 text-[11px] p-1.5 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5]" />
-                  <button className="bg-[#3b82f6] text-white px-3 py-1 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#2563eb]">+ Add</button>
+                  <input 
+                    type="text" 
+                    value={todoInput}
+                    onChange={e => setTodoInput(e.target.value)}
+                    placeholder="Add task..." 
+                    className="flex-1 text-[11px] p-1.5 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5]" 
+                  />
+                  <button 
+                    onClick={handleAddTodo}
+                    className="bg-[#3b82f6] text-white px-3 py-1 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#2563eb]"
+                  >
+                    + Add
+                  </button>
                 </div>
               </div>
             </Widget>
