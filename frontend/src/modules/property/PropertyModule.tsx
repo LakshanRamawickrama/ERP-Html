@@ -53,14 +53,31 @@ export default function PropertyModule() {
     setFormData({});
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      console.log('Updating:', editingId, formData);
-    } else {
-      console.log('Creating:', formData);
+    
+    try {
+      const response = await fetch(API_ENDPOINTS.PROPERTY, {
+        method: editingId ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Success:', result);
+        // Refresh data
+        const newData = await fetch(API_ENDPOINTS.PROPERTY).then(res => res.json());
+        setData(newData);
+        handleCancelEdit();
+      } else {
+        console.error('Error:', await response.text());
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
     }
-    handleCancelEdit();
   };
 
   const handleDeleteClick = (id: string) => {
@@ -121,12 +138,44 @@ export default function PropertyModule() {
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'inventory' && (
                     <>
-                      <Field label="Asset Name" placeholder="e.g. Unit 5 Air Con" />
-                      <Field label="Location / Floor" placeholder="Floor 2, Room 204" />
-                      <Field label="Asset Type" isSelect options={data.assetTypes || []} />
-                      <Field label="Assigned Person" placeholder="Name of responsible person" />
-                      <Field label="Contact Number" placeholder="+1 (555) 000-0000" />
-                      <Field label="Notes" isTextArea placeholder="Specific instructions or property details" />
+                      <Field 
+                        label="Asset Name" 
+                        placeholder="e.g. Unit 5 Air Con" 
+                        value={formData.name || ''} 
+                        onChange={(val: string) => setFormData({...formData, name: val})} 
+                      />
+                      <Field 
+                        label="Location / Floor" 
+                        placeholder="Floor 2, Room 204" 
+                        value={formData.location || ''} 
+                        onChange={(val: string) => setFormData({...formData, location: val})} 
+                      />
+                      <Field 
+                        label="Asset Type" 
+                        isSelect 
+                        options={data.assetTypes || []} 
+                        value={formData.asset_type || ''} 
+                        onChange={(val: string) => setFormData({...formData, asset_type: val})} 
+                      />
+                      <Field 
+                        label="Assigned Person" 
+                        placeholder="Name of responsible person" 
+                        value={formData.assigned_person || ''} 
+                        onChange={(val: string) => setFormData({...formData, assigned_person: val})} 
+                      />
+                      <Field 
+                        label="Contact Number" 
+                        placeholder="+1 (555) 000-0000" 
+                        value={formData.contact || ''} 
+                        onChange={(val: string) => setFormData({...formData, contact: val})} 
+                      />
+                      <Field 
+                        label="Notes" 
+                        isTextArea 
+                        placeholder="Specific instructions or property details" 
+                        value={formData.notes || ''} 
+                        onChange={(val: string) => setFormData({...formData, notes: val})} 
+                      />
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Asset Documents</label>
                         <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 transition-colors cursor-pointer bg-slate-50">
@@ -138,33 +187,127 @@ export default function PropertyModule() {
                   )}
                   {activeTab === 'requests' && (
                     <>
-                      <Field label="Issue Description" placeholder="e.g. Broken window" />
-                      <Field label="Request Date" type="date" />
-                      <Field label="Select Asset" isSelect options={data.assetOptions || []} />
-                      <Field label="Priority" isSelect options={data.priorities || []} />
-                      <Field label="Assigned Technician" placeholder="Name of technician" />
-                      <Field label="Request Notes" isTextArea placeholder="Describe specific details of the issue" />
+                      <Field 
+                        label="Issue Description" 
+                        placeholder="e.g. Broken window" 
+                        value={formData.issue || ''} 
+                        onChange={(val: string) => setFormData({...formData, issue: val})} 
+                      />
+                      <Field 
+                        label="Request Date" 
+                        type="date" 
+                        value={formData.date || ''} 
+                        onChange={(val: string) => setFormData({...formData, date: val})} 
+                      />
+                      <Field 
+                        label="Select Asset" 
+                        isSelect 
+                        options={data.assets?.map((a: any) => a.name) || []} 
+                        value={formData.asset_name || ''} 
+                        onChange={(val: string) => {
+                          const asset = data.assets.find((a: any) => a.name === val);
+                          setFormData({...formData, asset_name: val, asset: asset?.id});
+                        }} 
+                      />
+                      <Field 
+                        label="Priority" 
+                        isSelect 
+                        options={data.priorities || []} 
+                        value={formData.priority || ''} 
+                        onChange={(val: string) => setFormData({...formData, priority: val})} 
+                      />
+                      <Field 
+                        label="Assigned Technician" 
+                        placeholder="Name of technician" 
+                        value={formData.technician || ''} 
+                        onChange={(val: string) => setFormData({...formData, technician: val})} 
+                      />
+                      <Field 
+                        label="Request Notes" 
+                        isTextArea 
+                        placeholder="Describe specific details of the issue" 
+                        value={formData.notes || ''} 
+                        onChange={(val: string) => setFormData({...formData, notes: val})} 
+                      />
                     </>
                   )}
                   {activeTab === 'waste' && (
                     <>
-                      <Field label="Contact Name" placeholder="e.g. Building Manager" />
-                      <Field label="Phone Number" type="tel" placeholder="e.g. +1 555-0199" />
-                      <Field label="Collection Address" placeholder="Full address or unit location" />
-                      <Field label="Pick-up Date" type="date" />
-                      <Field label="Notes" isTextArea placeholder="e.g. Large items, hazardous waste..." />
+                      <Field 
+                        label="Contact Name" 
+                        placeholder="e.g. Building Manager" 
+                        value={formData.contact_name || ''} 
+                        onChange={(val: string) => setFormData({...formData, contact_name: val})} 
+                      />
+                      <Field 
+                        label="Phone Number" 
+                        type="tel" 
+                        placeholder="e.g. +1 555-0199" 
+                        value={formData.phone || ''} 
+                        onChange={(val: string) => setFormData({...formData, phone: val})} 
+                      />
+                      <Field 
+                        label="Collection Address" 
+                        placeholder="Full address or unit location" 
+                        value={formData.address || ''} 
+                        onChange={(val: string) => setFormData({...formData, address: val})} 
+                      />
+                      <Field 
+                        label="Pick-up Date" 
+                        type="date" 
+                        value={formData.pickup_date || ''} 
+                        onChange={(val: string) => setFormData({...formData, pickup_date: val})} 
+                      />
+                      <Field 
+                        label="Notes" 
+                        isTextArea 
+                        placeholder="e.g. Large items, hazardous waste..." 
+                        value={formData.notes || ''} 
+                        onChange={(val: string) => setFormData({...formData, notes: val})} 
+                      />
                     </>
                   )}
                   {activeTab === 'licence' && (
                     <>
-                      <Field label="Licence Type" placeholder="e.g. HMO Licence" />
-                      <Field label="Business Name" placeholder="e.g. Property Central Ltd" />
+                      <Field 
+                        label="Licence Type" 
+                        placeholder="e.g. HMO Licence" 
+                        value={formData.type || ''} 
+                        onChange={(val: string) => setFormData({...formData, type: val})} 
+                      />
+                      <Field 
+                        label="Business Name" 
+                        placeholder="e.g. Property Central Ltd" 
+                        value={formData.biz || ''} 
+                        onChange={(val: string) => setFormData({...formData, biz: val})} 
+                      />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Issue Date" type="date" />
-                        <Field label="Expiry Date" type="date" />
+                        <Field 
+                          label="Issue Date" 
+                          type="date" 
+                          value={formData.issue_date || ''} 
+                          onChange={(val: string) => setFormData({...formData, issue_date: val})} 
+                        />
+                        <Field 
+                          label="Expiry Date" 
+                          type="date" 
+                          value={formData.expiry_date || ''} 
+                          onChange={(val: string) => setFormData({...formData, expiry_date: val})} 
+                        />
                       </div>
-                      <Field label="Issuing Authority" placeholder="e.g. Local City Council" />
-                      <Field label="Status" isSelect options={data.statuses || []} />
+                      <Field 
+                        label="Issuing Authority" 
+                        placeholder="e.g. Local City Council" 
+                        value={formData.auth || ''} 
+                        onChange={(val: string) => setFormData({...formData, auth: val})} 
+                      />
+                      <Field 
+                        label="Status" 
+                        isSelect 
+                        options={data.statuses || []} 
+                        value={formData.status || ''} 
+                        onChange={(val: string) => setFormData({...formData, status: val})} 
+                      />
                       <Field label="Upload Document" type="file" />
                     </>
                   )}
@@ -457,18 +600,35 @@ function LicenceRow({ type, biz, auth, expiry, issue, status, onEdit, onDelete, 
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, value, onChange }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-all">
-          {options.map((opt: string) => <option key={opt}>{opt}</option>)}
+        <select 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-all"
+        >
+          <option value="">Select {label}</option>
+          {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea rows={2} className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-all" placeholder={placeholder} />
+        <textarea 
+          rows={2} 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-all" 
+          placeholder={placeholder} 
+        />
       ) : (
-        <input type={type} className={`w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-all`} placeholder={placeholder} />
+        <input 
+          type={type} 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-all`} 
+          placeholder={placeholder} 
+        />
       )}
     </div>
   );

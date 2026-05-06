@@ -19,5 +19,4 @@ class FleetDataView(APIView):
                 "deliveryStatuses": ["Pending", "In Transit", "Delivered", "Failed"],
                 "agreementStatuses": ["Active", "Pending Review", "Terminated"]
             }
-        }
-        return Response(data)
+        })

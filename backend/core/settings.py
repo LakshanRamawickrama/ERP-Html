@@ -29,6 +29,14 @@ INSTALLED_APPS = [
     'apps.business',
     'apps.property',
     'apps.accounting',
+    'apps.fleet',
+    'apps.inventory',
+    'apps.legal',
+    'apps.reminders',
+    'apps.reports',
+    'apps.suppliers',
+    'apps.system',
+    'apps.users',
 ]
 
 MIDDLEWARE = [
@@ -90,7 +98,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django_mongodb_backend.fields.ObjectIdAutoField'
 
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True # Development only
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication', # Disabled to avoid CSRF issues in dev
+    ],
+}

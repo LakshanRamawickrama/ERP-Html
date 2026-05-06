@@ -1,6 +1,7 @@
 import os
 import django
 import sys
+from datetime import datetime, timedelta
 
 # Set up Django environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -13,19 +14,38 @@ from apps.inventory.models import Product
 from apps.accounting.models import Transaction, BankAccount
 from apps.legal.models import LegalDocument
 from apps.reminders.models import Reminder
+from apps.property.models import Asset
+from apps.users.models import StaffProfile
+from apps.suppliers.models import Supplier
 
 def seed_data():
-    print("🌱 Seeding MongoDB Database...")
+    print("Seeding MongoDB Database...")
 
     # 1. Business Entities
     BusinessEntity.objects.all().delete()
-    BusinessEntity.objects.create(name="Whiterock Retail Ltd", registration_number="WR-12345", tax_id="VAT-999", category="Retail")
-    BusinessEntity.objects.create(name="Global Logistics Pro", registration_number="GL-67890", tax_id="VAT-888", category="Logistics")
+    BusinessEntity.objects.create(name="Whiterock Retail Ltd", company_number="WR-12345", tax_id="VAT-999", category="Retail")
+    BusinessEntity.objects.create(name="Global Logistics Pro", company_number="GL-67890", tax_id="VAT-888", category="Logistics")
 
     # 2. Fleet
     Vehicle.objects.all().delete()
-    Vehicle.objects.create(make="Mercedes", model="Sprinter", registration_plate="WN70 ABC", status="Active", type="Van")
-    Vehicle.objects.create(make="Ford", model="Transit", registration_plate="FX22 XYZ", status="Maintenance", type="Van")
+    v1 = Vehicle.objects.create(
+        name="Mercedes Sprinter", 
+        plate_number="WN70 ABC", 
+        business="Whiterock Retail Ltd",
+        mot_date="2024-05-15",
+        insurance_date="2024-06-10",
+        road_tax_date="2024-07-01",
+        status="Active"
+    )
+    v2 = Vehicle.objects.create(
+        name="Ford Transit", 
+        plate_number="FX22 XYZ", 
+        business="Global Logistics Pro",
+        mot_date="2024-08-20",
+        insurance_date="2024-09-12",
+        road_tax_date="2024-10-05",
+        status="Maintenance"
+    )
 
     # 3. Inventory
     Product.objects.all().delete()
@@ -46,9 +66,28 @@ def seed_data():
 
     # 6. Reminders
     Reminder.objects.all().delete()
-    Reminder.objects.create(title="MOT Renewal - WN70 ABC", description="Annual MOT due next week", due_date="2024-05-15", priority="High")
+    Reminder.objects.create(
+        title="MOT Renewal - WN70 ABC", 
+        description="Annual MOT due next week", 
+        due_date=datetime.now() + timedelta(days=7), 
+        priority="High"
+    )
 
-    print("✅ Seeding Complete! MongoDB is now populated.")
+    # 7. Property (Assets)
+    Asset.objects.all().delete()
+    Asset.objects.create(name="HQ Office Building", location="London", asset_type="Real Estate", assigned_person="John Doe", contact="john@whiterock.com", status="Operational")
+    Asset.objects.create(name="Server Rack A1", location="Data Center", asset_type="IT Equipment", assigned_person="Tech Support", contact="support@whiterock.com", status="Operational")
+
+    # 8. Users (Staff Profiles)
+    StaffProfile.objects.all().delete()
+    StaffProfile.objects.create(name="Admin User", role="Super Admin", department="Management", email="admin@erp.com", status="Active")
+    StaffProfile.objects.create(name="Jane Smith", role="Accountant", department="Finance", email="jane@erp.com", status="Active")
+
+    # 9. Suppliers
+    Supplier.objects.all().delete()
+    Supplier.objects.create(name="Office Depot", contact_person="Sales Team", email="sales@officedepot.com", phone="020-1234-5678", category="Office Supplies", status="Active")
+
+    print("Seeding Complete! MongoDB is now populated with valid data.")
 
 if __name__ == "__main__":
     seed_data()
