@@ -5,11 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import PageWrapper from '@/components/layouts/PageWrapper';
 import { API_ENDPOINTS } from '@/lib/api';
 import {
-  ArrowLeft, Building2, Truck, Package, Calculator,
-  Boxes, Scale, Home, Landmark, ShieldCheck, BadgeDollarSign,
-  FileText, Wrench, Recycle
+  ArrowLeft, Building2, Truck, Package, Calculator, Boxes, Scale, Home, Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
@@ -18,24 +17,23 @@ function StatusBadge({ status }: { status: string }) {
     Paid: 'bg-emerald-100 text-emerald-700',
     Active: 'bg-emerald-100 text-emerald-700',
     Settled: 'bg-emerald-100 text-emerald-700',
-    Valid: 'bg-emerald-100 text-emerald-700',
-    'In Stock': 'bg-emerald-100 text-emerald-700',
     Operational: 'bg-emerald-100 text-emerald-700',
     Completed: 'bg-emerald-100 text-emerald-700',
+    'In Stock': 'bg-emerald-100 text-emerald-700',
     'In Progress': 'bg-blue-100 text-blue-700',
     Scheduled: 'bg-blue-100 text-blue-700',
+    IN: 'bg-emerald-100 text-emerald-700',
     Pending: 'bg-amber-100 text-amber-700',
     'Low Stock': 'bg-amber-100 text-amber-700',
     'Needs Attention': 'bg-amber-100 text-amber-700',
+    Sent: 'bg-purple-100 text-purple-700',
     Expired: 'bg-red-100 text-red-700',
     Overdue: 'bg-red-100 text-red-700',
     'Out of Stock': 'bg-red-100 text-red-700',
-    Sent: 'bg-purple-100 text-purple-700',
-    IN: 'bg-emerald-100 text-emerald-700',
     OUT: 'bg-red-100 text-red-700',
   };
   return (
-    <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold uppercase', map[status] ?? 'bg-slate-100 text-slate-600')}>
+    <span className={cn('px-1.5 py-px rounded text-[8px] font-black uppercase tracking-tight shrink-0', map[status] ?? 'bg-slate-100 text-slate-500')}>
       {status}
     </span>
   );
@@ -48,61 +46,107 @@ function SectionCard({ icon: Icon, iconBg, title, count, children }: {
 }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 shrink-0">
         <div className="flex items-center gap-2">
-          <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center', iconBg)}>
-            <Icon size={14} className="text-white" />
+          <div className={cn('w-6 h-6 rounded-md flex items-center justify-center', iconBg)}>
+            <Icon size={12} className="text-white" />
           </div>
-          <span className="text-sm font-bold text-slate-800">{title}</span>
+          <span className="text-xs font-bold text-slate-800">{title}</span>
         </div>
         <span className="w-5 h-5 rounded-full bg-slate-700 text-white text-[10px] font-black flex items-center justify-center">
           {count}
         </span>
       </div>
-      <div className="divide-y divide-slate-100 overflow-y-auto max-h-[340px] custom-scrollbar">
-        {children}
+      <div className="overflow-y-auto max-h-[340px] custom-scrollbar p-2">
+        <div className="grid grid-cols-3 gap-1.5">
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
-// ─── Field Row ────────────────────────────────────────────────────────────────
+// ─── Compact Card ─────────────────────────────────────────────────────────────
 
-function F({ label, value }: { label: string; value: React.ReactNode }) {
-  if (!value && value !== 0) return null;
+const kindColors: Record<string, string> = {
+  invoice:     'bg-emerald-50  border-emerald-100',
+  transaction: 'bg-slate-50    border-slate-200',
+  bank:        'bg-blue-50     border-blue-100',
+  loan:        'bg-orange-50   border-orange-100',
+  insurance:   'bg-teal-50     border-teal-100',
+  vat:         'bg-yellow-50   border-yellow-100',
+  dojo:        'bg-purple-50   border-purple-100',
+  vehicle:     'bg-blue-50     border-blue-100',
+  parcel:      'bg-orange-50   border-orange-100',
+  product:     'bg-yellow-50   border-yellow-100',
+  movement:    'bg-amber-50    border-amber-100',
+  supplier:    'bg-orange-50   border-orange-100',
+  po:          'bg-amber-50    border-amber-100',
+  document:     'bg-slate-50    border-slate-200',
+  registration: 'bg-indigo-50   border-indigo-100',
+  maintenance:  'bg-red-50      border-red-100',
+  asset:        'bg-blue-50     border-blue-100',
+  waste:        'bg-green-50    border-green-100',
+  licence:      'bg-purple-50   border-purple-100',
+  reminder:     'bg-rose-50     border-rose-100',
+};
+
+const kindLabels: Record<string, string> = {
+  invoice: 'Invoice', transaction: 'Transaction', bank: 'Bank Account',
+  loan: 'Loan', insurance: 'Insurance', vat: 'VAT', dojo: 'Dojo',
+  vehicle: 'Vehicle', parcel: 'Parcel Partner',
+  product: 'Product', movement: 'Stock Move',
+  supplier: 'Supplier', po: 'Purchase Order',
+  document: 'Document', registration: 'Companies House',
+  maintenance: 'Maintenance', asset: 'Asset', waste: 'Waste', licence: 'Licence', reminder: 'Reminder',
+};
+
+function Card({ kind, title, subtitle, fields, status, onView }: {
+  kind: string;
+  title: string;
+  subtitle?: string;
+  fields: { label: string; value: React.ReactNode }[];
+  status?: string;
+  onView?: () => void;
+}) {
+  const colorClass = kindColors[kind] ?? 'bg-slate-50 border-slate-200';
+  const activeFields = fields.filter(f => f.value !== undefined && f.value !== null && f.value !== '');
   return (
-    <div className="flex gap-1 text-[11px] leading-snug">
-      <span className="font-bold text-slate-700 shrink-0">{label}:</span>
-      <span className="text-slate-600">{value}</span>
+    <div className={cn('rounded-lg border p-2 flex flex-col gap-1 hover:shadow-sm transition-shadow', colorClass)}>
+      {/* Kind label + Status on same row */}
+      <div className="flex items-center justify-between gap-1">
+        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
+          {kindLabels[kind] ?? kind}
+        </span>
+        <div className="flex items-center gap-1">
+          {onView && (
+            <button
+              onClick={onView}
+              className="flex items-center gap-0.5 px-1.5 py-px rounded text-[8px] font-bold bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+            >
+              <Eye size={8} /> View
+            </button>
+          )}
+          {status && <StatusBadge status={status} />}
+        </div>
+      </div>
+      {/* Title + Subtitle */}
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold text-slate-800 truncate leading-tight">{title}</p>
+        {subtitle && <p className="text-[9px] text-slate-500 truncate leading-tight">{subtitle}</p>}
+      </div>
+      {/* Fields */}
+      {activeFields.length > 0 && (
+        <div className="space-y-px border-t border-black/5 pt-1">
+          {activeFields.map((f, i) => (
+            <div key={i} className="flex gap-1 text-[9.5px] leading-snug">
+              <span className="text-slate-400 shrink-0">{f.label}:</span>
+              <span className="text-slate-700 font-semibold truncate">{f.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-  );
-}
-
-function Badge({ label, status }: { label: string; status: string }) {
-  if (!status) return null;
-  return (
-    <div className="flex gap-1 text-[11px] leading-snug items-center">
-      <span className="font-bold text-slate-700 shrink-0">{label}:</span>
-      <StatusBadge status={status} />
-    </div>
-  );
-}
-
-function Row({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="p-3 grid grid-cols-2 gap-x-6 gap-y-1 hover:bg-slate-50 transition-colors">
-      {children}
-    </div>
-  );
-}
-
-// ─── Kind label pill ──────────────────────────────────────────────────────────
-
-function KindPill({ label, color }: { label: string; color: string }) {
-  return (
-    <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider', color)}>
-      {label}
-    </span>
   );
 }
 
@@ -110,102 +154,60 @@ function KindPill({ label, color }: { label: string; color: string }) {
 
 function AccountingRecord({ r }: { r: any }) {
   if (r._kind === 'bank') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Bank Account" color="bg-blue-100 text-blue-700" />
-        <F label="Bank" value={r.name} />
-        <F label="Account Name" value={r.accountName} />
-        <F label="Account No." value={r.accountNumber} />
-      </div>
-      <div className="space-y-1">
-        <F label="Sort Code" value={r.sortCode} />
-        <F label="Type" value={r.accountType} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="bank" title={r.name} subtitle={r.accountName} status={r.status}
+      fields={[
+        { label: 'Account No', value: r.accountNumber },
+        { label: 'Sort Code',  value: r.sortCode },
+        { label: 'Type',       value: r.accountType },
+      ]} />
   );
-
   if (r._kind === 'loan') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Loan" color="bg-orange-100 text-orange-700" />
-        <F label="Name" value={r.name} />
-        <F label="Lender" value={r.lender} />
-        <F label="Total" value={r.totalAmount} />
-        <F label="Outstanding" value={r.outstanding} />
-      </div>
-      <div className="space-y-1">
-        <F label="Monthly" value={r.monthly} />
-        <F label="Interest" value={r.rate} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="loan" title={r.name} subtitle={r.lender} status={r.status}
+      fields={[
+        { label: 'Total',       value: r.totalAmount },
+        { label: 'Outstanding', value: r.outstanding },
+        { label: 'Monthly',     value: r.monthly },
+        { label: 'Rate',        value: r.rate },
+      ]} />
   );
-
   if (r._kind === 'insurance') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Insurance" color="bg-teal-100 text-teal-700" />
-        <F label="Type" value={r.name} />
-        <F label="Provider" value={r.provider} />
-        <F label="Policy No." value={r.policyNumber} />
-      </div>
-      <div className="space-y-1">
-        <F label="Premium" value={r.premium} />
-        <F label="Expiry" value={r.expiry} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="insurance" title={r.name} subtitle={r.provider} status={r.status}
+      fields={[
+        { label: 'Policy No', value: r.policyNumber },
+        { label: 'Premium',   value: r.premium },
+        { label: 'Expiry',    value: r.expiry },
+      ]} />
   );
-
   if (r._kind === 'vat') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="VAT" color="bg-yellow-100 text-yellow-700" />
-        <F label="Type" value={r.name} />
-        <F label="Period" value={r.period} />
-      </div>
-      <div className="space-y-1">
-        <F label="Amount" value={r.amount} />
-        <F label="Date" value={r.date} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="vat" title={r.name} subtitle={r.period} status={r.status}
+      fields={[
+        { label: 'Amount', value: r.amount },
+        { label: 'Date',   value: r.date },
+      ]} />
   );
-
   if (r._kind === 'dojo') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Dojo Settlement" color="bg-purple-100 text-purple-700" />
-        <F label="Date" value={r.date} />
-        <F label="Method" value={r.method} />
-        <F label="Amount" value={r.amount} />
-      </div>
-      <div className="space-y-1">
-        <F label="Fee" value={r.fee} />
-        <F label="Net" value={r.net} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="dojo" title={`Dojo · ${r.date}`} subtitle={r.method} status={r.status}
+      fields={[
+        { label: 'Amount', value: r.amount },
+        { label: 'Fee',    value: r.fee },
+        { label: 'Net',    value: r.net },
+      ]} />
   );
-
-  // invoice or transaction
+  if (r._kind === 'invoice') return (
+    <Card kind="invoice" title={r.name} subtitle={r.title} status={r.status}
+      fields={[
+        { label: 'Amount',   value: r.amount },
+        { label: 'Due Date', value: r.dueDate },
+      ]} />
+  );
   return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label={r._kind === 'invoice' ? 'Invoice' : 'Transaction'} color={r._kind === 'invoice' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'} />
-        <F label="Name" value={r.name} />
-        <F label="Category" value={r.category} />
-        <F label="Amount" value={r.amount} />
-        <F label="Notes" value={r.notes} />
-      </div>
-      <div className="space-y-1">
-        <F label="Title" value={r.title} />
-        <F label="Type" value={r.type} />
-        <Badge label="Status" status={r.status} />
-        <F label="Due Date" value={r.dueDate} />
-      </div>
-    </Row>
+    <Card kind="transaction" title={r.name} subtitle={r.category} status={r.status}
+      fields={[
+        { label: 'Type',   value: r.type },
+        { label: 'Amount', value: r.amount },
+        { label: 'Date',   value: r.dueDate },
+        { label: 'Notes',  value: r.notes },
+      ]} />
   );
 }
 
@@ -213,43 +215,23 @@ function AccountingRecord({ r }: { r: any }) {
 
 function FleetRecord({ r }: { r: any }) {
   if (r._kind === 'parcel') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Parcel Partner" color="bg-orange-100 text-orange-700" />
-        <F label="Provider" value={r.provider} />
-        <F label="Vehicle" value={r.vehicle} />
-        <F label="Area" value={r.area} />
-      </div>
-      <div className="space-y-1">
-        <F label="Contact" value={r.contact} />
-        <F label="Phone" value={r.phone} />
-        <F label="Service Date" value={r.serviceDate} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="parcel" title={r.provider} subtitle={r.area} status={r.status}
+      fields={[
+        { label: 'Vehicle',  value: r.vehicle },
+        { label: 'Contact',  value: r.contact },
+        { label: 'Phone',    value: r.phone },
+        { label: 'Service',  value: r.serviceDate },
+      ]} />
   );
-
   return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Vehicle" color="bg-blue-100 text-blue-700" />
-        <F label="Vehicle" value={r.vehicle} />
-        <F label="Registration" value={r.registration} />
-        <F label="Insurance" value={r.insurance} />
-        <F label="MOT" value={r.mot} />
-        <F label="Road Tax" value={r.roadTax} />
-        <F label="Delivery Date" value={r.deliveryDate} />
-        <F label="Notes" value={r.notes} />
-      </div>
-      <div className="space-y-1">
-        <F label="Vehicle Name" value={r.vehicleName} />
-        <F label="Plate" value={r.vehicleNumber} />
-        <F label="Insurance Expiry" value={r.insuranceExpiry} />
-        <F label="MOT Date" value={r.motDate} />
-        <F label="Road Tax Date" value={r.roadTaxDate} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="vehicle" title={r.vehicleName} subtitle={r.vehicleNumber} status={r.status}
+      fields={[
+        { label: 'Insurance', value: r.insuranceExpiry },
+        { label: 'MOT',       value: r.motDate },
+        { label: 'Road Tax',  value: r.roadTaxDate },
+        { label: 'Delivery',  value: r.deliveryDate },
+        { label: 'Notes',     value: r.notes },
+      ]} />
   );
 }
 
@@ -257,35 +239,19 @@ function FleetRecord({ r }: { r: any }) {
 
 function InventoryRecord({ r }: { r: any }) {
   if (r._kind === 'movement') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Stock Movement" color="bg-amber-100 text-amber-700" />
-        <F label="Item" value={r.item} />
-        <F label="Date" value={r.date} />
-        <F label="Notes" value={r.notes} />
-      </div>
-      <div className="space-y-1">
-        <Badge label="Type" status={r.type} />
-        <F label="Quantity" value={r.quantity} />
-      </div>
-    </Row>
+    <Card kind="movement" title={r.item} subtitle={r.date} status={r.type}
+      fields={[
+        { label: 'Qty',   value: r.quantity },
+        { label: 'Notes', value: r.notes },
+      ]} />
   );
-
   return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Product" color="bg-yellow-100 text-yellow-700" />
-        <F label="Item" value={r.item} />
-        <F label="SKU" value={r.sku} />
-        <F label="Stock" value={r.stock} />
-        <F label="Price" value={r.price} />
-      </div>
-      <div className="space-y-1">
-        <F label="Category" value={r.category} />
-        <F label="Stock Level" value={r.stockLevel} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="product" title={r.item} subtitle={r.category} status={r.status}
+      fields={[
+        { label: 'SKU',   value: r.sku },
+        { label: 'Stock', value: r.stockLevel },
+        { label: 'Price', value: r.price },
+      ]} />
   );
 }
 
@@ -293,57 +259,44 @@ function InventoryRecord({ r }: { r: any }) {
 
 function SupplierRecord({ r }: { r: any }) {
   if (r._kind === 'po') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Purchase Order" color="bg-amber-100 text-amber-700" />
-        <F label="PO Number" value={r.number} />
-        <F label="Supplier" value={r.supplierName} />
-        <F label="Product" value={r.product} />
-      </div>
-      <div className="space-y-1">
-        <F label="Quantity" value={r.quantity} />
-        <F label="Amount" value={r.amount} />
-        <F label="Date" value={r.date} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="po" title={r.number} subtitle={r.supplierName} status={r.status}
+      fields={[
+        { label: 'Product', value: r.product },
+        { label: 'Qty',     value: r.quantity },
+        { label: 'Amount',  value: r.amount },
+        { label: 'Date',    value: r.date },
+      ]} />
   );
-
   return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Supplier" color="bg-orange-100 text-orange-700" />
-        <F label="Supplier Name" value={r.supplierName} />
-        <F label="Contact" value={r.contact} />
-        <F label="Phone" value={r.phone} />
-        <F label="Category" value={r.category} />
-      </div>
-      <div className="space-y-1">
-        <F label="Supplier ID" value={r.supplierId} />
-        <F label="Email" value={r.email} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="supplier" title={r.supplierName} subtitle={r.category} status={r.status}
+      fields={[
+        { label: 'Contact', value: r.contact },
+        { label: 'Phone',   value: r.phone },
+        { label: 'Email',   value: r.email },
+      ]} />
   );
 }
 
 // ─── Legal Records ────────────────────────────────────────────────────────────
 
-function LegalRecord({ r }: { r: any }) {
+function LegalRecord({ r, onView }: { r: any; onView: (doc: any) => void }) {
+  if (r._kind === 'registration') return (
+    <Card kind="registration" title={r.title} subtitle={`CRN: ${r.crn}`} status={r.status}
+      onView={() => onView({ title: r.title, type: 'Companies House Registration', status: r.status, date: r.filingDue })}
+      fields={[
+        { label: 'Manager',     value: r.manager },
+        { label: 'SIC Code',    value: r.sicCode },
+        { label: 'Filing Due',  value: r.filingDue },
+        { label: 'Address',     value: r.address },
+      ]} />
+  );
   return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Document" color="bg-slate-100 text-slate-600" />
-        <F label="Title" value={r.title} />
-        <F label="Type" value={r.type} />
-        <F label="Business" value={r.business} />
-      </div>
-      <div className="space-y-1">
-        <F label="Document Type" value={r.documentType} />
-        <F label="Expiry Date" value={r.expiryDate} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="document" title={r.title} subtitle={r.type} status={r.status}
+      onView={() => onView(r)}
+      fields={[
+        { label: 'Business', value: r.business },
+        { label: 'Expiry',   value: r.expiryDate },
+      ]} />
   );
 }
 
@@ -351,69 +304,45 @@ function LegalRecord({ r }: { r: any }) {
 
 function PropertyRecord({ r }: { r: any }) {
   if (r._kind === 'asset') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Asset" color="bg-blue-100 text-blue-700" />
-        <F label="Name" value={r.name} />
-        <F label="Type" value={r.assetType} />
-        <F label="Location" value={r.location} />
-      </div>
-      <div className="space-y-1">
-        <F label="Assigned To" value={r.assignedPerson} />
-        <F label="Contact" value={r.contact} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="asset" title={r.name} subtitle={r.assetType} status={r.status}
+      fields={[
+        { label: 'Location',    value: r.location },
+        { label: 'Assigned To', value: r.assignedPerson },
+        { label: 'Contact',     value: r.contact },
+      ]} />
   );
-
   if (r._kind === 'waste') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Waste Collection" color="bg-green-100 text-green-700" />
-        <F label="Date" value={r.date} />
-        <F label="Contact" value={r.contactPerson} />
-        <F label="Phone" value={r.phone} />
-      </div>
-      <div className="space-y-1">
-        <F label="Address" value={r.address} />
-        <Badge label="Status" status={r.status} />
-        <F label="Notes" value={r.notes} />
-      </div>
-    </Row>
+    <Card kind="waste" title="Waste Collection" subtitle={r.date} status={r.status}
+      fields={[
+        { label: 'Contact', value: r.contactPerson },
+        { label: 'Phone',   value: r.phone },
+        { label: 'Address', value: r.address },
+        { label: 'Notes',   value: r.notes },
+      ]} />
   );
-
   if (r._kind === 'licence') return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Licence" color="bg-purple-100 text-purple-700" />
-        <F label="Type" value={r.type} />
-        <F label="Business" value={r.business} />
-        <F label="Authority" value={r.authority} />
-      </div>
-      <div className="space-y-1">
-        <F label="Issue Date" value={r.issueDate} />
-        <F label="Expiry Date" value={r.expiryDate} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="licence" title={r.type} subtitle={r.authority} status={r.status}
+      fields={[
+        { label: 'Business', value: r.business },
+        { label: 'Issued',   value: r.issueDate },
+        { label: 'Expiry',   value: r.expiryDate },
+      ]} />
   );
-
-  // maintenance
+  if (r._kind === 'reminder') return (
+    <Card kind="reminder" title={r.title} subtitle={r.priority} status={r.status}
+      fields={[
+        { label: 'Due',         value: r.dueDate },
+        { label: 'Description', value: r.description },
+      ]} />
+  );
   return (
-    <Row>
-      <div className="space-y-1">
-        <KindPill label="Maintenance" color="bg-red-100 text-red-700" />
-        <F label="Issue" value={r.issue} />
-        <F label="Asset" value={r.asset} />
-        <F label="Location" value={r.location} />
-        <F label="Date" value={r.date} />
-      </div>
-      <div className="space-y-1">
-        <F label="Technician" value={r.technician} />
-        <F label="Priority" value={r.priority} />
-        <Badge label="Status" status={r.status} />
-      </div>
-    </Row>
+    <Card kind="maintenance" title={r.asset || 'Maintenance'} subtitle={r.priority} status={r.status}
+      fields={[
+        { label: 'Issue',      value: r.issue },
+        { label: 'Location',   value: r.location },
+        { label: 'Technician', value: r.technician },
+        { label: 'Date',       value: r.date },
+      ]} />
   );
 }
 
@@ -424,6 +353,18 @@ export default function BusinessDetailPage() {
   const router = useRouter();
   const slug = id as string;
   const [data, setData] = useState<any>(null);
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleViewDoc = (doc: any) => {
+    setSelectedDoc({
+      title: doc.title,
+      type: doc.type,
+      status: doc.status,
+      date: doc.expiryDate,
+    });
+    setDrawerOpen(true);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -439,12 +380,20 @@ export default function BusinessDetailPage() {
 
   const business = data.business ?? {
     name: slug?.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    category: 'General', hqLocation: '', companyNumber: '', taxId: '',
+    category: '', hqLocation: '', companyNumber: '', taxId: '',
   };
+
+  const infoParts = [
+    business.category,
+    business.companyNumber ? `Co. ${business.companyNumber}` : '',
+    business.hqLocation,
+    business.taxId ? `VAT: ${business.taxId}` : '',
+  ].filter(Boolean);
 
   return (
     <PageWrapper title="Business Profile">
       <div className="flex flex-col h-full overflow-hidden bg-[#f1f5f9]">
+
         {/* ── Banner ── */}
         <div className="bg-teal-600 text-white px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -453,11 +402,13 @@ export default function BusinessDetailPage() {
             </div>
             <div>
               <h2 className="text-lg font-black leading-tight">{business.name}</h2>
-              <div className="flex items-center gap-3 mt-0.5 text-teal-100 text-xs font-medium flex-wrap">
-                {business.category && <span>{business.category}</span>}
-                {business.companyNumber && <><span>•</span><span>Co. {business.companyNumber}</span></>}
-                {business.hqLocation && <><span>•</span><span>{business.hqLocation}</span></>}
-                {business.taxId && <><span>•</span><span>VAT: {business.taxId}</span></>}
+              <div className="flex items-center gap-2 mt-0.5 text-teal-100 text-xs font-medium flex-wrap">
+                {infoParts.map((p, i) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && <span className="opacity-50">•</span>}
+                    <span>{p}</span>
+                  </React.Fragment>
+                ))}
               </div>
             </div>
           </div>
@@ -469,7 +420,7 @@ export default function BusinessDetailPage() {
           </button>
         </div>
 
-        {/* ── Grid ── */}
+        {/* ── Sections Grid ── */}
         <div className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-2 gap-5 overflow-y-auto custom-scrollbar">
 
           <SectionCard icon={Calculator} iconBg="bg-slate-700" title="Accounting" count={data.accounting?.length || 0}>
@@ -489,7 +440,7 @@ export default function BusinessDetailPage() {
           </SectionCard>
 
           <SectionCard icon={Scale} iconBg="bg-slate-600" title="Legal & Compliance" count={data.legal?.length || 0}>
-            {data.legal?.map((r: any, i: number) => <LegalRecord key={i} r={r} />)}
+            {data.legal?.map((r: any, i: number) => <LegalRecord key={i} r={r} onView={handleViewDoc} />)}
           </SectionCard>
 
           <SectionCard icon={Home} iconBg="bg-slate-500" title="Property Management" count={data.property?.length || 0}>
@@ -498,6 +449,12 @@ export default function BusinessDetailPage() {
 
         </div>
       </div>
+
+      <DocumentDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        documentData={selectedDoc}
+      />
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

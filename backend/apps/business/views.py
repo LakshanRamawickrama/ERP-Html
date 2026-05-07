@@ -33,6 +33,7 @@ from apps.inventory.models import Product, StockMovement
 from apps.suppliers.models import Supplier, PurchaseOrder
 from apps.legal.models import LegalDocument
 from apps.property.models import MaintenanceRequest, Asset, WasteCollection, PropertyLicence
+from apps.reminders.models import Reminder
 
 class BusinessDetailView(APIView):
     permission_classes = [IsAuthenticated]
@@ -216,7 +217,7 @@ class BusinessDetailView(APIView):
                 "status": po.status,
             })
 
-        # ── Legal: documents ──
+        # ── Legal: documents + Companies House registrations ──
         legal = []
         for d in LegalDocument.objects.all():
             legal.append({
@@ -227,6 +228,18 @@ class BusinessDetailView(APIView):
                 "business": business_name,
                 "expiryDate": str(d.expiry_date) if d.expiry_date else "",
                 "status": d.status,
+                "documentUrl": d.document_url or "",
+            })
+        for cs in CompanyStructure.objects.all():
+            legal.append({
+                "_kind": "registration",
+                "title": cs.name,
+                "crn": cs.crn,
+                "manager": cs.manager,
+                "sicCode": cs.sic_code or "",
+                "filingDue": str(cs.filing_due) if cs.filing_due else "",
+                "address": cs.address or "",
+                "status": "Active",
             })
 
         # ── Property: maintenance + assets + waste + licences ──
@@ -271,6 +284,15 @@ class BusinessDetailView(APIView):
                 "issueDate": str(pl.issue_date),
                 "expiryDate": str(pl.expiry_date),
                 "status": pl.status,
+            })
+        for r in Reminder.objects.all():
+            property_data.append({
+                "_kind": "reminder",
+                "title": r.title,
+                "description": r.description,
+                "dueDate": str(r.due_date)[:10],
+                "priority": r.priority,
+                "status": "Completed" if r.is_completed else "Pending",
             })
 
         return Response({
