@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'apps.suppliers',
     'apps.system',
     'apps.users',
-    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -113,7 +112,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'apps.users.authentication.StaffProfileAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
 }

@@ -45,7 +45,9 @@ export default function LoginPage() {
           id: data.user_id,
           name: data.username,
           role: data.role,
-          business: data.business
+          business: data.business,
+          access: data.access,
+          permissions: data.permissions,
         }));
         router.push('/dashboard');
       } else {
