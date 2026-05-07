@@ -7,6 +7,8 @@ class Supplier(models.Model):
     phone = models.CharField(max_length=50)
     category = models.CharField(max_length=100)
     status = models.CharField(max_length=50, default='Active')
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -19,3 +21,5 @@ class PurchaseOrder(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     date = models.DateField()
     status = models.CharField(max_length=50)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)

@@ -26,10 +26,15 @@ class StaffProfileAuthentication(JWTAuthentication):
         except User.DoesNotExist:
             pass
 
-        # Admin: token username claim is a StaffProfile pk (ObjectId string)
+        # Admin: token username claim is either a StaffProfile pk or email
         from .models import StaffProfile
         try:
-            profile = StaffProfile.objects.get(pk=claim_value)
+            # Try by email first (as per SIMPLE_JWT settings)
+            profile = StaffProfile.objects.filter(email=claim_value).first()
+            if not profile:
+                # Fallback to pk (ObjectId)
+                profile = StaffProfile.objects.get(pk=claim_value)
+            
             if profile.status != 'Active':
                 raise AuthenticationFailed('Staff account is not active.')
             return profile

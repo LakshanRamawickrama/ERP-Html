@@ -1,12 +1,16 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Product, StockMovement
 from .serializers import ProductSerializer, StockMovementSerializer
+from apps.users.utils import get_filtered_queryset
 
 class InventoryDataView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        products = Product.objects.all()
-        movements = StockMovement.objects.all()
+        products = get_filtered_queryset(request, Product)
+        movements = get_filtered_queryset(request, StockMovement)
         low_stock = [p for p in products if p.quantity <= p.min_stock]
 
         alerts = [

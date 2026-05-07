@@ -6,6 +6,8 @@ class LegalDocument(models.Model):
     status = models.CharField(max_length=50) # Active, Expired, Pending
     expiry_date = models.DateField()
     document_file = models.FileField(upload_to='legal/documents/', blank=True, null=True)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.title

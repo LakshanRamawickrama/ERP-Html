@@ -69,9 +69,16 @@ export default function FleetModule() {
     });
     Object.entries(fileFields).forEach(([k, f]) => body.append(k, f));
 
+    const endpointMap: Record<string, string> = {
+      vehicles: 'vehicles/',
+      deliveries: 'deliveries/',
+      parcels: 'parcels/'
+    };
+    const subPath = endpointMap[activeTab] || 'vehicles/';
+
     const url = editingId
-      ? `${API_ENDPOINTS.FLEET}vehicles/${editingId}/`
-      : `${API_ENDPOINTS.FLEET}vehicles/`;
+      ? `${API_ENDPOINTS.FLEET}${subPath}${editingId}/`
+      : `${API_ENDPOINTS.FLEET}${subPath}`;
     const method = editingId ? 'PUT' : 'POST';
 
     try {
@@ -91,16 +98,32 @@ export default function FleetModule() {
     setShowDeleteModal(true);
   };
 
-  const handleViewDoc = (docTitle: string, type?: string) => {
-    setSelectedDoc({ title: docTitle, type: type });
+  const handleViewDoc = (docTitle: string, url?: string, type?: string) => {
+    setSelectedDoc({ title: docTitle, fileUrl: url, type: type });
     setIsDrawerOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    const token = localStorage.getItem('token');
+    const endpointMap: Record<string, string> = {
+      vehicles: 'vehicles/',
+      deliveries: 'deliveries/',
+      parcels: 'parcels/'
+    };
+    const subPath = endpointMap[activeTab] || 'vehicles/';
+    const url = `${API_ENDPOINTS.FLEET}${subPath}${deleteId}/`;
 
-    if (deleteId) {
-      console.log('Deleting fleet record:', deleteId);
-      // TODO: API call
+    try {
+      const res = await fetch(url, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) {
+        const refreshed = await fetch(API_ENDPOINTS.FLEET, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+        setData(refreshed);
+        setShowDeleteModal(false);
+        setDeleteId(null);
+      }
+    } catch (err) {
+      console.error('Fleet delete error:', err);
     }
   };
 
@@ -204,7 +227,10 @@ export default function FleetModule() {
                         <Field label="Road Tax Date" name="tax" value={formData.tax} onChange={handleInputChange} type="date" />
                         <Field label="Tax Doc" name="taxDoc" onChange={handleInputChange} type="file" />
                       </div>
-                      <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea placeholder="Standard company van, service due, etc." />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Reminder Before" name="reminderBefore" value={formData.reminderBefore} onChange={handleInputChange} isSelect options={data.options?.remindOptions || []} />
+                        <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea placeholder="Service due, etc." />
+                      </div>
                     </>
                   )}
 
@@ -269,6 +295,7 @@ export default function FleetModule() {
                           <th className={thClass}>Business</th>
                           <th className={thClass}>MOT / Insurance / Tax</th>
                           <th className={thClass}>Docs</th>
+                          <th className={thClass}>Notes</th>
                           <th className={thClass}>Status</th>
                         </>
                       )}
@@ -286,6 +313,7 @@ export default function FleetModule() {
                           <th className={thClass}>Provider</th>
                           <th className={thClass}>Vehicle</th>
                           <th className={thClass}>Area / Contact</th>
+                          <th className={thClass}>Notes</th>
                           <th className={thClass}>Status</th>
                         </>
                       )}
@@ -298,18 +326,18 @@ export default function FleetModule() {
                         <VehicleRow 
                           key={i} 
                           {...v} 
-                          onEdit={() => handleEdit(`vehicle-${i}`, v, 'vehicles')} 
-                          onDelete={() => handleDeleteClick(`vehicle-${i}`)}
-                          onViewDoc={(title: string) => handleViewDoc(title, 'Fleet Compliance')}
+                          onEdit={() => handleEdit(v.id || `vehicle-${i}`, v, 'vehicles')} 
+                          onDelete={() => handleDeleteClick(v.id || `vehicle-${i}`)}
+                          onViewDoc={(title: string, url?: string) => handleViewDoc(title, url, 'Fleet Compliance')}
                         />
                       )) || null
                     )}
 
                     {activeTab === 'deliveries' && (
-                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} onEdit={() => handleEdit(`delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(`delivery-${i}`)} />) || null
+                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} onEdit={() => handleEdit(d.id || `delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(d.id || `delivery-${i}`)} />) || null
                     )}
                     {activeTab === 'parcels' && (
-                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} onEdit={() => handleEdit(`parcel-${i}`, p, 'parcels')} onDelete={() => handleDeleteClick(`parcel-${i}`)} />) || null
+                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} onEdit={() => handleEdit(p.id || `parcel-${i}`, p, 'parcels')} onDelete={() => handleDeleteClick(p.id || `parcel-${i}`)} />) || null
                     )}
                   </tbody>
                 </table>
@@ -377,7 +405,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
       ) : (
         <input 
           name={name}
-          value={value || ''}
+          {...(type !== 'file' ? { value: value || '' } : {})}
           onChange={onChange}
           type={type} 
           className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
@@ -388,7 +416,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit, onDelete, onViewDoc }: any) {
+function VehicleRow({ name, plate, biz, mot, ins, tax, status, notes, onEdit, onDelete, onViewDoc, ins_doc_url, mot_doc_url, tax_doc_url }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -416,18 +444,20 @@ function VehicleRow({ name, plate, biz, mot, ins, tax, status, onEdit, onDelete,
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <span title="MOT Doc" onClick={() => onViewDoc(`MOT Certificate - ${plate}`)}>
+          <span title="MOT Doc" onClick={() => onViewDoc(`MOT Certificate - ${plate}`, mot_doc_url)}>
             <FileText className="w-4 h-4 text-red-500 cursor-pointer hover:scale-110 transition-transform" />
           </span>
-          <span title="Insurance Doc" onClick={() => onViewDoc(`Insurance Policy - ${plate}`)}>
+          <span title="Insurance Doc" onClick={() => onViewDoc(`Insurance Policy - ${plate}`, ins_doc_url)}>
             <FileText className="w-4 h-4 text-amber-500 cursor-pointer hover:scale-110 transition-transform" />
           </span>
-          <span title="Tax Doc" onClick={() => onViewDoc(`Road Tax Log - ${plate}`)}>
+          <span title="Tax Doc" onClick={() => onViewDoc(`Road Tax Log - ${plate}`, tax_doc_url)}>
             <FileText className="w-4 h-4 text-slate-500 cursor-pointer hover:scale-110 transition-transform" />
           </span>
         </div>
       </td>
-
+      <td className="px-4 py-4 text-slate-400 text-[10px] italic max-w-[150px] truncate" title={notes}>
+        {notes || "-"}
+      </td>
       <td className="px-4 py-4">
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">{status}</span>
       </td>
@@ -465,14 +495,14 @@ function DeliveryRow({ date, v, vNum, addr, contact, notes, status, onEdit, onDe
           </div>
         </div>
       </td>
-      <td className="px-4 py-4 text-slate-400 text-[10px] italic">{notes}</td>
+      <td className="px-4 py-4 text-slate-400 text-[10px] italic max-w-[150px] truncate" title={notes}>{notes}</td>
       <td className="px-4 py-4">
         <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full border border-blue-100 uppercase">{status}</span>
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
           <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-            <FileSearch className="w-3.5 h-3.5" />
+            <Edit className="w-3.5 h-3.5" />
           </button>
           <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
             <Trash2 className="w-3.5 h-3.5" />
@@ -483,7 +513,7 @@ function DeliveryRow({ date, v, vNum, addr, contact, notes, status, onEdit, onDe
   );
 }
 
-function ParcelRow({ provider, v, vNum, area, contact, status, onEdit, onDelete }: any) {
+function ParcelRow({ provider, v, vNum, area, contact, notes, status, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -502,6 +532,9 @@ function ParcelRow({ provider, v, vNum, area, contact, status, onEdit, onDelete 
           <div className="font-bold text-slate-700 text-xs">{area}</div>
           <div className="text-slate-400 text-[10px] font-medium">{contact}</div>
         </div>
+      </td>
+      <td className="px-4 py-4 text-slate-400 text-[10px] italic max-w-[150px] truncate" title={notes}>
+        {notes || "-"}
       </td>
       <td className="px-4 py-4">
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">{status}</span>

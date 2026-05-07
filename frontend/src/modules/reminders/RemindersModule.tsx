@@ -331,17 +331,20 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                     <div className="grid grid-cols-7 gap-1 text-center">
                       {Array.from({length: 31}).map((_, i) => {
                         const day = i + 1;
-                        const isToday = day === 6; // Mocking today as May 6th
-                        const hasReminder = [10, 15, 30].includes(day);
+                        const isToday = day === new Date().getDate() && new Date().getMonth() === 4 && new Date().getFullYear() === 2026;
+                        const dayStr = day.toString().padStart(2, '0');
+                        const dateStr = `2026-05-${dayStr}`;
+                        const hasReminder = filtered.some(r => r.date === dateStr);
+                        
                         return (
                           <div 
                             key={i} 
-                            onClick={() => setFilter(`date-2026-05-${day.toString().padStart(2, '0')}`)}
+                            onClick={() => setFilter(`date-${dateStr}`)}
                             className={`
                               h-6 flex items-center justify-center text-[10px] rounded-lg cursor-pointer transition-all relative
                               ${isToday ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-100' : 
-                                filter === `date-2026-05-${day.toString().padStart(2, '0')}` ? 'bg-indigo-100 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-100'}
-                              ${hasReminder && !isToday && filter !== `date-2026-05-${day.toString().padStart(2, '0')}` ? 'border border-indigo-200 text-indigo-600 font-bold' : ''}
+                                filter === `date-${dateStr}` ? 'bg-indigo-100 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-100'}
+                              ${hasReminder && !isToday && filter !== `date-${dateStr}` ? 'border border-indigo-200 text-indigo-600 font-bold' : ''}
                             `}
                           >
                             {day}

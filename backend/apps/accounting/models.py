@@ -9,6 +9,8 @@ class Transaction(models.Model):
     status = models.CharField(max_length=50)
     notes = models.TextField(blank=True, null=True)
     document = models.FileField(upload_to='accounting/documents/', blank=True, null=True)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
 class Invoice(models.Model):
     number = models.CharField(max_length=100, unique=True)
@@ -17,6 +19,8 @@ class Invoice(models.Model):
     due_date = models.DateField()
     status = models.CharField(max_length=50)
     pdf = models.FileField(upload_to='accounting/invoices/', blank=True, null=True)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
 class BankAccount(models.Model):
     bank_name = models.CharField(max_length=255)
@@ -25,6 +29,8 @@ class BankAccount(models.Model):
     sort_code = models.CharField(max_length=20)
     account_type = models.CharField(max_length=50)
     status = models.CharField(max_length=50)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
 class Loan(models.Model):
     name = models.CharField(max_length=255)
@@ -34,6 +40,8 @@ class Loan(models.Model):
     monthly_payment = models.DecimalField(max_digits=15, decimal_places=2)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     status = models.CharField(max_length=50)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
 class InsurancePolicy(models.Model):
     type = models.CharField(max_length=255)
@@ -42,6 +50,8 @@ class InsurancePolicy(models.Model):
     premium = models.DecimalField(max_digits=15, decimal_places=2)
     expiry_date = models.DateField()
     status = models.CharField(max_length=50)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
 class VATRecord(models.Model):
     type = models.CharField(max_length=255)
@@ -49,6 +59,8 @@ class VATRecord(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     date = models.DateField()
     status = models.CharField(max_length=50)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
 class DojoSettlement(models.Model):
     date = models.DateField()
@@ -57,3 +69,5 @@ class DojoSettlement(models.Model):
     net = models.DecimalField(max_digits=15, decimal_places=2)
     method = models.CharField(max_length=100, default='Card')  # Card, Contactless, Online
     status = models.CharField(max_length=50, default='Settled')
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)

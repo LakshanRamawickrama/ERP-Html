@@ -1,212 +1,63 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from apps.business.models import BusinessEntity
 from apps.fleet.models import Vehicle
-from apps.inventory.models import Product
-from apps.suppliers.models import Supplier
-from apps.reminders.models import Reminder
-from apps.accounting.models import Transaction, VATRecord, BankAccount, Invoice
+from apps.accounting.models import VATRecord, Invoice, Transaction
 from apps.property.models import MaintenanceRequest
-from apps.users.models import StaffProfile
-
-class ReportsDataView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request):
-        profile = StaffProfile.objects.filter(email=request.user.email).first()
-        business_scope = profile.assigned_business if profile else 'All'
-        
-        days = request.GET.get('days', '30')
-        m = 0.23 if days == '7' else 3.0 if days == '90' else 12.0 if days == '365' else 1.0
-
-        if business_scope == 'All' or request.user.is_superuser:
-            v_count = Vehicle.objects.count()
-            s_count = Supplier.objects.count()
-            p_count = Product.objects.count()
-            e_count = BusinessEntity.objects.count()
-            entities = BusinessEntity.objects.all()
-        else:
-            v_count = Vehicle.objects.filter(business=business_scope).count()
-            s_count = Supplier.objects.count()
-            p_count = Product.objects.count()
-            e_count = BusinessEntity.objects.filter(name=business_scope).count()
-            entities = BusinessEntity.objects.filter(name=business_scope)
-
-        banks = BankAccount.objects.all()
-        vat = VATRecord.objects.all()
-
-        return Response({
-            "stats": [
-                {"title": "Total Entities", "value": str(e_count), "trend": "+2", "isUp": True},
-                {"title": "Fleet Vehicles", "value": str(v_count), "trend": "Active", "isUp": True},
-                {"title": "Active Providers", "value": str(s_count), "trend": "Stable", "isUp": True},
-                {"title": "Stock SKUs", "value": str(p_count), "trend": "+12", "isUp": True}
-            ],
-            "templates": [
-                {"label": "Annual Tax Summary", "format": "PDF"},
-                {"label": "Supplier Performance", "format": "XLSX"},
-                {"label": "Inventory Audit", "format": "CSV"}
-            ],
-            "businesses": [
-                {
-                    "id": str(e.id),
-                    "name": e.name,
-                    "slug": e.name.lower().replace(' ', '-'),
-                    "admin": ["Sarah Jenkins", "Michael Chang", "David O'Connor", "Emma Wilson", "James Smith"][hash(e.name) % 5],
-                    "inc": f"${(125400 + (hash(e.name) % 15) * 1200) * m:,.0f}",
-                    "exp": f"${(42100 + (hash(e.name) % 8) * 800) * m:,.0f}",
-                    "skus": f"{1240 + (hash(e.name) % 5) * 10}",
-                    "flt": f"{12 + (hash(e.name) % 4)}",
-                    "st": e.status
-                } for e in entities
-            ],
-            "banks": [
-                {
-                    "b": b.bank_name,
-                    "n": b.account_name,
-                    "bl": f"${142350 * m:,.0f}"
-                } for b in banks
-            ],
-            "tax": [
-                {
-                    "type": r.type,
-                    "amount": f"${float(r.amount) * m:,.0f}" if r.amount is not None else "$0"
-                } for r in vat
-            ]
-        })
+from apps.reminders.models import Reminder
+from apps.users.utils import get_filtered_queryset
 
 class DashboardDataView(APIView):
     permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        # Safely handle user email and username for both authenticated and anonymous users
-        user_email = getattr(request.user, 'email', None)
-        user_name = getattr(request.user, 'username', 'Guest')
-        
-        profile = StaffProfile.objects.filter(email=user_email).first() if user_email else None
-        business_scope = profile.assigned_business if profile else 'All'
-        
-        is_scoped = business_scope != 'All' and not getattr(request.user, 'is_superuser', False)
-        
-        days = request.GET.get('days', '30')
-        m = 0.23 if days == '7' else 3.0 if days == '90' else 12.0 if days == '365' else 1.0
+        entities = get_filtered_queryset(request, BusinessEntity, 'name')
+        vehicles = get_filtered_queryset(request, Vehicle)
+        vat = get_filtered_queryset(request, VATRecord)
+        maintenance = get_filtered_queryset(request, MaintenanceRequest)
+        invoices = get_filtered_queryset(request, Invoice)
+        reminders = get_filtered_queryset(request, Reminder)
 
-        if not is_scoped:
-            entities = BusinessEntity.objects.all()
-            vehicles = Vehicle.objects.all()
-            vat = VATRecord.objects.all()
-            maintenance = MaintenanceRequest.objects.all()
-            invoices = Invoice.objects.all()
-        else:
-            entities = BusinessEntity.objects.filter(name=business_scope)
-            vehicles = Vehicle.objects.filter(business=business_scope)
-            vat = VATRecord.objects.all() 
-            maintenance = MaintenanceRequest.objects.all()
-            invoices = Invoice.objects.all()
-
-        reminders = Reminder.objects.all()
-        low_stock = Product.objects.filter(quantity__lt=10)
-        banks = BankAccount.objects.all()
+        total_revenue = sum(inv.amount for inv in invoices if inv.status == 'Paid')
+        active_vehicles = vehicles.filter(status='Active').count()
+        pending_maintenance = maintenance.filter(status='Pending').count()
+        urgent_reminders = reminders.filter(priority='High').count()
 
         return Response({
-            "businesses": [
-                {
-                    "id": str(e.id),
-                    "name": e.name,
-                    "slug": e.name.lower().replace(' ', '-'),
-                    "inc": f"${(125400 + (hash(e.name) % 15) * 1200) * m:,.0f}",
-                    "exp": f"${(42100 + (hash(e.name) % 8) * 800) * m:,.0f}",
-                    "skus": f"{1240 + (hash(e.name) % 5) * 10}",
-                    "flt": f"{12 + (hash(e.name) % 4)}",
-                    "st": e.status
-                } for e in entities
-            ],
-            "fleet": [
-                {
-                    "v": v.name,
-                    "p": v.plate_number,
-                    "i": str(v.insurance_date) if v.insurance_date else None,
-                    "s": v.status
-                } for v in vehicles
-            ],
-            "notes": [
-                "Renew trade licence before May 20" if not is_scoped else f"Renew {business_scope} licence",
-                "Insurance expiring this month for fleet",
-                "Follow up with Global Logistics"
-            ],
-            "vat": [
-                {
-                    "type": r.type,
-                    "period": r.period,
-                    "amount": f"${r.amount:,.0f}" if r.amount is not None else "$0",
-                    "status": r.status
-                } for r in vat
-            ],
-            "todos": [
-                {"t": "Renew TRK-007 insurance", "d": True},
-                {"t": "File VAT Q2 2026", "d": False},
-                {"t": "Review supplier PO-2026-503", "d": False}
-            ],
-            "passwords": [
-                {"s": "HMRC Online", "u": "admin@businesscentral.com"},
-                {"s": "Companies House", "u": "john.smith@bc.com"}
-            ],
-            "supplierPayments": [
-                {"p": "PO-2026-501", "s": "Prime Office", "a": "$450", "st": "Pending"},
-                {"p": "PO-2026-502", "s": "Global Logistics", "a": "$1,800", "st": "Paid"}
-            ],
-            "sales": [
-                {
-                    "i": inv.number,
-                    "c": inv.client,
-                    "a": f"${inv.amount:,.0f}" if inv.amount is not None else "$0",
-                    "s": inv.status
-                } for inv in invoices
-            ],
-            "banks": [
-                {
-                    "b": b.bank_name,
-                    "n": b.account_name,
-                    "bl": "$142,350"
-                } for b in banks
-            ],
-            "maintenance": [
-                {
-                    "a": m.asset.name if m.asset else "Unknown Asset",
-                    "p": m.priority,
-                    "s": m.status
-                } for m in maintenance
-            ],
-            "lowStock": [
-                {
-                    "i": p.name,
-                    "c": p.quantity,
-                    "s": "Low Stock"
-                } for p in low_stock
+            "kpis": [
+                {"label": "Total Revenue", "value": f"${total_revenue:,.2f}", "trend": "+12.5%", "color": "emerald"},
+                {"label": "Active Fleet", "value": str(active_vehicles), "trend": "Stable", "color": "blue"},
+                {"label": "Pending Maintenance", "value": str(pending_maintenance), "trend": "-2", "color": "amber"},
+                {"label": "Urgent Reminders", "value": str(urgent_reminders), "trend": "Critical", "color": "rose"},
             ],
             "activity": [
-                {"t": "2m", "a": f"{user_name} viewed dashboard."},
-                {"t": "15m", "a": "System backup successful."},
+                {"id": r.id, "type": r.priority.lower(), "title": r.title, "time": "Due Soon", "status": r.priority}
+                for r in reminders[:5]
             ],
-            "renewals": [
-                {"e": "Alpha Trading", "d": "3 Days", "u": True},
-            ],
-            "reminders": [
-                {
-                    "id": str(r.id),
-                    "title": r.title,
-                    "business": business_scope,
-                    "priority": r.priority,
-                    "type": "General"
-                } for r in reminders
-            ],
-            "pl": {
-                "income": "$482,800",
-                "expenses": "$237,585",
-                "grossProfit": "$245,215",
-                "tax": "$49,043",
-                "netProfit": "$196,172",
-            },
-            "emails": [
-                {"email": user_email or "N/A", "label": "Primary Account", "status": "Connected", "type": "primary"}
+            "fleetStatus": [
+                {"label": "Active", "value": active_vehicles, "color": "#10b981"},
+                {"label": "In Maintenance", "value": vehicles.filter(status='Maintenance').count(), "color": "#f59e0b"},
+                {"label": "Idle", "value": vehicles.filter(status='Idle').count(), "color": "#64748b"},
             ]
+        })
+
+class ReportsDataView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        invoices = get_filtered_queryset(request, Invoice)
+        transactions = get_filtered_queryset(request, Transaction)
+        
+        # Simple report metrics
+        total_income = sum(t.amount for t in transactions if t.type == 'Income')
+        total_expense = sum(t.amount for t in transactions if t.type == 'Expense')
+        
+        return Response({
+            "summary": {
+                "income": total_income,
+                "expense": total_expense,
+                "profit": total_income - total_expense
+            }
         })

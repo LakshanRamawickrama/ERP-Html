@@ -1,18 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VATRecord, DojoSettlement
 from .serializers import TransactionSerializer, BankAccountSerializer, InvoiceSerializer, LoanSerializer, InsurancePolicySerializer, VATRecordSerializer, DojoSettlementSerializer
+from apps.users.utils import get_filtered_queryset
 
 class AccountingDataView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        transactions = Transaction.objects.all()
-        banks = BankAccount.objects.all()
-        invoices = Invoice.objects.all()
-        loans = Loan.objects.all()
-        insurance = InsurancePolicy.objects.all()
-        vat = VATRecord.objects.all()
-        dojo = DojoSettlement.objects.all()
+        transactions = get_filtered_queryset(request, Transaction)
+        banks = get_filtered_queryset(request, BankAccount)
+        invoices = get_filtered_queryset(request, Invoice)
+        loans = get_filtered_queryset(request, Loan)
+        insurance = get_filtered_queryset(request, InsurancePolicy)
+        vat = get_filtered_queryset(request, VATRecord)
+        dojo = get_filtered_queryset(request, DojoSettlement)
 
         total_income = sum(t.amount for t in transactions if t.type == 'Income')
         total_expenses = sum(t.amount for t in transactions if t.type == 'Expense')
@@ -42,8 +46,8 @@ class AccountingDataView(APIView):
             "paymentModes": ["Direct Debit", "Bank Transfer", "Standing Order"],
         })
 
-
 class TransactionView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         data = request.data
         files = request.FILES
@@ -57,63 +61,42 @@ class TransactionView(APIView):
                 status=data.get('status', 'Pending'),
                 notes=data.get('notes', ''),
                 document=files.get('document'),
+                business=getattr(request.user, 'assigned_business', ''),
+                created_by=request.user.email
             )
             return Response(TransactionSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk):
-        try:
-            record = Transaction.objects.get(pk=pk)
-        except Transaction.DoesNotExist:
-            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-        data = request.data
-        files = request.FILES
-        record.title = data.get('title', record.title)
-        record.category = data.get('category', record.category)
-        record.type = data.get('type', record.type)
-        record.amount = data.get('amount', record.amount)
-        if data.get('date'):
-            record.date = data.get('date')
-        record.status = data.get('status', record.status)
-        record.notes = data.get('notes', record.notes)
-        if files.get('document'):
-            record.document = files.get('document')
-        record.save()
-        return Response(TransactionSerializer(record, context={'request': request}).data)
-
-
 class InvoiceView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         data = request.data
-        files = request.FILES
         try:
-            invoice = Invoice.objects.create(
-                number=data.get('num', ''),
+            record = Invoice.objects.create(
+                number=data.get('number', ''),
                 client=data.get('client', ''),
                 amount=data.get('amount', 0),
-                due_date=data.get('due'),
+                due_date=data.get('due_date'),
                 status=data.get('status', 'Pending'),
-                pdf=files.get('pdf'),
+                business=getattr(request.user, 'assigned_business', ''),
+                created_by=request.user.email
             )
-            return Response(InvoiceSerializer(invoice, context={'request': request}).data, status=status.HTTP_201_CREATED)
+            return Response(InvoiceSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
         try:
-            invoice = Invoice.objects.get(pk=pk)
+            record = Invoice.objects.get(pk=pk)
+            # Check ownership/access
+            if not request.user.is_superuser:
+                if record.business != request.user.assigned_business:
+                    return Response({"error": "Permission denied"}, status=403)
+            
+            data = request.data
+            record.status = data.get('status', record.status)
+            record.save()
+            return Response(InvoiceSerializer(record, context={'request': request}).data)
         except Invoice.DoesNotExist:
-            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-        data = request.data
-        files = request.FILES
-        invoice.number = data.get('num', invoice.number)
-        invoice.client = data.get('client', invoice.client)
-        invoice.amount = data.get('amount', invoice.amount)
-        if data.get('due'):
-            invoice.due_date = data.get('due')
-        invoice.status = data.get('status', invoice.status)
-        if files.get('pdf'):
-            invoice.pdf = files.get('pdf')
-        invoice.save()
-        return Response(InvoiceSerializer(invoice, context={'request': request}).data)
+            return Response({'error': 'Not found'}, status=404)

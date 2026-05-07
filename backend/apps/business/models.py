@@ -7,8 +7,9 @@ class BusinessEntity(models.Model):
     tax_id = models.CharField(max_length=100, blank=True, null=True)
     hq_location = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, default='Active')
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
-    def __cl__(self):
+    def __str__(self):
         return self.name
 
 class CompanyStructure(models.Model):
@@ -20,6 +21,7 @@ class CompanyStructure(models.Model):
     address = models.TextField(blank=True, null=True)
     balance_sheet = models.FileField(upload_to='business/balance_sheets/', blank=True, null=True)
     pl_statement = models.FileField(upload_to='business/pl_statements/', blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name

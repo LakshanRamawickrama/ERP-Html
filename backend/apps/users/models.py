@@ -7,9 +7,19 @@ class StaffProfile(models.Model):
     assigned_business = models.CharField(max_length=255, default='All')
     access = models.TextField(default='All')
     permissions = models.TextField(default='{}')
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     password = models.CharField(max_length=128, default='')
     status = models.CharField(max_length=50, default='Active')
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    @property
+    def username(self):
+        return self.email
+
+    def get_username(self):
+        return self.email
 
     # Required for DRF IsAuthenticated and JWT compatibility
     @property

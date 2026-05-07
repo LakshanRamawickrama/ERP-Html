@@ -1,4 +1,5 @@
 import json
+import logging
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -11,33 +12,17 @@ from .models import StaffProfile
 from .serializers import StaffProfileSerializer
 from apps.business.models import BusinessEntity
 
+logger = logging.getLogger(__name__)
 
 class UserDataView(APIView):
-    def _available_businesses(self):
-        all_names = list(BusinessEntity.objects.values_list('name', flat=True))
-        assigned = set(
-            StaffProfile.objects
-            .exclude(assigned_business='All')
-            .exclude(assigned_business='')
-            .values_list('assigned_business', flat=True)
-        )
-        return [name for name in all_names if name not in assigned]
-
     def get(self, request):
-        staff = StaffProfile.objects.all()
-        system_map = [
-            {"name": "Core Management", "sub": ["Business Management", "User Management", "System Access"]},
-            {"name": "Operations", "sub": ["Fleet Management", "Inventory Management", "Suppliers"]},
-            {"name": "Financials", "sub": ["Accounting", "Reports"]},
-            {"name": "Compliance & Assets", "sub": ["Legal & Compliance", "Property Management", "Reminders"]},
-        ]
+        users = StaffProfile.objects.all()
+        businesses = list(BusinessEntity.objects.values_list('name', flat=True))
+        
         return Response({
-            "registry": StaffProfileSerializer(staff, many=True).data,
-            "roles": ["admin"],
-            "businesses": self._available_businesses(),
-            "systemMap": system_map,
+            "registry": StaffProfileSerializer(users, many=True).data,
+            "businesses": businesses
         })
-
 
 class StaffView(APIView):
     def post(self, request):
@@ -96,39 +81,60 @@ class StaffView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        identifier = request.data.get("username", "")
-        password = request.data.get("password", "")
+        try:
+            identifier = request.data.get("username", "")
+            password = request.data.get("password", "")
 
-        # === Path 1: Django User auth (superadmin + legacy admins created before migration) ===
-        django_user = authenticate(username=identifier, password=password)
-        # Also try email-prefix as Django username for legacy accounts (john@example.com → john)
-        if not django_user and '@' in identifier:
-            django_user = authenticate(username=identifier.split('@')[0], password=password)
+            # === Path 1: Django User auth (superadmin + legacy admins created before migration) ===
+            django_user = authenticate(username=identifier, password=password)
+            if not django_user and '@' in identifier:
+                django_user = authenticate(username=identifier.split('@')[0], password=password)
 
-        if django_user:
-            profile = StaffProfile.objects.filter(email=django_user.email).first()
+            if django_user:
+                profile = StaffProfile.objects.filter(email=django_user.email).first()
 
-            if django_user.is_superuser:
-                refresh = RefreshToken.for_user(django_user)
-                return Response({
-                    "status": "success",
-                    "token": str(refresh.access_token),
-                    "user_id": django_user.username,
-                    "username": django_user.username,
-                    "role": "super_admin",
-                    "business": "All",
-                    "access": profile.access if profile else "All",
-                    "permissions": profile.permissions if profile else "{}",
-                })
+                if django_user.is_superuser:
+                    refresh = RefreshToken.for_user(django_user)
+                    return Response({
+                        "status": "success",
+                        "token": str(refresh.access_token),
+                        "user_id": django_user.username,
+                        "username": django_user.username,
+                        "role": "super_admin",
+                        "business": "All",
+                        "access": profile.access if profile else "All",
+                        "permissions": profile.permissions if profile else "{}",
+                    })
 
-            if profile:
-                # Legacy admin: has Django User + StaffProfile without password hash
-                # Migrate the password into StaffProfile on first login
-                if not profile.password:
-                    profile.password = make_password(password)
-                    profile.save()
-                refresh = RefreshToken()
-                refresh[api_settings.USER_ID_CLAIM] = str(profile.pk)
+                if profile:
+                    if not profile.password:
+                        profile.password = make_password(password)
+                        profile.save()
+                    
+                    # Safe token generation
+                    refresh = RefreshToken.for_user(profile)
+                    return Response({
+                        "status": "success",
+                        "token": str(refresh.access_token),
+                        "user_id": str(profile.pk),
+                        "username": profile.name,
+                        "role": profile.role.lower().replace(' ', '_'),
+                        "business": profile.assigned_business,
+                        "access": profile.access,
+                        "permissions": profile.permissions,
+                    })
+
+            # === Path 2: New admin — StaffProfile with hashed password (no Django User) ===
+            profile = (
+                StaffProfile.objects.filter(email__iexact=identifier).first() or
+                StaffProfile.objects.filter(name__iexact=identifier).first()
+            )
+            if profile and profile.password and check_password(password, profile.password):
+                if profile.status != 'Active':
+                    return Response({"status": "error", "message": "Account is not active"}, status=401)
+
+                # Safe token generation
+                refresh = RefreshToken.for_user(profile)
                 return Response({
                     "status": "success",
                     "token": str(refresh.access_token),
@@ -140,26 +146,8 @@ class LoginView(APIView):
                     "permissions": profile.permissions,
                 })
 
-        # === Path 2: New admin — StaffProfile with hashed password (no Django User) ===
-        profile = (
-            StaffProfile.objects.filter(email=identifier).first() or
-            StaffProfile.objects.filter(name=identifier).first()
-        )
-        if profile and profile.password and check_password(password, profile.password):
-            if profile.status != 'Active':
-                return Response({"status": "error", "message": "Account is not active"}, status=401)
-
-            refresh = RefreshToken()
-            refresh[api_settings.USER_ID_CLAIM] = str(profile.pk)
-            return Response({
-                "status": "success",
-                "token": str(refresh.access_token),
-                "user_id": str(profile.pk),
-                "username": profile.name,
-                "role": profile.role.lower().replace(' ', '_'),
-                "business": profile.assigned_business,
-                "access": profile.access,
-                "permissions": profile.permissions,
-            })
-
-        return Response({"status": "error", "message": "Invalid credentials"}, status=401)
+            return Response({"status": "error", "message": "Invalid credentials"}, status=401)
+            
+        except Exception as e:
+            logger.exception("Login error occurred")
+            return Response({"status": "error", "message": f"Server error: {str(e)}"}, status=500)
