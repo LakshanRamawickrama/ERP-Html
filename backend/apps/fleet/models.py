@@ -38,5 +38,6 @@ class ParcelPartner(models.Model):
     contact_name = models.CharField(max_length=255)
     contact_number = models.CharField(max_length=50)
     status = models.CharField(max_length=50)
+    notes = models.TextField(blank=True, null=True)
     business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
