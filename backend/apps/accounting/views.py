@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VATRecord, DojoSettlement
 from .serializers import TransactionSerializer, BankAccountSerializer, InvoiceSerializer, LoanSerializer, InsurancePolicySerializer, VATRecordSerializer, DojoSettlementSerializer
 from apps.users.utils import get_filtered_queryset
+from django.shortcuts import get_object_or_404
+from decimal import Decimal
 
 class AccountingDataView(APIView):
     permission_classes = [IsAuthenticated]
@@ -18,8 +20,32 @@ class AccountingDataView(APIView):
         vat = get_filtered_queryset(request, VATRecord)
         dojo = get_filtered_queryset(request, DojoSettlement)
 
-        total_income = sum(t.amount for t in transactions if t.type == 'Income')
-        total_expenses = sum(t.amount for t in transactions if t.type == 'Expense')
+        # Robust summary calculation
+        total_income = Decimal('0.00')
+        total_expenses = Decimal('0.00')
+
+        # 1. From Transactions
+        for t in transactions:
+            if t.type == 'Income':
+                total_income += Decimal(str(t.amount))
+            else:
+                total_expenses += Decimal(str(t.amount))
+
+        # 2. From Invoices (Paid Invoices are Income)
+        for inv in invoices:
+            if inv.status == 'Paid':
+                total_income += Decimal(str(inv.amount))
+
+        # 3. From Dojo Settlements (Income)
+        for d in dojo:
+            total_income += Decimal(str(d.net))
+
+        # 4. From Recurring Expenses
+        for ins in insurance:
+            total_expenses += Decimal(str(ins.premium))
+        
+        for l in loans:
+            total_expenses += Decimal(str(l.monthly_payment))
 
         return Response({
             "history": TransactionSerializer(transactions, many=True, context={'request': request}).data,
@@ -35,7 +61,7 @@ class AccountingDataView(APIView):
             },
             "options": ["Rent", "Supplies", "Salary", "Income", "Tax", "Supplier Payments", "Mortgage"],
             "recordTypes": ["Income", "Expense"],
-            "paymentStatuses": ["Paid", "Pending", "Overdue"],
+            "paymentStatuses": ["Paid", "Pending", "Overdue", "Settled"],
             "invoiceStatuses": ["Paid", "Pending", "Overdue", "Sent"],
             "bankTypes": ["Business Current", "Savings", "Business Savings"],
             "bankStatuses": ["Active", "Inactive"],
@@ -44,6 +70,7 @@ class AccountingDataView(APIView):
             "renewalReminders": ["30 Days Before", "60 Days Before", "90 Days Before"],
             "dojoMethods": ["Card", "Contactless", "Online"],
             "paymentModes": ["Direct Debit", "Bank Transfer", "Standing Order"],
+            "suppliers": ["Supplier A", "Supplier B", "Global Logistics", "Office Depot"],
         })
 
 class TransactionView(APIView):
@@ -56,8 +83,8 @@ class TransactionView(APIView):
                 title=data.get('title', ''),
                 category=data.get('category', ''),
                 type=data.get('type', 'Expense'),
-                amount=data.get('amount', 0),
-                date=data.get('date'),
+                amount=data.get('amount', 0) if data.get('amount') else 0,
+                date=data.get('date') or None,
                 status=data.get('status', 'Pending'),
                 notes=data.get('notes', ''),
                 document=files.get('document'),
@@ -68,17 +95,24 @@ class TransactionView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, pk):
+        record = get_object_or_404(Transaction, pk=pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class InvoiceView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         data = request.data
+        files = request.FILES
         try:
             record = Invoice.objects.create(
-                number=data.get('number', ''),
+                number=data.get('num', ''),
                 client=data.get('client', ''),
-                amount=data.get('amount', 0),
-                due_date=data.get('due_date'),
+                amount=data.get('amount', 0) if data.get('amount') else 0,
+                due_date=data.get('due') or None,
                 status=data.get('status', 'Pending'),
+                pdf=files.get('pdf'),
                 business=getattr(request.user, 'assigned_business', ''),
                 created_by=request.user.email
             )
@@ -86,17 +120,137 @@ class InvoiceView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk):
+    def delete(self, request, pk):
+        record = get_object_or_404(Invoice, pk=pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class BankAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        data = request.data
         try:
-            record = Invoice.objects.get(pk=pk)
-            # Check ownership/access
-            if not request.user.is_superuser:
-                if record.business != request.user.assigned_business:
-                    return Response({"error": "Permission denied"}, status=403)
-            
-            data = request.data
-            record.status = data.get('status', record.status)
-            record.save()
-            return Response(InvoiceSerializer(record, context={'request': request}).data)
-        except Invoice.DoesNotExist:
-            return Response({'error': 'Not found'}, status=404)
+            record = BankAccount.objects.create(
+                bank_name=data.get('bank', ''),
+                account_name=data.get('acc', ''),
+                account_number=data.get('num', ''),
+                sort_code=data.get('sort', ''),
+                iban=data.get('iban', ''),
+                account_type=data.get('type', ''),
+                status=data.get('status', 'Active'),
+                business=getattr(request.user, 'assigned_business', ''),
+                created_by=request.user.email
+            )
+            return Response(BankAccountSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        record = get_object_or_404(BankAccount, pk=pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class LoanView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        data = request.data
+        try:
+            record = Loan.objects.create(
+                name=data.get('loan', ''),
+                lender=data.get('lender', ''),
+                total_amount=data.get('total', 0) if data.get('total') else 0,
+                outstanding_amount=data.get('os', 0) if data.get('os') else 0,
+                monthly_payment=data.get('monthly', 0) if data.get('monthly') else 0,
+                interest_rate=data.get('rate', 0) if data.get('rate') else 0,
+                status=data.get('status', 'Active'),
+                business=getattr(request.user, 'assigned_business', ''),
+                created_by=request.user.email
+            )
+            return Response(LoanSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        record = get_object_or_404(Loan, pk=pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class InsurancePolicyView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        data = request.data
+        files = request.FILES
+        try:
+            record = InsurancePolicy.objects.create(
+                type=data.get('type', ''),
+                provider=data.get('provider', ''),
+                policy_number=data.get('policy', ''),
+                premium=data.get('premium', 0) if data.get('premium') else 0,
+                start_date=data.get('startDate') or None,
+                expiry_date=data.get('expiry') or None,
+                renewal_reminder=data.get('renewal', ''),
+                document=files.get('document'),
+                status=data.get('status', 'Active'),
+                business=getattr(request.user, 'assigned_business', ''),
+                created_by=request.user.email
+            )
+            return Response(InsurancePolicySerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        record = get_object_or_404(InsurancePolicy, pk=pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class VATRecordView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        data = request.data
+        files = request.FILES
+        try:
+            record = VATRecord.objects.create(
+                type=data.get('type', ''),
+                period=data.get('period', ''),
+                reference_number=data.get('ref', ''),
+                amount=data.get('amount', 0) if data.get('amount') else 0,
+                date=data.get('date') or None,
+                document=files.get('document'),
+                status=data.get('status', 'Pending'),
+                business=getattr(request.user, 'assigned_business', ''),
+                created_by=request.user.email
+            )
+            return Response(VATRecordSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        record = get_object_or_404(VATRecord, pk=pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class DojoSettlementView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        data = request.data
+        try:
+            amount = Decimal(data.get('amount', '0'))
+            fee = Decimal(data.get('fee', '0'))
+            record = DojoSettlement.objects.create(
+                date=data.get('date') or None,
+                amount=amount,
+                fee=fee,
+                net=amount - fee,
+                method=data.get('method', 'Card'),
+                status=data.get('status', 'Settled'),
+                business=getattr(request.user, 'assigned_business', ''),
+                created_by=request.user.email
+            )
+            return Response(DojoSettlementSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        record = get_object_or_404(DojoSettlement, pk=pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
