@@ -177,18 +177,9 @@ export default function UserModule() {
   const togglePermission = (mod: string, action: string) => {
     setPermissionsMap(prev => {
       const current = prev[mod] || [];
-      let next: string[];
-
-      if (current.includes(action)) {
-        // Unchecking view → remove all actions (can't do anything without view)
-        next = action === 'view' ? [] : current.filter(a => a !== action);
-      } else {
-        // Checking add/edit/delete → auto-grant view too
-        next = action !== 'view'
-          ? [...new Set([...current, 'view', action])]
-          : [...current, action];
-      }
-
+      const next = current.includes(action)
+        ? current.filter(a => a !== action)
+        : [...current, action];
       if (next.length === 0) {
         const { [mod]: _, ...rest } = prev;
         return rest;
@@ -383,47 +374,34 @@ export default function UserModule() {
 
                   {selectedUserId && (
                     <>
-                      <div className="rounded-xl border border-slate-200 overflow-hidden">
-                        {/* header */}
-                        <div className="grid grid-cols-5 bg-slate-100 px-3 py-2 border-b border-slate-200">
-                          <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Module</span>
-                          {ACTIONS.map(a => (
-                            <span key={a} className={`text-[9px] font-black uppercase tracking-wider text-center ${
-                              a === 'view' ? 'text-blue-500' : a === 'add' ? 'text-emerald-500' : a === 'edit' ? 'text-amber-500' : 'text-red-400'
-                            }`}>{a}</span>
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-3">Module Permissions</p>
+                        <div className="space-y-1">
+                          <div className="grid grid-cols-5 gap-1 pb-1 border-b border-slate-200">
+                            <span className="text-[9px] font-bold text-slate-400 uppercase">Module</span>
+                            {ACTIONS.map(a => (
+                              <span key={a} className="text-[9px] font-bold text-slate-400 uppercase text-center capitalize">{a}</span>
+                            ))}
+                          </div>
+                          {ALL_MODULES.map(mod => (
+                            <div key={mod} className="grid grid-cols-5 gap-1 items-center py-1.5 border-b border-slate-100 last:border-0">
+                              <span className="text-[10px] font-medium text-slate-600 truncate pr-1" title={mod}>
+                                {mod.split(' ')[0]}
+                              </span>
+                              {ACTIONS.map(action => (
+                                <div key={action} className="flex justify-center">
+                                  <input
+                                    type="checkbox"
+                                    className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-slate-800"
+                                    checked={(permissionsMap[mod] || []).includes(action)}
+                                    onChange={() => togglePermission(mod, action)}
+                                  />
+                                </div>
+                              ))}
+                            </div>
                           ))}
                         </div>
-                        {ALL_MODULES.map((mod, idx) => {
-                          const granted = permissionsMap[mod] || [];
-                          return (
-                            <div key={mod} className={`grid grid-cols-5 items-center px-3 py-2.5 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'} border-b border-slate-100 last:border-0`}>
-                              <span className="text-[10px] font-semibold text-slate-700 leading-tight pr-1">{mod}</span>
-                              {ACTIONS.map(action => {
-                                const active = granted.includes(action);
-                                const colors: Record<string, string> = {
-                                  view: active ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-200 text-slate-300 hover:border-blue-300',
-                                  add:  active ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 text-slate-300 hover:border-emerald-300',
-                                  edit: active ? 'bg-amber-400 border-amber-400 text-white' : 'border-slate-200 text-slate-300 hover:border-amber-300',
-                                  delete: active ? 'bg-red-400 border-red-400 text-white' : 'border-slate-200 text-slate-300 hover:border-red-300',
-                                };
-                                return (
-                                  <div key={action} className="flex justify-center">
-                                    <button
-                                      type="button"
-                                      onClick={() => togglePermission(mod, action)}
-                                      className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${colors[action]}`}
-                                      title={`${active ? 'Remove' : 'Grant'} ${action} for ${mod}`}
-                                    >
-                                      {active && <CheckCircle2 className="w-3.5 h-3.5" />}
-                                    </button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          );
-                        })}
                       </div>
-                      <p className="text-[9px] text-slate-400 text-center">Checking Add/Edit/Delete auto-grants View</p>
                       <button
                         type="button"
                         onClick={handleSavePermissions}
