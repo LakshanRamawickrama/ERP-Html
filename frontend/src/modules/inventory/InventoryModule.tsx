@@ -23,18 +23,29 @@ export default function InventoryModule() {
   const [activeTab, setActiveTab] = useState<TabType>('stock');
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({ type: 'IN' });
 
   const [data, setData] = useState<any>({ alerts: [], stock: [], moves: [] });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  const fetchInventory = async () => {
     const token = localStorage.getItem('token');
-    fetch(API_ENDPOINTS.INVENTORY, {
+    const res = await fetch(API_ENDPOINTS.INVENTORY, {
       headers: { 'Authorization': `Bearer ${token}` }
-    }).then(res => res.json()).then(setData);
+    });
+    const d = await res.json();
+    setData(d);
+  };
+
+  React.useEffect(() => {
+    fetchInventory();
   }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
+  };
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {
     setEditingId(id);
@@ -44,17 +55,39 @@ export default function InventoryModule() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormData({});
+    setFormData({ type: 'IN' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      console.log('Updating:', editingId, formData);
-    } else {
-      console.log('Creating:', formData);
+    const token = localStorage.getItem('token');
+    const endpoint = activeTab === 'stock' ? 'products/' : 'movements/';
+    
+    let realId = editingId;
+    if (realId?.includes('-')) realId = null;
+
+    const url = realId 
+      ? `${API_ENDPOINTS.INVENTORY}${endpoint}${realId}/`
+      : `${API_ENDPOINTS.INVENTORY}${endpoint}`;
+    
+    const method = realId ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      if (res.ok) {
+        fetchInventory();
+        handleCancelEdit();
+      }
+    } catch (err) {
+      console.error('Inventory save error:', err);
     }
-    handleCancelEdit();
   };
 
   const handleDeleteClick = (id: string) => {
@@ -62,10 +95,27 @@ export default function InventoryModule() {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    if (deleteId) {
-      console.log('Deleting inventory record:', deleteId);
-      // TODO: API call
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    const token = localStorage.getItem('token');
+    const type = deleteId.split('-')[0];
+    const endpoint = type === 'stock' ? 'products/' : 'movements/';
+    const realId = deleteId.split('-')[1];
+
+    const url = `${API_ENDPOINTS.INVENTORY}${endpoint}${realId}/`;
+
+    try {
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchInventory();
+        setShowDeleteModal(false);
+        setDeleteId(null);
+      }
+    } catch (err) {
+      console.error('Inventory delete error:', err);
     }
   };
 
@@ -83,8 +133,8 @@ export default function InventoryModule() {
 
         {/* Alert Pills */}
         <div className="hidden lg:flex gap-2 py-2 ml-6">
-          {alerts.map((a: any) => (
-            <div key={a.id} className={`flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-bold ${
+          {alerts.map((a: any, i: number) => (
+            <div key={i} className={`flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-bold ${
               a.level === 'out' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'
             }`}>
               {a.level === 'out' ? <Boxes className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
@@ -108,41 +158,49 @@ export default function InventoryModule() {
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'stock' && (
                     <>
-                      <Field label="Item Name *" placeholder="e.g. Milk Packet 1L" />
-                      <Field label="Category *" isSelect options={data.inventoryCategories || []} />
+                      <Field label="Item Name *" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. Milk Packet 1L" />
+                      <Field label="Category *" name="category" value={formData.category} onChange={handleInputChange} isSelect options={data.inventoryCategories || []} />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Stock Level" type="number" />
-                        <Field label="Reorder Level" type="number" />
+                        <Field label="Initial Stock" name="quantity" value={formData.quantity} onChange={handleInputChange} type="number" />
+                        <Field label="Min Stock Level" name="min_stock" value={formData.min_stock} onChange={handleInputChange} type="number" />
                       </div>
-                      <Field label="Supplier Ref" placeholder="SUP-0456" />
-                      <Field label="Status (Auto)" disabled value="Active" />
-                      <Field label="Notes" isTextArea />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Unit Price" name="price" value={formData.price} onChange={handleInputChange} type="number" />
+                        <Field label="Supplier Ref" name="supplier_ref" value={formData.supplier_ref} onChange={handleInputChange} placeholder="SUP-XXX" />
+                      </div>
+                      <Field label="Status" name="status" value={formData.status || 'Active'} onChange={handleInputChange} isSelect options={['Active', 'Discontinued']} />
+                      <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea />
                     </>
                   )}
                   {activeTab === 'move' && (
                     <>
-                      <Field label="Select Item *" isSelect options={data.inventoryItems || []} />
-                      <div className="flex gap-4 p-2 bg-slate-50 rounded-lg border border-slate-200">
-                        <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                          <input type="radio" name="mType" defaultChecked /> Stock In (+)
+                      <Field label="Select Item *" name="product_name" value={formData.product_name} onChange={handleInputChange} isSelect options={data.inventoryItems || []} />
+                      <div className="flex gap-4 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                        <label className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-transparent cursor-pointer transition-all has-[:checked]:bg-white has-[:checked]:border-slate-200 has-[:checked]:shadow-sm text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                          <input type="radio" name="type" value="IN" checked={formData.type !== 'OUT'} onChange={handleInputChange} className="accent-slate-800" /> Stock In (+)
                         </label>
-                        <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                          <input type="radio" name="mType" /> Stock Out (-)
+                        <label className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-transparent cursor-pointer transition-all has-[:checked]:bg-white has-[:checked]:border-slate-200 has-[:checked]:shadow-sm text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                          <input type="radio" name="type" value="OUT" checked={formData.type === 'OUT'} onChange={handleInputChange} className="accent-slate-800" /> Stock Out (-)
                         </label>
                       </div>
-                      <Field label="Quantity *" type="number" />
-                      <Field label="Reference / Reason" placeholder="Invoice # or Sale Ref" />
-                      <Field label="Notes" isTextArea />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Movement Date" name="movement_date" value={formData.movement_date} onChange={handleInputChange} type="date" />
+                        <Field label="Quantity *" name="quantity" value={formData.quantity} onChange={handleInputChange} type="number" />
+                      </div>
+                      <Field label="Reason / Type" name="reason" value={formData.reason} onChange={handleInputChange} isSelect options={['Purchase', 'Sale', 'Damage', 'Return', 'Adjustment', 'Internal Use']} />
+                      <Field label="Reference (Invoice #)" name="reference" value={formData.reference} onChange={handleInputChange} placeholder="INV-2024-001" />
+                      <Field label="Handled By" name="handled_by" value={formData.handled_by} onChange={handleInputChange} placeholder="Staff name" />
+                      <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea />
                     </>
                   )}
-                  <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
-                    {editingId ? 'Update Record' : 'Register Record'}
+                  <button className="w-full py-3 bg-[#2c3e50] text-white rounded-xl text-sm font-bold shadow-lg hover:bg-[#34495e] transition-all transform active:scale-[0.98]">
+                    {editingId ? 'Update Record' : 'Log Transaction'}
                   </button>
                   {editingId && (
                     <button 
                       type="button"
                       onClick={handleCancelEdit}
-                      className="w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-all"
+                      className="w-full py-2.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all mt-2"
                     >
                       Cancel Edit
                     </button>
@@ -153,13 +211,13 @@ export default function InventoryModule() {
           )}
 
           {/* Table Column */}
-          <div className={isWide ? 'lg:col-span-1' : 'lg:col-span-8'}>
+          <div className={isWide ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={activeTab === 'stock' ? "Master Inventory List" : "Transaction History"} 
               icon={activeTab === 'stock' ? ClipboardList : ArrowLeftRight}
               headerAction={
-                <button onClick={() => setIsWide(!isWide)} className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-md hover:bg-slate-100 transition-all tracking-wide">
-                  {isWide ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
+                <button onClick={() => setIsWide(!isWide)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all tracking-wider uppercase shadow-sm">
+                  {isWide ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
                   {isWide ? 'Standard' : 'Wide'} View
                 </button>
               }
@@ -172,6 +230,7 @@ export default function InventoryModule() {
                         <th className={thClass}>Item Name</th>
                         <th className={thClass}>Category</th>
                         <th className={thClass}>Stock</th>
+                        <th className={thClass}>Price</th>
                         {isWide && <th className={thClass}>Supplier Ref</th>}
                         <th className={thClass}>Status</th>
                         <th className={thClass}>Action</th>
@@ -182,18 +241,19 @@ export default function InventoryModule() {
                         <th className={thClass}>Item</th>
                         <th className={thClass}>Type</th>
                         <th className={thClass}>Qty</th>
-                        <th className={thClass}>Notes</th>
+                        <th className={thClass}>Reason / Ref</th>
+                        <th className={thClass}>Action</th>
                       </tr>
                     )}
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'stock' ? (
                       data.stock?.map((item: any, i: number) => (
-                        <StockRow key={i} {...item} isWide={isWide} onEdit={() => handleEdit(`stock-${i}`, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${i}`)} />
+                        <StockRow key={i} {...item} isWide={isWide} onEdit={() => handleEdit(item.id, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${item.id}`)} />
                       )) || null
                     ) : (
                       data.moves?.map((move: any, i: number) => (
-                        <MoveRow key={i} {...move} onDelete={() => handleDeleteClick(`move-${i}`)} />
+                        <MoveRow key={i} {...move} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
                       )) || null
                     )}
                   </tbody>
@@ -228,19 +288,20 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function StockRow({ name, cat, stock, status, isWide, onEdit, onDelete }: any) {
+function StockRow({ name, category, quantity, status, supplier_ref, price, isWide, onEdit, onDelete }: any) {
   return (
-    <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
-      <td className="px-4 py-3 text-slate-500">{cat}</td>
-      <td className="px-4 py-3 font-bold">{stock}</td>
-      {isWide && <td className="px-4 py-3 text-slate-500 italic">SUP-001</td>}
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">{status}</span>
+    <tr className="hover:bg-slate-50/50 transition-colors">
+      <td className="px-4 py-4 font-bold text-slate-800">{name}</td>
+      <td className="px-4 py-4 text-slate-500 text-xs">{category}</td>
+      <td className="px-4 py-4 font-bold text-slate-900">{quantity}</td>
+      <td className="px-4 py-4 font-mono text-xs text-slate-600">£{Number(price).toFixed(2)}</td>
+      {isWide && <td className="px-4 py-4 text-slate-400 text-[10px] font-mono italic">{supplier_ref || "-"}</td>}
+      <td className="px-4 py-4">
+        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border uppercase ${status === 'Active' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>{status}</span>
       </td>
-      <td className="px-4 py-3 text-slate-500">
+      <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all">
+          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
@@ -252,21 +313,26 @@ function StockRow({ name, cat, stock, status, isWide, onEdit, onDelete }: any) {
   );
 }
 
-function MoveRow({ date, item, type, qty, notes, onDelete }: any) {
+function MoveRow({ date, product_name, type, quantity, reason, reference, onDelete }: any) {
   return (
-    <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3 text-slate-500 font-mono tracking-tight">{date}</td>
-      <td className="px-4 py-3 font-bold text-slate-800">{item}</td>
-      <td className="px-4 py-3">
+    <tr className="hover:bg-slate-50/50 transition-colors">
+      <td className="px-4 py-4 text-slate-400 text-[10px] font-mono tracking-tight">{date}</td>
+      <td className="px-4 py-4 font-bold text-slate-800 text-xs">{product_name}</td>
+      <td className="px-4 py-4">
         {type === 'IN' ? (
-          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">Stock In (+)</span>
+          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">In (+)</span>
         ) : (
-          <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded uppercase">Stock Out (-)</span>
+          <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold rounded-full border border-red-100 uppercase">Out (-)</span>
         )}
       </td>
-      <td className="px-4 py-3 font-bold">{qty}</td>
-      <td className="px-4 py-3 text-slate-500 text-xs italic">{notes}</td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-4 font-bold text-slate-900">{quantity}</td>
+      <td className="px-4 py-4">
+        <div className="flex flex-col">
+          <span className="text-slate-600 text-[10px] font-bold">{reason || "Adjustment"}</span>
+          <span className="text-slate-400 text-[9px] font-mono">{reference || "-"}</span>
+        </div>
+      </td>
+      <td className="px-4 py-4">
         <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
           <Trash2 className="w-3.5 h-3.5" />
         </button>
@@ -275,22 +341,37 @@ function MoveRow({ date, item, type, qty, notes, onDelete }: any) {
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, disabled, value }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, disabled, value, name, onChange }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500">
-          {options.map((opt: string) => <option key={opt}>{opt}</option>)}
+        <select 
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
+        >
+          <option value="">Select Option...</option>
+          {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea rows={2} className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder={placeholder} />
+        <textarea 
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          rows={2} 
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
+          placeholder={placeholder} 
+        />
       ) : (
         <input 
+          name={name}
+          value={value || ''}
+          onChange={onChange}
           type={type} 
           disabled={disabled}
-          defaultValue={value}
-          className={`w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 ${disabled ? 'bg-slate-100 cursor-not-allowed text-slate-400' : 'bg-slate-50'}`} 
+          className={`w-full mt-1.5 p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium ${disabled ? 'bg-slate-100 cursor-not-allowed text-slate-400' : 'bg-slate-50'}`} 
           placeholder={placeholder} 
         />
       )}
