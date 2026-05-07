@@ -15,7 +15,20 @@ class CompanyStructureSerializer(MongoSerializerMixin, serializers.ModelSerializ
     sic = serializers.CharField(source='sic_code', read_only=True)
     due = serializers.DateField(source='filing_due', read_only=True)
     addr = serializers.CharField(source='address', read_only=True)
-    
+    balance_sheet_url = serializers.SerializerMethodField()
+    pl_url = serializers.SerializerMethodField()
+
     class Meta:
         model = CompanyStructure
         fields = '__all__'
+
+    def _url(self, request, field):
+        if field and hasattr(field, 'url'):
+            return request.build_absolute_uri(field.url) if request else field.url
+        return None
+
+    def get_balance_sheet_url(self, obj):
+        return self._url(self.context.get('request'), obj.balance_sheet)
+
+    def get_pl_url(self, obj):
+        return self._url(self.context.get('request'), obj.pl_statement)

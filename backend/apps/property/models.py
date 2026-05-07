@@ -34,3 +34,4 @@ class PropertyLicence(models.Model):
     issue_date = models.DateField()
     expiry_date = models.DateField()
     status = models.CharField(max_length=50)
+    document = models.FileField(upload_to='property/licences/', blank=True, null=True)

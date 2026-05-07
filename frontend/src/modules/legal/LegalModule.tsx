@@ -25,6 +25,7 @@ export default function LegalModule() {
   const [data, setData] = useState<any>({ docs: [], summary: { expiredDocs: 0 } });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
+  const [docFile, setDocFile] = useState<File | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
@@ -46,6 +47,34 @@ export default function LegalModule() {
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({});
+    setDocFile(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const body = new FormData();
+    body.append('title', formData.title || '');
+    body.append('type', formData.type || '');
+    body.append('status', formData.status || 'Active');
+    if (formData.expiry_date) body.append('expiry_date', formData.expiry_date);
+    if (docFile) body.append('document_file', docFile);
+
+    const url = editingId
+      ? `${API_ENDPOINTS.LEGAL}documents/${editingId}/`
+      : `${API_ENDPOINTS.LEGAL}documents/`;
+    const method = editingId ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body });
+      if (res.ok) {
+        const refreshed = await fetch(API_ENDPOINTS.LEGAL, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+        setData(refreshed);
+        handleCancelEdit();
+      }
+    } catch (err) {
+      console.error('Legal save error:', err);
+    }
   };
 
   const handleDeleteClick = (id: string) => {
@@ -53,15 +82,30 @@ export default function LegalModule() {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteId) {
-      console.log('Deleting document:', deleteId);
-      // TODO: API call
+      const token = localStorage.getItem('token');
+      try {
+        await fetch(`${API_ENDPOINTS.LEGAL}documents/${deleteId}/`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const refreshed = await fetch(API_ENDPOINTS.LEGAL, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+        setData(refreshed);
+      } catch (err) {
+        console.error('Legal delete error:', err);
+      }
     }
   };
 
   const handleViewDoc = (doc: any) => {
-    setSelectedDoc(doc);
+    setSelectedDoc({
+      title: doc.title,
+      type: doc.type,
+      status: doc.status,
+      date: doc.expiry_date,
+      fileUrl: doc.document_url || null,
+    });
     setIsDrawerOpen(true);
   };
 
@@ -92,25 +136,28 @@ export default function LegalModule() {
           {!isWide && (
             <div className="lg:col-span-4">
               <Card title={editingId ? "Edit Document" : "Register Document"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
-                <form className="space-y-4">
-                  <Field label="Document Title" placeholder="Trade License" value={formData.title} />
-                  <Field label="Document Type" isSelect options={data.options || []} value={formData.type} />
-                  <Field label="Issuing Authority" placeholder="City Council" value={formData.auth} />
-                  
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                  <Field label="Document Title" placeholder="Trade License" value={formData.title || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, title: v }))} />
+                  <Field label="Document Type" isSelect options={data.options || []} value={formData.type || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, type: v }))} />
+                  <Field label="Expiry Date" type="date" value={formData.expiry_date || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, expiry_date: v }))} />
+                  <Field label="Status" isSelect options={['Active', 'Expired', 'Pending']} value={formData.status || 'Active'} onChange={(v: string) => setFormData((p: any) => ({ ...p, status: v }))} />
+
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Document File</label>
-                    <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:bg-slate-50 transition-all cursor-pointer group">
+                    <label className="block border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:bg-slate-50 transition-all cursor-pointer group">
                       <UploadCloud className="w-8 h-8 text-slate-300 mx-auto mb-2 group-hover:text-blue-400 transition-colors" />
-                      <p className="text-[10px] text-slate-500 font-medium tracking-tight">Click or Drag & Drop File Here</p>
-                    </div>
+                      <p className="text-[10px] text-slate-500 font-medium tracking-tight">
+                        {docFile ? docFile.name : 'Click or Drag & Drop File Here'}
+                      </p>
+                      <input type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onChange={e => setDocFile(e.target.files?.[0] ?? null)} />
+                    </label>
                   </div>
 
-                  <Field label="Notes" isTextArea value={formData.notes} />
-                  <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-colors">
+                  <button type="submit" className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-colors">
                     {editingId ? "Update Document" : "Save Document"}
                   </button>
                   {editingId && (
-                    <button 
+                    <button
                       type="button"
                       onClick={handleCancelEdit}
                       className="w-full py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all mt-2"
@@ -222,31 +269,20 @@ function DocRow({ title, type, auth, file, status, onEdit, onDelete, onView }: a
   );
 }
 
-function Field({ label, placeholder, isSelect, options = [], isTextArea, value }: any) {
+function Field({ label, placeholder, isSelect, options = [], isTextArea, type = 'text', value, onChange }: any) {
+  const base = "w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500";
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select 
-          defaultValue={value}
-          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
-        >
-          {options.map((opt: string) => <option key={opt}>{opt}</option>)}
+        <select value={value} onChange={e => onChange?.(e.target.value)} className={base}>
+          <option value="">Select...</option>
+          {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea 
-          rows={2} 
-          defaultValue={value}
-          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" 
-          placeholder={placeholder} 
-        />
+        <textarea rows={2} value={value} onChange={e => onChange?.(e.target.value)} className={base} placeholder={placeholder} />
       ) : (
-        <input 
-          type="text" 
-          defaultValue={value}
-          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" 
-          placeholder={placeholder} 
-        />
+        <input type={type} value={value} onChange={e => onChange?.(e.target.value)} className={base} placeholder={placeholder} />
       )}
     </div>
   );

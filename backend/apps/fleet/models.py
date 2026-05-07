@@ -9,6 +9,9 @@ class Vehicle(models.Model):
     road_tax_date = models.DateField()
     status = models.CharField(max_length=50, default='Active')
     notes = models.TextField(blank=True, null=True)
+    ins_doc = models.FileField(upload_to='fleet/insurance/', blank=True, null=True)
+    mot_doc = models.FileField(upload_to='fleet/mot/', blank=True, null=True)
+    tax_doc = models.FileField(upload_to='fleet/roadtax/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} ({self.plate_number})"

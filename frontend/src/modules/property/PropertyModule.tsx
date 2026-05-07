@@ -31,6 +31,7 @@ export default function PropertyModule() {
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
+  const [licenceFile, setLicenceFile] = useState<File | null>(null);
   const [data, setData] = useState<any>({ assets: [], requests: [], waste: [], licences: [] });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -54,35 +55,49 @@ export default function PropertyModule() {
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({});
+    setLicenceFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    try {
-      const response = await fetch(API_ENDPOINTS.PROPERTY, {
-        method: editingId ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(formData),
-      });
+    const token = localStorage.getItem('token');
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Success:', result);
-        // Refresh data
-        const newData = await fetch(API_ENDPOINTS.PROPERTY, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => res.json());
-        setData(newData);
-        handleCancelEdit();
-      } else {
-        console.error('Error:', await response.text());
+    if (activeTab === 'licence') {
+      const body = new FormData();
+      Object.entries(formData).forEach(([k, v]) => {
+        if (v !== null && v !== undefined) body.append(k, String(v));
+      });
+      if (licenceFile) body.append('document', licenceFile);
+
+      const url = editingId
+        ? `${API_ENDPOINTS.PROPERTY}licences/${editingId}/`
+        : `${API_ENDPOINTS.PROPERTY}licences/`;
+      const method = editingId ? 'PUT' : 'POST';
+      try {
+        const res = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body });
+        if (res.ok) {
+          const newData = await fetch(API_ENDPOINTS.PROPERTY, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+          setData(newData);
+          handleCancelEdit();
+        }
+      } catch (err) {
+        console.error('Property licence save error:', err);
       }
-    } catch (error) {
-      console.error('Fetch error:', error);
+    } else {
+      try {
+        const response = await fetch(API_ENDPOINTS.PROPERTY, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(formData),
+        });
+        if (response.ok) {
+          const newData = await fetch(API_ENDPOINTS.PROPERTY, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+          setData(newData);
+          handleCancelEdit();
+        }
+      } catch (error) {
+        console.error('Property save error:', error);
+      }
     }
   };
 
@@ -314,7 +329,14 @@ export default function PropertyModule() {
                         value={formData.status || ''} 
                         onChange={(val: string) => setFormData({...formData, status: val})} 
                       />
-                      <Field label="Upload Document" type="file" />
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Upload Document</label>
+                        <label className="block mt-1 border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:bg-slate-50 cursor-pointer">
+                          <FileText className="w-5 h-5 text-slate-300 mx-auto mb-1" />
+                          <p className="text-[10px] text-slate-500 font-medium">{licenceFile ? licenceFile.name : 'Click to select file'}</p>
+                          <input type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onChange={e => setLicenceFile(e.target.files?.[0] ?? null)} />
+                        </label>
+                      </div>
                     </>
                   )}
                   <button className="w-full py-3 bg-[#2c3e50] text-white rounded-xl text-sm font-bold shadow-lg hover:bg-[#34495e] transition-all transform active:scale-[0.98]">

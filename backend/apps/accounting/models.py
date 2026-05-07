@@ -8,6 +8,7 @@ class Transaction(models.Model):
     date = models.DateField()
     status = models.CharField(max_length=50)
     notes = models.TextField(blank=True, null=True)
+    document = models.FileField(upload_to='accounting/documents/', blank=True, null=True)
 
 class Invoice(models.Model):
     number = models.CharField(max_length=100, unique=True)
@@ -15,6 +16,7 @@ class Invoice(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     due_date = models.DateField()
     status = models.CharField(max_length=50)
+    pdf = models.FileField(upload_to='accounting/invoices/', blank=True, null=True)
 
 class BankAccount(models.Model):
     bank_name = models.CharField(max_length=255)

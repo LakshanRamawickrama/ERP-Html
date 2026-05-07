@@ -21,8 +21,8 @@ class BusinessDataView(APIView):
             structures = CompanyStructure.objects.filter(name=business_scope)
         
         return Response({
-            "entities": BusinessEntitySerializer(entities, many=True).data,
-            "structures": CompanyStructureSerializer(structures, many=True).data,
+            "entities": BusinessEntitySerializer(entities, many=True, context={'request': request}).data,
+            "structures": CompanyStructureSerializer(structures, many=True, context={'request': request}).data,
             "options": {
                 "categories": ["Retail", "Logistics", "Finance", "Tech", "Healthcare"]
             }
@@ -228,7 +228,7 @@ class BusinessDetailView(APIView):
                 "business": business_name,
                 "expiryDate": str(d.expiry_date) if d.expiry_date else "",
                 "status": d.status,
-                "documentUrl": d.document_url or "",
+                "documentUrl": d.document_file.url if d.document_file else "",
             })
         for cs in CompanyStructure.objects.all():
             legal.append({
@@ -311,3 +311,96 @@ class BusinessDetailView(APIView):
             "legal": legal,
             "property": property_data,
         })
+
+
+from rest_framework import status as http_status
+
+class BusinessEntityView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        try:
+            entity = BusinessEntity.objects.create(
+                name=data.get('name', ''),
+                company_number=data.get('company_number') or data.get('num', ''),
+                category=data.get('category') or data.get('cat', ''),
+                tax_id=data.get('tax_id') or data.get('taxId', ''),
+                hq_location=data.get('hq_location') or data.get('hq', ''),
+                status=data.get('status', 'Active'),
+            )
+            return Response(BusinessEntitySerializer(entity).data, status=http_status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        try:
+            entity = BusinessEntity.objects.get(pk=pk)
+        except BusinessEntity.DoesNotExist:
+            return Response({'error': 'Not found'}, status=http_status.HTTP_404_NOT_FOUND)
+        data = request.data
+        entity.name = data.get('name', entity.name)
+        entity.company_number = data.get('company_number') or data.get('num', entity.company_number)
+        entity.category = data.get('category') or data.get('cat', entity.category)
+        entity.tax_id = data.get('tax_id') or data.get('taxId', entity.tax_id)
+        entity.hq_location = data.get('hq_location') or data.get('hq', entity.hq_location)
+        entity.status = data.get('status', entity.status)
+        entity.save()
+        return Response(BusinessEntitySerializer(entity).data)
+
+    def delete(self, request, pk):
+        try:
+            BusinessEntity.objects.get(pk=pk).delete()
+            return Response(status=http_status.HTTP_204_NO_CONTENT)
+        except BusinessEntity.DoesNotExist:
+            return Response({'error': 'Not found'}, status=http_status.HTTP_404_NOT_FOUND)
+
+
+class CompanyStructureView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        files = request.FILES
+        try:
+            structure = CompanyStructure.objects.create(
+                name=data.get('name', ''),
+                crn=data.get('crn', ''),
+                manager=data.get('manager', ''),
+                sic_code=data.get('sic_code') or data.get('sic', ''),
+                filing_due=data.get('filing_due') or data.get('due', '2099-01-01'),
+                address=data.get('address') or data.get('addr', ''),
+                balance_sheet=files.get('balance_sheet'),
+                pl_statement=files.get('pl_statement'),
+            )
+            return Response(CompanyStructureSerializer(structure, context={'request': request}).data, status=http_status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        try:
+            structure = CompanyStructure.objects.get(pk=pk)
+        except CompanyStructure.DoesNotExist:
+            return Response({'error': 'Not found'}, status=http_status.HTTP_404_NOT_FOUND)
+        data = request.data
+        files = request.FILES
+        structure.name = data.get('name', structure.name)
+        structure.crn = data.get('crn', structure.crn)
+        structure.manager = data.get('manager', structure.manager)
+        structure.sic_code = data.get('sic_code') or data.get('sic', structure.sic_code)
+        if data.get('filing_due') or data.get('due'):
+            structure.filing_due = data.get('filing_due') or data.get('due')
+        structure.address = data.get('address') or data.get('addr', structure.address)
+        if files.get('balance_sheet'):
+            structure.balance_sheet = files.get('balance_sheet')
+        if files.get('pl_statement'):
+            structure.pl_statement = files.get('pl_statement')
+        structure.save()
+        return Response(CompanyStructureSerializer(structure, context={'request': request}).data)
+
+    def delete(self, request, pk):
+        try:
+            CompanyStructure.objects.get(pk=pk).delete()
+            return Response(status=http_status.HTTP_204_NO_CONTENT)
+        except CompanyStructure.DoesNotExist:
+            return Response({'error': 'Not found'}, status=http_status.HTTP_404_NOT_FOUND)

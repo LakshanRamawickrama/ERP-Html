@@ -38,6 +38,7 @@ export default function AccountingModule() {
   const [recordCategory, setRecordCategory] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
+  const [fileFields, setFileFields] = useState<Record<string, File>>({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
@@ -70,19 +71,36 @@ export default function AccountingModule() {
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({});
+    setFileFields({});
     setRecordCategory('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      console.log('Updating record:', editingId, formData);
-      // TODO: API call to update
-    } else {
-      console.log('Creating new record:', formData);
-      // TODO: API call to create
+    const token = localStorage.getItem('token');
+    const body = new FormData();
+    Object.entries(formData).forEach(([k, v]) => {
+      if (v !== null && v !== undefined && !(v instanceof File)) body.append(k, String(v));
+    });
+    Object.entries(fileFields).forEach(([k, f]) => body.append(k, f));
+
+    const isInvoice = activeTab === 'invoices';
+    const baseUrl = isInvoice
+      ? `${API_ENDPOINTS.ACCOUNTING}invoices/`
+      : `${API_ENDPOINTS.ACCOUNTING}transactions/`;
+    const url = editingId ? `${baseUrl}${editingId}/` : baseUrl;
+    const method = editingId ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body });
+      if (res.ok) {
+        const refreshed = await fetch(API_ENDPOINTS.ACCOUNTING, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+        setData(refreshed);
+        handleCancelEdit();
+      }
+    } catch (err) {
+      console.error('Accounting save error:', err);
     }
-    handleCancelEdit();
   };
 
   const handleDeleteClick = (id: string) => {
@@ -106,10 +124,13 @@ export default function AccountingModule() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
-    if (name === 'category') {
-      setRecordCategory(value);
+    const { name } = e.target;
+    const target = e.target;
+    if (target instanceof HTMLInputElement && target.type === 'file' && target.files?.[0]) {
+      setFileFields(prev => ({ ...prev, [name]: target.files![0] }));
+    } else {
+      setFormData((prev: any) => ({ ...prev, [name]: target.value }));
+      if (name === 'category') setRecordCategory(target.value);
     }
   };
 

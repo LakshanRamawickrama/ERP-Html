@@ -34,7 +34,14 @@ class PropertyLicenceSerializer(MongoSerializerMixin, serializers.ModelSerialize
     auth = serializers.CharField(source='authority', read_only=True)
     issue = serializers.DateField(source='issue_date', read_only=True)
     expiry = serializers.DateField(source='expiry_date', read_only=True)
+    document_url = serializers.SerializerMethodField()
 
     class Meta:
         model = PropertyLicence
         fields = '__all__'
+
+    def get_document_url(self, obj):
+        request = self.context.get('request')
+        if obj.document and hasattr(obj.document, 'url'):
+            return request.build_absolute_uri(obj.document.url) if request else obj.document.url
+        return None

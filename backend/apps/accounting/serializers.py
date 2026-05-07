@@ -4,10 +4,17 @@ from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VA
 
 class TransactionSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     cat = serializers.CharField(source='category', read_only=True)
+    document_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Transaction
         fields = '__all__'
+
+    def get_document_url(self, obj):
+        request = self.context.get('request')
+        if obj.document and hasattr(obj.document, 'url'):
+            return request.build_absolute_uri(obj.document.url) if request else obj.document.url
+        return None
 
 class BankAccountSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     bank = serializers.CharField(source='bank_name', read_only=True)
@@ -23,10 +30,17 @@ class BankAccountSerializer(MongoSerializerMixin, serializers.ModelSerializer):
 class InvoiceSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     num = serializers.CharField(source='number', read_only=True)
     due = serializers.DateField(source='due_date', read_only=True)
+    pdf_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Invoice
         fields = '__all__'
+
+    def get_pdf_url(self, obj):
+        request = self.context.get('request')
+        if obj.pdf and hasattr(obj.pdf, 'url'):
+            return request.build_absolute_uri(obj.pdf.url) if request else obj.pdf.url
+        return None
 
 class LoanSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     loan = serializers.CharField(source='name', read_only=True)

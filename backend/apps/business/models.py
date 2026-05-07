@@ -18,6 +18,8 @@ class CompanyStructure(models.Model):
     sic_code = models.CharField(max_length=20, blank=True, null=True)
     filing_due = models.DateField()
     address = models.TextField(blank=True, null=True)
+    balance_sheet = models.FileField(upload_to='business/balance_sheets/', blank=True, null=True)
+    pl_statement = models.FileField(upload_to='business/pl_statements/', blank=True, null=True)
 
     def __str__(self):
         return self.name
