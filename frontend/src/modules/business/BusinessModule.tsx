@@ -138,12 +138,42 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteId) {
-      console.log('Deleting business record:', deleteId);
-      // TODO: API call
+      const endpoint = activeTab === 'entities' ? 'entities/' : 'structures/';
+      const url = `${API_ENDPOINTS.BUSINESS}${endpoint}${deleteId}/`;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          // Refresh data
+          const res = await fetch(API_ENDPOINTS.BUSINESS, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          const newData = await res.json();
+          setData(newData);
+          setShowDeleteModal(false);
+          setDeleteId(null);
+        } else {
+          console.error('Delete failed:', await response.text());
+        }
+      } catch (err) {
+        console.error('Failed to delete business record:', err);
+      }
     }
   };
+
 
   const handleViewDoc = (docTitle: string) => {
     setSelectedDoc({ title: docTitle });
@@ -222,6 +252,13 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                       value={formData.tax_id || ''} 
                       onChange={(v: string) => setFormData({...formData, tax_id: v})}
                     />
+                    <Field 
+                      label="HQ Location" 
+                      placeholder="e.g. London, UK" 
+                      value={formData.hq_location || ''} 
+                      onChange={(v: string) => setFormData({...formData, hq_location: v})}
+                    />
+
                     <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
                       {editingId ? "Update Business" : "Register Business"}
                     </button>
