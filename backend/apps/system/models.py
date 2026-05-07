@@ -20,3 +20,16 @@ class SystemAlert(models.Model):
     label = models.CharField(max_length=255)
     message = models.TextField()
     type = models.CharField(max_length=50) # soon, info, warning
+
+class ConnectedEmail(models.Model):
+    email = models.EmailField()
+    label = models.CharField(max_length=255, blank=True)
+    type = models.CharField(max_length=50, default='primary')
+    password = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=50, default='Connected')
+    created_by = models.CharField(max_length=255, blank=True, null=True)
+
+class Note(models.Model):
+    text = models.TextField()
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)

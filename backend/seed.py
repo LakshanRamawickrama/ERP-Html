@@ -17,7 +17,7 @@ from apps.reminders.models import Reminder
 from apps.property.models import Asset, MaintenanceRequest, WasteCollection, PropertyLicence
 from apps.users.models import StaffProfile
 from apps.suppliers.models import Supplier, PurchaseOrder
-from apps.system.models import SystemCredential, SystemAlert
+from apps.system.models import SystemCredential, SystemAlert, ConnectedEmail, Note
 
 def seed_data():
     print("Seeding MongoDB Database with Full ERP Data...")
@@ -110,6 +110,18 @@ def seed_data():
 
     PurchaseOrder.objects.all().delete()
     PurchaseOrder.objects.create(number='PO-2026-001', supplier=s1, product='Industrial Lubricants', quantity=12, amount=1250.00, date='2026-05-15', status='Paid', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+
+    # 10. Connected Emails
+    ConnectedEmail.objects.all().delete()
+    ConnectedEmail.objects.create(email='admin@mainretailstore.com', label='Primary Business', type='primary', password='', status='Connected', created_by=SUPER_ADMIN_EMAIL)
+    ConnectedEmail.objects.create(email='support@mainretailstore.com', label='Support Inbox', type='other', password='', status='Connected', created_by=SUPER_ADMIN_EMAIL)
+    ConnectedEmail.objects.create(email='logistics@logisticshub.com', label='Logistics Hub', type='other', password='', status='Connected', created_by=SUPER_ADMIN_EMAIL)
+
+    # 11. Notes
+    Note.objects.all().delete()
+    Note.objects.create(text='Review Q1 sales figures before board meeting on Friday.', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Vehicle insurance renewal due next month — contact broker.', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Chase Beta Logistics Ltd for overdue invoice INV-2026-002.', business=BUSINESS_2, created_by=SUPER_ADMIN_EMAIL)
 
     print("Seeding Complete! Data is now isolated by business.")
 

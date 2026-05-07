@@ -7,8 +7,8 @@ def get_filtered_queryset(request, model_class, business_field='business'):
     Admins see records for their assigned business.
     """
     if request.user.is_superuser:
-        # Superadmin: only records they created
-        return model_class.objects.filter(created_by=request.user.email)
+        # Superadmin: see everything across all businesses
+        return model_class.objects.all()
     
     # Admin: records for assigned business
     business_scope = getattr(request.user, 'assigned_business', 'All')

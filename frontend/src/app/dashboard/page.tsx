@@ -77,37 +77,53 @@ export default function Dashboard() {
       return res.json();
     })
     .then(data => {
-      if (data) setDash(data);
+      if (data) setDash((prev: any) => ({ ...prev, ...data }));
     })
     .catch(err => console.error('Dashboard fetch error:', err));
   }, [router]);
 
+  const authHeaders = () => ({
+    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    'Content-Type': 'application/json',
+  });
+
   const handleAddEmail = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEmail.email) return;
-    
-    const emailObj = {
-      ...newEmail,
-      status: 'Connected',
-      id: Date.now().toString()
-    };
-    
-    setDash((prev: any) => ({
-      ...prev,
-      emails: [emailObj, ...prev.emails]
-    }));
-    
-    setNewEmail({ email: '', label: '', type: 'primary', password: '' });
-    setShowEmailModal(false);
+    fetch(API_ENDPOINTS.EMAILS, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ ...newEmail, status: 'Connected' }),
+    })
+      .then(res => res.json())
+      .then(saved => {
+        setDash((prev: any) => ({ ...prev, emails: [saved, ...prev.emails] }));
+        setNewEmail({ email: '', label: '', type: 'primary', password: '' });
+        setShowEmailModal(false);
+      })
+      .catch(() => {
+        setNewEmail({ email: '', label: '', type: 'primary', password: '' });
+        setShowEmailModal(false);
+      });
+  };
+
+  const handleDeleteEmail = (id: string) => {
+    fetch(`${API_ENDPOINTS.EMAILS}${id}/`, { method: 'DELETE', headers: authHeaders() })
+      .then(() => setDash((prev: any) => ({ ...prev, emails: prev.emails.filter((em: any) => em.id !== id) })));
   };
 
   const handleAddNote = () => {
     if (!noteInput.trim()) return;
-    setDash((prev: any) => ({
-      ...prev,
-      notes: [noteInput, ...prev.notes]
-    }));
-    setNoteInput('');
+    fetch(API_ENDPOINTS.NOTES, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ text: noteInput }),
+    })
+      .then(res => res.json())
+      .then(saved => {
+        setDash((prev: any) => ({ ...prev, notes: [saved, ...prev.notes] }));
+        setNoteInput('');
+      });
   };
 
   const handleAddTodo = () => {
@@ -119,11 +135,9 @@ export default function Dashboard() {
     setTodoInput('');
   };
 
-  const handleDeleteNote = (index: number) => {
-    setDash((prev: any) => ({
-      ...prev,
-      notes: prev.notes.filter((_: any, i: number) => i !== index)
-    }));
+  const handleDeleteNote = (id: string) => {
+    fetch(`${API_ENDPOINTS.NOTES}${id}/`, { method: 'DELETE', headers: authHeaders() })
+      .then(() => setDash((prev: any) => ({ ...prev, notes: prev.notes.filter((n: any) => n.id !== id) })));
   };
 
   const handleDeleteTodo = (index: number) => {
@@ -239,11 +253,11 @@ export default function Dashboard() {
             {/* 3. NOTES */}
             <Widget title="Notes" icon={FileText} color="bg-[#f59e0b]">
               <div className="space-y-2">
-                {dash.notes.map((note: string, i: number) => (
-                  <div key={i} className="bg-[#fffbeb] border border-[#fef3c7] rounded-lg p-2 relative group shadow-sm">
-                    <p className="text-[11px] text-[#1e293b] leading-[1.3] m-0 pr-5">{note}</p>
-                    <button 
-                      onClick={() => handleDeleteNote(i)}
+                {dash.notes.map((note: any) => (
+                  <div key={note.id} className="bg-[#fffbeb] border border-[#fef3c7] rounded-lg p-2 relative group shadow-sm">
+                    <p className="text-[11px] text-[#1e293b] leading-[1.3] m-0 pr-5">{note.text}</p>
+                    <button
+                      onClick={() => handleDeleteNote(note.id)}
                       className="absolute right-1.5 top-2 text-[#ef4444] opacity-20 group-hover:opacity-100 transition-all"
                     >
                       <Trash2 className="w-3 h-3" />
@@ -330,14 +344,15 @@ export default function Dashboard() {
                     </div>
                   ) : (
                     <div className="max-h-[220px] overflow-y-auto pr-1 scrollbar-custom space-y-3 animate-in fade-in duration-300">
-                      {dash.emails.map((email: any, i: number) => (
-                        <div key={i} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-                          <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold`}><Mail size={14} /></div>
+                      {dash.emails.map((email: any) => (
+                        <div key={email.id} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg group">
+                          <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold shrink-0`}><Mail size={14} /></div>
                           <div className="flex-1 min-w-0">
                             <div className="text-[11px] font-bold text-[#1e293b] truncate">{email.email}</div>
                             <div className="text-[9px] text-[#64748b]">{email.label}</div>
                           </div>
                           <span className="px-2 py-0.5 bg-[#198754] text-white text-[9px] font-bold rounded">{email.status}</span>
+                          <button onClick={() => handleDeleteEmail(email.id)} className="text-[#ef4444] opacity-0 group-hover:opacity-100 transition-all ml-1"><Trash2 className="w-3 h-3" /></button>
                         </div>
                       ))}
                     </div>

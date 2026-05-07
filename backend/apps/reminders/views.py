@@ -14,8 +14,7 @@ class ReminderDataView(APIView):
         business_scope = profile.assigned_business if profile else 'All'
         
         if request.user.is_superuser:
-            # Super admin: show reminders they added
-            reminders = Reminder.objects.filter(created_by=user_email)
+            reminders = Reminder.objects.all()
         else:
             # Admin: show reminders for assigned business
             if business_scope == 'All':
