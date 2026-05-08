@@ -79,9 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django_mongodb_backend',
         'NAME': os.environ.get('DB_NAME', 'ERP_System_Pro'),
-        'CLIENT': {
-            'host': MONGO_URL,
-        }
+        'HOST': MONGO_URL,
     }
 }
 

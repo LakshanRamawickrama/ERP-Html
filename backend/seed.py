@@ -22,9 +22,14 @@ from apps.system.models import SystemCredential, SystemAlert, ConnectedEmail, No
 def seed_data():
     from django.conf import settings
     db_config = settings.DATABASES['default']
-    host = db_config.get('CLIENT', {}).get('host', 'unknown')
+    host = db_config.get('HOST') or db_config.get('CLIENT', {}).get('host', 'unknown')
     
-    print(f"Target Database Host: {'localhost (Warning!)' if 'localhost' in host else 'Cloud MongoDB'}")
+    clean_host = host.split('@')[-1] if '@' in host else host
+    print(f"Target Database Host: {clean_host}")
+    if 'localhost' in host:
+         print("WARNING: Connecting to localhost MongoDB! This might fail in production.")
+    else:
+         print("Cloud MongoDB connection detected.")
     print("Seeding MongoDB Database with Full ERP Data...")
     
     SUPER_ADMIN_EMAIL = 'superadmin@erp.com'
