@@ -6,15 +6,6 @@ from datetime import datetime, timedelta
 # Set up Django environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-
-# Force environment variables into Django settings before setup
-import core.settings as app_settings
-from django.conf import settings
-
-if not settings.configured:
-    settings.configure(default_settings=app_settings, DEBUG=True)
-
-import django
 django.setup()
 
 from apps.business.models import BusinessEntity, CompanyStructure

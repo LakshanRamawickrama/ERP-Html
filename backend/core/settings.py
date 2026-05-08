@@ -72,7 +72,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database - Connected to MongoDB (Modern Engine)
-MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/')
+# MongoDB Configuration - Support multiple Railway naming conventions
+MONGO_URL = os.environ.get('MONGO_URL') or os.environ.get('MONGODB_URL') or 'mongodb://localhost:27017/'
 
 DATABASES = {
     'default': {
