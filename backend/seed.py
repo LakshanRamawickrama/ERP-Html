@@ -2,6 +2,7 @@ import os
 import django
 import sys
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 # Set up Django environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -99,8 +100,8 @@ def seed_data():
 
     # 6. Reminders
     Reminder.objects.all().delete()
-    Reminder.objects.create(title='Vehicle Insurance Renewal', description='Annual HGV insurance renewal', due_date=datetime.now() + timedelta(days=15), priority='High', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
-    Reminder.objects.create(title='VAT Return Q2 Submission', description='Quarterly VAT filing', due_date=datetime.now() + timedelta(days=30), priority='High', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Reminder.objects.create(title='Vehicle Insurance Renewal', description='Annual HGV insurance renewal', due_date=timezone.now() + timedelta(days=15), priority='High', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Reminder.objects.create(title='VAT Return Q2 Submission', description='Quarterly VAT filing', due_date=timezone.now() + timedelta(days=30), priority='High', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
     # 7. Property
     Asset.objects.all().delete()

@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Vehicle, Delivery, ParcelPartner
 from .serializers import VehicleSerializer, DeliverySerializer, ParcelPartnerSerializer
 from apps.users.utils import get_filtered_queryset
-from datetime import datetime
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
 class FleetDataView(APIView):
@@ -17,7 +17,7 @@ class FleetDataView(APIView):
         partners = get_filtered_queryset(request, ParcelPartner)
 
         reminders = []
-        today = datetime.now().date()
+        today = timezone.now().date()
         for v in vehicles:
             remind_days = v.reminder_before or 30
             if v.mot_date:
