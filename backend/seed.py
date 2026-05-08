@@ -6,13 +6,16 @@ from datetime import datetime, timedelta
 # Set up Django environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-django.setup()
 
-from django.db import connections
-conn = connections['default']
-if hasattr(conn, 'connection') and conn.connection:
-    # Set a longer server selection timeout for cloud environments
-    conn.connection._client_options.pool_options.server_selection_timeout = 60
+# Force environment variables into Django settings before setup
+import core.settings as app_settings
+from django.conf import settings
+
+if not settings.configured:
+    settings.configure(default_settings=app_settings, DEBUG=True)
+
+import django
+django.setup()
 
 from apps.business.models import BusinessEntity, CompanyStructure
 from apps.fleet.models import Vehicle, Delivery, ParcelPartner
