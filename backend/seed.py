@@ -20,6 +20,11 @@ from apps.suppliers.models import Supplier, PurchaseOrder
 from apps.system.models import SystemCredential, SystemAlert, ConnectedEmail, Note
 
 def seed_data():
+    from django.conf import settings
+    db_config = settings.DATABASES['default']
+    host = db_config.get('CLIENT', {}).get('host', 'unknown')
+    
+    print(f"Target Database Host: {'localhost (Warning!)' if 'localhost' in host else 'Cloud MongoDB'}")
     print("Seeding MongoDB Database with Full ERP Data...")
     
     SUPER_ADMIN_EMAIL = 'superadmin@erp.com'
