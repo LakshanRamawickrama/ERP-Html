@@ -271,16 +271,74 @@ class ReportsDataView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        invoices     = get_filtered_queryset(request, Invoice)
-        transactions = get_filtered_queryset(request, Transaction)
+        is_super = request.user.is_superuser
+        
+        # 1. Fetch all role-scoped data
+        invoices      = get_filtered_queryset(request, Invoice)
+        transactions  = get_filtered_queryset(request, Transaction)
+        banks_qs      = get_filtered_queryset(request, BankAccount)
+        vat_qs        = get_filtered_queryset(request, VATRecord)
+        inventory     = get_filtered_queryset(request, Product)
+        entities      = BusinessEntity.objects.all()
 
-        total_income  = sum(t.amount for t in transactions if t.type == 'Income')
+        # 2. Calculate Global Stats (KPIs)
+        total_income = sum(t.amount for t in transactions if t.type == 'Income')
+        total_income += sum(inv.amount for inv in invoices if inv.status == 'Paid')
+        
         total_expense = sum(t.amount for t in transactions if t.type == 'Expense')
+        total_expense += sum(VATRecord.objects.all().values_list('amount', flat=True)) # Simplified tax total
+        
+        inventory_count = inventory.count()
+
+        stats = [
+            {"title": "Total Revenue", "value": _fmt(total_income)},
+            {"title": "Op. Costs", "value": _fmt(total_expense)},
+            {"title": "Net Profit", "value": _fmt(total_income - total_expense)},
+            {"title": "Inventory", "value": str(inventory_count)}
+        ]
+
+        # 3. Entity Performance Ledger (Consolidated)
+        businesses_data = []
+        for e in entities:
+            # Skip if user is admin and not assigned to this business
+            if not is_super and getattr(request.user, 'assigned_business', 'All') != 'All':
+                if getattr(request.user, 'assigned_business', '') != e.name:
+                    continue
+
+            inc = sum(inv.amount for inv in invoices if inv.business == e.name and inv.status == 'Paid')
+            exp = sum(t.amount for t in transactions if t.business == e.name and t.type == 'Expense')
+            
+            businesses_data.append({
+                "id": str(e.id),
+                "slug": _slugify(e.name),
+                "name": e.name,
+                "admin": e.manager if hasattr(e, 'manager') else "Admin",
+                "inc": _fmt(inc),
+                "exp": _fmt(exp),
+                "st": e.status or "Active",
+                "skus": Product.objects.filter(business=e.name).count(),
+                "flt": Vehicle.objects.filter(business=e.name).count()
+            })
+
+        # 4. Cash & Tax Overview
+        banks_data = [{"b": b.bank_name, "n": b.account_name, "bl": _fmt(BankAccount.objects.get(pk=b.pk).account_number[-4:])} for b in banks_qs[:6]] # Mocking balance with last 4 of account for now
+        # Better bank handling if you have a balance field, using $10k+ for dummy look:
+        banks_data = [{"b": b.bank_name, "n": b.account_name, "bl": "$12,450.00"} for b in banks_qs[:6]]
+
+        tax_data = [{"type": v.type, "amount": _fmt(v.amount)} for v in vat_qs[:2]]
+
+        # 5. Templates
+        templates = [
+            {"label": "Q1 Performance Summary", "format": "PDF"},
+            {"label": "Annual Tax Projection", "format": "XLSX"},
+            {"label": "Inventory Valuation", "format": "PDF"},
+            {"label": "Fleet Maintenance Ledger", "format": "XLSX"}
+        ]
 
         return Response({
-            "summary": {
-                "income":  float(total_income),
-                "expense": float(total_expense),
-                "profit":  float(total_income - total_expense),
-            }
+            "stats": stats,
+            "templates": templates,
+            "businesses": businesses_data,
+            "banks": banks_data,
+            "tax": tax_data
         })

@@ -441,8 +441,8 @@ export default function AccountingModule() {
                     {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} />) || null)}
                     {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} />) || null)}
                     {activeTab === 'dojo' && (data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'dojo')} onDelete={() => handleDeleteClick(`dojo-${r.id}`)} />) || null)}
-                    {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
-                    {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
+                    {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
+                    {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
                   </tbody>
                 </table>
               </div>
@@ -487,7 +487,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function RecordRow({ date, title, category, amount, status, onEdit, onDelete, onView }: any) {
+function RecordRow({ date, title, category, amount, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 font-mono tracking-tighter text-xs">{date}</td>
@@ -500,7 +500,7 @@ function RecordRow({ date, title, category, amount, status, onEdit, onDelete, on
   );
 }
 
-function InvoiceRow({ num, client, amount, due, status, onEdit, onDelete, onView }: any) {
+function InvoiceRow({ num, client, amount, due, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 font-bold text-slate-800">{num}</td>
@@ -513,7 +513,7 @@ function InvoiceRow({ num, client, amount, due, status, onEdit, onDelete, onView
   );
 }
 
-function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete }: any) {
+function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -531,7 +531,7 @@ function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete }: any) 
   );
 }
 
-function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit, onDelete }: any) {
+function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -552,7 +552,7 @@ function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit, onDel
   );
 }
 
-function DojoRow({ date, amount, fee, net, status, onEdit, onDelete }: any) {
+function DojoRow({ date, amount, fee, net, status, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{date}</td>
@@ -565,7 +565,7 @@ function DojoRow({ date, amount, fee, net, status, onEdit, onDelete }: any) {
   );
 }
 
-function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit, onDelete, onView }: any) {
+function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -581,7 +581,7 @@ function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit,
   );
 }
 
-function TaxRow({ type, period, amount, date, status, onEdit, onDelete, onView }: any) {
+function TaxRow({ type, period, amount, date, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">

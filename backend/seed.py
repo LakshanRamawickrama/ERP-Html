@@ -52,6 +52,9 @@ def seed_data():
     Delivery.objects.create(vehicle=v1, pickup_date="2026-05-08", delivery_date="2026-05-09", address='Central Warehouse, London', contact_person='John Doe', contact_number='+44 7700 900077', status='Delivered', notes='Urgent delivery', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
     Delivery.objects.create(vehicle=v2, pickup_date="2026-05-12", delivery_date="2026-05-14", address='South Depot, Bristol', contact_person='Bob Jones', contact_number='+44 7700 900099', status='Pending', notes='Awaiting clearance', business=BUSINESS_2, created_by=SUPER_ADMIN_EMAIL)
 
+    ParcelPartner.objects.all().delete()
+    ParcelPartner.objects.create(provider='DPD Logistics', vehicle=v1, service_date='2026-05-10', area='London Central', contact_name='Alice Cooper', contact_number='+44 7700 900111', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+
     # 3. Inventory
     Product.objects.all().delete()
     p1 = Product.objects.create(name="Milk Packet 1L", sku="MILK-001", category="Food & Beverages", quantity=150, price=1.20, min_stock=20, business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
@@ -72,6 +75,12 @@ def seed_data():
     BankAccount.objects.all().delete()
     BankAccount.objects.create(bank_name='Business Central Bank', account_name='LAKSHAN RAMAWICKRAMA ERP', account_number='88776655', sort_code='00-11-22', account_type='Business Current', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
+    Loan.objects.all().delete()
+    Loan.objects.create(name='Business Expansion Loan', lender='HSBC Business', total_amount=50000.00, outstanding_amount=42000.00, monthly_payment=1250.00, interest_rate=4.5, status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+
+    InsurancePolicy.objects.all().delete()
+    InsurancePolicy.objects.create(type='Public Liability', provider='Aviva Business', policy_number='PL-887766', premium=1200.00, start_date='2026-01-01', expiry_date='2026-12-31', renewal_reminder='30 Days Before', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+
     VATRecord.objects.all().delete()
     VATRecord.objects.create(type='VAT Return Q1', period='Jan - Mar 2026', amount=4250.00, date='2026-04-10', status='Paid', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
@@ -90,6 +99,12 @@ def seed_data():
     MaintenanceRequest.objects.all().delete()
     MaintenanceRequest.objects.create(issue='Leak in Ground Floor Bathroom', asset=a1, priority='Urgent', technician='Mike Plumb', status='In Progress', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
+    WasteCollection.objects.all().delete()
+    WasteCollection.objects.create(date='2026-05-15', contact_person='Alice Smith', phone='+44 7700 900555', address='Main Street Warehouse', status='Active', notes='Weekly Pickup', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+
+    PropertyLicence.objects.all().delete()
+    PropertyLicence.objects.create(type='HMO Licence', authority='London City Council', issue_date='2023-01-01', expiry_date='2028-10-10', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+
     # 8. Users
     from django.contrib.auth.models import User
     from pymongo import MongoClient
@@ -103,6 +118,12 @@ def seed_data():
     StaffProfile.objects.all().delete()
     StaffProfile.objects.create(name='Lakshan Ramawickrama', role='super_admin', assigned_business='All', email=SUPER_ADMIN_EMAIL, status='Active')
     StaffProfile.objects.create(name='Operations Manager', role='admin', assigned_business=BUSINESS_1, email='admin@erp.com', status='Active')
+
+    SystemCredential.objects.all().delete()
+    SystemCredential.objects.create(service='AWS Portal', account='admin_user', password='encrypted_password123', support='Cloud Infra Team', status='Active')
+
+    SystemAlert.objects.all().delete()
+    SystemAlert.objects.create(label='Server High Latency', type='warning', message='Region us-east-1 experiencing issues')
 
     # 9. Suppliers
     Supplier.objects.all().delete()
