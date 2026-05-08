@@ -78,13 +78,15 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   return (
     <aside className="group fixed left-0 top-0 h-screen bg-[#2c3e50] text-[#ecf0f1] w-[70px] hover:w-[240px] transition-all duration-300 shadow-xl z-[1100] flex flex-col overflow-hidden">
       {/* Brand */}
-      <div className="flex items-center gap-3 p-4 border-b border-white/10 min-h-[70px] whitespace-nowrap">
+      <div className="flex items-center gap-3 p-4 border-b border-white/10 min-h-[70px] whitespace-nowrap overflow-hidden">
         <div className="min-w-[38px] flex justify-center">
-          <LayoutDashboard className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+            <span className="text-white font-black text-lg tracking-tighter">N</span>
+          </div>
         </div>
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-          <h5 className="text-sm font-bold leading-tight">Business Central</h5>
-          <small className="text-[10px] text-white/70 block">{userRole}</small>
+          <h5 className="text-sm font-black tracking-tight text-white uppercase">Nexa ERP</h5>
+          <small className="text-[9px] font-bold text-cyan-400 block uppercase tracking-widest leading-none mt-0.5">{userRole?.replace('_', ' ')}</small>
         </div>
       </div>
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { 
   Lock, 
   User, 
-  ShieldCheck, 
+  LayoutDashboard,
   Zap, 
   BarChart3, 
   Shield, 
@@ -76,32 +76,32 @@ export default function LoginPage() {
           {/* Left Side: Branding & Features */}
           <div className="hidden lg:block space-y-10 animate-in fade-in slide-in-from-left-8 duration-700">
             <div className="flex items-center gap-4 group">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
-                <CircleDollarSign size={36} />
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform duration-300">
+                <span className="text-3xl font-black">N</span>
               </div>
               <div>
-                <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-                  ClearERP
+                <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 uppercase">
+                  Nexa ERP
                 </h1>
-                <p className="text-slate-400 font-medium">Business Management System</p>
+                <p className="text-slate-400 font-medium uppercase tracking-widest text-[10px]">Next-Gen Business OS</p>
               </div>
             </div>
 
             <div className="space-y-6">
               <h2 className="text-5xl font-extrabold text-white leading-tight">
                 Welcome to the <br />
-                <span className="text-emerald-400">Future of ERP.</span>
+                <span className="text-cyan-400">Nexa Universe.</span>
               </h2>
               <p className="text-slate-400 text-lg leading-relaxed max-w-md">
-                Manage your business operations with unprecedented efficiency, security, and lightning-fast performance.
+                Master your operations with futuristic speed, absolute security, and a stunning interface.
               </p>
             </div>
 
             <div className="grid gap-4 max-w-md">
               {[
-                { icon: <BarChart3 className="text-emerald-400" />, title: "Real-time Analytics", desc: "Track your business metrics in real-time" },
-                { icon: <Shield className="text-emerald-400" />, title: "Secure & Reliable", desc: "Enterprise-grade security for your data" },
-                { icon: <Zap className="text-emerald-400" />, title: "Lightning Fast", desc: "Optimized performance for productivity" }
+                { icon: <BarChart3 className="text-cyan-400" />, title: "Real-time Analytics", desc: "Track your business metrics in real-time" },
+                { icon: <Shield className="text-cyan-400" />, title: "Secure & Reliable", desc: "Enterprise-grade security for your data" },
+                { icon: <Zap className="text-cyan-400" />, title: "Lightning Fast", desc: "Optimized performance for productivity" }
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group">
                   <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
@@ -120,10 +120,10 @@ export default function LoginPage() {
           <div className="animate-in fade-in slide-in-from-right-8 duration-700">
             {/* Mobile Logo */}
             <div className="lg:hidden flex flex-col items-center mb-10 text-center">
-              <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center text-white mb-4 shadow-xl shadow-emerald-500/20">
-                <CircleDollarSign size={32} />
+              <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-xl shadow-cyan-500/20">
+                <span className="text-2xl font-black">N</span>
               </div>
-              <h1 className="text-3xl font-bold text-white">ClearERP</h1>
+              <h1 className="text-3xl font-black text-white uppercase tracking-tight">Nexa ERP</h1>
             </div>
 
             <div className="bg-white/[0.98] backdrop-blur-xl rounded-[32px] p-8 md:p-12 shadow-2xl shadow-black/40 border border-white/20">
@@ -178,20 +178,20 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center gap-2 px-1">
-                  <input type="checkbox" id="remember" className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <input type="checkbox" id="remember" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                   <label htmlFor="remember" className="text-sm text-slate-500 cursor-pointer">Remember this session</label>
                 </div>
 
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white py-4 rounded-2xl font-bold shadow-lg shadow-emerald-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group"
+                  className="w-full bg-gradient-to-r from-blue-700 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group"
                 >
                   {isLoading ? (
                     <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
-                      <span>AUTHENTICATE</span>
+                      <span className="tracking-[0.2em]">AUTHENTICATE</span>
                       <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
@@ -227,8 +227,8 @@ export default function LoginPage() {
             </div>
 
             {/* Legal Footer */}
-            <p className="mt-8 text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">
-              &copy; 2026 ClearERP Global Systems Ltd.
+            <p className="mt-8 text-center text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+              &copy; 2026 Nexa ERP Global Systems.
             </p>
           </div>
         </div>
