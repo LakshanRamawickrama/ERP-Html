@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { 
   Lock, 
   User, 
-  LayoutDashboard,
+  ShieldCheck, 
   Zap, 
   BarChart3, 
   Shield, 
@@ -198,32 +198,6 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              {/* Demo Credentials Section */}
-              <div className="mt-10 pt-8 border-t border-slate-100">
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-6">Master Access Keys</p>
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => { setEmail('superadmin'); setPassword('superpassword123'); }}
-                    className="group flex flex-col items-start p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-emerald-500/50 hover:bg-white transition-all text-left shadow-sm hover:shadow-md"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <Shield size={12} className="text-emerald-600" />
-                      <span className="text-[11px] font-black text-emerald-600 uppercase">Super Admin</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-mono">Fill Keys</span>
-                  </button>
-                  <button 
-                    onClick={() => { setEmail('admin'); setPassword('adminpassword123'); }}
-                    className="group flex flex-col items-start p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-cyan-500/50 hover:bg-white transition-all text-left shadow-sm hover:shadow-md"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <ShieldCheck size={12} className="text-cyan-600" />
-                      <span className="text-[11px] font-black text-cyan-600 uppercase">Administrator</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-mono">Fill Keys</span>
-                  </button>
-                </div>
-              </div>
             </div>
 
             {/* Legal Footer */}
