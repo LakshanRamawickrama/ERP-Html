@@ -4,6 +4,8 @@
     "root": "/backend"
   },
   "deploy": {
-    "root": "/backend"
+    "numReplicas": 1,
+    "sleepService": false,
+    "restartPolicyType": "ON_FAILURE"
   }
 }

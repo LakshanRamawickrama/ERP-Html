@@ -1,2 +1,1 @@
-release: python seed.py
-web: gunicorn core.wsgi --bind 0.0.0.0:$PORT --log-file -
+web: python seed.py && gunicorn core.wsgi --bind 0.0.0.0:$PORT --log-file -
