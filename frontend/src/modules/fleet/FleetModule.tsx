@@ -29,8 +29,15 @@ import { usePermissions } from '@/hooks/usePermissions';
 type TabType = 'vehicles' | 'deliveries' | 'parcels';
 
 export default function FleetModule() {
-  const { canAdd, canEdit, canDelete } = usePermissions('Fleet Management');
   const [activeTab, setActiveTab] = useState<TabType>('vehicles');
+  
+  const permMap: Record<TabType, string> = {
+    vehicles: 'Vehicle Fleet',
+    deliveries: 'Delivery Tracking',
+    parcels: 'Parcel Services'
+  };
+  
+  const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab]);
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});

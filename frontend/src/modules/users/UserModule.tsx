@@ -17,21 +17,51 @@ import {
   Eye,
   X,
   ShieldCheck,
-  Briefcase
+  Briefcase,
+  Building2,
+  Truck,
+  Box,
+  Landmark,
+  FileText,
+  AlertCircle,
+  MapPin
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 
-const ALL_MODULES = [
-  'Business Management',
-  'Fleet Management',
-  'Inventory Management',
-  'Accounting',
-  'Legal & Compliance',
-  'Property Management',
-  'Reports',
-  'Suppliers',
-  'Reminders',
+const MODULE_GROUPS = [
+  { 
+    name: 'Business Management', 
+    icon: Building2,
+    sub: ['Business Profile', 'Company Structure'] 
+  },
+  { 
+    name: 'Fleet Management', 
+    icon: Truck,
+    sub: ['Vehicle Fleet', 'Delivery Tracking', 'Parcel Services'] 
+  },
+  { 
+    name: 'Inventory Management', 
+    icon: Box,
+    sub: [] 
+  },
+  { 
+    name: 'Accounting', 
+    icon: Landmark,
+    sub: ['Financial Records', 'Invoices', 'Bank Accounts', 'Loans & Insurance', 'Tax Records', 'Dojo Settlements'] 
+  },
+  { name: 'Legal & Compliance', icon: ShieldCheck, sub: [] },
+  { 
+    name: 'Property Management', 
+    icon: MapPin,
+    sub: ['Property Inventory', 'Maintenance Requests', 'Waste Collection', 'Licences & Permits'] 
+  },
+  { name: 'Reports', icon: FileText, sub: [] },
+  { name: 'Suppliers', icon: Users, sub: [] },
+  { name: 'Reminders', icon: AlertCircle, sub: [] },
 ];
+
+const ALL_MODULES = MODULE_GROUPS.flatMap(g => g.sub.length > 0 ? g.sub : [g.name]);
 
 const ACTIONS = ['view', 'add', 'edit', 'delete'];
 
@@ -66,6 +96,13 @@ export default function UserModule() {
   const [permSaving, setPermSaving] = useState(false);
   const [savedNotif, setSavedNotif] = useState(false);
   const [viewingUser, setViewingUser] = useState<any>(null);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  const toggleGroup = (groupName: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupName) ? prev.filter(g => g !== groupName) : [...prev, groupName]
+    );
+  };
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : '';
 
@@ -191,14 +228,35 @@ export default function UserModule() {
   const togglePermission = (mod: string, action: string) => {
     setPermissionsMap(prev => {
       const current = prev[mod] || [];
-      const next = current.includes(action)
-        ? current.filter(a => a !== action)
-        : [...current, action];
-      if (next.length === 0) {
-        const { [mod]: _, ...rest } = prev;
-        return rest;
+      const isChecking = !current.includes(action);
+      
+      const next = isChecking
+        ? [...current, action]
+        : current.filter(a => a !== action);
+
+      let newMap = { ...prev, [mod]: next };
+
+      // Find if this is a main group and apply to sub-modules
+      const group = MODULE_GROUPS.find(g => g.name === mod);
+      if (group && group.sub.length > 0) {
+        group.sub.forEach(sub => {
+          const subCurrent = prev[sub] || [];
+          const subNext = isChecking
+            ? (subCurrent.includes(action) ? subCurrent : [...subCurrent, action])
+            : subCurrent.filter(a => a !== action);
+          
+          if (subNext.length === 0) {
+            delete newMap[sub];
+          } else {
+            newMap[sub] = subNext;
+          }
+        });
       }
-      return { ...prev, [mod]: next };
+
+      if (next.length === 0) {
+        delete newMap[mod];
+      }
+      return newMap;
     });
   };
 
@@ -397,18 +455,18 @@ export default function UserModule() {
                               <span key={a} className="text-[9px] font-bold text-slate-400 uppercase text-center capitalize">{a}</span>
                             ))}
                           </div>
-                          {ALL_MODULES.map(mod => (
-                            <div key={mod} className="grid grid-cols-5 gap-1 items-center py-1.5 border-b border-slate-100 last:border-0">
-                              <span className="text-[10px] font-medium text-slate-600 truncate pr-1" title={mod}>
-                                {mod.split(' ')[0]}
+                          {MODULE_GROUPS.map(group => (
+                            <div key={group.name} className="grid grid-cols-5 gap-1 items-center py-2 border-b border-slate-100">
+                              <span className="text-[10px] font-black text-slate-800 truncate pr-1">
+                                {group.name}
                               </span>
                               {ACTIONS.map(action => (
                                 <div key={action} className="flex justify-center">
                                   <input
                                     type="checkbox"
                                     className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-slate-800"
-                                    checked={(permissionsMap[mod] || []).includes(action)}
-                                    onChange={() => togglePermission(mod, action)}
+                                    checked={(permissionsMap[group.name] || []).includes(action)}
+                                    onChange={() => togglePermission(group.name, action)}
                                   />
                                 </div>
                               ))}
@@ -495,20 +553,79 @@ export default function UserModule() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {ALL_MODULES.map(mod => (
-                          <tr key={mod} className="hover:bg-slate-50/50">
-                            <td className="px-4 py-3 text-xs font-medium text-slate-700">{mod}</td>
-                            {ACTIONS.map(action => (
-                              <td key={action} className="px-4 py-3 text-center">
-                                <span className={`w-3.5 h-3.5 inline-block rounded-sm ${
-                                  selectedUserId && (permissionsMap[mod] || []).includes(action)
-                                    ? 'bg-emerald-500'
-                                    : 'bg-slate-200'
-                                }`} />
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
+                        {MODULE_GROUPS.map(group => {
+                          const isExpanded = expandedGroups.includes(group.name);
+                          const hasSub = group.sub.length > 0;
+                          
+                          return (
+                            <React.Fragment key={group.name}>
+                              <tr 
+                                className={cn(
+                                  "transition-all duration-200 group/row",
+                                  hasSub ? "bg-slate-50/50 cursor-pointer hover:bg-slate-100/50" : "hover:bg-slate-50/80"
+                                )}
+                                onClick={() => hasSub && toggleGroup(group.name)}
+                              >
+                                <td className="px-4 py-3.5">
+                                  <div className="flex items-center gap-3">
+                                    {/* Fixed width container for chevron/indent */}
+                                    <div className="w-5 flex items-center justify-center">
+                                      {hasSub && (
+                                        <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform duration-200", isExpanded ? "" : "-rotate-90")} />
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2.5">
+                                      {group.icon && <group.icon className={cn("w-4 h-4", hasSub ? "text-slate-800" : "text-slate-400")} />}
+                                      <span className={cn("text-xs font-bold tracking-tight", hasSub ? "text-slate-900" : "text-slate-700")}>
+                                        {group.name}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </td>
+                                {ACTIONS.map(action => (
+                                  <td key={action} className="px-4 py-3 text-center">
+                                    <div className="flex justify-center">
+                                      <input
+                                        type="checkbox"
+                                        disabled={!selectedUserId}
+                                        className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-emerald-500 disabled:opacity-30"
+                                        checked={(permissionsMap[group.name] || []).includes(action)}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          togglePermission(group.name, action);
+                                        }}
+                                      />
+                                    </div>
+                                  </td>
+                                ))}
+                              </tr>
+                              
+                              {hasSub && isExpanded && group.sub.map(sub => (
+                                <tr key={sub} className="bg-white border-l-4 border-slate-800 animate-in slide-in-from-left-2 duration-300">
+                                  <td className="px-4 py-2.5 pl-14 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                                      {sub}
+                                    </div>
+                                  </td>
+                                  {ACTIONS.map(action => (
+                                    <td key={action} className="px-4 py-2.5 text-center">
+                                      <div className="flex justify-center">
+                                        <input
+                                          type="checkbox"
+                                          disabled={!selectedUserId}
+                                          className="w-3 h-3 rounded border-slate-300 cursor-pointer accent-emerald-400 disabled:opacity-30"
+                                          checked={(permissionsMap[sub] || []).includes(action)}
+                                          onChange={() => togglePermission(sub, action)}
+                                        />
+                                      </div>
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </React.Fragment>
+                          );
+                        })}
                       </tbody>
                     </>
                   )}

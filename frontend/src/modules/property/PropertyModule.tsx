@@ -28,8 +28,16 @@ import { usePermissions } from '@/hooks/usePermissions';
 type TabType = 'inventory' | 'requests' | 'waste' | 'licence';
 
 export default function PropertyModule() {
-  const { canAdd, canEdit, canDelete } = usePermissions('Property Management');
   const [activeTab, setActiveTab] = useState<TabType>('inventory');
+
+  const permMap: Record<TabType, string> = {
+    inventory: 'Property Inventory',
+    requests: 'Maintenance Requests',
+    waste: 'Waste Collection',
+    licence: 'Licences & Permits'
+  };
+
+  const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab]);
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});

@@ -26,9 +26,12 @@ import {
 type TabType = 'entities' | 'structure';
 
 export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
-  const { canAdd, canEdit, canDelete } = usePermissions('Business Management');
   const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
   const [activeTab, setActiveTab] = useState<TabType>(isSuperAdmin ? 'entities' : 'structure');
+
+  const { canAdd, canEdit, canDelete } = usePermissions(
+    activeTab === 'entities' ? 'Business Profile' : 'Company Structure'
+  );
   const [isWide, setIsWide] = useState(false);
   const [data, setData] = useState<any>({ entities: [], structures: [], options: { categories: [] } });
   const [loading, setLoading] = useState(true);

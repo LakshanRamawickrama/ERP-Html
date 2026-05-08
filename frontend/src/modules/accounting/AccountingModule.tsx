@@ -34,8 +34,19 @@ import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax' | 'dojo';
 
 export default function AccountingModule() {
-  const { canAdd, canEdit, canDelete } = usePermissions('Accounting');
   const [activeTab, setActiveTab] = useState<TabType>('records');
+  
+  const permMap: Record<TabType, string> = {
+    records: 'Financial Records',
+    invoices: 'Invoices',
+    bank: 'Bank Accounts',
+    loans: 'Loans & Insurance',
+    insurance: 'Loans & Insurance',
+    tax: 'Tax Records',
+    dojo: 'Dojo Settlements'
+  };
+  
+  const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab]);
   const [isWide, setIsWide] = useState(false);
   const [recordCategory, setRecordCategory] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
