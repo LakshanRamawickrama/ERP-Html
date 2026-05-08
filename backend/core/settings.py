@@ -74,6 +74,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database - Connected to MongoDB (Modern Engine)
 # MongoDB Configuration - Support multiple Railway naming conventions
 MONGO_URL = os.environ.get('MONGO_URL') or os.environ.get('MONGODB_URL') or 'mongodb://localhost:27017/'
+if 'localhost' in MONGO_URL:
+    print("CRITICAL WARNING: No MONGO_URL found in environment. Defaulting to localhost (will fail in production)!")
+else:
+    print(f"Database configuration loaded. Connecting to: {MONGO_URL.split('@')[-1] if '@' in MONGO_URL else MONGO_URL}")
 
 DATABASES = {
     'default': {
