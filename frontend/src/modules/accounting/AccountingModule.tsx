@@ -27,12 +27,14 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
+import { usePermissions } from '@/hooks/usePermissions';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 
 
 type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax' | 'dojo';
 
 export default function AccountingModule() {
+  const { canAdd, canEdit, canDelete } = usePermissions('Accounting');
   const [activeTab, setActiveTab] = useState<TabType>('records');
   const [isWide, setIsWide] = useState(false);
   const [recordCategory, setRecordCategory] = useState('');
@@ -223,9 +225,9 @@ export default function AccountingModule() {
       <div className="flex-1 overflow-y-auto p-6">
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
-          {!isWide && (
+          {!isWide && canAdd && (
             <div className="lg:col-span-4">
-              <Card 
+              <Card
                 title={editingId ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Record`} 
                 icon={editingId ? Edit : Plus} 
                 iconColor="bg-slate-800"
@@ -364,7 +366,7 @@ export default function AccountingModule() {
             </div>
           )}
 
-          <div className={isWide ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card title={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Registry`} icon={FileText}>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
@@ -434,11 +436,11 @@ export default function AccountingModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {activeTab === 'records' && (data.history?.map((r: any, i: number) => <RecordRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'records')} onDelete={() => handleDeleteClick(`record-${r.id}`)} onView={() => handleViewDoc(r.title, r.document_url, r.category)} />) || null)}
-                    {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
-                    {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} />) || null)}
-                    {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} />) || null)}
-                    {activeTab === 'dojo' && (data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'dojo')} onDelete={() => handleDeleteClick(`dojo-${r.id}`)} />) || null)}
+                    {activeTab === 'records' && (data.history?.map((r: any, i: number) => <RecordRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'records')} onDelete={() => handleDeleteClick(`record-${r.id}`)} onView={() => handleViewDoc(r.title, r.document_url, r.category)} />) || null)}
+                    {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
+                    {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} />) || null)}
+                    {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} />) || null)}
+                    {activeTab === 'dojo' && (data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'dojo')} onDelete={() => handleDeleteClick(`dojo-${r.id}`)} />) || null)}
                     {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
                     {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
                   </tbody>
@@ -493,7 +495,7 @@ function RecordRow({ date, title, category, amount, status, onEdit, onDelete, on
       <td className="px-4 py-4"><span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${category === 'Income' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>{category}</span></td>
       <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} onView={onView} showEye /></td>
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} onView={onView} showEye canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -506,7 +508,7 @@ function InvoiceRow({ num, client, amount, due, status, onEdit, onDelete, onView
       <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{due}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} /></td>
+      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -524,7 +526,7 @@ function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete }: any) 
       </td>
       <td className="px-4 py-4"><span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold border border-blue-100">{type}</span></td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} /></td>
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -545,7 +547,7 @@ function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit, onDel
         <div className="text-[10px] text-slate-400 font-medium">{rate}% APR</div>
       </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} /></td>
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -558,7 +560,7 @@ function DojoRow({ date, amount, fee, net, status, onEdit, onDelete }: any) {
       <td className="px-4 py-4 text-red-500 font-medium">-${Number(fee).toLocaleString()}</td>
       <td className="px-4 py-4 font-extrabold text-slate-800">${Number(net).toLocaleString()}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} /></td>
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -574,7 +576,7 @@ function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit,
       <td className="px-4 py-4 font-bold text-slate-800">${Number(premium).toLocaleString()}</td>
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{expiry}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} /></td>
+      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -589,7 +591,7 @@ function TaxRow({ type, period, amount, date, status, onEdit, onDelete, onView }
       <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">{date}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} /></td>
+      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -605,13 +607,13 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function RowActions({ showDownload, showEye, onEdit, onDelete, onView }: any) {
+function RowActions({ showDownload, showEye, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <div className="flex gap-2">
-      <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Edit className="w-3.5 h-3.5" /></button>
+      {canEdit && <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Edit className="w-3.5 h-3.5" /></button>}
       {showEye && <button onClick={onView} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Eye className="w-3.5 h-3.5" /></button>}
       {showDownload && <button onClick={onView} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><FileSearch className="w-3.5 h-3.5" /></button>}
-      <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
+      {canDelete && <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>}
     </div>
   );
 }

@@ -35,6 +35,20 @@ const ALL_MODULES = [
 
 const ACTIONS = ['view', 'add', 'edit', 'delete'];
 
+const DASHBOARD_CARDS = [
+  'Fleet Management',
+  'VAT / Tax',
+  'System Reminders',
+  'Profit & Loss',
+  'Supplier Payments',
+  'Sales Report',
+  'Bank Accounts',
+  'Maintenance',
+  'Low Stock',
+  'Upcoming Renewals',
+  'Notes',
+];
+
 export default function UserModule() {
   const [activeTab, setActiveTab] = useState<'registry' | 'roles'>('registry');
   const [isWide, setIsWide] = useState(false);
@@ -402,6 +416,23 @@ export default function UserModule() {
                           ))}
                         </div>
                       </div>
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-3">Dashboard Widgets</p>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                          {DASHBOARD_CARDS.map(card => (
+                            <label key={card} className="flex items-center gap-2 cursor-pointer group">
+                              <input
+                                type="checkbox"
+                                className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-slate-800"
+                                checked={(permissionsMap['Dashboard'] || []).includes(card)}
+                                onChange={() => togglePermission('Dashboard', card)}
+                              />
+                              <span className="text-[10px] font-medium text-slate-600 group-hover:text-slate-800 transition-colors truncate" title={card}>{card}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
                       <button
                         type="button"
                         onClick={handleSavePermissions}

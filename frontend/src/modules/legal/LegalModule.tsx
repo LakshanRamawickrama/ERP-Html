@@ -18,9 +18,11 @@ import {
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+import { usePermissions } from '@/hooks/usePermissions';
 
 
 export default function LegalModule() {
+  const { canAdd, canEdit, canDelete } = usePermissions('Legal & Compliance');
   const [isWide, setIsWide] = useState(false);
   const [data, setData] = useState<any>({ docs: [], summary: { expiredDocs: 0 } });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -133,7 +135,7 @@ export default function LegalModule() {
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
           {/* Form Column */}
-          {!isWide && (
+          {!isWide && canAdd && (
             <div className="lg:col-span-4">
               <Card title={editingId ? "Edit Document" : "Register Document"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
                 <form className="space-y-4" onSubmit={handleSubmit}>
@@ -171,7 +173,7 @@ export default function LegalModule() {
           )}
 
           {/* Table Column */}
-          <div className={isWide ? 'lg:col-span-1' : 'lg:col-span-8'}>
+          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card title="Active Legal Documents" icon={FileBadge}
               headerAction={
                 <button onClick={() => setIsWide(!isWide)} className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-md hover:bg-slate-100 transition-all tracking-wide">
@@ -194,12 +196,13 @@ export default function LegalModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {docs.map((doc: any, i: number) => (
-                      <DocRow 
-                        key={i} 
-                        {...doc} 
-                        onEdit={() => handleEdit(`doc-${i}`, doc)} 
+                      <DocRow
+                        key={i}
+                        {...doc}
+                        onEdit={() => handleEdit(`doc-${i}`, doc)}
                         onDelete={() => handleDeleteClick(`doc-${i}`)}
                         onView={() => handleViewDoc(doc)}
+                        canEdit={canEdit} canDelete={canDelete}
                       />
                     ))}
 
@@ -229,7 +232,7 @@ export default function LegalModule() {
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function DocRow({ title, type, auth, file, status, onEdit, onDelete, onView }: any) {
+function DocRow({ title, type, auth, file, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 group">
       <td className="px-4 py-3 font-bold text-slate-800">{title}</td>
@@ -251,18 +254,22 @@ function DocRow({ title, type, auth, file, status, onEdit, onDelete, onView }: a
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
-          <button 
-            onClick={onEdit}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all"
-          >
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button 
-            onClick={onDelete}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button
+              onClick={onEdit}
+              className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all"
+            >
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button
+              onClick={onDelete}
+              className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>

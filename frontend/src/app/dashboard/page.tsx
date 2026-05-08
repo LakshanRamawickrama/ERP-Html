@@ -154,6 +154,19 @@ export default function Dashboard() {
     }));
   };
 
+  const canShowCard = (cardName: string): boolean => {
+    if (userRole === UserRole.SUPER_ADMIN) return true;
+    if (!user?.permissions) return true;
+    try {
+      const parsed = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions;
+      const dashCards: string[] | undefined = parsed['Dashboard'];
+      if (!dashCards) return true; // not configured yet — show all
+      return dashCards.includes(cardName);
+    } catch {
+      return true;
+    }
+  };
+
   if (!userRole || !user) return null;
 
   return (
@@ -218,6 +231,7 @@ export default function Dashboard() {
             )}
 
             {/* 2. FLEET MANAGEMENT */}
+            {canShowCard('Fleet Management') && (
             <Widget title="Fleet Management" icon={Truck} color="bg-[#14b8a6]">
               <table className="wt">
                 <thead>
@@ -236,9 +250,9 @@ export default function Dashboard() {
                       <td>{row.i}</td>
                       <td className="text-center">
                         <span className={`status-pill ${
-                          row.s === 'Active' ? 'bg-[#198754]' : 
-                          row.s === 'Maint' ? 'bg-[#f59e0b]' : 
-                          row.s === 'Repair' ? 'bg-[#ffc107]' : 
+                          row.s === 'Active' ? 'bg-[#198754]' :
+                          row.s === 'Maint' ? 'bg-[#f59e0b]' :
+                          row.s === 'Repair' ? 'bg-[#ffc107]' :
                           'bg-[#dc3545]'
                         }`}>
                           {row.s}
@@ -249,6 +263,7 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
             {/* 3. NOTES */}
             <Widget title="Notes" icon={FileText} color="bg-[#f59e0b]">
@@ -362,6 +377,7 @@ export default function Dashboard() {
             )}
 
             {/* 5. VAT / TAX */}
+            {canShowCard('VAT / Tax') && (
             <Widget title="VAT / Tax" icon={Receipt} color="bg-[#f59e0b]">
               <table className="wt">
                 <thead>
@@ -384,11 +400,13 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
             {/* 6. SYSTEM REMINDERS */}
-            <Widget 
-              title="System Reminders" 
-              icon={Bell} 
+            {canShowCard('System Reminders') && (
+            <Widget
+              title="System Reminders"
+              icon={Bell}
               color="bg-[#8b5cf6]"
               headerAction={
                 <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
@@ -429,6 +447,7 @@ export default function Dashboard() {
                 )}
               </div>
             </Widget>
+            )}
 
             {/* 7. PASSWORD VAULT (SUPER_ADMIN ONLY) */}
             {userRole === UserRole.SUPER_ADMIN && (
@@ -455,6 +474,7 @@ export default function Dashboard() {
             )}
 
             {/* 8. PROFIT & LOSS */}
+            {canShowCard('Profit & Loss') && (
             <Widget title="Profit & Loss Statement" icon={PieChart} color="bg-[#10b981]">
               <div className="space-y-1">
                 <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{dash.pl.income}</strong></div>
@@ -464,8 +484,10 @@ export default function Dashboard() {
                 <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{dash.pl.netProfit}</strong></div>
               </div>
             </Widget>
+            )}
 
             {/* 9. SUPPLIER PAYMENTS */}
+            {canShowCard('Supplier Payments') && (
             <Widget title="Supplier Payments" icon={ShoppingCart} color="bg-[#f59e0b]">
                <table className="wt">
                 <thead>
@@ -492,8 +514,10 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
             {/* 10. SALES REPORT */}
+            {canShowCard('Sales Report') && (
             <Widget title="Sales Report" icon={TrendingUp} color="bg-[#3b82f6]">
                <table className="wt">
                 <thead>
@@ -520,8 +544,10 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
             {/* 11. BANK ACCOUNTS */}
+            {canShowCard('Bank Accounts') && (
             <Widget title="Bank Accounts" icon={Building2} color="bg-[#10b981]">
                <table className="wt">
                 <thead>
@@ -542,8 +568,10 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
             {/* 12. MAINTENANCE REQUESTS */}
+            {canShowCard('Maintenance') && (
             <Widget title="Maintenance" icon={Hammer} color="bg-[#ef4444]">
                <table className="wt">
                 <thead>
@@ -564,8 +592,10 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
             {/* 13. LOW STOCK ALERTS */}
+            {canShowCard('Low Stock') && (
             <Widget title="Low Stock" icon={AlertTriangle} color="bg-[#f59e0b]">
                <table className="wt">
                 <thead>
@@ -590,6 +620,7 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
             {/* 14. RECENT SYSTEM ACTIVITY (SUPER_ADMIN ONLY) */}
             {userRole === UserRole.SUPER_ADMIN && (
@@ -606,9 +637,10 @@ export default function Dashboard() {
             )}
 
             {/* 15. UPCOMING RENEWALS */}
-            <Widget 
-              title="Upcoming Renewals" 
-              icon={CalendarClock} 
+            {canShowCard('Upcoming Renewals') && (
+            <Widget
+              title="Upcoming Renewals"
+              icon={CalendarClock}
               color="bg-[#8b5cf6]"
               headerAction={
                 <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
@@ -633,6 +665,7 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </Widget>
+            )}
 
           </div>
         </div>

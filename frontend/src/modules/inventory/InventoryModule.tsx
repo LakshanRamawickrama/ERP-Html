@@ -16,10 +16,12 @@ import {
   Trash2
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
+import { usePermissions } from '@/hooks/usePermissions';
 
 type TabType = 'stock' | 'move';
 
 export default function InventoryModule() {
+  const { canAdd, canEdit, canDelete } = usePermissions('Inventory Management');
   const [activeTab, setActiveTab] = useState<TabType>('stock');
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -148,7 +150,7 @@ export default function InventoryModule() {
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
           {/* Form Column */}
-          {!isWide && (
+          {!isWide && canAdd && (
             <div className="lg:col-span-4">
               <Card 
                 title={editingId ? (activeTab === 'stock' ? "Edit Item" : "Edit Movement") : (activeTab === 'stock' ? "Add New Item" : "Log Movement")} 
@@ -211,7 +213,7 @@ export default function InventoryModule() {
           )}
 
           {/* Table Column */}
-          <div className={isWide ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={activeTab === 'stock' ? "Master Inventory List" : "Transaction History"} 
               icon={activeTab === 'stock' ? ClipboardList : ArrowLeftRight}
@@ -249,11 +251,11 @@ export default function InventoryModule() {
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'stock' ? (
                       data.stock?.map((item: any, i: number) => (
-                        <StockRow key={i} {...item} isWide={isWide} onEdit={() => handleEdit(item.id, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${item.id}`)} />
+                        <StockRow key={i} {...item} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(item.id, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${item.id}`)} />
                       )) || null
                     ) : (
                       data.moves?.map((move: any, i: number) => (
-                        <MoveRow key={i} {...move} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
+                        <MoveRow key={i} {...move} canDelete={canDelete} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
                       )) || null
                     )}
                   </tbody>
@@ -288,7 +290,7 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function StockRow({ name, category, quantity, status, supplier_ref, price, isWide, onEdit, onDelete }: any) {
+function StockRow({ name, category, quantity, status, supplier_ref, price, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 font-bold text-slate-800">{name}</td>
@@ -301,19 +303,15 @@ function StockRow({ name, category, quantity, status, supplier_ref, price, isWid
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Edit className="w-3.5 h-3.5" /></button>}
+          {canDelete && <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>}
         </div>
       </td>
     </tr>
   );
 }
 
-function MoveRow({ date, product_name, type, quantity, reason, reference, onDelete }: any) {
+function MoveRow({ date, product_name, type, quantity, reason, reference, onDelete, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-400 text-[10px] font-mono tracking-tight">{date}</td>
@@ -333,9 +331,7 @@ function MoveRow({ date, product_name, type, quantity, reason, reference, onDele
         </div>
       </td>
       <td className="px-4 py-4">
-        <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        {canDelete && <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>}
       </td>
     </tr>
   );

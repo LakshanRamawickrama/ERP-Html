@@ -23,11 +23,13 @@ import {
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+import { usePermissions } from '@/hooks/usePermissions';
 
 
 type TabType = 'suppliers' | 'orders';
 
 export default function SupplierModule() {
+  const { canAdd, canEdit, canDelete } = usePermissions('Suppliers');
   const [activeTab, setActiveTab] = useState<TabType>('suppliers');
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -123,7 +125,7 @@ export default function SupplierModule() {
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
           {/* Form Column */}
-          {!isWide && (
+          {!isWide && canAdd && (
             <div className="lg:col-span-4">
               <Card 
                 title={editingId ? (activeTab === 'suppliers' ? 'Edit Supplier' : 'Edit Purchase Order') : (activeTab === 'suppliers' ? 'Register New Supplier' : 'Create Purchase Order')} 
@@ -182,7 +184,7 @@ export default function SupplierModule() {
           )}
 
           {/* Table Column */}
-          <div className={isWide ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={activeTab === 'suppliers' ? 'Vendor Partner Registry' : 'Purchase Order History'} 
               icon={activeTab === 'suppliers' ? Truck : ShoppingCart}
@@ -212,15 +214,16 @@ export default function SupplierModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'suppliers' && (
-                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} onEdit={() => handleEdit(`supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(`supplier-${i}`)} />) || null
+                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} onEdit={() => handleEdit(`supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(`supplier-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'orders' && (
                       data.orders?.map((o: any, i: number) => (
-                        <OrderRow 
-                          key={i} 
-                          {...o} 
-                          onEdit={() => handleEdit(`order-${i}`, o, 'orders')} 
+                        <OrderRow
+                          key={i}
+                          {...o}
+                          onEdit={() => handleEdit(`order-${i}`, o, 'orders')}
                           onView={() => handleViewDoc(`Purchase Order ${o.num}`, 'Procurement')}
+                          canEdit={canEdit}
                         />
                       )) || null
                     )}
@@ -289,7 +292,7 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelete }: any) {
+function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -318,22 +321,26 @@ function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelet
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button 
-            onClick={onDelete}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button
+              onClick={onDelete}
+              className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>
   );
 }
 
-function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit, onView }: any) {
+function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit, onView, canEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -362,17 +369,19 @@ function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit, on
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button 
-            onClick={onEdit} 
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"
-          >
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button 
+          {canEdit && (
+            <button
+              onClick={onEdit}
+              className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"
+            >
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
             onClick={onView}
             className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"
           >
-             <Printer className="w-3.5 h-3.5" />
+            <Printer className="w-3.5 h-3.5" />
           </button>
         </div>
       </td>

@@ -22,11 +22,13 @@ import {
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+import { usePermissions } from '@/hooks/usePermissions';
 
 
 type TabType = 'inventory' | 'requests' | 'waste' | 'licence';
 
 export default function PropertyModule() {
+  const { canAdd, canEdit, canDelete } = usePermissions('Property Management');
   const [activeTab, setActiveTab] = useState<TabType>('inventory');
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -137,9 +139,9 @@ export default function PropertyModule() {
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
           {/* Form Column */}
-          {!isWide && (
+          {!isWide && canAdd && (
             <div className="lg:col-span-4">
-              <Card 
+              <Card
                 title={
                   editingId ? (
                     activeTab === 'inventory' ? 'Edit Property Asset' : 
@@ -362,7 +364,7 @@ export default function PropertyModule() {
           )}
 
           {/* Table Column */}
-          <div className={isWide ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={
                 activeTab === 'inventory' ? 'Building Asset Registry' : 
@@ -425,30 +427,32 @@ export default function PropertyModule() {
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'inventory' && (
                       data.assets?.map((r: any, i: number) => (
-                        <PropertyRow 
-                          key={i} 
-                          {...r} 
-                          onEdit={() => handleEdit(`asset-${i}`, r, 'inventory')} 
+                        <PropertyRow
+                          key={i}
+                          {...r}
+                          onEdit={() => handleEdit(`asset-${i}`, r, 'inventory')}
                           onDelete={() => handleDeleteClick(`asset-${i}`)}
                           onView={() => handleViewDoc(r.doc)}
+                          canEdit={canEdit} canDelete={canDelete}
                         />
                       )) || null
                     )}
 
                     {activeTab === 'requests' && (
-                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} />) || null
+                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'waste' && (
-                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} />) || null
+                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'licence' && (
                       data.licences?.map((r: any, i: number) => (
-                        <LicenceRow 
-                          key={i} 
-                          {...r} 
-                          onEdit={() => handleEdit(`licence-${i}`, r, 'licence')} 
+                        <LicenceRow
+                          key={i}
+                          {...r}
+                          onEdit={() => handleEdit(`licence-${i}`, r, 'licence')}
                           onDelete={() => handleDeleteClick(`licence-${i}`)}
                           onView={() => handleViewDoc(r.type + " - " + r.biz)}
+                          canEdit={canEdit} canDelete={canDelete}
                         />
                       )) || null
                     )}
@@ -492,7 +496,7 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function PropertyRow({ name, sub, type, doc, person, contact, status, onEdit, onDelete, onView }: any) {
+function PropertyRow({ name, sub, type, doc, person, contact, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3">
@@ -521,19 +525,23 @@ function PropertyRow({ name, sub, type, doc, person, contact, status, onEdit, on
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>
   );
 }
 
-function RequestRow({ date, issue, asset, tech, prio, status, onEdit, onDelete }: any) {
+function RequestRow({ date, issue, asset, tech, prio, status, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{date}</td>
@@ -550,19 +558,23 @@ function RequestRow({ date, issue, asset, tech, prio, status, onEdit, onDelete }
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>
   );
 }
 
-function WasteRow({ date, contact, phone, addr, status, onEdit, onDelete }: any) {
+function WasteRow({ date, contact, phone, addr, status, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{date}</td>
@@ -576,19 +588,23 @@ function WasteRow({ date, contact, phone, addr, status, onEdit, onDelete }: any)
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>
   );
 }
 
-function LicenceRow({ type, biz, auth, expiry, issue, status, onEdit, onDelete, onView }: any) {
+function LicenceRow({ type, biz, auth, expiry, issue, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3">
@@ -616,12 +632,16 @@ function LicenceRow({ type, biz, auth, expiry, issue, status, onEdit, onDelete, 
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>

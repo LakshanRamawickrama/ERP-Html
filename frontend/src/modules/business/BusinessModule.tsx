@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+import { usePermissions } from '@/hooks/usePermissions';
 
 import { UserRole } from '@/constants/roles';
 import {
@@ -25,6 +26,7 @@ import {
 type TabType = 'entities' | 'structure';
 
 export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
+  const { canAdd, canEdit, canDelete } = usePermissions('Business Management');
   const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
   const [activeTab, setActiveTab] = useState<TabType>(isSuperAdmin ? 'entities' : 'structure');
   const [isWide, setIsWide] = useState(false);
@@ -223,7 +225,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
           {/* Form Column */}
-          {!isWide && (
+          {!isWide && canAdd && (
             <div className="lg:col-span-4">
               {activeTab === 'entities' ? (
                 <Card title={editingId ? "Edit Business Entity" : "Register New Entity"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
@@ -350,7 +352,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
           )}
 
           {/* Table Column */}
-          <div className={isWide ? 'lg:col-span-1' : 'lg:col-span-8'}>
+          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={activeTab === 'entities' ? "Active Business Entities" : "Companies House Registry"} 
               icon={Briefcase}
@@ -396,16 +398,17 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                     ) : activeTab === 'entities' ? (
                       <>
                         {entities.map((e: any, idx: number) => (
-                          <EntityRow 
-                            key={idx} 
-                            isWide={isWide} 
-                            name={e.name} 
-                            num={e.company_number} 
-                            cat={e.category} 
-                            hq={e.hq_location} 
+                          <EntityRow
+                            key={idx}
+                            isWide={isWide}
+                            name={e.name}
+                            num={e.company_number}
+                            cat={e.category}
+                            hq={e.hq_location}
                             status={e.status}
-                            onEdit={() => handleEdit(`entity-${e.id}`, e, 'entities')} 
-                            onDelete={() => handleDeleteClick(e.id)} 
+                            onEdit={() => handleEdit(`entity-${e.id}`, e, 'entities')}
+                            onDelete={() => handleDeleteClick(e.id)}
+                            canEdit={canEdit} canDelete={canDelete}
                           />
                         ))}
                       </>
@@ -425,6 +428,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                             onEdit={() => handleEdit(`structure-${s.id}`, s, 'structure')}
                             onDelete={() => handleDeleteClick(s.id)}
                             onView={() => handleViewStructure(s)}
+                            canEdit={canEdit} canDelete={canDelete}
                           />
                         ))}
                       </>
@@ -460,7 +464,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function EntityRow({ name, num, cat, hq, isWide, onEdit, onDelete }: any) {
+function EntityRow({ name, num, cat, hq, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
@@ -472,22 +476,26 @@ function EntityRow({ name, num, cat, hq, isWide, onEdit, onDelete }: any) {
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button 
-            onClick={onDelete}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button
+              onClick={onDelete}
+              className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>
   );
 }
 
-function StructureRow({ data, name, crn, manager, sic, due, isWide, isSuperAdmin, onEdit, onDelete, onView }: any) {
+function StructureRow({ data, name, crn, manager, sic, due, isWide, isSuperAdmin, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
@@ -531,15 +539,19 @@ function StructureRow({ data, name, crn, manager, sic, due, isWide, isSuperAdmin
               <Eye className="w-3 h-3" /> View
             </button>
           )}
-          <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={onDelete}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEdit && (
+            <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {canDelete && (
+            <button
+              onClick={onDelete}
+              className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>

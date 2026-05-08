@@ -20,8 +20,10 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
+import { usePermissions } from '@/hooks/usePermissions';
 
 export default function RemindersModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
+  const { canAdd, canDelete } = usePermissions('Reminders');
   const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -122,13 +124,15 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
               </button>
             ))}
           </div>
-          <button 
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-lg"
-          >
-            <Plus className="w-4 h-4" />
-            Add Reminder
-          </button>
+          {canAdd && (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-lg"
+            >
+              <Plus className="w-4 h-4" />
+              Add Reminder
+            </button>
+          )}
         </div>
       </div>
 
@@ -174,12 +178,14 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                 </div>
 
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  <button 
-                    onClick={() => handleDeleteClick(reminder.id)}
-                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDeleteClick(reminder.id)}
+                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
