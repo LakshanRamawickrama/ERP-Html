@@ -106,18 +106,29 @@ def seed_data():
     PropertyLicence.objects.create(type='HMO Licence', authority='London City Council', issue_date='2023-01-01', expiry_date='2028-10-10', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
     # 8. Users
-    from django.contrib.auth.models import User
-    from pymongo import MongoClient
-    client = MongoClient('mongodb://localhost:27017/')
-    client.ERP_System_Pro.auth_user.delete_many({})
-    client.ERP_System_Pro.authtoken_token.delete_many({})
-
-    User.objects.create_superuser('superadmin', SUPER_ADMIN_EMAIL, 'superpassword123')
-    User.objects.create_user('admin', 'admin@erp.com', 'adminpassword123')
-
+    from django.contrib.auth.hashers import make_password
+    
     StaffProfile.objects.all().delete()
-    StaffProfile.objects.create(name='Lakshan Ramawickrama', role='super_admin', assigned_business='All', email=SUPER_ADMIN_EMAIL, status='Active')
-    StaffProfile.objects.create(name='Operations Manager', role='admin', assigned_business=BUSINESS_1, email='admin@erp.com', status='Active')
+    # Super Admin Profile
+    StaffProfile.objects.create(
+        name='Lakshan Ramawickrama', 
+        username='superadmin',
+        role='super_admin', 
+        assigned_business='All', 
+        email=SUPER_ADMIN_EMAIL, 
+        status='Active',
+        password=make_password('superpassword123')
+    )
+    # Admin Profile
+    StaffProfile.objects.create(
+        name='Operations Manager', 
+        username='admin',
+        role='admin', 
+        assigned_business=BUSINESS_1, 
+        email='admin@erp.com', 
+        status='Active',
+        password=make_password('adminpassword123')
+    )
 
     SystemCredential.objects.all().delete()
     SystemCredential.objects.create(service='AWS Portal', account='admin_user', password='encrypted_password123', support='Cloud Infra Team', status='Active')

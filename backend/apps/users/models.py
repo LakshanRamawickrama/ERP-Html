@@ -3,6 +3,7 @@ from django.db import models
 
 class StaffProfile(models.Model):
     name = models.CharField(max_length=255)
+    username = models.CharField(max_length=150, unique=True, null=True, blank=True)
     role = models.CharField(max_length=100)
     assigned_business = models.CharField(max_length=255, default='All')
     access = models.TextField(default='All')
@@ -14,12 +15,8 @@ class StaffProfile(models.Model):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    @property
-    def username(self):
-        return self.email
-
     def get_username(self):
-        return self.email
+        return self.username or self.email
 
     # Required for DRF IsAuthenticated and JWT compatibility
     @property

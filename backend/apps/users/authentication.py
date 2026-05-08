@@ -15,22 +15,13 @@ class StaffProfileAuthentication(JWTAuthentication):
         except KeyError:
             raise AuthenticationFailed('Token is missing the required claim.')
 
-        # Superadmin: token username claim matches a Django User username
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        try:
-            user = User.objects.get(**{api_settings.USER_ID_FIELD: claim_value})
-            if not user.is_active:
-                raise AuthenticationFailed('User account is disabled.')
-            return user
-        except User.DoesNotExist:
-            pass
-
-        # Admin: token username claim is either a StaffProfile pk or email
+        # Auth: token username claim matches email, username, or pk
         from .models import StaffProfile
         try:
-            # Try by email first (as per SIMPLE_JWT settings)
-            profile = StaffProfile.objects.filter(email=claim_value).first()
+            profile = (
+                StaffProfile.objects.filter(email=claim_value).first() or
+                StaffProfile.objects.filter(username=claim_value).first()
+            )
             if not profile:
                 # Fallback to pk (ObjectId)
                 profile = StaffProfile.objects.get(pk=claim_value)

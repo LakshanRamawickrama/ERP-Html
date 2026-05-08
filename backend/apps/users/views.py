@@ -41,6 +41,7 @@ class StaffView(APIView):
         try:
             profile = StaffProfile.objects.create(
                 name=name,
+                username=email,
                 role=role,
                 assigned_business=assigned_business,
                 email=email,
@@ -79,39 +80,33 @@ class StaffView(APIView):
         return Response(StaffProfileSerializer(profile).data)
 
 
+from rest_framework.permissions import AllowAny
+
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    
     def post(self, request):
         try:
             identifier = request.data.get("username", "")
             password = request.data.get("password", "")
+            print(f"DEBUG: Login attempt for identifier: {identifier}")
 
-            # === Path 1: Django User auth (superadmin + legacy admins created before migration) ===
-            django_user = authenticate(username=identifier, password=password)
-            if not django_user and '@' in identifier:
-                django_user = authenticate(username=identifier.split('@')[0], password=password)
+            # === Unified Auth: Check StaffProfile by email, name or username ===
+            profile = (
+                StaffProfile.objects.filter(email__iexact=identifier).first() or
+                StaffProfile.objects.filter(username__iexact=identifier).first() or
+                StaffProfile.objects.filter(name__iexact=identifier).first()
+            )
 
-            if django_user:
-                profile = StaffProfile.objects.filter(email=django_user.email).first()
+            if profile:
+                print(f"DEBUG: Found profile: {profile.name} (ID: {profile.pk})")
+                # Check password (hashed in StaffProfile.password)
+                if profile.password and check_password(password, profile.password):
+                    print("DEBUG: Password check successful")
+                    if profile.status != 'Active':
+                        return Response({"status": "error", "message": "Account is not active"}, status=status.HTTP_401_UNAUTHORIZED)
 
-                if django_user.is_superuser:
-                    refresh = RefreshToken.for_user(django_user)
-                    return Response({
-                        "status": "success",
-                        "token": str(refresh.access_token),
-                        "user_id": django_user.username,
-                        "username": django_user.username,
-                        "role": "super_admin",
-                        "business": "All",
-                        "access": profile.access if profile else "All",
-                        "permissions": profile.permissions if profile else "{}",
-                    })
-
-                if profile:
-                    if not profile.password:
-                        profile.password = make_password(password)
-                        profile.save()
-                    
-                    # Safe token generation
                     refresh = RefreshToken.for_user(profile)
                     return Response({
                         "status": "success",
@@ -123,30 +118,12 @@ class LoginView(APIView):
                         "access": profile.access,
                         "permissions": profile.permissions,
                     })
+                else:
+                    print("DEBUG: Password check FAILED")
+            else:
+                print("DEBUG: No profile found for this identifier")
 
-            # === Path 2: New admin — StaffProfile with hashed password (no Django User) ===
-            profile = (
-                StaffProfile.objects.filter(email__iexact=identifier).first() or
-                StaffProfile.objects.filter(name__iexact=identifier).first()
-            )
-            if profile and profile.password and check_password(password, profile.password):
-                if profile.status != 'Active':
-                    return Response({"status": "error", "message": "Account is not active"}, status=401)
-
-                # Safe token generation
-                refresh = RefreshToken.for_user(profile)
-                return Response({
-                    "status": "success",
-                    "token": str(refresh.access_token),
-                    "user_id": str(profile.pk),
-                    "username": profile.name,
-                    "role": profile.role.lower().replace(' ', '_'),
-                    "business": profile.assigned_business,
-                    "access": profile.access,
-                    "permissions": profile.permissions,
-                })
-
-            return Response({"status": "error", "message": "Invalid credentials"}, status=401)
+            return Response({"status": "error", "message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
             
         except Exception as e:
             logger.exception("Login error occurred")

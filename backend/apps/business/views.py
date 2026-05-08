@@ -13,8 +13,8 @@ class BusinessDataView(APIView):
         business_scope = profile.assigned_business if profile else 'All'
         
         if request.user.is_superuser:
-            entities = BusinessEntity.objects.filter(created_by=request.user.email)
-            structures = CompanyStructure.objects.filter(created_by=request.user.email)
+            entities = BusinessEntity.objects.all()
+            structures = CompanyStructure.objects.all()
         else:
             if business_scope == 'All':
                 entities = BusinessEntity.objects.all()
@@ -156,6 +156,16 @@ class BusinessEntityView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, pk):
+        try:
+            entity = BusinessEntity.objects.get(pk=pk)
+            entity.delete()
+            return Response(status=http_status.HTTP_204_NO_CONTENT)
+        except BusinessEntity.DoesNotExist:
+            return Response({'error': 'Not found'}, status=http_status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
+
 class CompanyStructureView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -174,5 +184,15 @@ class CompanyStructureView(APIView):
                 created_by=request.user.email
             )
             return Response(CompanyStructureSerializer(structure, context={'request': request}).data, status=http_status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            structure = CompanyStructure.objects.get(pk=pk)
+            structure.delete()
+            return Response(status=http_status.HTTP_204_NO_CONTENT)
+        except CompanyStructure.DoesNotExist:
+            return Response({'error': 'Not found'}, status=http_status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
