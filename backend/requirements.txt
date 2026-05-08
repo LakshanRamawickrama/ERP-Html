@@ -7,3 +7,6 @@ django-mongodb-backend
 pymongo[srv]
 sqlparse
 six
+gunicorn
+whitenoise
+dj-database-url
