@@ -95,10 +95,15 @@ class DashboardDataView(APIView):
         # ── VAT / Tax ──────────────────────────────────────────────────
         vat_data = [
             {
+                "id": str(v.id),
                 "type":   v.type,
                 "period": v.period,
+                "ref": v.reference_number or "—",
+                "date": str(v.date) if v.date else "—",
                 "amount": _fmt(v.amount),
+                "doc": request.build_absolute_uri(v.document.url) if v.document else None,
                 "status": v.status,
+                "biz": v.business,
             }
             for v in vat_qs[:6]
         ]

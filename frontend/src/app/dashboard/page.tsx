@@ -53,6 +53,7 @@ export default function Dashboard() {
   const [noteInput, setNoteInput] = useState('');
   const [todoInput, setTodoInput] = useState('');
   const [selectedFleet, setSelectedFleet] = useState<any>(null);
+  const [selectedVAT, setSelectedVAT] = useState<any>(null);
   const [activeDoc, setActiveDoc] = useState<{url: string, title: string} | null>(null);
   const router = useRouter();
 
@@ -473,27 +474,104 @@ export default function Dashboard() {
 
             {/* 5. VAT / TAX */}
             {canShowCard('VAT / Tax') && (
-            <Widget title="VAT / Tax" icon={Receipt} color="bg-[#f59e0b]">
-              <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">TYPE</th>
-                    <th className="text-left">PERIOD</th>
-                    <th className="text-left">AMOUNT</th>
-                    <th className="text-center">STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.vat.map((r: any, i: number) => (
-                    <tr key={i}>
-                      <td>{r.type}</td>
-                      <td>{r.period}</td>
-                      <td><strong>{r.amount}</strong></td>
-                      <td className="text-center"><span className={`status-pill ${r.status === 'Paid' ? 'bg-[#198754]' : r.status === 'Filed' ? 'bg-[#f59e0b]' : 'bg-[#6c757d]'}`}>{r.status}</span></td>
+            <Widget 
+              title={selectedVAT ? "Tax Record Details" : "VAT / Tax"} 
+              icon={Receipt} 
+              color="bg-[#f59e0b]"
+              headerAction={selectedVAT && (
+                <button 
+                  onClick={() => setSelectedVAT(null)}
+                  className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
+                >
+                  ← Back
+                </button>
+              )}
+            >
+              {selectedVAT ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                    <div>
+                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedVAT.type}</h4>
+                      <p className="text-[11px] text-[#64748b] m-0">{selectedVAT.period}</p>
+                    </div>
+                    <span className={`status-pill ${
+                      selectedVAT.status === 'Paid' ? 'bg-[#198754]' : 
+                      selectedVAT.status === 'Filed' ? 'bg-[#f59e0b]' : 
+                      'bg-[#6c757d]'
+                    }`}>
+                      {selectedVAT.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Amount</label>
+                      <p className="text-[12px] font-bold text-[#1e293b] m-0">{selectedVAT.amount}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reference #</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.ref}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Filing Date</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.date}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Entity</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.biz}</p>
+                    </div>
+                  </div>
+
+                  {selectedVAT.doc && (
+                    <div className="pt-2 border-t border-[#f1f5f9]">
+                      <button 
+                        onClick={() => setActiveDoc({url: selectedVAT.doc, title: `Tax Record - ${selectedVAT.ref}`})}
+                        className="w-full flex items-center justify-center gap-2 py-2 bg-[#fef3c7] text-[#92400e] border border-[#fde68a] text-[10px] font-bold rounded-lg hover:bg-[#fde68a] transition-all"
+                      >
+                        <FileText size={12} /> Preview Tax Document
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="pt-1">
+                    <Link 
+                      href="/accounting"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
+                    >
+                      View Full Tax Ledger <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <table className="wt">
+                  <thead>
+                    <tr>
+                      <th className="text-left">TYPE</th>
+                      <th className="text-left">PERIOD</th>
+                      <th className="text-left">AMOUNT</th>
+                      <th className="text-center">STATUS</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {dash.vat.map((r: any, i: number) => (
+                      <tr key={i} onClick={() => setSelectedVAT(r)} className="cursor-pointer group">
+                        <td><strong className="group-hover:text-[#f59e0b] transition-colors">{r.type}</strong></td>
+                        <td>{r.period}</td>
+                        <td><strong>{r.amount}</strong></td>
+                        <td className="text-center">
+                          <span className={`status-pill ${
+                            r.status === 'Paid' ? 'bg-[#198754]' : 
+                            r.status === 'Filed' ? 'bg-[#f59e0b]' : 
+                            'bg-[#6c757d]'
+                          }`}>
+                            {r.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </Widget>
             )}
 
