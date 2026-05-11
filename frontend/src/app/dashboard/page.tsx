@@ -37,7 +37,8 @@ import {
   Cloud,
   RefreshCcw,
   CheckCircle2,
-  ArrowUpRight
+  ArrowUpRight,
+  Edit2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -53,6 +54,7 @@ export default function Dashboard() {
     emails: []
   });
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [editingEmailId, setEditingEmailId] = useState<string | null>(null);
   const [newEmail, setNewEmail] = useState({ email: '', label: '', type: 'primary', password: '' });
   const [noteInput, setNoteInput] = useState('');
   const [todoInput, setTodoInput] = useState('');
@@ -105,21 +107,45 @@ export default function Dashboard() {
   const handleAddEmail = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEmail.email) return;
-    fetch(API_ENDPOINTS.EMAILS, {
-      method: 'POST',
+
+    const method = editingEmailId ? 'PATCH' : 'POST';
+    const url = editingEmailId ? `${API_ENDPOINTS.EMAILS}${editingEmailId}/` : API_ENDPOINTS.EMAILS;
+
+    fetch(url, {
+      method: method,
       headers: authHeaders(),
       body: JSON.stringify({ ...newEmail, status: 'Connected' }),
     })
       .then(res => res.json())
       .then(saved => {
-        setDash((prev: any) => ({ ...prev, emails: [saved, ...prev.emails] }));
+        if (editingEmailId) {
+          setDash((prev: any) => ({
+            ...prev,
+            emails: prev.emails.map((em: any) => em.id === editingEmailId ? saved : em)
+          }));
+        } else {
+          setDash((prev: any) => ({ ...prev, emails: [saved, ...prev.emails] }));
+        }
         setNewEmail({ email: '', label: '', type: 'primary', password: '' });
         setShowEmailModal(false);
+        setEditingEmailId(null);
       })
       .catch(() => {
         setNewEmail({ email: '', label: '', type: 'primary', password: '' });
         setShowEmailModal(false);
+        setEditingEmailId(null);
       });
+  };
+
+  const handleEditEmail = (email: any) => {
+    setNewEmail({
+      email: email.email,
+      label: email.label,
+      type: email.type || 'primary',
+      password: email.password || ''
+    });
+    setEditingEmailId(email.id);
+    setShowEmailModal(true);
   };
 
   const handleDeleteEmail = (id: string) => {
@@ -426,7 +452,7 @@ export default function Dashboard() {
                     <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl animate-in slide-in-from-top-4 duration-300 shadow-inner h-full">
                       <div className="space-y-2.5">
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Connect New Inbox</label>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">{editingEmailId ? 'Edit Inbox Connection' : 'Connect New Inbox'}</label>
                           <input 
                             type="email" 
                             placeholder="Email Address"
@@ -454,10 +480,14 @@ export default function Dashboard() {
                             onClick={handleAddEmail}
                             className="flex-[2] bg-[#ef4444] text-white py-2 rounded-xl text-[10px] font-bold shadow-lg shadow-red-100 hover:bg-[#dc2626] transition-all active:scale-95"
                           >
-                            Save Account
+                            {editingEmailId ? 'Update Account' : 'Save Account'}
                           </button>
                           <button 
-                            onClick={() => setShowEmailModal(false)}
+                            onClick={() => {
+                              setShowEmailModal(false);
+                              setEditingEmailId(null);
+                              setNewEmail({ email: '', label: '', type: 'primary', password: '' });
+                            }}
                             className="flex-1 bg-white border border-slate-200 text-slate-500 py-2 rounded-xl text-[10px] font-bold hover:bg-slate-100 transition-all active:scale-95"
                           >
                             Cancel
@@ -471,11 +501,21 @@ export default function Dashboard() {
                         <div key={email.id} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg group">
                           <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold shrink-0`}><Mail size={14} /></div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[11px] font-bold text-[#1e293b] truncate">{email.email}</div>
+                            <a 
+                              href={`https://mail.google.com/mail/u/0/#search/to:${email.email}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-[11px] font-bold text-[#1e293b] truncate block hover:text-[#ef4444] transition-colors"
+                            >
+                              {email.email}
+                            </a>
                             <div className="text-[9px] text-[#64748b]">{email.label}</div>
                           </div>
                           <span className="px-2 py-0.5 bg-[#198754] text-white text-[9px] font-bold rounded">{email.status}</span>
-                          <button onClick={() => handleDeleteEmail(email.id)} className="text-[#ef4444] opacity-0 group-hover:opacity-100 transition-all ml-1"><Trash2 className="w-3 h-3" /></button>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all ml-1">
+                            <button onClick={() => handleEditEmail(email)} className="text-slate-400 hover:text-[#4f46e5]"><Edit2 className="w-3 h-3" /></button>
+                            <button onClick={() => handleDeleteEmail(email.id)} className="text-[#ef4444] hover:text-[#dc2626]"><Trash2 className="w-3 h-3" /></button>
+                          </div>
                         </div>
                       ))}
                     </div>
