@@ -16,26 +16,13 @@ class FleetDataView(APIView):
         deliveries = get_filtered_queryset(request, Delivery)
         partners = get_filtered_queryset(request, ParcelPartner)
 
-        reminders = []
-        today = timezone.now().date()
-        for v in vehicles:
-            remind_days = v.reminder_before or 30
-            if v.mot_date:
-                days_left = (v.mot_date - today).days
-                if days_left <= remind_days:
-                    reminders.append({"v": v.name, "task": "MOT Renewal", "date": str(v.mot_date), "urgent": days_left < (remind_days/2)})
-            if v.insurance_date:
-                days_left = (v.insurance_date - today).days
-                if days_left <= remind_days:
-                    reminders.append({"v": v.name, "task": "Insurance Renewal", "date": str(v.insurance_date), "urgent": days_left < (remind_days/2)})
-
         user_business = getattr(request.user, 'assigned_business', 'All')
-
+        
         return Response({
             "vehicles": VehicleSerializer(vehicles, many=True, context={'request': request}).data,
             "deliveries": DeliverySerializer(deliveries, many=True, context={'request': request}).data,
             "parcels": ParcelPartnerSerializer(partners, many=True, context={'request': request}).data,
-            "reminders": reminders,
+            "reminders": [], # Centralized in Reminders module
             "options": {
                 "businesses": [user_business] if user_business != 'All' else ["Main Retail Store", "Logistics Hub", "Whiterock Retail Ltd"],
                 "vehicles": [f"{v.name} ({v.plate_number})" for v in vehicles],

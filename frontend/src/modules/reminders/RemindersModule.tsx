@@ -142,10 +142,10 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
           {/* Main List - Scrollable Area */}
           <div className="lg:col-span-8 overflow-y-auto pr-2 scrollbar-custom space-y-4 pb-10">
             {filtered.map((reminder) => (
-              <div key={reminder.id} className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all group">
+              <div key={reminder.id} className={`bg-white border ${reminder.is_overdue ? 'border-red-200 bg-red-50/10' : 'border-slate-200'} rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all group`}>
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    reminder.priority === 'High' ? 'bg-red-50 text-red-600' :
+                    reminder.is_overdue || reminder.priority === 'High' ? 'bg-red-50 text-red-600' :
                     reminder.priority === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
                   }`}>
                     {reminder.icon ? <reminder.icon className="w-6 h-6" /> : <Bell className="w-6 h-6" />}
@@ -156,6 +156,11 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                       <span className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">
                         {reminder.business}
                       </span>
+                      {reminder.is_overdue && (
+                        <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">
+                          OVERDUE
+                        </span>
+                      )}
                       <span className={`px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-tighter ${
                         reminder.priority === 'High' ? 'bg-red-100 text-red-700' :
                         reminder.priority === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
@@ -163,9 +168,9 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                         {reminder.priority}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-1 max-w-md line-clamp-1">{reminder.description}</p>
+                    <p className={`text-[11px] mt-1 max-w-md line-clamp-1 ${reminder.is_overdue ? 'text-red-700 font-medium' : 'text-slate-500'}`}>{reminder.description}</p>
                     <div className="flex items-center gap-3 mt-2">
-                      <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                      <div className={`flex items-center gap-1 text-[10px] font-medium ${reminder.is_overdue ? 'text-red-500' : 'text-slate-400'}`}>
                         <Calendar className="w-3 h-3" />
                         {reminder.date}
                       </div>
@@ -178,7 +183,7 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                 </div>
 
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  {canDelete && (
+                  {canDelete && !reminder.id.toString().startsWith('fleet-') && (
                     <button
                       onClick={() => handleDeleteClick(reminder.id)}
                       className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
@@ -290,7 +295,7 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                     >
                       <div className="flex items-center gap-3 text-red-700 font-bold text-sm">
                         <AlertTriangle className="w-4 h-4" />
-                        3 High Priority
+                        {reminders.filter(r => r.priority === 'High' || r.is_overdue).length} High Priority
                       </div>
                       <p className="text-[10px] text-red-600 mt-1 uppercase tracking-widest font-extrabold">Filter by Priority</p>
                     </button>

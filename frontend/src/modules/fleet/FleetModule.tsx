@@ -176,14 +176,7 @@ export default function FleetModule() {
 
         <div className="flex items-center gap-4">
           <div className="hidden xl:flex gap-2">
-            {reminders.map((r: any, index: number) => (
-              <div key={r.id || index} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-bold ${
-                r.urgent ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'
-              }`}>
-                <AlertTriangle className="w-3 h-3" />
-                <span>{r.v} - {r.task}: <span className="font-normal opacity-80">{r.date}</span></span>
-              </div>
-            ))}
+            {/* Automated reminders moved to central Reminders module */}
           </div>
           <div className="h-6 w-px bg-slate-200 mx-1" />
           <button 
