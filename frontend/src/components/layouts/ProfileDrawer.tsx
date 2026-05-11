@@ -38,6 +38,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
   const [email, setEmail] = useState('');
   const [roles, setRoles] = useState('');
   const [businesses, setBusinesses] = useState('');
+  const [userName, setUserName] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -45,6 +46,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
     if (user) {
       setFullName(user.fullName || user.name || '');
       setEmail(user.email || '');
+      setUserName(user.username || '');
       setRoles(Array.isArray(user.roles) ? user.roles.join(', ') : (user.role || ''));
       setBusinesses(
         Array.isArray(user.businesses) && user.businesses.length > 0
@@ -70,6 +72,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
       fullName,
       name: fullName,
       email,
+      username: userName,
       roles: roles.split(',').map(s => s.trim()).filter(Boolean),
       businesses: businesses.split(',').map(s => s.trim()).filter(Boolean),
     };
@@ -110,7 +113,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
         )}
       >
         {/* Header */}
-        <div className="relative bg-[#1e293b] pt-12 pb-8 px-6 flex flex-col items-center">
+        <div className="relative bg-[#1e293b] pt-8 pb-6 px-6 flex flex-col items-center flex-shrink-0">
           <button 
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
@@ -119,7 +122,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
           </button>
 
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-white/10 shadow-xl overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white/10 shadow-xl overflow-hidden">
               {user.photo ? (
                 <img src={user.photo} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -129,7 +132,6 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
           </div>
 
           <h3 className="text-white font-bold text-xl mt-4">{fullName}</h3>
-          <p className="text-slate-400 text-sm">@{user.username || user.email?.split('@')[0] || 'user'}</p>
           
           <div className={cn(
             "mt-3 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider",
@@ -140,13 +142,14 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+        <div className="flex-1 p-4 space-y-3 overflow-hidden">
           {!isEditMode ? (
             <div className="space-y-4">
               <SectionTitle title="Account Details" />
               
               <InfoRow icon={<User size={14} />} label="Full Name" value={fullName} color="blue" />
-              <InfoRow icon={<Mail size={14} />} label="Email Address" value={email} color="emerald" />
+              <InfoRow icon={<User size={14} />} label="User Name" value={userName || 'user'} color="indigo" />
+              <InfoRow icon={<Mail size={14} />} label="Email Address" value={email || 'Not Provided'} color="emerald" />
               <InfoRow icon={<Shield size={14} />} label="Assigned Roles" value={roles} color="purple" />
               <InfoRow icon={<Building2 size={14} />} label="Assigned Businesses" value={businesses} color="amber" />
               <InfoRow icon={<Lock size={14} />} label="Password" value="••••••••" color="rose" />
@@ -157,23 +160,10 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
               
               <div className="space-y-4">
                 <InputField label="Full Name" value={fullName} onChange={setFullName} />
+                <InputField label="User Name" value={userName} onChange={setUserName} />
                 <InputField label="Email Address" value={email} onChange={setEmail} type="email" />
-                <InputField 
-                  label="Roles" 
-                  value={roles} 
-                  onChange={setRoles} 
-                  placeholder="Comma separated" 
-                  disabled={user.role === 'Company Admin'}
-                />
-                <InputField 
-                  label="Businesses" 
-                  value={businesses} 
-                  onChange={setBusinesses} 
-                  placeholder="Comma separated" 
-                  disabled={user.role === 'Company Admin'}
-                />
                 
-                <SectionTitle title="Change Password" />
+                <SectionTitle title="Security" />
                 
                 <div className="relative">
                   <InputField 
@@ -181,13 +171,16 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
                     value={newPassword} 
                     onChange={setNewPassword} 
                     type={showPassword ? "text" : "password"} 
+                    suffix={
+                      <button 
+                        type="button"
+                        className="text-slate-400 hover:text-slate-600 transition-colors"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    }
                   />
-                  <button 
-                    className="absolute right-3 top-9 text-slate-400 hover:text-slate-600"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
                 </div>
 
                 <div className="relative">
@@ -196,13 +189,16 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
                     value={confirmPassword} 
                     onChange={setConfirmPassword} 
                     type={showConfirmPassword ? "text" : "password"} 
+                    suffix={
+                      <button 
+                        type="button"
+                        className="text-slate-400 hover:text-slate-600 transition-colors"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    }
                   />
-                  <button 
-                    className="absolute right-3 top-9 text-slate-400 hover:text-slate-600"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
                 </div>
               </div>
             </div>
@@ -269,13 +265,14 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
 
 function SectionTitle({ title }: { title: string }) {
   return (
-    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{title}</h4>
+    <h4 className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{title}</h4>
   );
 }
 
 function InfoRow({ icon, label, value, color }: { icon: any, label: string, value: string, color: string }) {
   const colors: any = {
     blue: "bg-blue-500",
+    indigo: "bg-indigo-500",
     emerald: "bg-emerald-500",
     purple: "bg-purple-500",
     amber: "bg-amber-500",
@@ -283,7 +280,7 @@ function InfoRow({ icon, label, value, color }: { icon: any, label: string, valu
   };
 
   return (
-    <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-slate-200 transition-colors">
+    <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 group hover:border-slate-200 transition-colors">
       <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5 shadow-sm", colors[color])}>
         {icon}
       </div>
@@ -295,21 +292,29 @@ function InfoRow({ icon, label, value, color }: { icon: any, label: string, valu
   );
 }
 
-function InputField({ label, value, onChange, type = "text", placeholder = "", disabled = false }: { label: string, value: string, onChange: (v: string) => void, type?: string, placeholder?: string, disabled?: boolean }) {
+function InputField({ label, value, onChange, type = "text", placeholder = "", disabled = false, suffix }: { label: string, value: string, onChange: (v: string) => void, type?: string, placeholder?: string, disabled?: boolean, suffix?: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">{label}</label>
-      <input 
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={cn(
-          "w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-inner",
-          disabled && "opacity-60 cursor-not-allowed bg-slate-100"
+      <div className="relative flex items-center">
+        <input 
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={cn(
+            "w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-inner",
+            suffix && "pr-10",
+            disabled && "opacity-60 cursor-not-allowed bg-slate-100"
+          )}
+        />
+        {suffix && (
+          <div className="absolute right-3">
+            {suffix}
+          </div>
         )}
-      />
+      </div>
     </div>
   );
 }

@@ -113,6 +113,8 @@ class LoginView(APIView):
                         "token": str(refresh.access_token),
                         "user_id": str(profile.pk),
                         "username": profile.name,
+                        "email": profile.email,
+                        "username_field": profile.username,
                         "role": profile.role.lower().replace(' ', '_'),
                         "business": profile.assigned_business,
                         "access": profile.access,
