@@ -74,10 +74,20 @@ class DashboardDataView(APIView):
         # ── Fleet ──────────────────────────────────────────────────────
         fleet_data = [
             {
+                "id": str(v.id),
                 "v": v.name,
                 "p": v.plate_number,
                 "i": str(v.insurance_date) if v.insurance_date else "—",
+                "mot": str(v.mot_date) if v.mot_date else "—",
+                "tax": str(v.road_tax_date) if v.road_tax_date else "—",
+                "notes": v.notes or "",
+                "biz": v.business,
                 "s": v.status,
+                "docs": {
+                    "ins": request.build_absolute_uri(v.ins_doc.url) if v.ins_doc else None,
+                    "mot": request.build_absolute_uri(v.mot_doc.url) if v.mot_doc else None,
+                    "tax": request.build_absolute_uri(v.tax_doc.url) if v.tax_doc else None,
+                }
             }
             for v in vehicles[:8]
         ]

@@ -52,6 +52,8 @@ export default function Dashboard() {
   const [newEmail, setNewEmail] = useState({ email: '', label: '', type: 'primary', password: '' });
   const [noteInput, setNoteInput] = useState('');
   const [todoInput, setTodoInput] = useState('');
+  const [selectedFleet, setSelectedFleet] = useState<any>(null);
+  const [activeDoc, setActiveDoc] = useState<{url: string, title: string} | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -232,36 +234,129 @@ export default function Dashboard() {
 
             {/* 2. FLEET MANAGEMENT */}
             {canShowCard('Fleet Management') && (
-            <Widget title="Fleet Management" icon={Truck} color="bg-[#14b8a6]">
-              <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">VEHICLE</th>
-                    <th className="text-left">PLATE</th>
-                    <th className="text-left">INS. EXPIRY</th>
-                    <th className="text-center">STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.fleet.map((row: any, i: number) => (
-                    <tr key={i}>
-                      <td><strong>{row.v}</strong></td>
-                      <td className="truncate">{row.p}</td>
-                      <td>{row.i}</td>
-                      <td className="text-center">
-                        <span className={`status-pill ${
-                          row.s === 'Active' ? 'bg-[#198754]' :
-                          row.s === 'Maint' ? 'bg-[#f59e0b]' :
-                          row.s === 'Repair' ? 'bg-[#ffc107]' :
-                          'bg-[#dc3545]'
-                        }`}>
-                          {row.s}
-                        </span>
-                      </td>
+            <Widget 
+              title={selectedFleet ? "Vehicle Details" : "Fleet Management"} 
+              icon={Truck} 
+              color="bg-[#14b8a6]"
+              headerAction={selectedFleet && (
+                <button 
+                  onClick={() => setSelectedFleet(null)}
+                  className="text-[10px] bg-white text-[#14b8a6] border border-[#14b8a6] px-2 py-0.5 rounded font-bold hover:bg-[#f0fdfa]"
+                >
+                  ← Back
+                </button>
+              )}
+            >
+              {selectedFleet ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                    <div>
+                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedFleet.v}</h4>
+                      <p className="text-[11px] text-[#64748b] m-0">{selectedFleet.p}</p>
+                    </div>
+                    <span className={`status-pill ${
+                      selectedFleet.s === 'Active' ? 'bg-[#198754]' :
+                      selectedFleet.s === 'Maint' ? 'bg-[#f59e0b]' :
+                      selectedFleet.s === 'Repair' ? 'bg-[#ffc107]' :
+                      'bg-[#dc3545]'
+                    }`}>
+                      {selectedFleet.s}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div 
+                      className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.ins ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
+                      onClick={() => selectedFleet.docs?.ins && setActiveDoc({url: selectedFleet.docs.ins, title: `${selectedFleet.v} - Insurance`})}
+                    >
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        Insurance Expiry
+                        {selectedFleet.docs?.ins && <FileText size={10} className="text-[#14b8a6]" />}
+                      </label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.i}</p>
+                    </div>
+
+                    <div 
+                      className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.mot ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
+                      onClick={() => selectedFleet.docs?.mot && setActiveDoc({url: selectedFleet.docs.mot, title: `${selectedFleet.v} - MOT Certificate`})}
+                    >
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        MOT Expiry
+                        {selectedFleet.docs?.mot && <FileText size={10} className="text-[#14b8a6]" />}
+                      </label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.mot}</p>
+                    </div>
+
+                    <div 
+                      className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.tax ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
+                      onClick={() => selectedFleet.docs?.tax && setActiveDoc({url: selectedFleet.docs.tax, title: `${selectedFleet.v} - Road Tax`})}
+                    >
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        Road Tax Due
+                        {selectedFleet.docs?.tax && <FileText size={10} className="text-[#14b8a6]" />}
+                      </label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.tax}</p>
+                    </div>
+
+                    <div className="space-y-1 p-2">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.biz}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
+                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Internal Notes</label>
+                    <div className="bg-slate-50 p-2 rounded-lg min-h-[40px]">
+                      {selectedFleet.notes ? (
+                        <p className="text-[10px] text-slate-600 leading-relaxed m-0 italic">
+                          "{selectedFleet.notes}"
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-slate-400 m-0">No internal notes recorded for this asset.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <Link 
+                      href="/fleet"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#14b8a6] text-white text-[10px] font-bold rounded-lg hover:bg-[#0d9488] transition-all"
+                    >
+                      View Full Asset Profile <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <table className="wt">
+                  <thead>
+                    <tr>
+                      <th className="text-left">VEHICLE</th>
+                      <th className="text-left">PLATE</th>
+                      <th className="text-left">INS. EXPIRY</th>
+                      <th className="text-center">STATUS</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {dash.fleet.map((row: any, i: number) => (
+                      <tr key={i} onClick={() => setSelectedFleet(row)} className="cursor-pointer group">
+                        <td><strong className="group-hover:text-[#14b8a6] transition-colors">{row.v}</strong></td>
+                        <td className="truncate">{row.p}</td>
+                        <td>{row.i}</td>
+                        <td className="text-center">
+                          <span className={`status-pill ${
+                            row.s === 'Active' ? 'bg-[#198754]' :
+                            row.s === 'Maint' ? 'bg-[#f59e0b]' :
+                            row.s === 'Repair' ? 'bg-[#ffc107]' :
+                            'bg-[#dc3545]'
+                          }`}>
+                            {row.s}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </Widget>
             )}
 
@@ -670,6 +765,69 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      {/* Document Viewer Drawer */}
+      {activeDoc && (
+        <div className="fixed inset-0 z-[100] flex justify-end animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setActiveDoc(null)} />
+          <div className="relative w-full max-w-2xl bg-white h-screen shadow-2xl flex flex-col animate-in slide-in-from-right duration-500">
+            <div className="p-4 border-b flex items-center justify-between bg-slate-50">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800 m-0">{activeDoc.title}</h3>
+                <p className="text-[10px] text-slate-500 m-0">Document Preview</p>
+              </div>
+              <button 
+                onClick={() => setActiveDoc(null)}
+                className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+              >
+                <ChevronDown className="w-5 h-5 rotate-90" />
+              </button>
+            </div>
+            <div className="flex-1 bg-slate-100 overflow-hidden relative">
+              {activeDoc.url.toLowerCase().includes('.pdf') ? (
+                <iframe 
+                  src={`${activeDoc.url}#toolbar=0&navpanes=0`} 
+                  className="w-full h-full border-none bg-white" 
+                  title="Document Viewer" 
+                />
+              ) : activeDoc.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ? (
+                <div className="w-full h-full flex items-center justify-center p-8 overflow-auto">
+                  <img src={activeDoc.url} alt="Document" className="max-w-full max-h-full object-contain shadow-2xl border border-white" />
+                </div>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-8">
+                  <div className="text-center p-12 bg-white rounded-3xl shadow-xl max-w-sm">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <FileText className="w-10 h-10 text-slate-400" />
+                    </div>
+                    <h4 className="text-slate-800 font-bold mb-2">No Preview Available</h4>
+                    <p className="text-slate-500 text-[11px] leading-relaxed mb-6">
+                      This file format does not support direct browser preview. Please download the document to view it on your device.
+                    </p>
+                    <a 
+                      href={activeDoc.url} 
+                      download 
+                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#4f46e5] text-white text-[11px] font-bold rounded-xl hover:bg-[#4338ca] transition-all shadow-lg shadow-indigo-100"
+                    >
+                      Download Document <ArrowRight size={14} />
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t bg-white flex justify-between items-center">
+              <span className="text-[10px] text-slate-400 italic">Secure ERP Document Viewer</span>
+              <a 
+                href={activeDoc.url} 
+                download 
+                className="px-4 py-2 bg-[#4f46e5] text-white text-[11px] font-bold rounded-lg hover:bg-[#4338ca] transition-all flex items-center gap-2"
+              >
+                Download File <ArrowRight size={14} />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .scrollbar-custom::-webkit-scrollbar { width: 6px; }
