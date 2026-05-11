@@ -282,7 +282,15 @@ class DashboardDataView(APIView):
 
         # ── Notes (role-scoped) ────────────────────────────────────────
         notes_qs = get_filtered_queryset(request, Note)
-        notes_data = [{"id": str(n.id), "text": n.text} for n in notes_qs]
+        notes_data = [
+            {
+                "id": str(n.id), 
+                "text": n.text,
+                "is_pinned": n.is_pinned,
+                "color": n.color,
+                "created_at": str(n.created_at) if n.created_at else None
+            } for n in notes_qs
+        ]
 
         return Response({
             "businesses":       businesses_data,

@@ -162,9 +162,10 @@ def seed_data():
 
     # 11. Notes
     Note.objects.all().delete()
-    Note.objects.create(text='Review Q1 sales figures before board meeting on Friday.', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
-    Note.objects.create(text='Vehicle insurance renewal due next month — contact broker.', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
-    Note.objects.create(text='Chase Beta Logistics Ltd for overdue invoice INV-2026-002.', business=BUSINESS_2, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Review Q1 sales figures before board meeting on Friday.', is_pinned=True, color='red', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Vehicle insurance renewal due next month — contact broker.', is_pinned=False, color='blue', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Chase Beta Logistics Ltd for overdue invoice INV-2026-002.', is_pinned=True, color='green', business=BUSINESS_2, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Prepare quarterly VAT return documentation.', is_pinned=False, color='yellow', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
     print("Seeding Complete! Data is now isolated by business.")
 

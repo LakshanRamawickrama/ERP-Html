@@ -33,3 +33,6 @@ class Note(models.Model):
     text = models.TextField()
     business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
+    is_pinned = models.BooleanField(default=False)
+    color = models.CharField(max_length=50, default='yellow') # yellow, blue, green, red
+    created_at = models.DateTimeField(auto_now_add=True, null=True)

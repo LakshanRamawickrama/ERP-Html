@@ -38,7 +38,9 @@ import {
   RefreshCcw,
   CheckCircle2,
   ArrowUpRight,
-  Edit2
+  Edit2,
+  Pin,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -158,12 +160,44 @@ export default function Dashboard() {
     fetch(API_ENDPOINTS.NOTES, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ text: noteInput }),
+      body: JSON.stringify({ text: noteInput, is_pinned: false, color: 'yellow' }),
     })
       .then(res => res.json())
       .then(saved => {
         setDash((prev: any) => ({ ...prev, notes: [saved, ...prev.notes] }));
         setNoteInput('');
+      });
+  };
+
+  const handleTogglePinNote = (id: string, currentPin: boolean) => {
+    fetch(`${API_ENDPOINTS.NOTES}${id}/`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ is_pinned: !currentPin }),
+    })
+      .then(res => res.json())
+      .then(updated => {
+        setDash((prev: any) => ({
+          ...prev,
+          notes: prev.notes.map((n: any) => n.id === id ? updated : n)
+        }));
+      });
+  };
+
+  const handleCycleNoteColor = (id: string, currentColor: string) => {
+    const colors = ['yellow', 'blue', 'green', 'red'];
+    const nextColor = colors[(colors.indexOf(currentColor) + 1) % colors.length];
+    fetch(`${API_ENDPOINTS.NOTES}${id}/`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ color: nextColor }),
+    })
+      .then(res => res.json())
+      .then(updated => {
+        setDash((prev: any) => ({
+          ...prev,
+          notes: prev.notes.map((n: any) => n.id === id ? updated : n)
+        }));
       });
   };
 
@@ -402,15 +436,76 @@ export default function Dashboard() {
             {/* 3. NOTES */}
             <Widget title="Notes" icon={FileText} color="bg-[#f59e0b]">
               <div className="space-y-2">
-                {dash.notes.map((note: any) => (
-                  <div key={note.id} className="bg-[#fffbeb] border border-[#fef3c7] rounded-lg p-2 relative group shadow-sm">
-                    <p className="text-[11px] text-[#1e293b] leading-[1.3] m-0 pr-5">{note.text}</p>
-                    <button
-                      onClick={() => handleDeleteNote(note.id)}
-                      className="absolute right-1.5 top-2 text-[#ef4444] opacity-20 group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                {dash.notes
+                  .sort((a: any, b: any) => {
+                    if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+                    return b.id > a.id ? 1 : -1; // Fallback to id for latest first
+                  })
+                  .map((note: any) => (
+                  <div 
+                    key={note.id} 
+                    className={cn(
+                      "rounded-lg p-2 relative group shadow-sm transition-all border",
+                      note.color === 'blue' ? "bg-blue-50 border-blue-100" :
+                      note.color === 'green' ? "bg-emerald-50 border-emerald-100" :
+                      note.color === 'red' ? "bg-red-50 border-red-100" :
+                      "bg-[#fffbeb] border-[#fef3c7]"
+                    )}
+                  >
+                    <p className={cn(
+                      "text-[11px] leading-[1.3] m-0 pr-10",
+                      note.color === 'blue' ? "text-blue-900" :
+                      note.color === 'green' ? "text-emerald-900" :
+                      note.color === 'red' ? "text-red-900" :
+                      "text-[#1e293b]"
+                    )}>
+                      {note.text}
+                    </p>
+
+                    {note.created_at && (
+                      <div className={cn(
+                        "text-[8px] font-bold mt-1.5 opacity-60 flex items-center gap-1",
+                        note.color === 'blue' ? "text-blue-700" :
+                        note.color === 'green' ? "text-emerald-700" :
+                        note.color === 'red' ? "text-red-700" :
+                        "text-slate-400"
+                      )}>
+                        <Clock size={8} /> {new Date(note.created_at).toLocaleDateString()} — {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    )}
+                    
+                    <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                      <button
+                        onClick={() => handleCycleNoteColor(note.id, note.color || 'yellow')}
+                        className="p-1 hover:bg-black/5 rounded transition-colors"
+                        title="Highlight"
+                      >
+                        <div className={cn(
+                          "w-2.5 h-2.5 rounded-full border border-black/10",
+                          note.color === 'blue' ? "bg-blue-400" :
+                          note.color === 'green' ? "bg-emerald-400" :
+                          note.color === 'red' ? "bg-red-400" :
+                          "bg-yellow-400"
+                        )} />
+                      </button>
+                      <button
+                        onClick={() => handleTogglePinNote(note.id, note.is_pinned)}
+                        className={cn(
+                          "p-1 rounded transition-colors",
+                          note.is_pinned ? "text-indigo-600 opacity-100" : "text-slate-400 hover:bg-black/5"
+                        )}
+                        title={note.is_pinned ? "Unpin" : "Pin to top"}
+                      >
+                        <Pin className={cn("w-3 h-3", note.is_pinned && "fill-current")} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteNote(note.id)}
+                        className="p-1 text-[#ef4444] hover:bg-red-50 rounded transition-all"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <div className="space-y-2 pt-1">
