@@ -130,3 +130,25 @@ class LoginView(APIView):
         except Exception as e:
             logger.exception("Login error occurred")
             return Response({"status": "error", "message": f"Server error: {str(e)}"}, status=500)
+
+class ChangePasswordView(APIView):
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        
+        if not user_id or not current_password or not new_password:
+            return Response({"status": "error", "message": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            profile = StaffProfile.objects.get(pk=user_id)
+            if profile.password and check_password(current_password, profile.password):
+                profile.password = make_password(new_password)
+                profile.save()
+                return Response({"status": "success", "message": "Password updated successfully"})
+            else:
+                return Response({"status": "error", "message": "Incorrect current password"}, status=status.HTTP_400_BAD_REQUEST)
+        except StaffProfile.DoesNotExist:
+            return Response({"status": "error", "message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -30,6 +30,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const router = useRouter();
 
@@ -39,6 +40,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
   const [roles, setRoles] = useState('');
   const [businesses, setBusinesses] = useState('');
   const [userName, setUserName] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -67,6 +69,45 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
       return;
     }
 
+    if (newPassword && !currentPassword) {
+      showToast('Current password is required to change password', 'error');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+
+    // If changing password
+    if (newPassword) {
+      fetch(`${API_ENDPOINTS.USERS}change-password/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          current_password: currentPassword,
+          new_password: newPassword
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'error') {
+          showToast(data.message, 'error');
+          return;
+        }
+        // Proceed with profile update
+        completeProfileUpdate();
+      })
+      .catch(err => {
+        showToast('Failed to update password', 'error');
+      });
+    } else {
+      completeProfileUpdate();
+    }
+  };
+
+  const completeProfileUpdate = () => {
     const updatedUser = {
       ...user,
       fullName,
@@ -80,6 +121,9 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
     localStorage.setItem('user', JSON.stringify(updatedUser));
     onUpdateUser(updatedUser);
     setIsEditMode(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
     showToast('Profile updated successfully', 'success');
   };
 
@@ -142,7 +186,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
         </div>
 
         {/* Body */}
-        <div className="flex-1 p-4 space-y-3 overflow-hidden">
+        <div className="flex-1 p-4 space-y-3 overflow-y-auto custom-scrollbar">
           {!isEditMode ? (
             <div className="space-y-4">
               <SectionTitle title="Account Details" />
@@ -152,7 +196,6 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
               <InfoRow icon={<Mail size={14} />} label="Email Address" value={email || 'Not Provided'} color="emerald" />
               <InfoRow icon={<Shield size={14} />} label="Assigned Roles" value={roles} color="purple" />
               <InfoRow icon={<Building2 size={14} />} label="Assigned Businesses" value={businesses} color="amber" />
-              <InfoRow icon={<Lock size={14} />} label="Password" value="••••••••" color="rose" />
             </div>
           ) : (
             <div className="space-y-4">
@@ -165,41 +208,53 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
                 
                 <SectionTitle title="Security" />
                 
-                <div className="relative">
-                  <InputField 
-                    label="New Password" 
-                    value={newPassword} 
-                    onChange={setNewPassword} 
-                    type={showPassword ? "text" : "password"} 
-                    suffix={
-                      <button 
-                        type="button"
-                        className="text-slate-400 hover:text-slate-600 transition-colors"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    }
-                  />
-                </div>
+                <InputField 
+                  label="Current Password" 
+                  value={currentPassword} 
+                  onChange={setCurrentPassword} 
+                  type={showCurrentPassword ? "text" : "password"} 
+                  suffix={
+                    <button 
+                      type="button"
+                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  }
+                />
 
-                <div className="relative">
-                  <InputField 
-                    label="Confirm Password" 
-                    value={confirmPassword} 
-                    onChange={setConfirmPassword} 
-                    type={showConfirmPassword ? "text" : "password"} 
-                    suffix={
-                      <button 
-                        type="button"
-                        className="text-slate-400 hover:text-slate-600 transition-colors"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    }
-                  />
-                </div>
+                <InputField 
+                  label="New Password" 
+                  value={newPassword} 
+                  onChange={setNewPassword} 
+                  type={showPassword ? "text" : "password"} 
+                  suffix={
+                    <button 
+                      type="button"
+                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  }
+                />
+
+                <InputField 
+                  label="Confirm Password" 
+                  value={confirmPassword} 
+                  onChange={setConfirmPassword} 
+                  type={showConfirmPassword ? "text" : "password"} 
+                  suffix={
+                    <button 
+                      type="button"
+                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  }
+                />
               </div>
             </div>
           )}
