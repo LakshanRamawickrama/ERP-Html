@@ -71,6 +71,8 @@ export default function Dashboard() {
   const [isVaultAuthed, setIsVaultAuthed] = useState(false);
   const [vaultError, setVaultError] = useState<string | null>(null);
   const [activeDoc, setActiveDoc] = useState<{url: string, title: string} | null>(null);
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [selectedBusiness, setSelectedBusiness] = useState('All Entities');
   const router = useRouter();
 
   useEffect(() => {
@@ -80,7 +82,19 @@ export default function Dashboard() {
     setUser(userData);
     setUserRole(userData.role as UserRole);
     
+    const savedBusiness = localStorage.getItem('selectedBusiness');
+    if (savedBusiness) setSelectedBusiness(savedBusiness);
+
     const token = localStorage.getItem('token');
+    
+    // Fetch businesses for selector
+    fetch(API_ENDPOINTS.BUSINESS, { 
+      headers: { 'Authorization': `Bearer ${token}` } 
+    })
+      .then(res => res.json())
+      .then(data => setBusinesses(data.entities || []))
+      .catch(() => {});
+
     fetch(API_ENDPOINTS.DASHBOARD, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -229,6 +243,12 @@ export default function Dashboard() {
     }));
   };
 
+  const handleBusinessChange = (business: string) => {
+    setSelectedBusiness(business);
+    localStorage.setItem('selectedBusiness', business);
+    window.dispatchEvent(new Event('businessChanged'));
+  };
+
   const canShowCard = (cardName: string): boolean => {
     if (userRole === UserRole.SUPER_ADMIN) return true;
     if (!user?.permissions) return true;
@@ -261,7 +281,9 @@ export default function Dashboard() {
           userRole={userRole}
           user={user}
           onProfileClick={() => setIsProfileOpen(true)}
-          businesses={dash.businesses}
+          businesses={businesses}
+          selectedBusiness={selectedBusiness}
+          onBusinessChange={handleBusinessChange}
         />
 
         {/* Content Area */}
@@ -281,7 +303,9 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.businesses.map((row: any) => (
+                    {dash.businesses
+                      .filter((row: any) => selectedBusiness === 'All Entities' || row.name === selectedBusiness)
+                      .map((row: any) => (
                       <tr key={row.id}>
                         <td className="truncate">
                           <Link 
@@ -410,7 +434,9 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.fleet.map((row: any, i: number) => (
+                    {dash.fleet
+                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                      .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedFleet(row)} className="cursor-pointer group">
                         <td><strong className="group-hover:text-[#14b8a6] transition-colors">{row.v}</strong></td>
                         <td className="truncate">{row.p}</td>
@@ -700,7 +726,9 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.vat.map((r: any, i: number) => (
+                    {dash.vat
+                      .filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                      .map((r: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedVAT(r)} className="cursor-pointer group">
                         <td><strong className="group-hover:text-[#f59e0b] transition-colors">{r.type}</strong></td>
                         <td>{r.period}</td>
@@ -735,7 +763,10 @@ export default function Dashboard() {
               }
             >
               <div className="space-y-2">
-                {(dash.reminders || []).slice(0, 4).map((reminder: any) => (
+                {(dash.reminders || [])
+                  .filter((reminder: any) => selectedBusiness === 'All Entities' || reminder.business === selectedBusiness)
+                  .slice(0, 4)
+                  .map((reminder: any) => (
                   <Link key={reminder.id} href="/reminders" className="p-2.5 bg-[#f8fafc] border border-slate-100 rounded-xl flex items-center gap-3 group hover:border-indigo-100 hover:shadow-sm transition-all block cursor-pointer">
                     <div className={cn(
                       "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
@@ -969,7 +1000,9 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.supplierPayments.map((row: any, i: number) => (
+                    {dash.supplierPayments
+                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                      .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedSupplierPayment(row)} className="cursor-pointer group">
                         <td><strong className="group-hover:text-[#f59e0b] transition-colors">{row.p}</strong></td>
                         <td className="truncate">{row.s}</td>
@@ -1091,7 +1124,9 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.banks.map((row: any, i: number) => (
+                    {dash.banks
+                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                      .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedBank(row)} className="cursor-pointer group">
                         <td><strong className="group-hover:text-[#10b981] transition-colors">{row.b}</strong></td>
                         <td className="truncate">{row.n}</td>
@@ -1174,7 +1209,9 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.maintenance.map((row: any, i: number) => (
+                    {dash.maintenance
+                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                      .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedMaintenance(row)} className="cursor-pointer group">
                         <td className="truncate"><strong className="group-hover:text-[#ef4444] transition-colors">{row.a}</strong></td>
                         <td><span className={`status-pill ${row.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>{row.p}</span></td>

@@ -18,6 +18,7 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [businesses, setBusinesses] = useState<any[]>([]);
+  const [selectedBusiness, setSelectedBusiness] = useState('All Entities');
   const router = useRouter();
 
   useEffect(() => {
@@ -29,6 +30,9 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
     const userData = JSON.parse(savedUser);
     setUser(userData);
     setUserRole(userData.role as UserRole);
+
+    const savedBusiness = localStorage.getItem('selectedBusiness');
+    if (savedBusiness) setSelectedBusiness(savedBusiness);
 
     // Fetch businesses for TopBar organization selector
     const token = localStorage.getItem('token');
@@ -42,6 +46,13 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
       .then(data => setBusinesses(data.entities || []))
       .catch(() => {});
   }, [router]);
+
+  const handleBusinessChange = (business: string) => {
+    setSelectedBusiness(business);
+    localStorage.setItem('selectedBusiness', business);
+    // Optional: Refresh or broadcast change if needed
+    window.dispatchEvent(new Event('businessChanged'));
+  };
 
   if (!user || !userRole) return null;
 
@@ -63,6 +74,8 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
           user={user}
           onProfileClick={() => setIsProfileOpen(true)}
           businesses={businesses}
+          selectedBusiness={selectedBusiness}
+          onBusinessChange={handleBusinessChange}
         />
         
         <div className="flex-1 overflow-y-auto">
