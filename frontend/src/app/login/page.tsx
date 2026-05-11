@@ -41,6 +41,7 @@ export default function LoginPage() {
 
       if (response.ok && data.status === 'success') {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user_pw', password); // Store for vault reveal
         localStorage.setItem('user', JSON.stringify({
           id: data.user_id,
           name: data.username,

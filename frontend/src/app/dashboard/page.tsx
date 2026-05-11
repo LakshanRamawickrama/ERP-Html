@@ -59,6 +59,13 @@ export default function Dashboard() {
   const [selectedFleet, setSelectedFleet] = useState<any>(null);
   const [selectedVAT, setSelectedVAT] = useState<any>(null);
   const [selectedSupplierPayment, setSelectedSupplierPayment] = useState<any>(null);
+  const [selectedBank, setSelectedBank] = useState<any>(null);
+  const [selectedMaintenance, setSelectedMaintenance] = useState<any>(null);
+  const [selectedStock, setSelectedStock] = useState<any>(null);
+  const [selectedPassword, setSelectedPassword] = useState<any>(null);
+  const [vaultAuthInput, setVaultAuthInput] = useState('');
+  const [isVaultAuthed, setIsVaultAuthed] = useState(false);
+  const [vaultError, setVaultError] = useState<string | null>(null);
   const [activeDoc, setActiveDoc] = useState<{url: string, title: string} | null>(null);
   const router = useRouter();
 
@@ -629,26 +636,113 @@ export default function Dashboard() {
 
             {/* 7. PASSWORD VAULT (SUPER_ADMIN ONLY) */}
             {userRole === UserRole.SUPER_ADMIN && (
-              <Widget title="Password Vault" icon={Lock} color="bg-[#8b5cf6]">
+            <Widget 
+              title={selectedPassword ? "Credentials Detail" : "Password Vault"} 
+              icon={Lock} 
+              color="bg-[#8b5cf6]"
+              headerAction={selectedPassword && (
+                <button 
+                  onClick={() => {
+                    setSelectedPassword(null);
+                    setIsVaultAuthed(false);
+                    setVaultAuthInput('');
+                  }}
+                  className="text-[10px] bg-white text-[#8b5cf6] border border-[#8b5cf6] px-2 py-0.5 rounded font-bold hover:bg-[#f5f3ff]"
+                >
+                  ← Back
+                </button>
+              )}
+            >
+              {selectedPassword ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                    <div>
+                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedPassword.s}</h4>
+                      <p className="text-[11px] text-[#64748b] m-0">{selectedPassword.u}</p>
+                    </div>
+                    <span className="px-2 py-0.5 bg-[#8b5cf6] text-white text-[9px] font-bold rounded-full">
+                      {selectedPassword.st}
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Vault Security</label>
+                    
+                    {!isVaultAuthed ? (
+                      <div className="space-y-2">
+                        <p className="text-[10px] text-slate-500 m-0 italic">Enter Master Password to reveal</p>
+                        <div className="flex gap-2">
+                          <input 
+                            type="password" 
+                            placeholder="Master PW..."
+                            value={vaultAuthInput}
+                            onChange={(e) => setVaultAuthInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              const loginPw = localStorage.getItem('user_pw');
+                              if (e.key === 'Enter') {
+                                if (!loginPw) {
+                                  setVaultError('Your security session is not synced. Please log out and log in again to activate your login password for the vault.');
+                                  return;
+                                }
+                                if (vaultAuthInput === loginPw) setIsVaultAuthed(true);
+                                else setVaultError('The password you entered is incorrect. Please ensure you are using your current login password.');
+                              }
+                            }}
+                            className="flex-1 px-2 py-1.5 text-[11px] border border-slate-200 rounded-lg outline-none focus:border-[#8b5cf6]"
+                          />
+                          <button 
+                            onClick={() => {
+                              const loginPw = localStorage.getItem('user_pw');
+                              if (!loginPw) {
+                                setVaultError('Your security session is not synced. Please log out and log in again to activate your login password for the vault.');
+                                return;
+                              }
+                              if (vaultAuthInput === loginPw) setIsVaultAuthed(true);
+                              else setVaultError('The password you entered is incorrect. Please ensure you are using your current login password.');
+                            }}
+                            className="px-3 py-1.5 bg-[#8b5cf6] text-white text-[10px] font-bold rounded-lg hover:bg-[#7c3aed]"
+                          >
+                            Auth
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-[#8b5cf6]/20">
+                        <code className="text-[12px] font-bold text-[#7c3aed] tracking-wider">{selectedPassword.p}</code>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(selectedPassword.p);
+                            alert('Password copied to clipboard!');
+                          }}
+                          className="text-[9px] font-bold text-slate-400 hover:text-[#8b5cf6]"
+                        >
+                          COPY
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
                 <table className="wt">
                   <thead>
                     <tr>
                       <th className="text-left">SITE</th>
                       <th className="text-left">USERNAME</th>
-                      <th className="text-center"></th>
+                      <th className="text-right"></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.passwords.map((pw: any, i: number) => (
-                      <tr key={i}>
-                        <td className="truncate">{pw.s}</td>
-                        <td className="truncate">{pw.u}</td>
-                        <td className="text-center"><button className="text-[#64748b] hover:text-[#4f46e5]"><Eye size={12} /></button></td>
+                    {dash.passwords.map((row: any, i: number) => (
+                      <tr key={i} onClick={() => setSelectedPassword(row)} className="cursor-pointer group">
+                        <td><strong className="group-hover:text-[#8b5cf6] transition-colors">{row.s}</strong></td>
+                        <td>{row.u}</td>
+                        <td className="text-right"><Eye size={14} className="text-slate-300 group-hover:text-[#8b5cf6]" /></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </Widget>
+              )}
+            </Widget>
             )}
 
             {/* 8. PROFIT & LOSS */}
@@ -794,77 +888,256 @@ export default function Dashboard() {
 
             {/* 11. BANK ACCOUNTS */}
             {canShowCard('Bank Accounts') && (
-            <Widget title="Bank Accounts" icon={Building2} color="bg-[#10b981]">
-               <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">BANK</th>
-                    <th className="text-left">ACCOUNT NAME</th>
-                    <th className="text-left">BALANCE</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.banks.map((row: any, i: number) => (
-                    <tr key={i}>
-                      <td><strong>{row.b}</strong></td>
-                      <td className="truncate">{row.n}</td>
-                      <td><strong className="text-[#198754]">{row.bl}</strong></td>
+            <Widget 
+              title={selectedBank ? "Account Details" : "Bank Accounts"} 
+              icon={Building2} 
+              color="bg-[#10b981]"
+              headerAction={selectedBank && (
+                <button 
+                  onClick={() => setSelectedBank(null)}
+                  className="text-[10px] bg-white text-[#10b981] border border-[#10b981] px-2 py-0.5 rounded font-bold hover:bg-[#f0fdf4]"
+                >
+                  ← Back
+                </button>
+              )}
+            >
+              {selectedBank ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                    <div>
+                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedBank.b}</h4>
+                      <p className="text-[11px] text-[#64748b] m-0">{selectedBank.n}</p>
+                    </div>
+                    <span className="px-2 py-0.5 bg-[#10b981] text-white text-[9px] font-bold rounded-full">
+                      {selectedBank.st}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Account Type</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedBank.bl}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Account Number</label>
+                      <p className="text-[11px] font-mono font-semibold text-slate-700 m-0">{selectedBank.num}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Sort Code</label>
+                      <p className="text-[11px] font-mono font-semibold text-slate-700 m-0">{selectedBank.sort}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedBank.biz}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
+                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">IBAN / International</label>
+                    <p className="text-[10px] text-slate-600 font-mono m-0 truncate">{selectedBank.iban}</p>
+                  </div>
+
+                  <div className="pt-1">
+                    <Link 
+                      href="/accounting"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#10b981] text-white text-[10px] font-bold rounded-lg hover:bg-[#059669] transition-all"
+                    >
+                      View All Accounts <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <table className="wt">
+                  <thead>
+                    <tr>
+                      <th className="text-left">BANK</th>
+                      <th className="text-left">ACCOUNT NAME</th>
+                      <th className="text-left">BALANCE</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {dash.banks.map((row: any, i: number) => (
+                      <tr key={i} onClick={() => setSelectedBank(row)} className="cursor-pointer group">
+                        <td><strong className="group-hover:text-[#10b981] transition-colors">{row.b}</strong></td>
+                        <td className="truncate">{row.n}</td>
+                        <td><strong className="text-[#198754]">{row.bl}</strong></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </Widget>
             )}
 
             {/* 12. MAINTENANCE REQUESTS */}
             {canShowCard('Maintenance') && (
-            <Widget title="Maintenance" icon={Hammer} color="bg-[#ef4444]">
-               <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">ASSET</th>
-                    <th className="text-left">PRIORITY</th>
-                    <th className="text-center">STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.maintenance.map((row: any, i: number) => (
-                    <tr key={i}>
-                      <td className="truncate">{row.a}</td>
-                      <td><span className={`status-pill ${row.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>{row.p}</span></td>
-                      <td className="text-center text-slate-500">{row.s}</td>
+            <Widget 
+              title={selectedMaintenance ? "Ticket Details" : "Maintenance"} 
+              icon={Hammer} 
+              color="bg-[#ef4444]"
+              headerAction={selectedMaintenance && (
+                <button 
+                  onClick={() => setSelectedMaintenance(null)}
+                  className="text-[10px] bg-white text-[#ef4444] border border-[#ef4444] px-2 py-0.5 rounded font-bold hover:bg-[#fef2f2]"
+                >
+                  ← Back
+                </button>
+              )}
+            >
+              {selectedMaintenance ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                    <div className="min-w-0">
+                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0 truncate">{selectedMaintenance.a}</h4>
+                      <p className="text-[11px] text-[#64748b] m-0">{selectedMaintenance.loc}</p>
+                    </div>
+                    <span className={`status-pill ${selectedMaintenance.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>
+                      {selectedMaintenance.p}
+                    </span>
+                  </div>
+
+                  <div className="bg-red-50/50 p-2.5 rounded-xl border border-red-100/50">
+                    <label className="text-[9px] font-bold text-red-400 uppercase tracking-wider mb-1 block">Reported Issue</label>
+                    <p className="text-[11px] text-slate-700 m-0 font-medium leading-relaxed italic">"{selectedMaintenance.issue}"</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Technician</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.tech}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Current Status</label>
+                      <p className="text-[11px] font-semibold text-[#ef4444] m-0">{selectedMaintenance.s}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Requested On</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.date}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.biz}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-1">
+                    <Link 
+                      href="/property"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#ef4444] text-white text-[10px] font-bold rounded-lg hover:bg-[#dc2626] transition-all"
+                    >
+                      Open Maintenance Board <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <table className="wt">
+                  <thead>
+                    <tr>
+                      <th className="text-left">ASSET</th>
+                      <th className="text-left">PRIORITY</th>
+                      <th className="text-center">STATUS</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {dash.maintenance.map((row: any, i: number) => (
+                      <tr key={i} onClick={() => setSelectedMaintenance(row)} className="cursor-pointer group">
+                        <td className="truncate"><strong className="group-hover:text-[#ef4444] transition-colors">{row.a}</strong></td>
+                        <td><span className={`status-pill ${row.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>{row.p}</span></td>
+                        <td className="text-center text-slate-500">{row.s}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </Widget>
             )}
 
             {/* 13. LOW STOCK ALERTS */}
             {canShowCard('Low Stock') && (
-            <Widget title="Low Stock" icon={AlertTriangle} color="bg-[#f59e0b]">
-               <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">ITEM</th>
-                    <th className="text-left">CUR.</th>
-                    <th className="text-center">STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.lowStock.map((row: any, i: number) => (
-                    <tr key={i}>
-                      <td className="truncate">{row.i}</td>
-                      <td>{row.c}</td>
-                      <td className="text-center">
-                        <span className={`status-pill ${row.s === 'Good' ? 'bg-[#198754]' : row.s === 'Out of Stock' ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
-                          {row.s}
-                        </span>
-                      </td>
+            <Widget 
+              title={selectedStock ? "Inventory Stats" : "Low Stock"} 
+              icon={AlertTriangle} 
+              color="bg-[#f59e0b]"
+              headerAction={selectedStock && (
+                <button 
+                  onClick={() => setSelectedStock(null)}
+                  className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
+                >
+                  ← Back
+                </button>
+              )}
+            >
+              {selectedStock ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                    <div>
+                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedStock.i}</h4>
+                      <p className="text-[11px] text-[#64748b] m-0">SKU: {selectedStock.sku}</p>
+                    </div>
+                    <span className={`status-pill ${selectedStock.c === 0 ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
+                      {selectedStock.s}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Current Stock</label>
+                      <p className={`text-[14px] font-bold m-0 ${selectedStock.c === 0 ? 'text-red-600' : 'text-amber-600'}`}>{selectedStock.c} Units</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Min. Required</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedStock.min} Units</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Unit Price</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedStock.pr}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0 truncate">{selectedStock.cat}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                    <p className="text-[10px] text-amber-800 font-medium m-0 flex items-center gap-2">
+                      <AlertTriangle size={12} className="shrink-0" />
+                      Critical stock level reached. Restock recommended.
+                    </p>
+                  </div>
+
+                  <div className="pt-1">
+                    <Link 
+                      href="/inventory"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
+                    >
+                      Inventory Manager <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <table className="wt">
+                  <thead>
+                    <tr>
+                      <th className="text-left">ITEM</th>
+                      <th className="text-left">CUR.</th>
+                      <th className="text-center">STATUS</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {dash.lowStock.map((row: any, i: number) => (
+                      <tr key={i} onClick={() => setSelectedStock(row)} className="cursor-pointer group">
+                        <td className="truncate"><strong className="group-hover:text-[#f59e0b] transition-colors">{row.i}</strong></td>
+                        <td>{row.c}</td>
+                        <td className="text-center">
+                          <span className={`status-pill ${row.s === 'Good' ? 'bg-[#198754]' : row.s === 'Out of Stock' ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
+                            {row.s}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </Widget>
             )}
 
@@ -941,6 +1214,37 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      {/* Custom Vault Error Popup */}
+      {vaultError && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setVaultError(null)} />
+          <div className="relative bg-white w-full max-w-sm rounded-[24px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-red-100">
+            <div className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto ring-8 ring-red-50/50">
+                <ShieldAlert className="w-8 h-8 text-red-500 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-slate-900">Security Access Denied</h3>
+                <p className="text-[12px] text-slate-500 leading-relaxed">
+                  {vaultError}
+                </p>
+              </div>
+              <button 
+                onClick={() => setVaultError(null)}
+                className="w-full py-3 bg-slate-900 text-white text-[11px] font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg active:scale-95"
+              >
+                Acknowledged
+              </button>
+            </div>
+            <div className="bg-slate-50 px-6 py-3 text-center border-t border-slate-100">
+              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                <Lock size={10} /> Secure Vault Protection
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Document Viewer Drawer */}
       {activeDoc && (

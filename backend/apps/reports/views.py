@@ -122,9 +122,15 @@ class DashboardDataView(APIView):
         # ── Bank Accounts ──────────────────────────────────────────────
         banks_data = [
             {
+                "id": str(b.id),
                 "b":  b.bank_name,
                 "n":  b.account_name,
+                "num": b.account_number,
+                "sort": b.sort_code,
+                "iban": b.iban or "—",
                 "bl": b.account_type,
+                "st": b.status,
+                "biz": b.business,
             }
             for b in banks_qs[:6]
         ]
@@ -134,16 +140,34 @@ class DashboardDataView(APIView):
         for m in maintenance[:6]:
             try:
                 asset_name = m.asset.name if m.asset_id else "—"
+                asset_loc = m.asset.location if m.asset_id else "—"
             except Exception:
                 asset_name = "—"
-            maintenance_data.append({"a": asset_name, "p": m.priority, "s": m.status})
+                asset_loc = "—"
+            maintenance_data.append({
+                "id": str(m.id),
+                "a": asset_name, 
+                "loc": asset_loc,
+                "p": m.priority, 
+                "s": m.status,
+                "issue": m.issue,
+                "tech": m.technician or "Unassigned",
+                "date": str(m.date_requested) if hasattr(m, 'date_requested') else "—",
+                "biz": m.business,
+            })
 
         # ── Low Stock Alerts ───────────────────────────────────────────
         low_stock_data = [
             {
+                "id": str(p.id),
                 "i": p.name,
+                "sku": p.sku,
+                "cat": p.category,
                 "c": p.quantity,
+                "min": p.min_stock,
+                "pr": _fmt(p.price),
                 "s": "Out of Stock" if p.quantity == 0 else "Low Stock",
+                "biz": p.business,
             }
             for p in products if p.quantity <= p.min_stock
         ][:6]
@@ -234,7 +258,14 @@ class DashboardDataView(APIView):
         passwords_data = []
         if is_super:
             for cred in SystemCredential.objects.all():
-                passwords_data.append({"s": cred.service, "u": cred.account})
+                passwords_data.append({
+                    "id": str(cred.id),
+                    "s": cred.service, 
+                    "u": cred.account,
+                    "p": cred.password,
+                    "sup": cred.support or "N/A",
+                    "st": cred.status
+                })
 
         # ── Connected Emails (super admin only) ────────────────────────
         emails_data = []
