@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface ProfileDrawerProps {
   isOpen: boolean;
