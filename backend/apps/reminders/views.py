@@ -163,6 +163,22 @@ class ReminderDataView(APIView):
                         'is_overdue': is_overdue
                     })
 
+        # 7. Automatically generate System alerts
+        from apps.system.models import SystemAlert
+        sys_alerts = SystemAlert.objects.all()
+        for alert in sys_alerts:
+            data.append({
+                'id': f"system-{alert.id}",
+                'title': f"System: {alert.label}",
+                'description': alert.message,
+                'date': timezone.now().date().strftime('%Y-%m-%d'),
+                'priority': 'High' if alert.type in ['warning', 'soon'] else 'Medium',
+                'type': 'System',
+                'business': 'All',
+                'is_completed': False,
+                'is_overdue': alert.type == 'warning'
+            })
+
         # Sort by date (optional, but good for UX)
         data.sort(key=lambda x: x.get('date', ''), reverse=False)
         

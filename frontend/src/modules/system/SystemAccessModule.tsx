@@ -48,10 +48,6 @@ export default function SystemAccessModule() {
           </button>
         </div>
         <div className="flex items-center gap-3">
-          {data.alerts?.map((alert: any, i: number) => (
-            <AlertPill key={i} {...alert} />
-          ))}
-          <div className="h-6 w-px bg-slate-200 mx-2" />
           <button 
             onClick={() => setIsWide(!isWide)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all uppercase tracking-wider shadow-sm"
@@ -123,20 +119,6 @@ export default function SystemAccessModule() {
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function AlertPill({ label, msg, type }: { label: string, msg: string, type: 'soon' | 'info' }) {
-  const isSoon = type === 'soon';
-  return (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm ${
-      isSoon ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'
-    }`}>
-      <AlertTriangle className="w-3.5 h-3.5" />
-      <div className="flex flex-col leading-none">
-        <span className="text-[10px] font-bold">{label}</span>
-        <span className="text-[9px] font-medium opacity-70">{msg}</span>
-      </div>
-    </div>
-  );
-}
 
 function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea }: any) {
   return (

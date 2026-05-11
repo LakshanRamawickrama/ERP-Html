@@ -51,6 +51,7 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                 r.type === 'Accounting' ? ShieldAlert :
                 r.type === 'Inventory' ? Boxes :
                 r.type === 'Business' ? Briefcase :
+                r.type === 'System' ? AlertTriangle :
                 r.type === 'Property' ? Bell : Bell
         }));
         

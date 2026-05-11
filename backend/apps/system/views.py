@@ -9,11 +9,9 @@ from apps.users.utils import get_filtered_queryset, apply_ownership
 class SystemDataView(APIView):
     def get(self, request):
         credentials = SystemCredential.objects.all()
-        alerts = SystemAlert.objects.all()
 
         return Response({
             "credentials": SystemCredentialSerializer(credentials, many=True).data,
-            "alerts": SystemAlertSerializer(alerts, many=True).data,
             "options": {
                 "services": ["Till Terminal", "PayPoint", "Admin Dashboard", "Cloud Storage"],
                 "statuses": ["Active", "Locked", "Maintenance"]
