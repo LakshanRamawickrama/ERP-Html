@@ -33,7 +33,11 @@ import {
   Circle,
   ArrowRight,
   Bell,
-  ShieldAlert
+  ShieldAlert,
+  Cloud,
+  RefreshCcw,
+  CheckCircle2,
+  ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -44,7 +48,7 @@ export default function Dashboard() {
   const [dash, setDash] = useState<any>({
     businesses: [], fleet: [], notes: [], vat: [], todos: [],
     passwords: [], supplierPayments: [], sales: [], banks: [],
-    maintenance: [], lowStock: [], activity: [], renewals: [],
+    maintenance: [], lowStock: [], activity: [], quickbooks: { status: 'Disconnected', lastSync: '—', bankFeed: 'Inactive', balance: '$0', pending: 0 },
     pl: { income: '$0', expenses: '$0', grossProfit: '$0', tax: '$0', netProfit: '$0' },
     emails: []
   });
@@ -54,6 +58,7 @@ export default function Dashboard() {
   const [todoInput, setTodoInput] = useState('');
   const [selectedFleet, setSelectedFleet] = useState<any>(null);
   const [selectedVAT, setSelectedVAT] = useState<any>(null);
+  const [selectedSupplierPayment, setSelectedSupplierPayment] = useState<any>(null);
   const [activeDoc, setActiveDoc] = useState<{url: string, title: string} | null>(null);
   const router = useRouter();
 
@@ -661,31 +666,99 @@ export default function Dashboard() {
 
             {/* 9. SUPPLIER PAYMENTS */}
             {canShowCard('Supplier Payments') && (
-            <Widget title="Supplier Payments" icon={ShoppingCart} color="bg-[#f59e0b]">
-               <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">PO #</th>
-                    <th className="text-left">SUPPLIER</th>
-                    <th className="text-right">AMOUNT</th>
-                    <th className="text-center">STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.supplierPayments.map((row: any, i: number) => (
-                    <tr key={i}>
-                      <td><strong>{row.p}</strong></td>
-                      <td className="truncate">{row.s}</td>
-                      <td className="text-right"><strong>{row.a}</strong></td>
-                      <td className="text-center">
-                        <span className={`status-pill ${row.st === 'Paid' ? 'bg-[#198754]' : row.st === 'Overdue' ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
-                          {row.st}
-                        </span>
-                      </td>
+            <Widget 
+              title={selectedSupplierPayment ? "Payment Details" : "Supplier Payments"} 
+              icon={ShoppingCart} 
+              color="bg-[#f59e0b]"
+              headerAction={selectedSupplierPayment && (
+                <button 
+                  onClick={() => setSelectedSupplierPayment(null)}
+                  className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
+                >
+                  ← Back
+                </button>
+              )}
+            >
+              {selectedSupplierPayment ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                    <div>
+                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedSupplierPayment.p}</h4>
+                      <p className="text-[11px] text-[#64748b] m-0">{selectedSupplierPayment.s}</p>
+                    </div>
+                    <span className={`status-pill ${
+                      selectedSupplierPayment.st === 'Paid' ? 'bg-[#198754]' : 
+                      selectedSupplierPayment.st === 'Overdue' ? 'bg-[#dc3545]' : 
+                      'bg-[#ffc107]'
+                    }`}>
+                      {selectedSupplierPayment.st}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Amount</label>
+                      <p className="text-[12px] font-bold text-[#1e293b] m-0">{selectedSupplierPayment.a}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.date}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Product / Service</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.prod}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Quantity</label>
+                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.qty}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
+                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Contact Details</label>
+                    <p className="text-[10px] text-slate-600 m-0 truncate">{selectedSupplierPayment.email}</p>
+                    <p className="text-[10px] text-slate-400 m-0">{selectedSupplierPayment.biz}</p>
+                  </div>
+
+                  <div className="pt-1">
+                    <Link 
+                      href="/suppliers"
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
+                    >
+                      Manage Supplier Orders <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <table className="wt">
+                  <thead>
+                    <tr>
+                      <th className="text-left">PO #</th>
+                      <th className="text-left">SUPPLIER</th>
+                      <th className="text-right">AMOUNT</th>
+                      <th className="text-center">STATUS</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {dash.supplierPayments.map((row: any, i: number) => (
+                      <tr key={i} onClick={() => setSelectedSupplierPayment(row)} className="cursor-pointer group">
+                        <td><strong className="group-hover:text-[#f59e0b] transition-colors">{row.p}</strong></td>
+                        <td className="truncate">{row.s}</td>
+                        <td className="text-right"><strong>{row.a}</strong></td>
+                        <td className="text-center">
+                          <span className={`status-pill ${
+                            row.st === 'Paid' ? 'bg-[#198754]' : 
+                            row.st === 'Overdue' ? 'bg-[#dc3545]' : 
+                            'bg-[#ffc107]'
+                          }`}>
+                            {row.st}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </Widget>
             )}
 
@@ -809,34 +882,59 @@ export default function Dashboard() {
               </Widget>
             )}
 
-            {/* 15. UPCOMING RENEWALS */}
-            {canShowCard('Upcoming Renewals') && (
+            {/* 15. QUICKBOOKS INTEGRATION */}
+            {canShowCard('QuickBooks') && (
             <Widget
-              title="Upcoming Renewals"
-              icon={CalendarClock}
-              color="bg-[#8b5cf6]"
+              title="QuickBooks Online"
+              icon={Cloud}
+              color="bg-[#2ca01c]"
               headerAction={
-                <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
-                  View Schedule <ArrowRight className="w-2.5 h-2.5" />
-                </Link>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse"></span>
+                  <span className="text-[9px] font-bold text-[#16a34a] uppercase">Live</span>
+                </div>
               }
             >
-               <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">ENTITY</th>
-                    <th className="text-right">DUE</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.renewals.map((row: any, i: number) => (
-                    <tr key={i}>
-                      <td className="truncate font-medium text-[#1e293b]">{row.e}</td>
-                      <td className={`text-right font-bold ${row.u ? 'text-[#dc3545]' : 'text-slate-700'}`}>{row.d}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Cloud size={40} className="text-[#2ca01c]" />
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Company Balance</p>
+                    <h3 className="text-xl font-extrabold text-slate-800 m-0">{dash.quickbooks?.balance || '$0.00'}</h3>
+                  </div>
+                  <div className="relative z-10 text-right">
+                    <button className="p-2 bg-white border border-slate-200 rounded-lg hover:border-[#2ca01c] hover:text-[#2ca01c] transition-all shadow-sm">
+                      <RefreshCcw size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase">Bank Feed</span>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 size={12} className="text-[#16a34a]" />
+                      <span className="text-[11px] font-bold text-slate-700">{dash.quickbooks?.bankFeed}</span>
+                    </div>
+                  </div>
+                  <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase">Pending Review</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-4 bg-amber-100 text-amber-600 rounded flex items-center justify-center text-[10px] font-bold">{dash.quickbooks?.pending}</div>
+                      <span className="text-[11px] font-bold text-slate-700">Transactions</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button className="w-full py-2 bg-[#2ca01c] text-white text-[10px] font-bold rounded-lg hover:bg-[#238016] transition-all shadow-lg shadow-green-100 flex items-center justify-center gap-2">
+                    Open QuickBooks Center <ArrowUpRight size={12} />
+                  </button>
+                  <p className="text-center text-[9px] text-slate-400 mt-2 font-medium">Last synced: {dash.quickbooks?.lastSync}</p>
+                </div>
+              </div>
             </Widget>
             )}
 

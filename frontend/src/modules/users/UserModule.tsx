@@ -75,7 +75,7 @@ const DASHBOARD_CARDS = [
   'Bank Accounts',
   'Maintenance',
   'Low Stock',
-  'Upcoming Renewals',
+  'QuickBooks',
   'Notes',
 ];
 

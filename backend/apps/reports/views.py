@@ -153,9 +153,22 @@ class DashboardDataView(APIView):
         for o in orders.order_by('-id')[:6]:
             try:
                 sup_name = o.supplier.name if o.supplier_id else "—"
+                sup_email = o.supplier.email if o.supplier_id else "—"
             except Exception:
                 sup_name = "—"
-            supplier_payments_data.append({"p": o.number, "s": sup_name, "a": _fmt(o.amount), "st": o.status})
+                sup_email = "—"
+            supplier_payments_data.append({
+                "id": str(o.id),
+                "p": o.number, 
+                "s": sup_name, 
+                "email": sup_email,
+                "a": _fmt(o.amount), 
+                "st": o.status,
+                "prod": o.product,
+                "qty": o.quantity,
+                "date": str(o.date),
+                "biz": o.business,
+            })
 
         # ── Profit & Loss ──────────────────────────────────────────────
         tx_list       = list(transactions)
@@ -191,36 +204,14 @@ class DashboardDataView(APIView):
                     "a": f"PO {o.number} — {sup_name} ({o.status})",
                 })
 
-        # ── Upcoming Renewals ──────────────────────────────────────────
-        renewals_data = []
-        legal_docs = get_filtered_queryset(request, LegalDocument)
-        try:
-            for ins in insurances.filter(expiry_date__gte=today).order_by('expiry_date')[:4]:
-                renewals_data.append({
-                    "e": f"{ins.type} — {ins.provider}",
-                    "d": str(ins.expiry_date),
-                    "u": ins.expiry_date <= today + timedelta(days=30),
-                })
-        except Exception:
-            pass
-        try:
-            for lic in licences.filter(expiry_date__gte=today).order_by('expiry_date')[:3]:
-                renewals_data.append({
-                    "e": f"{lic.type} ({lic.business})",
-                    "d": str(lic.expiry_date),
-                    "u": lic.expiry_date <= today + timedelta(days=30),
-                })
-        except Exception:
-            pass
-        try:
-            for doc in legal_docs.filter(expiry_date__gte=today).order_by('expiry_date')[:4]:
-                renewals_data.append({
-                    "e": f"{doc.title} ({doc.type})",
-                    "d": str(doc.expiry_date),
-                    "u": doc.expiry_date <= today + timedelta(days=30),
-                })
-        except Exception:
-            pass
+        # ── QuickBooks Integration ─────────────────────────────────────
+        quickbooks_data = {
+            "status": "Connected",
+            "lastSync": "10 minutes ago",
+            "bankFeed": "Active",
+            "balance": "$42,850.12",
+            "pending": 5
+        }
 
         # ── Reminders ──────────────────────────────────────────────────
         reminders_data = []
@@ -273,7 +264,7 @@ class DashboardDataView(APIView):
             "supplierPayments": supplier_payments_data,
             "pl":               pl_data,
             "activity":         activity_data,
-            "renewals":         renewals_data,
+            "quickbooks":       quickbooks_data,
             "reminders":        reminders_data,
             "passwords":        passwords_data,
             "emails":           emails_data,
