@@ -11,13 +11,9 @@ class LegalDataView(APIView):
     
     def get(self, request):
         documents = get_filtered_queryset(request, LegalDocument)
-        expired_count = documents.filter(status='Expired').count()
-
         return Response({
             "docs": LegalDocumentSerializer(documents, many=True, context={'request': request}).data,
-            "summary": {
-                "expiredDocs": expired_count
-            },
+            "summary": {}, # Centralized in Reminders module
             "options": ["License", "Permit", "Contract", "Agreement", "NDA", "Insurance", "Other"]
         })
 

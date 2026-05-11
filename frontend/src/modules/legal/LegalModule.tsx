@@ -123,12 +123,7 @@ export default function LegalModule() {
           <span className="text-xs font-bold text-[#2c3e50] border-b-2 border-[#2c3e50] pb-1">Document Registry</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1 bg-red-50 border border-red-100 rounded-full text-[10px] font-bold text-red-700">
-            <AlertTriangle className="w-3 h-3" />
-            <span>Expired Docs: <span className="opacity-80">{data.summary?.expiredDocs || 0}</span></span>
-          </div>
-        </div>
+        {/* Automated alerts moved to central Reminders module */}
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">

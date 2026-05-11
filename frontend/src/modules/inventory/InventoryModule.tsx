@@ -133,17 +133,7 @@ export default function InventoryModule() {
           <TabButton active={activeTab === 'move'} label="Stock Movements (In/Out)" onClick={() => setActiveTab('move')} />
         </div>
 
-        {/* Alert Pills */}
-        <div className="hidden lg:flex gap-2 py-2 ml-6">
-          {alerts.map((a: any, i: number) => (
-            <div key={i} className={`flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-bold ${
-              a.level === 'out' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'
-            }`}>
-              {a.level === 'out' ? <Boxes className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
-              <span>{a.name}: <span className="font-normal opacity-80">{a.status}</span></span>
-            </div>
-          ))}
-        </div>
+        {/* Automated alerts moved to central Reminders module */}
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">

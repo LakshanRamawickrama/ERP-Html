@@ -17,7 +17,9 @@ import {
   FileText,
   Truck,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Boxes,
+  Briefcase
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -47,6 +49,8 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
           icon: r.type === 'Fleet' ? Truck : 
                 r.type === 'Legal' ? FileText :
                 r.type === 'Accounting' ? ShieldAlert :
+                r.type === 'Inventory' ? Boxes :
+                r.type === 'Business' ? Briefcase :
                 r.type === 'Property' ? Bell : Bell
         }));
         
