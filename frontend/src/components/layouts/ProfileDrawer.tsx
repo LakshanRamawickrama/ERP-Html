@@ -109,23 +109,43 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
   };
 
   const completeProfileUpdate = () => {
-    const updatedUser = {
-      ...user,
-      fullName,
-      name: fullName,
-      email,
-      username: userName,
-      roles: roles.split(',').map(s => s.trim()).filter(Boolean),
-      businesses: businesses.split(',').map(s => s.trim()).filter(Boolean),
-    };
+    const token = localStorage.getItem('token');
+    
+    fetch(`${API_ENDPOINTS.USERS}staff/${user.id}/`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: fullName,
+        email: email,
+        username: userName
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const updatedUser = {
+        ...user,
+        fullName,
+        name: fullName,
+        email,
+        username: userName,
+        roles: roles.split(',').map(s => s.trim()).filter(Boolean),
+        businesses: businesses.split(',').map(s => s.trim()).filter(Boolean),
+      };
 
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    onUpdateUser(updatedUser);
-    setIsEditMode(false);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    showToast('Profile updated successfully', 'success');
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      onUpdateUser(updatedUser);
+      setIsEditMode(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      showToast('Profile updated successfully', 'success');
+    })
+    .catch(err => {
+      showToast('Failed to sync profile with server', 'error');
+    });
   };
 
   const showToast = (message: string, type: 'success' | 'error') => {

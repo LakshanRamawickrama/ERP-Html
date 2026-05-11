@@ -63,6 +63,10 @@ class StaffView(APIView):
         data = request.data
         if 'name' in data:
             profile.name = data['name']
+        if 'email' in data:
+            profile.email = data['email']
+        if 'username' in data:
+            profile.username = data['username']
         if 'assigned_business' in data:
             profile.assigned_business = data['assigned_business']
         if 'status' in data:
