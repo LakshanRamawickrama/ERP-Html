@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
+import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { 
   Lock,
   Plus,
@@ -12,13 +13,32 @@ import {
   Phone,
   Settings,
   Eye,
-  EyeOff
+  EyeOff,
+  ShieldAlert,
+  ArrowRight,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 export default function SystemAccessModule() {
   const [isWide, setIsWide] = useState(false);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   const [data, setData] = useState<any>({ credentials: [], alerts: [] });
+  const [isVaultAuthed, setIsVaultAuthed] = useState(false);
+  const [vaultAuthInput, setVaultAuthInput] = useState('');
+  const [vaultError, setVaultError] = useState<string | null>(null);
+  const [pendingRevealId, setPendingRevealId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    service: '',
+    account: '',
+    password: '',
+    status: '',
+    support: '',
+    notes: ''
+  });
 
   React.useEffect(() => {
     const token = localStorage.getItem('token');
@@ -32,8 +52,87 @@ export default function SystemAccessModule() {
       .then(setData);
   }, []);
 
-  const togglePassword = (id: string) => {
-    setShowPassword(prev => ({ ...prev, [id]: !prev[id] }));
+  const handleRevealClick = (id: string) => {
+    if (showPassword[id]) {
+      setShowPassword(prev => ({ ...prev, [id]: false }));
+      return;
+    }
+    
+    if (isVaultAuthed) {
+      setShowPassword(prev => ({ ...prev, [id]: true }));
+    } else {
+      setPendingRevealId(id);
+    }
+  };
+
+  const handleVaultAuth = () => {
+    const loginPw = localStorage.getItem('user_pw');
+    if (!loginPw) {
+      setVaultError('Your security session is not synced. Please log out and log in again to activate your login password for the vault.');
+      return;
+    }
+    if (vaultAuthInput === loginPw) {
+      setIsVaultAuthed(true);
+      if (pendingRevealId) {
+        setShowPassword(prev => ({ ...prev, [pendingRevealId]: true }));
+      }
+      setPendingRevealId(null);
+      setVaultAuthInput('');
+    } else {
+      setVaultError('The password you entered is incorrect. Please ensure you are using your current login password.');
+    }
+  };
+
+  const handleEdit = (id: string) => {
+    const item = data.credentials.find((c: any) => c.id === id);
+    if (item) {
+      setEditingId(id);
+      setFormData({
+        service: item.service,
+        account: item.account,
+        password: item.password,
+        status: item.status,
+        support: item.support,
+        notes: item.notes || ''
+      });
+      // Scroll to form on mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setItemToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (itemToDelete) {
+      setData((prev: any) => ({
+        ...prev,
+        credentials: prev.credentials.filter((c: any) => c.id !== itemToDelete)
+      }));
+      setItemToDelete(null);
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId) {
+      setData((prev: any) => ({
+        ...prev,
+        credentials: prev.credentials.map((c: any) => 
+          c.id === editingId ? { ...c, ...formData } : c
+        )
+      }));
+      setEditingId(null);
+    } else {
+      const newId = Math.random().toString(36).substr(2, 9);
+      setData((prev: any) => ({
+        ...prev,
+        credentials: [{ id: newId, ...formData }, ...prev.credentials]
+      }));
+    }
+    setFormData({ service: '', account: '', password: '', status: '', support: '', notes: '' });
   };
 
   return (
@@ -65,19 +164,72 @@ export default function SystemAccessModule() {
           {/* Form Column */}
           {!isWide && (
             <div className="lg:col-span-4">
-              <Card title="Add New Credential" icon={Plus} iconColor="bg-slate-800">
-                <form className="space-y-4">
-                  <Field label="Service Name *" isSelect options={data.options?.services || []} />
-                  <Field label="Account / Username *" placeholder="Login ID or Username" />
-                  <Field label="Password / PIN" type="password" placeholder="••••••••" />
+              <Card title={editingId ? "Update Credential" : "Add New Credential"} icon={editingId ? Edit2 : Plus} iconColor={editingId ? "bg-indigo-600" : "bg-slate-800"}>
+                <form className="space-y-4" onSubmit={handleFormSubmit}>
+                  <Field 
+                    label="Service Name *" 
+                    isSelect 
+                    options={data.options?.services || []} 
+                    value={formData.service}
+                    onChange={(val: string) => setFormData({ ...formData, service: val })}
+                  />
+                  <Field 
+                    label="Account / Username *" 
+                    placeholder="Login ID or Username" 
+                    value={formData.account}
+                    onChange={(val: string) => setFormData({ ...formData, account: val })}
+                  />
+                  <Field 
+                    label="Password / PIN" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={formData.password}
+                    onChange={(val: string) => setFormData({ ...formData, password: val })}
+                  />
                   <div className="grid grid-cols-2 gap-4">
-                    <Field label="Status" isSelect options={data.options?.statuses || []} />
-                    <Field label="Support Tel No" type="tel" placeholder="+94 11 ..." />
+                    <Field 
+                      label="Status" 
+                      isSelect 
+                      options={data.options?.statuses || []} 
+                      value={formData.status}
+                      onChange={(val: string) => setFormData({ ...formData, status: val })}
+                    />
+                    <Field 
+                      label="Support Tel No" 
+                      type="tel" 
+                      placeholder="+94 11 ..." 
+                      value={formData.support}
+                      onChange={(val: string) => setFormData({ ...formData, support: val })}
+                    />
                   </div>
-                  <Field label="Notes" isTextArea placeholder="URL, Renewal dates, etc." />
-                  <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all transform active:scale-[0.98]">
-                    Save Access Details
-                  </button>
+                  <Field 
+                    label="Notes" 
+                    isTextArea 
+                    placeholder="URL, Renewal dates, etc." 
+                    value={formData.notes}
+                    onChange={(val: string) => setFormData({ ...formData, notes: val })}
+                  />
+                  
+                  <div className="flex gap-2">
+                    {editingId && (
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setEditingId(null);
+                          setFormData({ service: '', account: '', password: '', status: '', support: '', notes: '' });
+                        }}
+                        className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    <button 
+                      type="submit"
+                      className={`flex-[2] py-3 ${editingId ? 'bg-indigo-600' : 'bg-slate-800'} text-white rounded-xl text-sm font-bold shadow-lg hover:opacity-90 transition-all transform active:scale-[0.98]`}
+                    >
+                      {editingId ? 'Update Access Details' : 'Save Access Details'}
+                    </button>
+                  </div>
                 </form>
               </Card>
             </div>
@@ -103,7 +255,9 @@ export default function SystemAccessModule() {
                         key={cred.id}
                         {...cred}
                         show={showPassword[cred.id]}
-                        onToggle={() => togglePassword(cred.id)}
+                        onToggle={() => handleRevealClick(cred.id)}
+                        onEdit={() => handleEdit(cred.id)}
+                        onDelete={() => handleDeleteClick(cred.id)}
                       />
                     ))}
                   </tbody>
@@ -113,6 +267,94 @@ export default function SystemAccessModule() {
           </div>
         </div>
       </div>
+
+      {/* Authentication Modal */}
+      {pendingRevealId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setPendingRevealId(null)} />
+          <div className="relative bg-white w-full max-w-sm rounded-[24px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-indigo-100">
+            <div className="p-8 text-center space-y-6">
+              <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto ring-8 ring-indigo-50/50">
+                <Lock className="w-8 h-8 text-indigo-500" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-slate-900">Vault Authentication</h3>
+                <p className="text-[12px] text-slate-500 leading-relaxed">
+                  Enter your login password to reveal the secure credentials for this service.
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <input 
+                  type="password"
+                  placeholder="Your login password..."
+                  value={vaultAuthInput}
+                  onChange={(e) => setVaultAuthInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleVaultAuth();
+                  }}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center font-bold tracking-widest"
+                  autoFocus
+                />
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setPendingRevealId(null)}
+                    className="flex-1 py-3 bg-slate-100 text-slate-500 text-[11px] font-bold rounded-xl hover:bg-slate-200 transition-all active:scale-95"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleVaultAuth}
+                    className="flex-1 py-3 bg-slate-900 text-white text-[11px] font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95"
+                  >
+                    Authorize
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-50 px-8 py-4 text-center border-t border-slate-100">
+              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                <ShieldAlert size={10} /> Enterprise Security Protocol
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security Error Modal */}
+      {vaultError && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setVaultError(null)} />
+          <div className="relative bg-white w-full max-w-sm rounded-[24px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-red-100">
+            <div className="p-8 text-center space-y-6">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto ring-8 ring-red-50/50">
+                <ShieldAlert className="w-8 h-8 text-red-500 animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-slate-900">Access Denied</h3>
+                <p className="text-[12px] text-slate-500 leading-relaxed">
+                  {vaultError}
+                </p>
+              </div>
+              <button 
+                onClick={() => setVaultError(null)}
+                className="w-full py-3 bg-red-600 text-white text-[11px] font-bold rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-100 active:scale-95"
+              >
+                Understood
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deletion Confirmation Modal */}
+      <DeleteConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Remove Credential"
+        message="Are you sure you want to permanently remove these credentials from the repository? This action cannot be undone."
+      />
     </div>
   );
 }
@@ -120,25 +362,41 @@ export default function SystemAccessModule() {
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, value, onChange }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium">
+        <select 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
+        >
           <option value="">Select Option...</option>
           {options.map((opt: string) => <option key={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea rows={3} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
+        <textarea 
+          rows={3} 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
+          placeholder={placeholder} 
+        />
       ) : (
-        <input type={type} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
+        <input 
+          type={type} 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
+          placeholder={placeholder} 
+        />
       )}
     </div>
   );
 }
 
-function CredentialRow({ service, account, status, support, password, id, show, onToggle }: any) {
+function CredentialRow({ service, account, status, support, password, id, show, onToggle, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -162,8 +420,19 @@ function CredentialRow({ service, account, status, support, password, id, show, 
       </td>
       <td className="px-4 py-4">
         <div className="flex gap-2">
-          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-            <Settings className="w-3.5 h-3.5" />
+          <button 
+            title="Edit Credential"
+            onClick={onEdit}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-200 text-slate-400 hover:text-indigo-600 transition-all shadow-sm"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            title="Delete Credential"
+            onClick={onDelete}
+            className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 hover:border-red-200 text-slate-400 hover:text-red-600 transition-all shadow-sm"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </td>
