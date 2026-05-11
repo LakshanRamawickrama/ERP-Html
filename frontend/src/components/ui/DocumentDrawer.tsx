@@ -28,11 +28,16 @@ interface DocumentDrawerProps {
 }
 
 function isImage(url: string) {
-  return /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(url);
+  // Check common image extensions or if the URL looks like an image data/blob
+  return /\.(png|jpe?g|gif|webp|bmp|svg|heic)(\?|$)/i.test(url) || url.startsWith('data:image/') || url.includes('blob:');
 }
 
 function isPdf(url: string) {
   return /\.pdf(\?|$)/i.test(url);
+}
+
+function isOffice(url: string) {
+  return /\.(docx?|xlsx?|pptx?)(\?|$)/i.test(url);
 }
 
 export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawerProps) {
@@ -124,14 +129,42 @@ export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawer
                       className="max-w-full max-h-full rounded-xl shadow-lg object-contain"
                     />
                   </div>
+                ) : isOffice(fileUrl!) ? (
+                  /* ── Office Document State ── */
+                  <div className="h-full flex flex-col items-center justify-center p-12 text-center space-y-6">
+                    <div className="w-24 h-24 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 shadow-sm rotate-3 group-hover:rotate-0 transition-transform">
+                      <FileText className="w-12 h-12 text-blue-500" />
+                    </div>
+                    <div className="space-y-3 max-w-sm">
+                      <h4 className="text-xl font-bold text-slate-900">Microsoft Office Document</h4>
+                      <p className="text-sm text-slate-500 leading-relaxed">
+                        Office documents (Word, Excel, PowerPoint) require external software to view. Please download the file to view it on your device.
+                      </p>
+                      <div className="pt-4">
+                        <a
+                          href={fileUrl}
+                          download
+                          className="inline-flex items-center gap-2 px-8 py-3 bg-[#2c3e50] text-white rounded-xl text-sm font-bold shadow-xl hover:bg-[#34495e] hover:-translate-y-0.5 transition-all active:scale-95"
+                        >
+                          <Download className="w-4 h-4" /> Download to View
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-                    <FileText className="w-16 h-16 text-slate-300" />
-                    <p className="text-sm font-bold text-slate-500">Preview not available for this file type</p>
+                  /* ── Generic Fallback ── */
+                  <div className="h-full flex flex-col items-center justify-center gap-4 p-8 text-center">
+                    <div className="p-6 bg-slate-100 rounded-2xl">
+                      <FileText className="w-12 h-12 text-slate-300" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-base font-bold text-slate-700">Preview Not Supported</p>
+                      <p className="text-xs text-slate-400">This file type cannot be previewed in the browser.</p>
+                    </div>
                     <a
                       href={fileUrl}
                       download
-                      className="flex items-center gap-2 px-5 py-2.5 bg-[#2c3e50] text-white rounded-lg text-sm font-bold hover:bg-[#34495e] transition-all"
+                      className="flex items-center gap-2 px-6 py-2.5 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition-all"
                     >
                       <Download className="w-4 h-4" /> Download File
                     </a>
@@ -139,95 +172,16 @@ export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawer
                 )}
               </div>
             ) : (
-              /* ── Mock viewer (seed data / no file) ── */
-              <div className="p-8">
-                <div className="max-w-xl mx-auto space-y-8">
-                  <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden min-h-[600px] flex flex-col">
-                    <div className="bg-slate-800 px-4 py-2 flex items-center justify-between text-slate-400">
-                      <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-bold">PAGE 1 / 1</span>
-                        <div className="flex items-center gap-1">
-                          <button className="p-1 hover:text-white transition-colors">-</button>
-                          <span className="text-[10px] bg-slate-700 px-2 py-0.5 rounded">100%</span>
-                          <button className="p-1 hover:text-white transition-colors">+</button>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Eye className="w-3.5 h-3.5" />
-                        <MoreVertical className="w-3.5 h-3.5" />
-                      </div>
-                    </div>
-
-                    <div className="p-12 space-y-8 font-serif text-slate-700 leading-relaxed">
-                      <div className="flex justify-between items-start border-b-2 border-slate-100 pb-8">
-                        <div>
-                          <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1 uppercase">
-                            {documentData?.title || 'OFFICIAL DOCUMENT'}
-                          </h2>
-                          <p className="text-xs font-bold text-slate-400">REF: ERP-DOC-2026-0042</p>
-                        </div>
-                        <div className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center">
-                          <FileText className="w-8 h-8 text-slate-300" />
-                        </div>
-                      </div>
-
-                      {documentData?.content ? (
-                        <div className="overflow-x-auto my-6">
-                          <table className="w-full text-left border-collapse text-[10px]">
-                            <thead>
-                              <tr className="border-b border-slate-200 bg-slate-50">
-                                {Object.keys(documentData.content[0] || {}).filter(k => k !== 'id' && k !== 'slug').map((k) => (
-                                  <th key={k} className="p-2 font-bold text-slate-500 uppercase">{k}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {documentData.content.map((row: any, i: number) => (
-                                <tr key={i} className="border-b border-slate-100">
-                                  {Object.entries(row).filter(([k]) => k !== 'id' && k !== 'slug').map(([k, v]: any, j: number) => (
-                                    <td key={j} className="p-2 text-slate-600 font-medium">{String(v)}</td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="h-4 bg-slate-50 rounded-full w-full" />
-                          <div className="h-4 bg-slate-50 rounded-full w-[90%]" />
-                          <div className="h-4 bg-slate-50 rounded-full w-[95%]" />
-                          <div className="h-4 bg-slate-50 rounded-full w-[80%]" />
-                          <div className="h-4 bg-slate-50 rounded-full w-[85%]" />
-                          <div className="h-4 bg-slate-50 rounded-full w-[70%]" />
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-12 pt-8">
-                        <div className="space-y-3">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized Signature</p>
-                          <div className="h-12 border-b border-slate-200 flex items-end pb-1 italic font-serif text-slate-400">
-                            Signature Not Required
-                          </div>
-                        </div>
-                        <div className="space-y-3">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verification QR</p>
-                          <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
-                            <div className="grid grid-cols-3 gap-0.5 p-1">
-                              {[...Array(9)].map((_, i) => (
-                                <div key={i} className={`w-2 h-2 ${i % 2 === 0 ? 'bg-slate-300' : 'bg-slate-200'}`} />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-8 border-t border-slate-100 text-[10px] text-slate-400 text-center">
-                        This is an automatically generated document from the Enterprise Resource Planning system.
-                        <br />© 2026 ERP-Global Solutions. All rights reserved.
-                      </div>
-                    </div>
-                  </div>
+              /* ── No file state ── */
+              <div className="h-full flex flex-col items-center justify-center p-12 text-center space-y-6">
+                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
+                  <FileText className="w-12 h-12 text-slate-200" />
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-lg font-bold text-slate-900">No Document Uploaded</h4>
+                  <p className="text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
+                    This record currently does not have a digital document attached. You can upload one via the Edit form.
+                  </p>
                 </div>
               </div>
             )}
