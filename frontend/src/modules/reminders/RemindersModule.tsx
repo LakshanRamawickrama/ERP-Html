@@ -94,6 +94,7 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
     if (selectedBusiness !== 'All Entities' && r.business !== selectedBusiness) return false;
 
     if (filter === 'all') return true;
+    if (filter === 'overdue') return r.is_overdue === true;
     if (filter === 'High' || filter === 'Medium' || filter === 'Low') return r.priority === filter;
     
     if (filter === 'next-week') {
@@ -128,6 +129,14 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                 {f.toUpperCase()}
               </button>
             ))}
+            <button
+              onClick={() => setFilter('overdue')}
+              className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${
+                filter === 'overdue' ? 'bg-red-600 text-white shadow-sm' : 'text-red-500 hover:text-red-700'
+              }`}
+            >
+              OVERDUE
+            </button>
           </div>
           {canAdd && (
             <button
