@@ -11,7 +11,9 @@ import {
   Shield, 
   ArrowRight,
   CircleDollarSign,
-  Info
+  Info,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -21,6 +23,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -170,13 +173,20 @@ export default function LoginPage() {
                       <Lock size={20} />
                     </div>
                     <input 
-                      type="password" 
+                      type={showPassword ? "text" : "password"} 
                       required
                       placeholder="••••••••"
-                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 outline-none focus:border-emerald-500 focus:bg-white transition-all"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-12 text-slate-900 outline-none focus:border-emerald-500 focus:bg-white transition-all"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
                 </div>
 
