@@ -91,8 +91,34 @@ class StaffView(APIView):
                 if isinstance(perms, str):
                     perms = json.loads(perms)
                 profile.permissions = json.dumps(perms)
-                access_list = [mod for mod, actions in perms.items() if 'view' in actions]
-                profile.access = ', '.join(access_list)
+                
+                # Dynamic Access Calculation with Parent Group Inheritance
+                MODULE_MAPPING = {
+                    'Business Profile': 'Business Management',
+                    'Company Structure': 'Business Management',
+                    'Vehicle Fleet': 'Fleet Management',
+                    'Delivery Tracking': 'Fleet Management',
+                    'Parcel Services': 'Fleet Management',
+                    'Property Inventory': 'Property Management',
+                    'Maintenance Requests': 'Property Management',
+                    'Waste Collection': 'Property Management',
+                    'Licences & Permits': 'Property Management',
+                    'Financial Records': 'Accounting',
+                    'Invoices': 'Accounting',
+                    'Bank Accounts': 'Accounting',
+                    'Loans & Insurance': 'Accounting',
+                    'Tax Records': 'Accounting',
+                    'Dojo Settlements': 'Accounting'
+                }
+                
+                viewable = set()
+                for mod, actions in perms.items():
+                    if 'view' in actions:
+                        viewable.add(mod)
+                        if mod in MODULE_MAPPING:
+                            viewable.add(MODULE_MAPPING[mod])
+                
+                profile.access = ', '.join(sorted(list(viewable)))
 
             profile.save()
             return Response(StaffProfileSerializer(profile).data)

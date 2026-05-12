@@ -38,7 +38,7 @@ export default function PropertyModule() {
     licence: 'Licences & Permits'
   };
 
-  const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab]);
+  const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab], 'Property Management');
   const [isWide, setIsWide] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});

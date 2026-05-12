@@ -47,7 +47,7 @@ export default function AccountingModule() {
     dojo: 'Dojo Settlements'
   };
   
-  const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab]);
+  const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab], 'Accounting');
   const [isWide, setIsWide] = useState(false);
   const [recordCategory, setRecordCategory] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);

@@ -28,11 +28,21 @@ type TabType = 'entities' | 'structure';
 
 export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
   const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
-  const [activeTab, setActiveTab] = useState<TabType>(isSuperAdmin ? 'entities' : 'structure');
+  const entitiesPerm = usePermissions('Business Profile', 'Business Management');
+  const structurePerm = usePermissions('Company Structure', 'Business Management');
 
-  const { canAdd, canEdit, canDelete } = usePermissions(
-    activeTab === 'entities' ? 'Business Profile' : 'Company Structure'
-  );
+  const [activeTab, setActiveTab] = useState<TabType>('structure');
+
+  // Set default tab based on permissions
+  useEffect(() => {
+    if (entitiesPerm.canView) {
+      setActiveTab('entities');
+    } else if (structurePerm.canView) {
+      setActiveTab('structure');
+    }
+  }, [entitiesPerm.canView, structurePerm.canView]);
+
+  const { canAdd, canEdit, canDelete } = activeTab === 'entities' ? entitiesPerm : structurePerm;
   const [isWide, setIsWide] = useState(false);
   const [data, setData] = useState<any>({ entities: [], structures: [], options: { categories: [] } });
   const [loading, setLoading] = useState(true);
@@ -70,14 +80,14 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
       });
   }, []);
 
-  // Admin: auto-fill structure form with their existing record
+  // Admin: auto-fill structure form with their existing record (only if they can edit)
   useEffect(() => {
-    if (!isSuperAdmin && activeTab === 'structure' && data.structures?.length > 0 && !editingId) {
+    if (!isSuperAdmin && activeTab === 'structure' && data.structures?.length > 0 && !editingId && canEdit) {
       const s = data.structures[0];
       setEditingId(`structure-${s.id}`);
       setFormData(s);
     }
-  }, [isSuperAdmin, activeTab, data.structures]);
+  }, [isSuperAdmin, activeTab, data.structures, canEdit]);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {
     setEditingId(id);
@@ -205,7 +215,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
 
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200 px-6 flex items-center gap-6">
-        {isSuperAdmin && (
+        {entitiesPerm.canView && (
           <button
             onClick={() => setActiveTab('entities')}
             className={`py-4 text-xs font-bold border-b-2 transition-all ${
@@ -215,21 +225,23 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
             Basic Details
           </button>
         )}
-        <button
-          onClick={() => setActiveTab('structure')}
-          className={`py-4 text-xs font-bold border-b-2 transition-all ${
-            activeTab === 'structure' ? 'border-[#2c3e50] text-[#2c3e50]' : 'border-transparent text-slate-400 hover:text-slate-600'
-          }`}
-        >
-          Companies House Structure
-        </button>
+        {structurePerm.canView && (
+          <button
+            onClick={() => setActiveTab('structure')}
+            className={`py-4 text-xs font-bold border-b-2 transition-all ${
+              activeTab === 'structure' ? 'border-[#2c3e50] text-[#2c3e50]' : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Companies House Structure
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
           
           {/* Form Column */}
-          {!isWide && canAdd && (
+          {!isWide && (canAdd || canEdit) && (
             <div className="lg:col-span-4">
               {activeTab === 'entities' ? (
                 <Card title={editingId ? "Edit Business Entity" : "Register New Entity"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
@@ -265,9 +277,11 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                       onChange={(v: string) => setFormData({...formData, hq_location: v})}
                     />
 
-                    <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
-                      {editingId ? "Update Business" : "Register Business"}
-                    </button>
+                    {(editingId ? canEdit : canAdd) && (
+                      <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
+                        {editingId ? "Update Business" : "Register Business"}
+                      </button>
+                    )}
                     {editingId && (
                       <button 
                         type="button"
@@ -336,9 +350,11 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                         </label>
                       </div>
                     </div>
-                    <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
-                      {editingId ? "Update Company Details" : "Register Company Details"}
-                    </button>
+                    {(editingId ? canEdit : canAdd) && (
+                      <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
+                        {editingId ? "Update Company Details" : "Register Company Details"}
+                      </button>
+                    )}
                     {editingId && (
                       <button 
                         type="button"
