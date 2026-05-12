@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 type TabType = 'stock' | 'move';
 
@@ -150,6 +151,11 @@ export default function InventoryModule() {
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'stock' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData((prev: any) => ({ ...prev, biz: v }))} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Item Name *" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. Milk Packet 1L" />
                       <Field label="Category *" name="category" value={formData.category} onChange={handleInputChange} isSelect options={data.inventoryCategories || []} />
                       <div className="grid grid-cols-2 gap-4">
@@ -166,6 +172,11 @@ export default function InventoryModule() {
                   )}
                   {activeTab === 'move' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData((prev: any) => ({ ...prev, biz: v }))} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Select Item *" name="product_name" value={formData.product_name} onChange={handleInputChange} isSelect options={data.inventoryItems || []} />
                       <div className="flex gap-4 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
                         <label className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-transparent cursor-pointer transition-all has-[:checked]:bg-white has-[:checked]:border-slate-200 has-[:checked]:shadow-sm text-[10px] font-bold uppercase tracking-wider text-slate-600">

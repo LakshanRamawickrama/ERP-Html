@@ -19,6 +19,7 @@ import {
   Edit2,
   Trash2
 } from 'lucide-react';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 export default function SystemAccessModule() {
   const [isWide, setIsWide] = useState(false);
@@ -32,6 +33,7 @@ export default function SystemAccessModule() {
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    biz: '',
     service: '',
     account: '',
     password: '',
@@ -88,6 +90,7 @@ export default function SystemAccessModule() {
     if (item) {
       setEditingId(id);
       setFormData({
+        biz: item.biz || '',
         service: item.service,
         account: item.account,
         password: item.password,
@@ -161,7 +164,7 @@ export default function SystemAccessModule() {
           }
         });
         setEditingId(null);
-        setFormData({ service: '', account: '', password: '', status: '', support: '', notes: '' });
+        setFormData({ biz: '', service: '', account: '', password: '', status: '', support: '', notes: '' });
       }
     } catch (err) {
       console.error("Submit err", err);
@@ -199,6 +202,11 @@ export default function SystemAccessModule() {
             <div className="lg:col-span-4">
               <Card title={editingId ? "Update Credential" : "Add New Credential"} icon={editingId ? Edit2 : Plus} iconColor={editingId ? "bg-indigo-600" : "bg-slate-800"}>
                 <form className="space-y-4" onSubmit={handleFormSubmit}>
+                  <BusinessField 
+                    value={formData.biz || ''} 
+                    onChange={(v) => setFormData({ ...formData, biz: v })} 
+                    businesses={data.options?.businesses || []}
+                  />
                   <Field 
                     label="Service Name *" 
                     isSelect 

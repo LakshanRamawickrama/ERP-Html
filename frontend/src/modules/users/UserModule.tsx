@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
+import { BusinessField } from '@/components/ui/BusinessField';
 import {
   Users,
   UserPlus,
@@ -388,31 +389,18 @@ export default function UserModule() {
                       className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
                     />
                   </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Assigned Role</label>
-                    <div className="mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-500">
-                      Admin
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Assigned Business</label>
-                    <div className="relative mt-1.5">
-                      <select
-                        value={formData.assigned_business}
-                        onChange={e => handleFormChange('assigned_business', e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium appearance-none"
-                      >
-                        <option value="">Select Business...</option>
-                        {[
-                          ...(data.businesses || []),
-                          ...(formData.assigned_business && !(data.businesses || []).includes(formData.assigned_business)
-                            ? [formData.assigned_business]
-                            : [])
-                        ].map((b: string) => (
-                          <option key={b} value={b}>{b}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <BusinessField 
+                      value={formData.assigned_business || ''} 
+                      onChange={(v) => setFormData({...formData, assigned_business: v})} 
+                      businesses={data.businesses || []}
+                      label="Assigned Business"
+                    />
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">User Role</label>
+                      <div className="mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-500">
+                        Admin
+                      </div>
                     </div>
                   </div>
 

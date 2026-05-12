@@ -27,7 +27,8 @@ class BusinessDataView(APIView):
             "entities": BusinessEntitySerializer(entities, many=True, context={'request': request}).data,
             "structures": CompanyStructureSerializer(structures, many=True, context={'request': request}).data,
             "options": {
-                "categories": ["Retail", "Logistics", "Finance", "Tech", "Healthcare"]
+                "categories": ["Retail", "Logistics", "Finance", "Tech", "Healthcare"],
+                "names": list(entities.values_list('name', flat=True))
             }
         })
 

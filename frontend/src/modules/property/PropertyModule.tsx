@@ -23,6 +23,7 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 
 type TabType = 'inventory' | 'requests' | 'waste' | 'licence';
@@ -169,6 +170,11 @@ export default function PropertyModule() {
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'inventory' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({...formData, biz: v})} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field 
                         label="Asset Name" 
                         placeholder="e.g. Unit 5 Air Con" 
@@ -218,6 +224,11 @@ export default function PropertyModule() {
                   )}
                   {activeTab === 'requests' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({...formData, biz: v})} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field 
                         label="Issue Description" 
                         placeholder="e.g. Broken window" 
@@ -264,6 +275,11 @@ export default function PropertyModule() {
                   )}
                   {activeTab === 'waste' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({...formData, biz: v})} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field 
                         label="Contact Name" 
                         placeholder="e.g. Building Manager" 
@@ -306,11 +322,10 @@ export default function PropertyModule() {
                         value={formData.type || ''} 
                         onChange={(val: string) => setFormData({...formData, type: val})} 
                       />
-                      <Field 
-                        label="Business Name" 
-                        placeholder="e.g. Property Central Ltd" 
+                      <BusinessField 
                         value={formData.biz || ''} 
-                        onChange={(val: string) => setFormData({...formData, biz: val})} 
+                        onChange={(v) => setFormData({...formData, biz: v})} 
+                        businesses={data.options?.businesses || []}
                       />
                       <div className="grid grid-cols-2 gap-4">
                         <Field 

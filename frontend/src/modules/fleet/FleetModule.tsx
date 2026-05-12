@@ -24,6 +24,7 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 
 type TabType = 'vehicles' | 'deliveries' | 'parcels';
@@ -216,7 +217,11 @@ export default function FleetModule() {
                     <>
                       <Field label="Vehicle Name" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. CAR 1" />
                       <Field label="Plate Number" name="plate" value={formData.plate} onChange={handleInputChange} placeholder="ABC-1234" />
-                      <Field label="Assigned Business" name="biz" value={formData.biz} onChange={handleInputChange} isSelect options={data.options?.businesses || []} />
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData((prev: any) => ({ ...prev, biz: v }))} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Insurance Exp." name="ins" value={formData.ins} onChange={handleInputChange} type="date" />
                         <Field label="Insurance Doc" name="insDoc" onChange={handleInputChange} type="file" />
@@ -238,6 +243,11 @@ export default function FleetModule() {
 
                   {activeTab === 'deliveries' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData((prev: any) => ({ ...prev, biz: v }))} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Select Vehicle" name="v" value={formData.v} onChange={handleInputChange} isSelect options={data.options?.vehicles || []} />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Pickup Date" name="pickupDate" value={formData.pickupDate} onChange={handleInputChange} type="date" />
@@ -253,6 +263,11 @@ export default function FleetModule() {
 
                   {activeTab === 'parcels' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData((prev: any) => ({ ...prev, biz: v }))} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Service Provider" name="provider" value={formData.provider} onChange={handleInputChange} placeholder="DHL, FedEx, UPS..." />
                       <Field label="Assigned Vehicle" name="v" value={formData.v} onChange={handleInputChange} isSelect options={data.options?.vehicleShort || []} />
                       <Field label="Service Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />

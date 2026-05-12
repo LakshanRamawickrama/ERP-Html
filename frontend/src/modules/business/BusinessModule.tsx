@@ -17,6 +17,7 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 import { UserRole } from '@/constants/roles';
 import {
@@ -281,12 +282,11 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
               ) : (
                 <Card title={editingId ? "Edit Company Registry" : "Companies House Registration"} icon={editingId ? Edit : Landmark} iconColor="bg-[#2c3e50]">
                   <form className="space-y-4" onSubmit={handleSubmit}>
-                    <Field
+                    <BusinessField 
+                      value={formData.name || ''} 
+                      onChange={(v) => setFormData({...formData, name: v})} 
+                      businesses={unregisteredEntities}
                       label="Full Company Name"
-                      isSelect
-                      options={unregisteredEntities}
-                      value={formData.name || ''}
-                      onChange={(v: string) => setFormData({...formData, name: v})}
                     />
                     <Field 
                       label="Registration Number (CRN)" 

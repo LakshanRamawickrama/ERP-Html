@@ -19,6 +19,7 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 
 export default function LegalModule() {
@@ -134,6 +135,11 @@ export default function LegalModule() {
             <div className="lg:col-span-4">
               <Card title={editingId ? "Edit Document" : "Register Document"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
                 <form className="space-y-4" onSubmit={handleSubmit}>
+                  <BusinessField 
+                    value={formData.biz || ''} 
+                    onChange={(v) => setFormData((p: any) => ({ ...p, biz: v }))} 
+                    businesses={data.options?.businesses || []}
+                  />
                   <Field label="Document Title" placeholder="Trade License" value={formData.title || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, title: v }))} />
                   <Field label="Document Type" isSelect options={data.options || []} value={formData.type || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, type: v }))} />
                   <Field label="Expiry Date" type="date" value={formData.expiry_date || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, expiry_date: v }))} />

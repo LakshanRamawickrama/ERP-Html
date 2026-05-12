@@ -24,6 +24,7 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 
 type TabType = 'suppliers' | 'orders';
@@ -136,8 +137,13 @@ export default function SupplierModule() {
                   {activeTab === 'suppliers' && (
                     <>
                       <Field label="Supplier ID" placeholder="AUTO-GENERATED" disabled value={data.metadata?.nextId || "SUP-..."} />
-                      <Field label="Supplier Name" placeholder="e.g. Acme Supplies Ltd" />
-                      <Field label="Category" isSelect options={data.options?.categories || []} />
+                      <Field label="Supplier Name" placeholder="e.g. Acme Supplies Ltd" value={formData.name || ''} onChange={(v: string) => setFormData({...formData, name: v})} />
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({...formData, biz: v})} 
+                        businesses={data.options?.businesses || []}
+                      />
+                      <Field label="Category" isSelect options={data.options?.categories || []} value={formData.category || ''} onChange={(v: string) => setFormData({...formData, category: v})} />
                       <div className="grid grid-cols-1 gap-4">
                         <Field label="Email Address" type="email" placeholder="contact@vendor.com" />
                         <Field label="Phone Number" type="tel" placeholder="+44 20 0000 0000" />
@@ -150,8 +156,13 @@ export default function SupplierModule() {
 
                   {activeTab === 'orders' && (
                     <>
-                      <Field label="Select Supplier" isSelect options={data.options?.names || []} />
-                      <Field label="PO Number" placeholder="e.g. PO-2026-001" />
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({...formData, biz: v})} 
+                        businesses={data.options?.businesses || []}
+                      />
+                      <Field label="Select Supplier" isSelect options={data.options?.names || []} value={formData.supplier || ''} onChange={(v: string) => setFormData({...formData, supplier: v})} />
+                      <Field label="PO Number" placeholder="e.g. PO-2026-001" value={formData.num || ''} onChange={(v: string) => setFormData({...formData, num: v})} />
                       <Field label="Order Amount ($)" type="number" step="0.01" />
                       <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Product Details</div>
@@ -268,22 +279,33 @@ function TabButton({ active, label, icon: Icon, onClick }: any) {
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, disabled, value }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, disabled, value, onChange }: any) {
   return (
     <div>
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
       {isSelect ? (
-        <select className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium">
+        <select 
+          value={value || ''} 
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
+        >
           <option value="">Select Option...</option>
           {options.map((opt: string) => <option key={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
-        <textarea rows={2} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
+        <textarea 
+          rows={2} 
+          value={value || ''} 
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" 
+          placeholder={placeholder} 
+        />
       ) : (
         <input 
           disabled={disabled} 
           type={type} 
-          defaultValue={value}
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
           className={`w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium ${disabled ? 'bg-slate-100 opacity-60 cursor-not-allowed' : ''}`} 
           placeholder={placeholder} 
         />

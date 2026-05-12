@@ -29,6 +29,7 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 
 type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax' | 'dojo';
@@ -246,6 +247,11 @@ export default function AccountingModule() {
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'records' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Record Title" name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g. Monthly Rent" />
                       <Field label="Category" name="category" value={formData.category} isSelect options={data.options || []} onChange={handleInputChange} />
                       
@@ -278,6 +284,11 @@ export default function AccountingModule() {
 
                   {activeTab === 'invoices' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Client Name" name="client" value={formData.client} onChange={handleInputChange} />
                       <Field label="Inv Number" name="num" value={formData.num} onChange={handleInputChange} />
                       <div className="grid grid-cols-2 gap-4">
@@ -291,6 +302,11 @@ export default function AccountingModule() {
 
                   {activeTab === 'bank' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Bank Name" name="bank" value={formData.bank} onChange={handleInputChange} placeholder="e.g. Barclays" />
                       <Field label="Account Name" name="acc" value={formData.acc} onChange={handleInputChange} placeholder="Business Current" />
                       <div className="grid grid-cols-2 gap-4">
@@ -305,6 +321,11 @@ export default function AccountingModule() {
 
                   {activeTab === 'loans' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Loan Name" name="loan" value={formData.loan} onChange={handleInputChange} />
                       <Field label="Lender" name="lender" value={formData.lender} onChange={handleInputChange} />
                       <div className="grid grid-cols-2 gap-4">
@@ -321,6 +342,11 @@ export default function AccountingModule() {
 
                   {activeTab === 'insurance' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Policy Type" name="type" value={formData.type} onChange={handleInputChange} placeholder="e.g. Public Liability" />
                       <Field label="Provider" name="provider" value={formData.provider} onChange={handleInputChange} />
                       <Field label="Policy #" name="policy" value={formData.policy} onChange={handleInputChange} />
@@ -339,6 +365,11 @@ export default function AccountingModule() {
 
                   {activeTab === 'tax' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Tax Type" name="type" value={formData.type} onChange={handleInputChange} placeholder="e.g. VAT Q1" />
                       <Field label="Reference #" name="ref" value={formData.ref} onChange={handleInputChange} placeholder="HMRC-123456" />
                       <Field label="Period" name="period" value={formData.period} onChange={handleInputChange} placeholder="Jan - Mar 2024" />
@@ -353,6 +384,11 @@ export default function AccountingModule() {
 
                   {activeTab === 'dojo' && (
                     <>
+                      <BusinessField 
+                        value={formData.biz || ''} 
+                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                        businesses={data.options?.businesses || []}
+                      />
                       <Field label="Transaction Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Amount ($)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" />

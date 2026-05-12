@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
+import { BusinessField } from '@/components/ui/BusinessField';
 
 export default function RemindersModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const { canAdd, canDelete } = usePermissions('Reminders');
@@ -236,13 +237,10 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Business</label>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. Logistics Pro Ltd"
-                        className="w-full mt-0.5 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-slate-800 transition-all"
-                        value={newReminder.business}
-                        onChange={e => setNewReminder({...newReminder, business: e.target.value})}
+                      <BusinessField 
+                        value={newReminder.business || ''} 
+                        onChange={(v) => setNewReminder({...newReminder, business: v})} 
+                        businesses={reminders.map(r => r.business).filter((v, i, a) => a.indexOf(v) === i) || []}
                       />
                     </div>
                     <div>
