@@ -800,6 +800,143 @@ export default function Dashboard() {
             </Widget>
             )}
 
+            {/* 7. SYSTEM PASSWORDS (SUPER_ADMIN ONLY) */}
+            {userRole === UserRole.SUPER_ADMIN && (
+              <Widget 
+                title={selectedPassword ? "Credential Details" : "System Passwords"} 
+                icon={Lock} 
+                color="bg-slate-800"
+                headerAction={
+                  selectedPassword ? (
+                    <button 
+                      onClick={() => { setSelectedPassword(null); setIsVaultAuthed(false); setVaultAuthInput(''); }}
+                      className="text-[10px] bg-white text-slate-800 border border-slate-800 px-2 py-0.5 rounded font-bold hover:bg-slate-50"
+                    >
+                      ← Back
+                    </button>
+                  ) : (
+                    <Link href="/system-access" className="text-[9px] font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1">
+                      Open Vault <ArrowRight className="w-2.5 h-2.5" />
+                    </Link>
+                  )
+                }
+              >
+                {selectedPassword ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                      <div>
+                        <h4 className="text-[13px] font-bold text-slate-800 m-0">{selectedPassword.s}</h4>
+                        <p className="text-[11px] text-slate-500 m-0">{selectedPassword.u}</p>
+                      </div>
+                      <span className={`status-pill ${selectedPassword.st === 'Active' ? 'bg-[#198754]' : 'bg-[#dc3545]'}`}>
+                        {selectedPassword.st}
+                      </span>
+                    </div>
+
+                    {!isVaultAuthed ? (
+                      <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-3">
+                        <ShieldAlert className="w-8 h-8 text-slate-400 mx-auto" />
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-700 m-0">Vault Authentication Required</p>
+                          <p className="text-[9px] text-slate-500 m-0">Enter your login password to reveal credentials.</p>
+                        </div>
+                        <input 
+                          type="password"
+                          value={vaultAuthInput}
+                          onChange={(e) => setVaultAuthInput(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') {
+                            const loginPw = localStorage.getItem('user_pw');
+                            if (!loginPw) {
+                              setVaultError('Security session not synced. Please log out and log in again.');
+                            } else if (vaultAuthInput === loginPw) {
+                              setIsVaultAuthed(true);
+                              setVaultAuthInput('');
+                            } else {
+                              setVaultError('The password you entered is incorrect.');
+                            }
+                          }}}
+                          placeholder="Enter password..."
+                          className="w-full text-center px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:border-slate-800 font-bold tracking-widest"
+                          autoFocus
+                        />
+                        <button 
+                          onClick={() => {
+                            const loginPw = localStorage.getItem('user_pw');
+                            if (!loginPw) {
+                              setVaultError('Security session not synced. Please log out and log in again.');
+                            } else if (vaultAuthInput === loginPw) {
+                              setIsVaultAuthed(true);
+                              setVaultAuthInput('');
+                            } else {
+                              setVaultError('The password you entered is incorrect.');
+                            }
+                          }}
+                          className="w-full py-2 bg-slate-800 text-white text-[10px] font-bold rounded-lg hover:bg-slate-700 transition-all shadow-sm"
+                        >
+                          Unlock Vault
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 animate-in zoom-in-95 duration-300">
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-700 relative overflow-hidden group">
+                          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Lock size={40} className="text-white" />
+                          </div>
+                          <div className="relative z-10 space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Access Password</label>
+                            <p className="text-sm font-mono text-white m-0 tracking-wider break-all bg-black/20 p-2 rounded-lg border border-white/10">
+                              {selectedPassword.p}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-2.5 bg-white border border-slate-200 rounded-xl">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Support Contact</label>
+                            <p className="text-[11px] font-bold text-slate-700 m-0 truncate">{selectedPassword.sup}</p>
+                          </div>
+                          <div className="p-2.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Security Level</label>
+                            <div className="w-2 h-2 rounded-full bg-[#198754] animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 scrollbar-custom">
+                    {dash.passwords.map((row: any, i: number) => (
+                      <div 
+                        key={i} 
+                        onClick={() => { setSelectedPassword(row); setIsVaultAuthed(false); setVaultAuthInput(''); }} 
+                        className="flex items-center gap-3 p-2 bg-slate-50 border border-slate-200 rounded-lg group cursor-pointer hover:border-slate-400 hover:shadow-sm transition-all"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h6 className="text-[11px] font-bold text-slate-800 truncate m-0 group-hover:text-indigo-600 transition-colors">{row.s}</h6>
+                          <p className="text-[9px] text-slate-500 truncate m-0 font-medium">{row.u}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`status-pill ${row.st === 'Active' ? 'bg-[#198754]' : 'bg-[#dc3545]'} !text-[8px] !px-1.5 !py-0.5`}>
+                            {row.st}
+                          </span>
+                          <span className="text-[8px] text-slate-400 font-mono tracking-widest">••••••</span>
+                        </div>
+                      </div>
+                    ))}
+                    {(!dash.passwords || dash.passwords.length === 0) && (
+                      <div className="py-8 text-center">
+                        <Lock className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                        <p className="text-[10px] text-slate-400 font-medium">No credentials stored</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Widget>
+            )}
+
             {/* 8. PROFIT & LOSS */}
             {canShowCard('Profit & Loss') && (
             <Widget title="Profit & Loss Statement" icon={PieChart} color="bg-[#10b981]">
