@@ -105,34 +105,67 @@ export default function SystemAccessModule() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (itemToDelete) {
-      setData((prev: any) => ({
-        ...prev,
-        credentials: prev.credentials.filter((c: any) => c.id !== itemToDelete)
-      }));
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`${API_ENDPOINTS.CREDENTIALS}${itemToDelete}/`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          setData((prev: any) => ({
+            ...prev,
+            credentials: prev.credentials.filter((c: any) => c.id !== itemToDelete)
+          }));
+        }
+      } catch (err) {
+        console.error("Delete err", err);
+      }
       setItemToDelete(null);
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      setData((prev: any) => ({
-        ...prev,
-        credentials: prev.credentials.map((c: any) => 
-          c.id === editingId ? { ...c, ...formData } : c
-        )
-      }));
-      setEditingId(null);
-    } else {
-      const newId = Math.random().toString(36).substr(2, 9);
-      setData((prev: any) => ({
-        ...prev,
-        credentials: [{ id: newId, ...formData }, ...prev.credentials]
-      }));
+    const token = localStorage.getItem('token');
+    
+    try {
+      const url = editingId 
+        ? `${API_ENDPOINTS.CREDENTIALS}${editingId}/` 
+        : API_ENDPOINTS.CREDENTIALS;
+      const method = editingId ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (res.ok) {
+        const savedItem = await res.json();
+        setData((prev: any) => {
+          if (editingId) {
+            return {
+              ...prev,
+              credentials: prev.credentials.map((c: any) => c.id === editingId ? savedItem : c)
+            };
+          } else {
+            return {
+              ...prev,
+              credentials: [savedItem, ...prev.credentials]
+            };
+          }
+        });
+        setEditingId(null);
+        setFormData({ service: '', account: '', password: '', status: '', support: '', notes: '' });
+      }
+    } catch (err) {
+      console.error("Submit err", err);
     }
-    setFormData({ service: '', account: '', password: '', status: '', support: '', notes: '' });
   };
 
   return (

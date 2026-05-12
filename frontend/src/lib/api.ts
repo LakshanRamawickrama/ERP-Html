@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   SUPPLIERS: `${API_BASE_URL}/suppliers/`,
   USERS: `${API_BASE_URL}/users/`,
   SYSTEM: `${API_BASE_URL}/system/`,
+  CREDENTIALS: `${API_BASE_URL}/system/credentials/`,
   EMAILS: `${API_BASE_URL}/system/emails/`,
   NOTES: `${API_BASE_URL}/system/notes/`,
   REPORTS: `${API_BASE_URL}/reports/`,

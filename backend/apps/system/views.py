@@ -7,16 +7,51 @@ from .serializers import SystemCredentialSerializer, SystemAlertSerializer, Conn
 from apps.users.utils import get_filtered_queryset, apply_ownership
 
 class SystemDataView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         credentials = SystemCredential.objects.all()
 
         return Response({
             "credentials": SystemCredentialSerializer(credentials, many=True).data,
             "options": {
-                "services": ["Till Terminal", "PayPoint", "Admin Dashboard", "Cloud Storage"],
+                "services": ["Till Terminal", "PayPoint", "Admin Dashboard", "Cloud Storage", "AWS Portal", "Google Cloud", "Office 365"],
                 "statuses": ["Active", "Locked", "Maintenance"]
             }
         })
+
+
+class SystemCredentialView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = SystemCredentialSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SystemCredentialDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        try:
+            credential = SystemCredential.objects.get(pk=pk)
+            serializer = SystemCredentialSerializer(credential, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except SystemCredential.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+        try:
+            credential = SystemCredential.objects.get(pk=pk)
+            credential.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except SystemCredential.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class ConnectedEmailView(APIView):
