@@ -66,6 +66,7 @@ const ALL_MODULES = MODULE_GROUPS.flatMap(g => g.sub.length > 0 ? g.sub : [g.nam
 const ACTIONS = ['view', 'add', 'edit', 'delete'];
 
 const DASHBOARD_CARDS = [
+  'Business Details',
   'Fleet Management',
   'VAT / Tax',
   'System Reminders',
@@ -77,6 +78,9 @@ const DASHBOARD_CARDS = [
   'Low Stock',
   'QuickBooks',
   'Notes',
+  'Gmail / Email',
+  'System Passwords',
+  'Recent Activity',
 ];
 
 export default function UserModule() {

@@ -290,8 +290,8 @@ export default function Dashboard() {
         <div className="flex-1 overflow-y-auto p-[0.75rem_0.75rem_1.5rem] scrollbar-custom bg-[#f1f5f9]/30">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             
-            {/* 1. BUSINESS DETAILS (SUPER_ADMIN ONLY) */}
-            {userRole === UserRole.SUPER_ADMIN && (
+            {/* 1. BUSINESS DETAILS */}
+            {canShowCard('Business Details') && (
               <Widget title="Business Details" icon={Briefcase} color="bg-[#3b82f6]">
                 <table className="wt">
                   <thead>
@@ -554,8 +554,8 @@ export default function Dashboard() {
               </div>
             </Widget>
 
-            {/* 4. EMAILS (SUPER_ADMIN ONLY) */}
-            {userRole === UserRole.SUPER_ADMIN && (
+            {/* 4. EMAILS */}
+            {canShowCard('Gmail / Email') && (
               <Widget 
                 title="Gmails / Emails" 
                 icon={Mail} 
@@ -805,8 +805,8 @@ export default function Dashboard() {
             </Widget>
             )}
 
-            {/* 7. SYSTEM PASSWORDS (SUPER_ADMIN ONLY) */}
-            {userRole === UserRole.SUPER_ADMIN && (
+            {/* 7. SYSTEM PASSWORDS */}
+            {canShowCard('System Passwords') && (
               <Widget 
                 title={selectedPassword ? "Credential Details" : "System Passwords"} 
                 icon={Lock} 
@@ -1352,8 +1352,8 @@ export default function Dashboard() {
             </Widget>
             )}
 
-            {/* 14. RECENT SYSTEM ACTIVITY (SUPER_ADMIN ONLY) */}
-            {userRole === UserRole.SUPER_ADMIN && (
+            {/* 14. RECENT SYSTEM ACTIVITY */}
+            {canShowCard('Recent Activity') && (
               <Widget title="Recent Activity" icon={History} color="bg-[#3b82f6]">
                 <div className="space-y-3 py-1">
                   {dash.activity.map((act: any, i: number) => (
