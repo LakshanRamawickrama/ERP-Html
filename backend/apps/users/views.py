@@ -29,6 +29,7 @@ class StaffView(APIView):
         data = request.data
         email = data.get('email', '')
         name = data.get('name', '')
+        username = data.get('username', email)
         role = data.get('role', 'admin')
         assigned_business = data.get('assigned_business', '')
         password = data.get('password', '')
@@ -37,11 +38,13 @@ class StaffView(APIView):
             return Response({'error': 'Password is required'}, status=status.HTTP_400_BAD_REQUEST)
         if StaffProfile.objects.filter(email=email).exists():
             return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        if StaffProfile.objects.filter(username=username).exists():
+            return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             profile = StaffProfile.objects.create(
                 name=name,
-                username=email,
+                username=username,
                 role=role,
                 assigned_business=assigned_business,
                 email=email,
@@ -57,31 +60,44 @@ class StaffView(APIView):
     def put(self, request, pk):
         try:
             profile = StaffProfile.objects.get(pk=pk)
-        except Exception:
-            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+        except StaffProfile.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         data = request.data
-        if 'name' in data:
-            profile.name = data['name']
-        if 'email' in data:
-            profile.email = data['email']
-        if 'username' in data:
-            profile.username = data['username']
-        if 'assigned_business' in data:
-            profile.assigned_business = data['assigned_business']
-        if 'status' in data:
-            profile.status = data['status']
+        try:
+            if 'email' in data:
+                email = data['email']
+                if StaffProfile.objects.filter(email=email).exclude(pk=pk).exists():
+                    return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                profile.email = email
+            
+            if 'username' in data:
+                username = data['username']
+                if StaffProfile.objects.filter(username=username).exclude(pk=pk).exists():
+                    return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                profile.username = username
 
-        if 'permissions' in data:
-            perms = data['permissions']
-            if isinstance(perms, str):
-                perms = json.loads(perms)
-            profile.permissions = json.dumps(perms)
-            access_list = [mod for mod, actions in perms.items() if 'view' in actions]
-            profile.access = ', '.join(access_list)
+            if 'name' in data:
+                profile.name = data['name']
+            if 'assigned_business' in data:
+                profile.assigned_business = data['assigned_business']
+            if 'status' in data:
+                profile.status = data['status']
 
-        profile.save()
-        return Response(StaffProfileSerializer(profile).data)
+            if 'permissions' in data:
+                perms = data['permissions']
+                if isinstance(perms, str):
+                    perms = json.loads(perms)
+                profile.permissions = json.dumps(perms)
+                access_list = [mod for mod, actions in perms.items() if 'view' in actions]
+                profile.access = ', '.join(access_list)
+
+            profile.save()
+            return Response(StaffProfileSerializer(profile).data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 from rest_framework.permissions import AllowAny

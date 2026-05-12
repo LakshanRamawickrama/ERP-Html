@@ -85,7 +85,7 @@ export default function UserModule() {
 
   const [data, setData] = useState<any>({ systemMap: [], registry: [], roles: [], businesses: [] });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<any>({ name: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
+  const [formData, setFormData] = useState<any>({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
   const [formError, setFormError] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -144,7 +144,7 @@ export default function UserModule() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
+    setFormData({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
     setFormError('');
   };
 
@@ -159,6 +159,7 @@ export default function UserModule() {
 
     const payload: any = {
       name: formData.name,
+      username: formData.username,
       email: formData.email,
       role: 'admin',
       assigned_business: formData.assigned_business,
@@ -180,9 +181,11 @@ export default function UserModule() {
         body: JSON.stringify(payload),
       });
 
-      const result = await res.json();
+      const contentType = res.headers.get("content-type");
+      const result = contentType && contentType.includes("application/json") ? await res.json() : null;
+
       if (!res.ok) {
-        setFormError(result.error || 'Failed to save user');
+        setFormError(result?.error || result?.message || `Error: ${res.status} ${res.statusText}`);
         return;
       }
 
@@ -338,6 +341,17 @@ export default function UserModule() {
                       placeholder="John Doe"
                       value={formData.name}
                       onChange={e => handleFormChange('name', e.target.value)}
+                      className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Username</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="johndoe"
+                      value={formData.username}
+                      onChange={e => handleFormChange('username', e.target.value)}
                       className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
                     />
                   </div>
@@ -529,6 +543,7 @@ export default function UserModule() {
                           <UserRow
                             key={i}
                             name={u.name}
+                            username={u.username}
                             email={u.email}
                             roles={u.role}
                             scope={u.assigned_business}
@@ -678,11 +693,14 @@ function AccessBadge({ access }: { access: string }) {
   );
 }
 
-function UserRow({ name, email, roles, scope, access, status, onEdit, onDelete, onView }: any) {
+function UserRow({ name, username, email, roles, scope, access, status, onEdit, onDelete, onView }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{name}</div>
+        <div className="font-bold text-slate-800 flex items-center gap-2">
+          {name}
+          {username && <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">@{username}</span>}
+        </div>
         <div className="text-[10px] text-slate-400 font-mono tracking-tighter leading-none mt-1">{email}</div>
       </td>
       <td className="px-4 py-4 font-bold text-slate-400 text-[10px] uppercase">{roles}</td>
