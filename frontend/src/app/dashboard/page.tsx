@@ -297,6 +297,7 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th className="text-left">BUSINESS NAME</th>
+                      <th className="text-left">ADMIN</th>
                       <th className="text-right" style={{ width: '100px' }}>INCOME</th>
                       <th className="text-right" style={{ width: '100px' }}>EXPENSES</th>
                       <th className="text-center" style={{ width: '100px' }}>STATUS</th>
@@ -306,15 +307,15 @@ export default function Dashboard() {
                     {dash.businesses
                       .filter((row: any) => selectedBusiness === 'All Entities' || row.name === selectedBusiness)
                       .map((row: any) => (
-                      <tr key={row.id}>
+                      <tr 
+                        key={row.id} 
+                        onClick={() => router.push(`/business/${row.slug}`)} 
+                        className="cursor-pointer group"
+                      >
                         <td className="truncate">
-                          <Link 
-                            href={`/business/${row.slug}`}
-                            className="font-bold text-[#1e293b] hover:text-[#3b82f6] transition-colors cursor-pointer"
-                          >
-                            {row.name}
-                          </Link>
+                          <strong className="group-hover:text-[#3b82f6] transition-colors">{row.name}</strong>
                         </td>
+                        <td className="truncate text-[10px] text-slate-500">{row.admin || 'System Admin'}</td>
                         <td className="text-right text-[#198754] font-bold">{row.inc}</td>
                         <td className="text-right text-[#dc3545]">{row.exp}</td>
                         <td className="text-center">
@@ -428,6 +429,7 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th className="text-left">VEHICLE</th>
+                      <th className="text-left">BUSINESS</th>
                       <th className="text-left">PLATE</th>
                       <th className="text-left">INS. EXPIRY</th>
                       <th className="text-center">STATUS</th>
@@ -439,6 +441,7 @@ export default function Dashboard() {
                       .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedFleet(row)} className="cursor-pointer group">
                         <td><strong className="group-hover:text-[#14b8a6] transition-colors">{row.v}</strong></td>
+                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
                         <td className="truncate">{row.p}</td>
                         <td>{row.i}</td>
                         <td className="text-center">
@@ -720,6 +723,7 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th className="text-left">TYPE</th>
+                      <th className="text-left">BUSINESS</th>
                       <th className="text-left">PERIOD</th>
                       <th className="text-left">AMOUNT</th>
                       <th className="text-center">STATUS</th>
@@ -731,6 +735,7 @@ export default function Dashboard() {
                       .map((r: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedVAT(r)} className="cursor-pointer group">
                         <td><strong className="group-hover:text-[#f59e0b] transition-colors">{r.type}</strong></td>
+                        <td className="truncate text-[10px] text-slate-500">{r.biz}</td>
                         <td>{r.period}</td>
                         <td><strong>{r.amount}</strong></td>
                         <td className="text-center">
@@ -1020,6 +1025,7 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th className="text-left">PO #</th>
+                      <th className="text-left">BUSINESS</th>
                       <th className="text-left">SUPPLIER</th>
                       <th className="text-right">AMOUNT</th>
                       <th className="text-center">STATUS</th>
@@ -1031,6 +1037,7 @@ export default function Dashboard() {
                       .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedSupplierPayment(row)} className="cursor-pointer group">
                         <td><strong className="group-hover:text-[#f59e0b] transition-colors">{row.p}</strong></td>
+                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
                         <td className="truncate">{row.s}</td>
                         <td className="text-right"><strong>{row.a}</strong></td>
                         <td className="text-center">
@@ -1230,6 +1237,7 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th className="text-left">ASSET</th>
+                      <th className="text-left">BUSINESS</th>
                       <th className="text-left">PRIORITY</th>
                       <th className="text-center">STATUS</th>
                     </tr>
@@ -1240,6 +1248,7 @@ export default function Dashboard() {
                       .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedMaintenance(row)} className="cursor-pointer group">
                         <td className="truncate"><strong className="group-hover:text-[#ef4444] transition-colors">{row.a}</strong></td>
+                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
                         <td><span className={`status-pill ${row.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>{row.p}</span></td>
                         <td className="text-center text-slate-500">{row.s}</td>
                       </tr>
@@ -1317,14 +1326,18 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th className="text-left">ITEM</th>
+                      <th className="text-left">BUSINESS</th>
                       <th className="text-left">CUR.</th>
                       <th className="text-center">STATUS</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.lowStock.map((row: any, i: number) => (
+                    {dash.lowStock
+                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                      .map((row: any, i: number) => (
                       <tr key={i} onClick={() => setSelectedStock(row)} className="cursor-pointer group">
                         <td className="truncate"><strong className="group-hover:text-[#f59e0b] transition-colors">{row.i}</strong></td>
+                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
                         <td>{row.c}</td>
                         <td className="text-center">
                           <span className={`status-pill ${row.s === 'Good' ? 'bg-[#198754]' : row.s === 'Out of Stock' ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>

@@ -14,6 +14,7 @@ from apps.inventory.models import Product
 from apps.suppliers.models import PurchaseOrder
 from apps.reminders.models import Reminder
 from apps.system.models import SystemCredential, ConnectedEmail, Note
+from apps.users.models import StaffProfile
 from apps.users.utils import get_filtered_queryset
 
 
@@ -54,6 +55,9 @@ class DashboardDataView(APIView):
             all_invoices     = list(Invoice.objects.all())
             all_transactions = list(Transaction.objects.all())
             for e in BusinessEntity.objects.all():
+                admin_profile = StaffProfile.objects.filter(assigned_business=e.name, role='admin').first()
+                admin_name = admin_profile.name if admin_profile else "System Admin"
+
                 inc = sum(
                     inv.amount for inv in all_invoices
                     if inv.business == e.name and inv.status == 'Paid'
@@ -66,6 +70,7 @@ class DashboardDataView(APIView):
                     "id":   str(e.id),
                     "slug": _slugify(e.name),
                     "name": e.name,
+                    "admin": admin_name,
                     "inc":  _fmt(inc),
                     "exp":  _fmt(exp),
                     "st":   e.status,
