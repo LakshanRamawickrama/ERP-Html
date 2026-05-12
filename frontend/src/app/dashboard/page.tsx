@@ -53,7 +53,8 @@ export default function Dashboard() {
     passwords: [], supplierPayments: [], sales: [], banks: [],
     maintenance: [], lowStock: [], activity: [], quickbooks: { status: 'Disconnected', lastSync: '—', bankFeed: 'Inactive', balance: '$0', pending: 0 },
     pl: { income: '$0', expenses: '$0', grossProfit: '$0', tax: '$0', netProfit: '$0' },
-    emails: []
+    emails: [],
+    reminders: []
   });
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [editingEmailId, setEditingEmailId] = useState<string | null>(null);
@@ -253,16 +254,18 @@ export default function Dashboard() {
     if (userRole === UserRole.SUPER_ADMIN) return true;
     if (!user?.permissions) return false;
     try {
-      let pStr = user.permissions;
-      if (typeof pStr === 'string') {
-        pStr = pStr.replace(/'/g, '"').replace(/None/g, 'null').replace(/True/g, 'true').replace(/False/g, 'false');
+      let perms = user.permissions;
+      if (typeof perms === 'string') {
+        // Clean python repr or double-stringified JSON
+        const clean = perms.replace(/'/g, '"').replace(/None/g, 'null').replace(/True/g, 'true').replace(/False/g, 'false');
+        perms = JSON.parse(clean);
+        if (typeof perms === 'string') perms = JSON.parse(perms);
       }
-      let parsed = typeof pStr === 'string' ? JSON.parse(pStr) : pStr;
-      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
-      const dashCards: string[] | undefined = parsed['Dashboard'];
-      if (!dashCards) return false;
-      return dashCards.includes(cardName);
-    } catch {
+      
+      const dashCards = perms['Dashboard'];
+      return Array.isArray(dashCards) && dashCards.includes(cardName);
+    } catch (err) {
+      console.error('Permission check error for', cardName, err);
       return false;
     }
   };
@@ -468,96 +471,98 @@ export default function Dashboard() {
             )}
 
             {/* 3. NOTES */}
-            <Widget title="Notes" icon={FileText} color="bg-[#f59e0b]">
-              <div className="space-y-2">
-                {dash.notes
-                  .sort((a: any, b: any) => {
-                    if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
-                    return b.id > a.id ? 1 : -1; // Fallback to id for latest first
-                  })
-                  .map((note: any) => (
-                  <div 
-                    key={note.id} 
-                    className={cn(
-                      "rounded-lg p-2 relative group shadow-sm transition-all border",
-                      note.color === 'blue' ? "bg-blue-50 border-blue-100" :
-                      note.color === 'green' ? "bg-emerald-50 border-emerald-100" :
-                      note.color === 'red' ? "bg-red-50 border-red-100" :
-                      "bg-[#fffbeb] border-[#fef3c7]"
-                    )}
-                  >
-                    <p className={cn(
-                      "text-[11px] leading-[1.3] m-0 pr-10",
-                      note.color === 'blue' ? "text-blue-900" :
-                      note.color === 'green' ? "text-emerald-900" :
-                      note.color === 'red' ? "text-red-900" :
-                      "text-[#1e293b]"
-                    )}>
-                      {note.text}
-                    </p>
-
-                    {note.created_at && (
-                      <div className={cn(
-                        "text-[8px] font-bold mt-1.5 opacity-60 flex items-center gap-1",
-                        note.color === 'blue' ? "text-blue-700" :
-                        note.color === 'green' ? "text-emerald-700" :
-                        note.color === 'red' ? "text-red-700" :
-                        "text-slate-400"
+            {canShowCard('Notes') && (
+              <Widget title="Notes" icon={FileText} color="bg-[#f59e0b]">
+                <div className="space-y-2">
+                  {dash.notes
+                    .sort((a: any, b: any) => {
+                      if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+                      return b.id > a.id ? 1 : -1; // Fallback to id for latest first
+                    })
+                    .map((note: any) => (
+                    <div 
+                      key={note.id} 
+                      className={cn(
+                        "rounded-lg p-2 relative group shadow-sm transition-all border",
+                        note.color === 'blue' ? "bg-blue-50 border-blue-100" :
+                        note.color === 'green' ? "bg-emerald-50 border-emerald-100" :
+                        note.color === 'red' ? "bg-red-50 border-red-100" :
+                        "bg-[#fffbeb] border-[#fef3c7]"
+                      )}
+                    >
+                      <p className={cn(
+                        "text-[11px] leading-[1.3] m-0 pr-10",
+                        note.color === 'blue' ? "text-blue-900" :
+                        note.color === 'green' ? "text-emerald-900" :
+                        note.color === 'red' ? "text-red-900" :
+                        "text-[#1e293b]"
                       )}>
-                        <Clock size={8} /> {new Date(note.created_at).toLocaleDateString()} — {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    )}
-                    
-                    <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                      <button
-                        onClick={() => handleCycleNoteColor(note.id, note.color || 'yellow')}
-                        className="p-1 hover:bg-black/5 rounded transition-colors"
-                        title="Highlight"
-                      >
+                        {note.text}
+                      </p>
+  
+                      {note.created_at && (
                         <div className={cn(
-                          "w-2.5 h-2.5 rounded-full border border-black/10",
-                          note.color === 'blue' ? "bg-blue-400" :
-                          note.color === 'green' ? "bg-emerald-400" :
-                          note.color === 'red' ? "bg-red-400" :
-                          "bg-yellow-400"
-                        )} />
-                      </button>
-                      <button
-                        onClick={() => handleTogglePinNote(note.id, note.is_pinned)}
-                        className={cn(
-                          "p-1 rounded transition-colors",
-                          note.is_pinned ? "text-indigo-600 opacity-100" : "text-slate-400 hover:bg-black/5"
-                        )}
-                        title={note.is_pinned ? "Unpin" : "Pin to top"}
-                      >
-                        <Pin className={cn("w-3 h-3", note.is_pinned && "fill-current")} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteNote(note.id)}
-                        className="p-1 text-[#ef4444] hover:bg-red-50 rounded transition-all"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
+                          "text-[8px] font-bold mt-1.5 opacity-60 flex items-center gap-1",
+                          note.color === 'blue' ? "text-blue-700" :
+                          note.color === 'green' ? "text-emerald-700" :
+                          note.color === 'red' ? "text-red-700" :
+                          "text-slate-400"
+                        )}>
+                          <Clock size={8} /> {new Date(note.created_at).toLocaleDateString()} — {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      )}
+                      
+                      <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <button
+                          onClick={() => handleCycleNoteColor(note.id, note.color || 'yellow')}
+                          className="p-1 hover:bg-black/5 rounded transition-colors"
+                          title="Highlight"
+                        >
+                          <div className={cn(
+                            "w-2.5 h-2.5 rounded-full border border-black/10",
+                            note.color === 'blue' ? "bg-blue-400" :
+                            note.color === 'green' ? "bg-emerald-400" :
+                            note.color === 'red' ? "bg-red-400" :
+                            "bg-yellow-400"
+                          )} />
+                        </button>
+                        <button
+                          onClick={() => handleTogglePinNote(note.id, note.is_pinned)}
+                          className={cn(
+                            "p-1 rounded transition-colors",
+                            note.is_pinned ? "text-indigo-600 opacity-100" : "text-slate-400 hover:bg-black/5"
+                          )}
+                          title={note.is_pinned ? "Unpin" : "Pin to top"}
+                        >
+                          <Pin className={cn("w-3 h-3", note.is_pinned && "fill-current")} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteNote(note.id)}
+                          className="p-1 text-[#ef4444] hover:bg-red-50 rounded transition-all"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
+                  ))}
+                  <div className="space-y-2 pt-1">
+                    <textarea 
+                      value={noteInput}
+                      onChange={e => setNoteInput(e.target.value)}
+                      placeholder="Write a note..." 
+                      className="w-full text-[11px] p-2 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5] min-h-[40px] resize-none" 
+                    />
+                    <button 
+                      onClick={handleAddNote}
+                      className="w-full bg-[#ffc107] text-[#212529] py-1.5 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#eab308]"
+                    >
+                      + Add Note
+                    </button>
                   </div>
-                ))}
-                <div className="space-y-2 pt-1">
-                  <textarea 
-                    value={noteInput}
-                    onChange={e => setNoteInput(e.target.value)}
-                    placeholder="Write a note..." 
-                    className="w-full text-[11px] p-2 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5] min-h-[40px] resize-none" 
-                  />
-                  <button 
-                    onClick={handleAddNote}
-                    className="w-full bg-[#ffc107] text-[#212529] py-1.5 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#eab308]"
-                  >
-                    + Add Note
-                  </button>
                 </div>
-              </div>
-            </Widget>
+              </Widget>
+            )}
 
             {/* 4. EMAILS */}
             {canShowCard('Gmail / Email') && (
