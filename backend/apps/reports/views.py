@@ -49,12 +49,30 @@ class DashboardDataView(APIView):
         insurances    = get_filtered_queryset(request, InsurancePolicy)
         licences      = get_filtered_queryset(request, PropertyLicence)
 
-        # ── Business Details (super admin only) ────────────────────────
+        # ── Business Details ────────────────────────
         businesses_data = []
+        
+        # Logic: Super admins see all, admins see their assigned business
         if is_super:
-            all_invoices     = list(Invoice.objects.all())
-            all_transactions = list(Transaction.objects.all())
-            for e in BusinessEntity.objects.all():
+            business_entities = BusinessEntity.objects.all()
+        else:
+            assigned = getattr(request.user, 'assigned_business', None)
+            if assigned and assigned != 'All':
+                business_entities = BusinessEntity.objects.filter(name=assigned)
+            else:
+                business_entities = BusinessEntity.objects.none()
+
+        if business_entities.exists():
+            # Optimization: filter invoices/transactions by relevant businesses if not super
+            if is_super:
+                all_invoices = list(Invoice.objects.all())
+                all_transactions = list(Transaction.objects.all())
+            else:
+                assigned_name = getattr(request.user, 'assigned_business', '')
+                all_invoices = list(Invoice.objects.filter(business=assigned_name))
+                all_transactions = list(Transaction.objects.filter(business=assigned_name))
+
+            for e in business_entities:
                 admin_profile = StaffProfile.objects.filter(assigned_business=e.name, role='admin').first()
                 admin_name = admin_profile.name if admin_profile else "System Admin"
 

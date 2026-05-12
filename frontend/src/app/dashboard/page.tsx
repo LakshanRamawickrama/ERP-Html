@@ -84,7 +84,11 @@ export default function Dashboard() {
     setUserRole(userData.role as UserRole);
     
     const savedBusiness = localStorage.getItem('selectedBusiness');
-    if (savedBusiness) setSelectedBusiness(savedBusiness);
+    if (userData.role !== UserRole.SUPER_ADMIN && userData.assigned_business) {
+      setSelectedBusiness(userData.assigned_business);
+    } else if (savedBusiness) {
+      setSelectedBusiness(savedBusiness);
+    }
 
     const token = localStorage.getItem('token');
     
