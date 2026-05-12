@@ -30,154 +30,161 @@ class ReminderDataView(APIView):
         data = ReminderSerializer(reminders_objs, many=True).data
         
         # 2. Automatically generate Fleet reminders
-        today = timezone.now().date()
-        vehicles = get_filtered_queryset(request, Vehicle)
-        
-        for vehicle in vehicles:
-            # Check all three dates
-            tasks = [
-                ('MOT Renewal', vehicle.mot_date),
-                ('Insurance Renewal', vehicle.insurance_date),
-                ('Road Tax Renewal', vehicle.road_tax_date)
-            ]
+        try:
+            today = timezone.now().date()
+            vehicles = get_filtered_queryset(request, Vehicle)
             
-            for label, date_val in tasks:
-                if not date_val:
-                    continue
+            for vehicle in vehicles:
+                tasks = [
+                    ('MOT Renewal', vehicle.mot_date),
+                    ('Insurance Renewal', vehicle.insurance_date),
+                    ('Road Tax Renewal', vehicle.road_tax_date)
+                ]
                 
-                # Logic: Display if within 7 days OR if overdue
-                days_until = (date_val - today).days
-                
-                # "Before 7 days" and "display the whole that week" and "overdue"
-                # We show it if it's due in 7 days or less.
-                if days_until <= 7:
-                    is_overdue = days_until < 0
-                    
-                    # Automated fleet renewals are always High priority
-                    priority = 'High'
-                    
-                    data.append({
-                        'id': f"fleet-{vehicle.id}-{label.replace(' ', '-')}",
-                        'title': f"{vehicle.name}: {label}",
-                        'description': f"Registration: {vehicle.plate_number}. This renewal is {f'OVERDUE by {abs(days_until)} days' if is_overdue else f'due in {days_until} days'}.",
-                        'date': date_val.strftime('%Y-%m-%d'),
-                        'priority': priority,
-                        'type': 'Fleet',
-                        'business': vehicle.business,
-                        'is_completed': False,
-                        'is_overdue': is_overdue
-                    })
+                for label, date_val in tasks:
+                    if not date_val:
+                        continue
+                    days_until = (date_val - today).days
+                    if days_until <= 7:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"fleet-{vehicle.id}-{label.replace(' ', '-')}",
+                            'title': f"{vehicle.name}: {label}",
+                            'description': f"Registration: {vehicle.plate_number}. This renewal is {f'OVERDUE by {abs(days_until)} days' if is_overdue else f'due in {days_until} days'}.",
+                            'date': date_val.strftime('%Y-%m-%d'),
+                            'priority': 'High',
+                            'type': 'Fleet',
+                            'business': vehicle.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
+        except Exception:
+            pass
 
         # 3. Automatically generate Inventory reminders
-        from apps.inventory.models import Product
-        products = get_filtered_queryset(request, Product)
-        for product in products:
-            if product.quantity <= product.min_stock:
-                is_out = product.quantity == 0
-                data.append({
-                    'id': f"inventory-{product.id}",
-                    'title': f"Inventory: {product.name}",
-                    'description': f"STOCK ALERT: {product.name} is {f'OUT OF STOCK' if is_out else f'running low ({product.quantity} left)'}. Minimum level is {product.min_stock}.",
-                    'date': timezone.now().date().strftime('%Y-%m-%d'),
-                    'priority': 'High',
-                    'type': 'Inventory',
-                    'business': product.business,
-                    'is_completed': False,
-                    'is_overdue': is_out
-                })
-
+        try:
+            from apps.inventory.models import Product
+            products = get_filtered_queryset(request, Product)
+            for product in products:
+                if product.quantity <= product.min_stock:
+                    is_out = product.quantity == 0
+                    data.append({
+                        'id': f"inventory-{product.id}",
+                        'title': f"Inventory: {product.name}",
+                        'description': f"STOCK ALERT: {product.name} is {f'OUT OF STOCK' if is_out else f'running low ({product.quantity} left)'}. Minimum level is {product.min_stock}.",
+                        'date': timezone.now().date().strftime('%Y-%m-%d'),
+                        'priority': 'High',
+                        'type': 'Inventory',
+                        'business': product.business,
+                        'is_completed': False,
+                        'is_overdue': is_out
+                    })
+        except Exception:
+            pass
 
         # 4. Automatically generate Legal reminders
-        from apps.legal.models import LegalDocument
-        docs = get_filtered_queryset(request, LegalDocument)
-        for doc in docs:
-            days_until = (doc.expiry_date - today).days
-            if days_until <= 7:
-                is_overdue = days_until < 0
-                data.append({
-                    'id': f"legal-{doc.id}",
-                    'title': f"Legal: {doc.title}",
-                    'description': f"Document '{doc.title}' ({doc.type}) is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
-                    'date': doc.expiry_date.strftime('%Y-%m-%d'),
-                    'priority': 'High',
-                    'type': 'Legal',
-                    'business': doc.business,
-                    'is_completed': False,
-                    'is_overdue': is_overdue
-                })
+        try:
+            from apps.legal.models import LegalDocument
+            docs = get_filtered_queryset(request, LegalDocument)
+            for doc in docs:
+                days_until = (doc.expiry_date - today).days
+                if days_until <= 7:
+                    is_overdue = days_until < 0
+                    data.append({
+                        'id': f"legal-{doc.id}",
+                        'title': f"Legal: {doc.title}",
+                        'description': f"Document '{doc.title}' ({doc.type}) is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
+                        'date': doc.expiry_date.strftime('%Y-%m-%d'),
+                        'priority': 'High',
+                        'type': 'Legal',
+                        'business': doc.business,
+                        'is_completed': False,
+                        'is_overdue': is_overdue
+                    })
+        except Exception:
+            pass
 
         # 5. Automatically generate Business reminders
-        from apps.business.models import CompanyStructure
-        structures = get_filtered_queryset(request, CompanyStructure)
-        for struct in structures:
-            days_until = (struct.filing_due - today).days
-            if days_until <= 7:
-                is_overdue = days_until < 0
-                data.append({
-                    'id': f"business-{struct.id}",
-                    'title': f"Filing: {struct.name}",
-                    'description': f"Companies House filing for '{struct.name}' is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
-                    'date': struct.filing_due.strftime('%Y-%m-%d'),
-                    'priority': 'High',
-                    'type': 'Business',
-                    'business': getattr(struct, 'business', ''),
-                    'is_completed': False,
-                    'is_overdue': is_overdue
-                })
+        try:
+            from apps.business.models import CompanyStructure
+            structures = get_filtered_queryset(request, CompanyStructure)
+            for struct in structures:
+                days_until = (struct.filing_due - today).days
+                if days_until <= 7:
+                    is_overdue = days_until < 0
+                    data.append({
+                        'id': f"business-{struct.id}",
+                        'title': f"Filing: {struct.name}",
+                        'description': f"Companies House filing for '{struct.name}' is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                        'date': struct.filing_due.strftime('%Y-%m-%d'),
+                        'priority': 'High',
+                        'type': 'Business',
+                        'business': getattr(struct, 'business', ''),
+                        'is_completed': False,
+                        'is_overdue': is_overdue
+                    })
+        except Exception:
+            pass
 
         # 6. Automatically generate Accounting reminders
-        from apps.accounting.models import Invoice, InsurancePolicy, VATRecord
-        invoices = get_filtered_queryset(request, Invoice)
-        for inv in invoices:
-            if inv.status != 'Paid' and inv.due_date:
-                days_until = (inv.due_date - today).days
-                if days_until <= 7:
-                    is_overdue = days_until < 0
-                    data.append({
-                        'id': f"invoice-{inv.id}",
-                        'title': f"Invoice: {inv.number}",
-                        'description': f"Invoice {inv.number} for {inv.client} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
-                        'date': inv.due_date.strftime('%Y-%m-%d'),
-                        'priority': 'High',
-                        'type': 'Accounting',
-                        'business': inv.business,
-                        'is_completed': False,
-                        'is_overdue': is_overdue
-                    })
+        try:
+            from apps.accounting.models import Invoice, InsurancePolicy, VATRecord
+            invoices = get_filtered_queryset(request, Invoice)
+            for inv in invoices:
+                if inv.status != 'Paid' and inv.due_date:
+                    days_until = (inv.due_date - today).days
+                    if days_until <= 7:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"invoice-{inv.id}",
+                            'title': f"Invoice: {inv.number}",
+                            'description': f"Invoice {inv.number} for {inv.client} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                            'date': inv.due_date.strftime('%Y-%m-%d'),
+                            'priority': 'High',
+                            'type': 'Accounting',
+                            'business': inv.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
 
-        policies = get_filtered_queryset(request, InsurancePolicy)
-        for policy in policies:
-            if policy.expiry_date:
-                days_until = (policy.expiry_date - today).days
-                if days_until <= 7:
-                    is_overdue = days_until < 0
-                    data.append({
-                        'id': f"insurance-{policy.id}",
-                        'title': f"Policy: {policy.type}",
-                        'description': f"Insurance policy {policy.policy_number} ({policy.provider}) is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
-                        'date': policy.expiry_date.strftime('%Y-%m-%d'),
-                        'priority': 'High',
-                        'type': 'Accounting',
-                        'business': policy.business,
-                        'is_completed': False,
-                        'is_overdue': is_overdue
-                    })
+            policies = get_filtered_queryset(request, InsurancePolicy)
+            for policy in policies:
+                if policy.expiry_date:
+                    days_until = (policy.expiry_date - today).days
+                    if days_until <= 7:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"insurance-{policy.id}",
+                            'title': f"Policy: {policy.type}",
+                            'description': f"Insurance policy {policy.policy_number} ({policy.provider}) is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
+                            'date': policy.expiry_date.strftime('%Y-%m-%d'),
+                            'priority': 'High',
+                            'type': 'Accounting',
+                            'business': policy.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
+        except Exception:
+            pass
 
         # 7. Automatically generate System alerts
-        from apps.system.models import SystemAlert
-        sys_alerts = SystemAlert.objects.all()
-        for alert in sys_alerts:
-            data.append({
-                'id': f"system-{alert.id}",
-                'title': f"System: {alert.label}",
-                'description': alert.message,
-                'date': timezone.now().date().strftime('%Y-%m-%d'),
-                'priority': 'High' if alert.type in ['warning', 'soon'] else 'Medium',
-                'type': 'System',
-                'business': 'All',
-                'is_completed': False,
-                'is_overdue': alert.type == 'warning'
-            })
+        try:
+            from apps.system.models import SystemAlert
+            sys_alerts = SystemAlert.objects.all()
+            for alert in sys_alerts:
+                data.append({
+                    'id': f"system-{alert.id}",
+                    'title': f"System: {alert.label}",
+                    'description': alert.message,
+                    'date': timezone.now().date().strftime('%Y-%m-%d'),
+                    'priority': 'High' if alert.type in ['warning', 'soon'] else 'Medium',
+                    'type': 'System',
+                    'business': 'All',
+                    'is_completed': False,
+                    'is_overdue': alert.type == 'warning'
+                })
+        except Exception:
+            pass  # SystemAlert collection may not exist yet
 
         # Sort by date (optional, but good for UX)
         data.sort(key=lambda x: x.get('date', ''), reverse=False)

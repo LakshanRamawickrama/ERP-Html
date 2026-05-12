@@ -251,14 +251,19 @@ export default function Dashboard() {
 
   const canShowCard = (cardName: string): boolean => {
     if (userRole === UserRole.SUPER_ADMIN) return true;
-    if (!user?.permissions) return true;
+    if (!user?.permissions) return false;
     try {
-      const parsed = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions;
+      let pStr = user.permissions;
+      if (typeof pStr === 'string') {
+        pStr = pStr.replace(/'/g, '"').replace(/None/g, 'null').replace(/True/g, 'true').replace(/False/g, 'false');
+      }
+      let parsed = typeof pStr === 'string' ? JSON.parse(pStr) : pStr;
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
       const dashCards: string[] | undefined = parsed['Dashboard'];
-      if (!dashCards) return true; // not configured yet — show all
+      if (!dashCards) return false;
       return dashCards.includes(cardName);
     } catch {
-      return true;
+      return false;
     }
   };
 

@@ -127,9 +127,18 @@ export default function UserModule() {
     const user = data.registry?.find((u: any) => String(u.id) === String(selectedUserId));
     if (user) {
       try {
-        const parsed = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : (user.permissions || {});
-        setPermissionsMap(parsed);
-      } catch {
+        let pStr = user.permissions;
+        if (typeof pStr === 'string') {
+          // Robust parsing to handle python string reprs or double stringification
+          pStr = pStr.replace(/'/g, '"').replace(/None/g, 'null').replace(/True/g, 'true').replace(/False/g, 'false');
+          let parsed = JSON.parse(pStr);
+          if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+          setPermissionsMap(parsed);
+        } else {
+          setPermissionsMap(pStr || {});
+        }
+      } catch (e) {
+        console.error("Parse err", e);
         setPermissionsMap({});
       }
     }
@@ -739,7 +748,15 @@ function UserDetailDrawer({ user, onClose }: { user: any; onClose: () => void })
 
   let perms: Record<string, string[]> = {};
   try {
-    perms = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : (user.permissions || {});
+    let pStr = user.permissions;
+    if (typeof pStr === 'string') {
+      pStr = pStr.replace(/'/g, '"').replace(/None/g, 'null').replace(/True/g, 'true').replace(/False/g, 'false');
+      let parsed = JSON.parse(pStr);
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+      perms = parsed;
+    } else {
+      perms = pStr || {};
+    }
   } catch { /* empty */ }
 
   const modules = user.access === 'All'
@@ -790,18 +807,21 @@ function UserDetailDrawer({ user, onClose }: { user: any; onClose: () => void })
         ) : (
           <div className="space-y-2">
             {modules.map((mod: string) => {
-              const actions = perms[mod] || [];
+              const isSuper = user.role === 'super_admin';
+              const actions = isSuper ? ACTIONS : (perms[mod] || []);
               return (
                 <div key={mod} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-slate-700">{mod}</span>
-                    {actions.length === 0 && (
+                    {isSuper ? (
+                      <span className="text-[10px] text-emerald-500 font-bold italic">full access</span>
+                    ) : actions.length === 0 ? (
                       <span className="text-[10px] text-slate-400 italic">view only</span>
-                    )}
+                    ) : null}
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {ACTIONS.map(action => {
-                      const granted = actions.includes(action) || (action === 'view' && modules.includes(mod));
+                      const granted = isSuper || actions.includes(action) || (action === 'view' && modules.includes(mod));
                       return (
                         <span key={action} className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide ${
                           granted
