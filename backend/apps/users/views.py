@@ -142,7 +142,7 @@ class ChangePasswordView(APIView):
         new_password = request.data.get('new_password')
         
         if not user_id or not current_password or not new_password:
-            return Response({"status": "error", "message": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"status": "error", "message": "Check current password"}, status=status.HTTP_400_BAD_REQUEST)
             
         try:
             profile = StaffProfile.objects.get(pk=user_id)
@@ -151,7 +151,7 @@ class ChangePasswordView(APIView):
                 profile.save()
                 return Response({"status": "success", "message": "Password updated successfully"})
             else:
-                return Response({"status": "error", "message": "Incorrect current password"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"status": "error", "message": "Check current password"}, status=status.HTTP_400_BAD_REQUEST)
         except StaffProfile.DoesNotExist:
             return Response({"status": "error", "message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:

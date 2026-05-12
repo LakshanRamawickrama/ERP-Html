@@ -32,6 +32,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const router = useRouter();
 
@@ -52,9 +53,10 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
       setUserName(user.username || '');
       setRoles(Array.isArray(user.roles) ? user.roles.join(', ') : (user.role || ''));
       setBusinesses(
-        Array.isArray(user.businesses) && user.businesses.length > 0
-          ? user.businesses.join(', ')
-          : (user.role === 'super_admin' ? 'All Entities' : 'None Assigned')
+        user.assigned_business || 
+        user.business || 
+        (Array.isArray(user.businesses) && user.businesses.length > 0 ? user.businesses.join(', ') : '') ||
+        (user.role === 'super_admin' ? 'All Entities' : 'None Assigned')
       );
     }
   }, [user]);
@@ -65,20 +67,22 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
   };
 
   const handleSave = () => {
-    if (newPassword && newPassword !== confirmPassword) {
-      showToast('Passwords do not match', 'error');
-      return;
-    }
+    if (isChangingPassword) {
+      if (newPassword && newPassword !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+      }
 
-    if (newPassword && !currentPassword) {
-      showToast('Current password is required to change password', 'error');
-      return;
+      if (!currentPassword || !newPassword) {
+        showToast('Check current password', 'error');
+        return;
+      }
     }
 
     const token = localStorage.getItem('token');
 
     // If changing password
-    if (newPassword) {
+    if (isChangingPassword && newPassword) {
       fetch(`${API_ENDPOINTS.USERS}change-password/`, {
         method: 'POST',
         headers: {
@@ -86,7 +90,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          user_id: user.user_id,
+          user_id: user.user_id || user.id,
           current_password: currentPassword,
           new_password: newPassword
         })
@@ -138,6 +142,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
       localStorage.setItem('user', JSON.stringify(updatedUser));
       onUpdateUser(updatedUser);
       setIsEditMode(false);
+      setIsChangingPassword(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -227,55 +232,82 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
                 <InputField label="User Name" value={userName} onChange={setUserName} />
                 <InputField label="Email Address" value={email} onChange={setEmail} type="email" />
                 
-                <SectionTitle title="Security" />
-                
-                <InputField 
-                  label="Current Password" 
-                  value={currentPassword} 
-                  onChange={setCurrentPassword} 
-                  type={showCurrentPassword ? "text" : "password"} 
-                  suffix={
+                <div className="pt-2">
+                  {!isChangingPassword ? (
                     <button 
-                      type="button"
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      onClick={() => setIsChangingPassword(true)}
+                      className="w-full py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors border border-slate-200"
                     >
-                      {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      <Lock size={14} />
+                      Change Password
                     </button>
-                  }
-                />
+                  ) : (
+                    <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center justify-between">
+                        <SectionTitle title="Change Password" />
+                        <button 
+                          onClick={() => {
+                            setIsChangingPassword(false);
+                            setCurrentPassword('');
+                            setNewPassword('');
+                            setConfirmPassword('');
+                          }}
+                          className="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wider"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                      
+                      <InputField 
+                        label="Current Password" 
+                        value={currentPassword} 
+                        onChange={setCurrentPassword} 
+                        type={showCurrentPassword ? "text" : "password"} 
+                        suffix={
+                          <button 
+                            type="button"
+                            className="text-slate-400 hover:text-slate-600 transition-colors"
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          >
+                            {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        }
+                      />
 
-                <InputField 
-                  label="New Password" 
-                  value={newPassword} 
-                  onChange={setNewPassword} 
-                  type={showPassword ? "text" : "password"} 
-                  suffix={
-                    <button 
-                      type="button"
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  }
-                />
+                      <InputField 
+                        label="New Password" 
+                        value={newPassword} 
+                        onChange={setNewPassword} 
+                        type={showPassword ? "text" : "password"} 
+                        suffix={
+                          <button 
+                            type="button"
+                            className="text-slate-400 hover:text-slate-600 transition-colors"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        }
+                      />
 
-                <InputField 
-                  label="Confirm Password" 
-                  value={confirmPassword} 
-                  onChange={setConfirmPassword} 
-                  type={showConfirmPassword ? "text" : "password"} 
-                  suffix={
-                    <button 
-                      type="button"
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  }
-                />
+                      <InputField 
+                        label="Confirm Password" 
+                        value={confirmPassword} 
+                        onChange={setConfirmPassword} 
+                        type={showConfirmPassword ? "text" : "password"} 
+                        suffix={
+                          <button 
+                            type="button"
+                            className="text-slate-400 hover:text-slate-600 transition-colors"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -319,14 +351,31 @@ export default function ProfileDrawer({ isOpen, onClose, user, onUpdateUser }: P
           )}
         </div>
 
-        {/* Toast Notification */}
+        {/* Toast Notification Overlay */}
         {toast && (
-          <div className={cn(
-            "fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-2xl flex items-center gap-2 text-sm font-medium animate-in slide-in-from-bottom-2 duration-300",
-            toast.type === 'success' ? "bg-slate-900 text-white" : "bg-red-600 text-white"
-          )}>
-            {toast.type === 'success' ? <CheckCircle2 size={16} className="text-emerald-400" /> : <AlertCircle size={16} />}
-            {toast.message}
+          <div className="absolute inset-0 z-[3000] flex items-center justify-center p-4 pointer-events-none">
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] pointer-events-none" />
+            <div className={cn(
+              "relative pointer-events-auto px-6 py-6 rounded-2xl shadow-[0_20px_70px_rgba(0,0,0,0.3)] flex flex-col items-center gap-3 text-center w-full max-w-[280px] animate-in zoom-in-95 duration-300",
+              toast.type === 'success' ? "bg-white text-slate-900 border-2 border-emerald-500" : "bg-white text-red-600 border-2 border-red-500"
+            )}>
+              <div className={cn(
+                "w-14 h-14 rounded-full flex items-center justify-center mb-1",
+                toast.type === 'success' ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600"
+              )}>
+                {toast.type === 'success' ? <CheckCircle2 size={28} /> : <AlertCircle size={28} />}
+              </div>
+              <div className="space-y-1">
+                <p className="font-bold text-xl">{toast.type === 'success' ? 'Success!' : 'Error'}</p>
+                <p className="text-sm font-semibold text-slate-600 leading-relaxed">{toast.message}</p>
+              </div>
+              <button 
+                onClick={() => setToast(null)}
+                className="mt-3 w-full py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors border border-slate-200"
+              >
+                Close
+              </button>
+            </div>
           </div>
         )}
       </div>
