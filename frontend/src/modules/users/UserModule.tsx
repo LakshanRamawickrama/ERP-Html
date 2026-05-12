@@ -15,6 +15,7 @@ import {
   Save,
   CheckCircle2,
   Eye,
+  EyeOff,
   X,
   ShieldCheck,
   Briefcase,
@@ -91,6 +92,8 @@ export default function UserModule() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
   const [formError, setFormError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -417,23 +420,41 @@ export default function UserModule() {
                     <>
                       <div>
                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Password</label>
-                        <input
-                          type="password"
-                          required
-                          value={formData.password}
-                          onChange={e => handleFormChange('password', e.target.value)}
-                          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
-                        />
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={formData.password}
+                            onChange={e => handleFormChange('password', e.target.value)}
+                            className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-[60%] -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </div>
                       <div>
                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Confirm Password</label>
-                        <input
-                          type="password"
-                          required
-                          value={formData.confirmPassword}
-                          onChange={e => handleFormChange('confirmPassword', e.target.value)}
-                          className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium"
-                        />
+                        <div className="relative">
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            required
+                            value={formData.confirmPassword}
+                            onChange={e => handleFormChange('confirmPassword', e.target.value)}
+                            className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-[60%] -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                          >
+                            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </div>
                     </>
                   )}
