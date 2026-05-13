@@ -133,7 +133,7 @@ export const PAYMENT_RECORDS = [
     status: 'Paid',
     method: 'Card',
     staff: 'Admin',
-    notes: 'Standard settlement'
+    notes: 'Morning shift settlement'
   },
   {
     id: 'pay-002',
@@ -149,7 +149,8 @@ export const PAYMENT_RECORDS = [
     gameType: 'EuroMillions',
     drawDate: '2026-05-14',
     ticketNum: 'SN-777-111',
-    staff: 'Manager'
+    staff: 'Manager',
+    notes: 'Winner payout pending'
   },
   {
     id: 'pay-003',
@@ -164,6 +165,80 @@ export const PAYMENT_RECORDS = [
     status: 'Pending',
     billType: 'Electricity',
     custRef: 'ACC-555',
-    providerName: 'British Gas'
+    providerName: 'British Gas',
+    notes: 'Customer queried the amount'
+  },
+  {
+    id: 'pay-004',
+    provider: 'PayZone',
+    biz: 'Main Retail Store',
+    type: 'Top-up',
+    transDate: '2026-05-13',
+    transRef: 'PZ-222-004',
+    gross: '20.00',
+    comm: '0.40',
+    net: '19.60',
+    status: 'Paid',
+    billType: 'Mobile Top-up',
+    custRef: '07700 900000',
+    providerName: 'EE',
+    notes: 'Standard top-up'
+  },
+  {
+    id: 'pay-005',
+    provider: 'Dojo',
+    biz: 'Whiterock Retail Ltd',
+    type: 'Refund',
+    transDate: '2026-05-11',
+    transRef: 'DJ-999-005',
+    gross: '-55.00',
+    comm: '0.00',
+    net: '-55.00',
+    status: 'Refunded',
+    method: 'Card',
+    notes: 'Product return - faulty item'
+  },
+  {
+    id: 'pay-006',
+    provider: 'Lottery',
+    biz: 'Main Retail Store',
+    type: 'Scratchcard sale',
+    transDate: '2026-05-13',
+    transRef: 'LT-888-006',
+    gross: '250.00',
+    comm: '12.50',
+    net: '237.50',
+    status: 'Paid',
+    gameType: 'Scratchcard',
+    ticketNum: 'PACK-444',
+    notes: 'Full pack activation'
+  },
+  {
+    id: 'pay-007',
+    provider: 'PayPoint',
+    biz: 'Logistics Hub',
+    type: 'Parcel',
+    transDate: '2026-05-13',
+    transRef: 'PP-111-007',
+    gross: '12.00',
+    comm: '1.20',
+    net: '10.80',
+    status: 'Paid',
+    billType: 'Drop-off',
+    custRef: 'TRACK-123',
+    providerName: 'Amazon / Collect+'
+  },
+  {
+    id: 'pay-008',
+    provider: 'SumUp',
+    biz: 'Whiterock Retail Ltd',
+    type: 'Card Payment',
+    transDate: '2026-05-13',
+    transRef: 'SU-444-008',
+    gross: '15.99',
+    comm: '0.27',
+    net: '15.72',
+    status: 'Paid',
+    method: 'Contactless'
   }
 ];

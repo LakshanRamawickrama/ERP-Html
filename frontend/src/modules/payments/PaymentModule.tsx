@@ -33,6 +33,7 @@ export default function PaymentModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [filterProvider, setFilterProvider] = useState<string>('All');
 
   // Initialize with seed data
   const [data, setData] = useState<any>({ transactions: PAYMENT_RECORDS, businesses: [] });
@@ -206,6 +207,14 @@ export default function PaymentModule() {
               title={editingId ? "Update Transaction" : "New Merchant Transaction"} 
               icon={editingId ? Edit : Plus} 
               iconColor="bg-amber-500"
+              headerAction={isWide && canAdd && (
+                <button 
+                  onClick={() => setIsWide(false)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 text-white text-[10px] font-bold rounded-lg shadow-sm hover:bg-amber-600 transition-all uppercase"
+                >
+                  <Plus className="w-3 h-3" /> New Entry
+                </button>
+              )}
             >
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="space-y-4">
@@ -344,13 +353,29 @@ export default function PaymentModule() {
             title="Merchant Transaction History" 
             icon={History}
             headerAction={
-              <button 
-                onClick={() => setIsWide(!isWide)}
-                className="flex items-center gap-1.5 px-2 py-1 text-[9px] font-bold text-slate-500 border border-slate-200 rounded-md hover:bg-white transition-all uppercase tracking-wider"
-              >
-                {isWide ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
-                {isWide ? 'Standard' : 'Wide'} View
-              </button>
+              <div className="flex items-center gap-3">
+                <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                  {['All', 'Dojo', 'PayPoint', 'PayZone', 'Lottery'].map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setFilterProvider(p)}
+                      className={cn(
+                        "px-3 py-1 text-[10px] font-bold rounded-md transition-all uppercase tracking-tight",
+                        filterProvider === p ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                      )}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => setIsWide(!isWide)}
+                  className="flex items-center gap-1.5 px-2 py-1 text-[9px] font-bold text-slate-500 border border-slate-200 rounded-md hover:bg-white transition-all uppercase tracking-wider"
+                >
+                  {isWide ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
+                  {isWide ? 'Standard' : 'Wide'} View
+                </button>
+              </div>
             }
           >
             <div className="overflow-x-auto">
@@ -358,60 +383,92 @@ export default function PaymentModule() {
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
                     <th className={thClass}>Provider / Ref</th>
+                    {isWide && <th className={thClass}>Entity</th>}
                     <th className={thClass}>Date / Type</th>
+                    {isWide && <th className={thClass}>Service Details</th>}
                     <th className={thClass}>Financials</th>
                     <th className={thClass}>Status</th>
+                    {isWide && <th className={thClass}>Notes</th>}
                     <th className={thClass}>Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {data.transactions?.map((t: any) => (
-                    <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="font-bold text-slate-800">{t.provider}</div>
-                        <div className="text-[10px] text-slate-400 font-medium font-mono">{t.transRef}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="text-xs font-bold text-slate-700">{t.transDate}</div>
-                        <div className="text-[10px] text-slate-400 uppercase font-black tracking-tight">{t.type}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="text-xs font-black text-slate-800">G: £{t.gross}</div>
-                        <div className="text-[10px] text-red-500 font-bold">C: £{t.comm} | N: £{t.net}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase", 
-                          t.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 
-                          t.status === 'Failed' ? 'bg-red-50 text-red-600' : 
-                          'bg-amber-50 text-amber-600'
-                        )}>
-                          {t.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
-                          {t.docUrl && (
-                            <button onClick={() => handleViewDoc(t)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-all">
-                              <Eye size={14} />
+                  {data.transactions
+                    ?.filter((t: any) => filterProvider === 'All' || t.provider === filterProvider)
+                    .map((t: any) => (
+                      <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="font-bold text-slate-800">{t.provider}</div>
+                          <div className="text-[10px] text-slate-400 font-medium font-mono">{t.transRef}</div>
+                        </td>
+                        {isWide && (
+                          <td className="px-4 py-3">
+                            <div className="text-xs font-bold text-slate-600">{t.biz || 'N/A'}</div>
+                          </td>
+                        )}
+                        <td className="px-4 py-3">
+                          <div className="text-xs font-bold text-slate-700">{t.transDate}</div>
+                          <div className="text-[10px] text-slate-400 uppercase font-black tracking-tight">{t.type}</div>
+                        </td>
+                        {isWide && (
+                          <td className="px-4 py-3">
+                            {t.provider === 'Lottery' ? (
+                              <div className="space-y-1">
+                                <div className="text-[10px] font-bold text-orange-600">Ticket: {t.ticketNum || '-'}</div>
+                                <div className="text-[9px] text-slate-500">{t.gameType} | Prize: £{t.prize || 0}</div>
+                              </div>
+                            ) : (t.provider === 'PayPoint' || t.provider === 'PayZone') ? (
+                              <div className="space-y-1">
+                                <div className="text-[10px] font-bold text-blue-600">Bill: {t.billType || '-'}</div>
+                                <div className="text-[9px] text-slate-500">Ref: {t.custRef || '-'}</div>
+                              </div>
+                            ) : (
+                              <div className="text-[10px] text-slate-400 italic">No extra details</div>
+                            )}
+                          </td>
+                        )}
+                        <td className="px-4 py-3">
+                          <div className="text-xs font-black text-slate-800">G: £{t.gross}</div>
+                          <div className="text-[10px] text-red-500 font-bold">C: £{t.comm} | N: £{t.net}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase", 
+                            t.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 
+                            t.status === 'Failed' ? 'bg-red-50 text-red-600' : 
+                            'bg-amber-50 text-amber-600'
+                          )}>
+                            {t.status}
+                          </span>
+                        </td>
+                        {isWide && (
+                          <td className="px-4 py-3 max-w-[150px] truncate">
+                            <div className="text-[10px] text-slate-500" title={t.notes}>{t.notes || '-'}</div>
+                          </td>
+                        )}
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            {t.docUrl && (
+                              <button onClick={() => handleViewDoc(t)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-all">
+                                <Eye size={14} />
+                              </button>
+                            )}
+                            {canEdit && (
+                              <button onClick={() => handleEdit(t.id, t)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+                                <Edit size={14} />
+                              </button>
+                            )}
+                            {canDelete && (
+                              <button onClick={() => handleDeleteClick(t.id)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-all">
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                            <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
+                              <Printer size={14} />
                             </button>
-                          )}
-                          {canEdit && (
-                            <button onClick={() => handleEdit(t.id, t)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-                              <Edit size={14} />
-                            </button>
-                          )}
-                          {canDelete && (
-                            <button onClick={() => handleDeleteClick(t.id)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-all">
-                              <Trash2 size={14} />
-                            </button>
-                          )}
-                          <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-                            <Printer size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   {(!data.transactions || data.transactions.length === 0) && (
                     <tr>
                       <td colSpan={5} className="px-4 py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
