@@ -84,11 +84,11 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       <div className="flex items-center gap-3 p-4 border-b border-white/10 min-h-[70px] whitespace-nowrap overflow-hidden">
         <div className="min-w-[38px] flex justify-center">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <span className="text-white font-black text-lg tracking-tighter">N</span>
+            <span className="text-white font-black text-lg tracking-tighter">Z</span>
           </div>
         </div>
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-          <h5 className="text-sm font-black tracking-tight text-white uppercase">Nexa ERP</h5>
+          <h5 className="text-sm font-black tracking-tight text-white uppercase">Zerozz ERP</h5>
           <small className="text-[9px] font-bold text-cyan-400 block uppercase tracking-widest leading-none mt-0.5">{userRole?.replace('_', ' ')}</small>
         </div>
       </div>

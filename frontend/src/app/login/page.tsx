@@ -89,20 +89,20 @@ export default function LoginPage() {
           <div className="hidden lg:block space-y-10 animate-in fade-in slide-in-from-left-8 duration-700">
             <div className="flex items-center gap-4 group">
               <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl font-black">N</span>
+                <span className="text-3xl font-black">Z</span>
               </div>
               <div>
                 <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 uppercase">
-                  Nexa ERP
+                  Zerozz ERP
                 </h1>
-                <p className="text-slate-400 font-medium uppercase tracking-widest text-[10px]">Next-Gen Business OS</p>
+                <p className="text-slate-400 font-medium uppercase tracking-widest text-[10px]">Modern Business OS</p>
               </div>
             </div>
 
             <div className="space-y-6">
               <h2 className="text-5xl font-extrabold text-white leading-tight">
                 Welcome to the <br />
-                <span className="text-cyan-400">Nexa Universe.</span>
+                <span className="text-cyan-400">Zerozz Universe.</span>
               </h2>
               <p className="text-slate-400 text-lg leading-relaxed max-w-md">
                 Master your operations with futuristic speed, absolute security, and a stunning interface.
@@ -133,9 +133,9 @@ export default function LoginPage() {
             {/* Mobile Logo */}
             <div className="lg:hidden flex flex-col items-center mb-10 text-center">
               <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-xl shadow-cyan-500/20">
-                <span className="text-2xl font-black">N</span>
+                <span className="text-2xl font-black">Z</span>
               </div>
-              <h1 className="text-3xl font-black text-white uppercase tracking-tight">Nexa ERP</h1>
+              <h1 className="text-3xl font-black text-white uppercase tracking-tight">Zerozz ERP</h1>
             </div>
 
             <div className="bg-white/[0.98] backdrop-blur-xl rounded-[32px] p-8 md:p-12 shadow-2xl shadow-black/40 border border-white/20">
@@ -221,7 +221,7 @@ export default function LoginPage() {
 
             {/* Legal Footer */}
             <p className="mt-8 text-center text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-              &copy; 2026 Nexa ERP Global Systems.
+              &copy; 2026 Zerozz ERP Global Systems.
             </p>
           </div>
         </div>
