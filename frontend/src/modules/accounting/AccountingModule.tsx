@@ -32,7 +32,7 @@ import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { BusinessField } from '@/components/ui/BusinessField';
 
 
-type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax' | 'dojo';
+type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax';
 
 export default function AccountingModule() {
   const [activeTab, setActiveTab] = useState<TabType>('records');
@@ -43,8 +43,7 @@ export default function AccountingModule() {
     bank: 'Bank Accounts',
     loans: 'Loans & Insurance',
     insurance: 'Loans & Insurance',
-    tax: 'Tax Records',
-    dojo: 'Dojo Settlements'
+    tax: 'Tax Records'
   };
 
   const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab], 'Accounting');
@@ -210,7 +209,6 @@ export default function AccountingModule() {
     { id: 'loans', label: 'Loans', icon: HandCoins },
     { id: 'insurance', label: 'Insurance', icon: ShieldCheck },
     { id: 'tax', label: 'VAT / Tax', icon: Coins },
-    { id: 'dojo', label: 'Dojo Settlements', icon: CreditCard },
   ];
 
   return (
@@ -270,7 +268,7 @@ export default function AccountingModule() {
                         name="category"
                         value={formData.category}
                         isSelect
-                        options={[...(data.options || []), 'ADD_NEW']}
+                        options={[...(data.categories || []), 'ADD_NEW']}
                         onChange={handleInputChange}
                       />
 
@@ -449,23 +447,7 @@ export default function AccountingModule() {
                     </>
                   )}
 
-                  {activeTab === 'dojo' && (
-                    <>
-                      <BusinessField
-                        value={formData.biz || ''}
-                        onChange={(v) => setFormData({ ...formData, biz: v })}
-                        businesses={data.options?.businesses || []}
-                      />
-                      <Field label="Transaction Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
-                      <div className="grid grid-cols-2 gap-4">
-                        <Field label="Amount ($)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" />
-                        <Field label="Fee ($)" name="fee" value={formData.fee} onChange={handleInputChange} type="number" />
-                      </div>
-                      <Field label="Net ($)" name="net" value={formData.net} onChange={handleInputChange} type="number" disabled />
-                      <Field label="Method" name="method" value={formData.method} onChange={handleInputChange} isSelect options={data.dojoMethods || []} />
-                      <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.paymentStatuses || []} />
-                    </>
-                  )}
+
 
                   <button className="w-full py-3 bg-slate-800 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-700 transition-all">
                     {editingId ? 'Update Record' : 'Register Record'}
@@ -538,15 +520,7 @@ export default function AccountingModule() {
                           <th className={thClass}>Status</th>
                         </>
                       )}
-                      {activeTab === 'dojo' && (
-                        <>
-                          <th className={thClass}>Trans Date</th>
-                          <th className={thClass}>Amount</th>
-                          <th className={thClass}>Fee</th>
-                          <th className={thClass}>Net</th>
-                          <th className={thClass}>Status</th>
-                        </>
-                      )}
+
                       <th className={thClass}>Actions</th>
                     </tr>
                   </thead>
@@ -555,7 +529,7 @@ export default function AccountingModule() {
                     {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
                     {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null)}
                     {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null)}
-                    {activeTab === 'dojo' && (data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'dojo')} onDelete={() => handleDeleteClick(`dojo-${r.id}`)} />) || null)}
+
                     {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
                     {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
                   </tbody>
@@ -718,18 +692,7 @@ function LoanRow({ loan, purpose, lender, total, os, monthly, rate, status, onEd
   );
 }
 
-function DojoRow({ date, amount, fee, net, status, onEdit, onDelete, canEdit, canDelete }: any) {
-  return (
-    <tr className="hover:bg-slate-50/50 transition-colors">
-      <td className="px-4 py-4 text-slate-500 font-mono text-xs">{date}</td>
-      <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
-      <td className="px-4 py-4 text-red-500 font-medium">-${Number(fee).toLocaleString()}</td>
-      <td className="px-4 py-4 font-extrabold text-slate-800">${Number(net).toLocaleString()}</td>
-      <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} /></td>
-    </tr>
-  );
-}
+
 
 function InsuranceRow({ type, asset, provider, policy, premium, expiry, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (

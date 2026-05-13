@@ -15,7 +15,7 @@ import {
   Receipt,
   Gavel,
   Building,
-  ChartLine,
+  BarChart3,
   LogOut,
   Bell,
   CreditCard
@@ -36,9 +36,9 @@ const navItems = [
   { label: 'Accounting',           href: '/accounting',    icon: Receipt,         module: 'Accounting' },
   { label: 'Legal & Compliance',   href: '/legal',         icon: Gavel,           module: 'Legal & Compliance' },
   { label: 'Property Management',  href: '/property',      icon: Building,        module: 'Property Management' },
-  { label: 'Reports',              href: '/reports',       icon: ChartLine,       module: 'Reports' },
-  { label: 'Payment Services',    href: '/payments',      icon: CreditCard,       module: 'Payment Services' },
+  { label: 'Merchant Services',   href: '/payments',      icon: CreditCard,       module: 'Payment Services' },
   { label: 'Reminders',           href: '/reminders',     icon: Bell,             module: 'Reminders' },
+  { label: 'Reports',              href: '/reports',       icon: BarChart3,       module: 'Reports' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
