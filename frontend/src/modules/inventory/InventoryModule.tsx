@@ -184,7 +184,14 @@ export default function InventoryModule() {
                         onChange={(v) => setFormData((prev: any) => ({ ...prev, biz: v }))} 
                         businesses={data.options?.businesses || []}
                       />
-                      <Field label="Select Item *" name="product_name" value={formData.product_name} onChange={handleInputChange} isSelect options={data.inventoryItems || []} />
+                      <Field 
+                        label="Select Item *" 
+                        name="product_name" 
+                        value={formData.product_name} 
+                        onChange={handleInputChange} 
+                        isSelect 
+                        options={data.stock?.filter((s: any) => !formData.biz || s.biz === formData.biz).map((s: any) => s.name) || []} 
+                      />
                       <div className="flex gap-4 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
                         <label className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-transparent cursor-pointer transition-all has-[:checked]:bg-white has-[:checked]:border-slate-200 has-[:checked]:shadow-sm text-[10px] font-bold uppercase tracking-wider text-slate-600">
                           <input type="radio" name="type" value="IN" checked={formData.type !== 'OUT'} onChange={handleInputChange} className="accent-slate-800" /> Stock In (+)
@@ -239,6 +246,7 @@ export default function InventoryModule() {
                       <tr>
                         <th className={thClass}>Item Name</th>
                         <th className={thClass}>Category</th>
+                        {isWide && <th className={thClass}>Business</th>}
                         <th className={thClass}>Stock</th>
                         <th className={thClass}>Price</th>
                         {isWide && <th className={thClass}>Supplier Ref</th>}
@@ -249,6 +257,7 @@ export default function InventoryModule() {
                       <tr>
                         <th className={thClass}>Date</th>
                         <th className={thClass}>Item</th>
+                        {isWide && <th className={thClass}>Business</th>}
                         <th className={thClass}>Type</th>
                         <th className={thClass}>Qty</th>
                         <th className={thClass}>Reason / Ref</th>
@@ -263,7 +272,7 @@ export default function InventoryModule() {
                       )) || null
                     ) : (
                       data.moves?.map((move: any, i: number) => (
-                        <MoveRow key={i} {...move} canDelete={canDelete} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
+                        <MoveRow key={i} {...move} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(move.id, move, 'move')} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
                       )) || null
                     )}
                   </tbody>
@@ -298,11 +307,16 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function StockRow({ name, category, quantity, status, supplier_ref, price, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
+function StockRow({ name, category, quantity, status, supplier_ref, price, biz, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 font-bold text-slate-800">{name}</td>
       <td className="px-4 py-4 text-slate-500 text-xs">{category}</td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded uppercase">{biz || '—'}</span>
+        </td>
+      )}
       <td className="px-4 py-4 font-bold text-slate-900">{quantity}</td>
       <td className="px-4 py-4 font-mono text-xs text-slate-600">£{Number(price).toFixed(2)}</td>
       {isWide && <td className="px-4 py-4 text-slate-400 text-[10px] font-mono italic">{supplier_ref || "-"}</td>}
@@ -319,11 +333,16 @@ function StockRow({ name, category, quantity, status, supplier_ref, price, isWid
   );
 }
 
-function MoveRow({ date, product_name, type, quantity, reason, reference, onDelete, canDelete }: any) {
+function MoveRow({ date, product_name, type, quantity, reason, reference, biz, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-400 text-[10px] font-mono tracking-tight">{date}</td>
       <td className="px-4 py-4 font-bold text-slate-800 text-xs">{product_name}</td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded uppercase">{biz || '—'}</span>
+        </td>
+      )}
       <td className="px-4 py-4">
         {type === 'IN' ? (
           <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">In (+)</span>
@@ -339,7 +358,10 @@ function MoveRow({ date, product_name, type, quantity, reason, reference, onDele
         </div>
       </td>
       <td className="px-4 py-4">
-        {canDelete && <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>}
+        <div className="flex gap-2">
+          {canEdit && <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Edit className="w-3.5 h-3.5" /></button>}
+          {canDelete && <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>}
+        </div>
       </td>
     </tr>
   );
