@@ -68,6 +68,9 @@ class LoanSerializer(MongoSerializerMixin, serializers.ModelSerializer):
 class InsurancePolicySerializer(MongoSerializerMixin, serializers.ModelSerializer):
     policy = serializers.CharField(source='policy_number', read_only=True)
     expiry = serializers.DateField(source='expiry_date', read_only=True)
+    coverage = serializers.DecimalField(source='coverage_amount', max_digits=15, decimal_places=2, read_only=True)
+    asset = serializers.CharField(source='asset_details', read_only=True)
+    contact = serializers.CharField(source='contact_info', read_only=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = InsurancePolicy

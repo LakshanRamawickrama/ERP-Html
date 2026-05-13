@@ -400,14 +400,17 @@ export default function AccountingModule() {
                       <Field label="Policy #" name="policy" value={formData.policy} onChange={handleInputChange} />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Premium ($)" name="premium" value={formData.premium} onChange={handleInputChange} type="number" />
-                        <Field label="Expiry Date" name="expiry" value={formData.expiry} onChange={handleInputChange} type="date" />
+                        <Field label="Coverage ($)" name="coverage" value={formData.coverage} onChange={handleInputChange} type="number" />
                       </div>
+                      <Field label="Insured Asset / Details" name="asset" value={formData.asset} onChange={handleInputChange} placeholder="Address, Registration, or Equipment" />
+                      <Field label="Provider Contact" name="contact" value={formData.contact} onChange={handleInputChange} placeholder="Phone or Email" />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Start Date" name="startDate" value={formData.startDate} onChange={handleInputChange} type="date" />
-                        <Field label="Reminder" name="renewal" value={formData.renewal} onChange={handleInputChange} isSelect options={data.renewalReminders || []} />
+                        <Field label="Expiry Date" name="expiry" value={formData.expiry} onChange={handleInputChange} type="date" />
                       </div>
+                      <Field label="Reminder" name="renewal" value={formData.renewal} onChange={handleInputChange} isSelect options={data.renewalReminders || []} />
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={['Active', 'Expired']} />
-                      <Field label="Attach Policy" name="document" onChange={handleInputChange} type="file" />
+                      <Field label="Attach Policy PDF" name="document" onChange={handleInputChange} type="file" />
                     </>
                   )}
 
@@ -711,12 +714,12 @@ function DojoRow({ date, amount, fee, net, status, onEdit, onDelete, canEdit, ca
   );
 }
 
-function InsuranceRow({ type, provider, policy, premium, expiry, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function InsuranceRow({ type, asset, provider, policy, premium, expiry, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800">{type}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{provider}</div>
+        <div className="text-[10px] text-slate-400 font-medium">{asset || provider}</div>
       </td>
       <td className="px-4 py-4 font-mono text-slate-600 text-xs">{policy}</td>
       <td className="px-4 py-4 font-bold text-slate-800">${Number(premium).toLocaleString()}</td>
