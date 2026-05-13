@@ -129,7 +129,7 @@ class BusinessDetailView(APIView):
             property_data.append({"_kind": "reminder", "title": rem.title, "priority": rem.priority, "dueDate": str(rem.due_date.date() if hasattr(rem.due_date, 'date') else rem.due_date), "description": rem.description, "status": "Pending"})
 
         return Response({
-            "business": {"name": entity.name, "category": entity.category, "hqLocation": entity.hq_location, "companyNumber": entity.company_number, "taxId": entity.tax_id, "status": entity.status},
+            "business": BusinessEntitySerializer(entity, context={'request': request}).data,
             "fleet": fleet_records,
             "accounting": accounting,
             "inventory": inventory,
@@ -143,6 +143,7 @@ class BusinessEntityView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         data = request.data
+        files = request.FILES
         try:
             entity = BusinessEntity.objects.create(
                 name=data.get('name', ''),
@@ -150,10 +151,46 @@ class BusinessEntityView(APIView):
                 category=data.get('category') or data.get('cat', ''),
                 tax_id=data.get('tax_id') or data.get('taxId', ''),
                 hq_location=data.get('hq_location') or data.get('hq', ''),
+                currency=data.get('currency', 'GBP'),
+                timezone=data.get('timezone', 'UTC'),
+                fiscal_year=data.get('fiscal_year', ''),
+                website=data.get('website', ''),
+                phone=data.get('phone', ''),
+                email=data.get('email', ''),
+                business_logo=files.get('business_logo'),
                 status=data.get('status', 'Active'),
                 created_by=request.user.email
             )
             return Response(BusinessEntitySerializer(entity).data, status=http_status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        try:
+            entity = BusinessEntity.objects.get(pk=pk)
+            data = request.data
+            files = request.FILES
+            
+            entity.name = data.get('name', entity.name)
+            entity.company_number = data.get('company_number', data.get('num', entity.company_number))
+            entity.category = data.get('category', data.get('cat', entity.category))
+            entity.tax_id = data.get('tax_id', data.get('taxId', entity.tax_id))
+            entity.hq_location = data.get('hq_location', data.get('hq', entity.hq_location))
+            entity.currency = data.get('currency', entity.currency)
+            entity.timezone = data.get('timezone', entity.timezone)
+            entity.fiscal_year = data.get('fiscal_year', entity.fiscal_year)
+            entity.website = data.get('website', entity.website)
+            entity.phone = data.get('phone', entity.phone)
+            entity.email = data.get('email', entity.email)
+            entity.status = data.get('status', entity.status)
+            
+            if files.get('business_logo'):
+                entity.business_logo = files.get('business_logo')
+            
+            entity.save()
+            return Response(BusinessEntitySerializer(entity).data)
+        except BusinessEntity.DoesNotExist:
+            return Response({'error': 'Not found'}, status=http_status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
 

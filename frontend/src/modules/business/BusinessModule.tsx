@@ -13,6 +13,7 @@ import {
   Minimize2,
   Trash2,
   X,
+  Globe,
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -55,6 +56,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
   const [selectedStructure, setSelectedStructure] = useState<any>(null);
   const [isStructureDrawerOpen, setIsStructureDrawerOpen] = useState(false);
   const [structureFiles, setStructureFiles] = useState<{ balance_sheet?: File; pl_statement?: File }>({});
+  const [businessLogo, setBusinessLogo] = useState<File | null>(null);
 
   React.useEffect(() => {
     const token = localStorage.getItem('token');
@@ -99,6 +101,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
     setEditingId(null);
     setFormData({});
     setStructureFiles({});
+    setBusinessLogo(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,6 +123,11 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
         Object.entries(formData).forEach(([k, v]) => { if (v != null) fd.append(k, String(v)); });
         if (structureFiles.balance_sheet) fd.append('balance_sheet', structureFiles.balance_sheet);
         if (structureFiles.pl_statement) fd.append('pl_statement', structureFiles.pl_statement);
+        body = fd;
+      } else if (activeTab === 'entities' && businessLogo) {
+        const fd = new FormData();
+        Object.entries(formData).forEach(([k, v]) => { if (v != null) fd.append(k, String(v)); });
+        fd.append('business_logo', businessLogo);
         body = fd;
       } else {
         headers['Content-Type'] = 'application/json';
@@ -245,52 +253,117 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
             <div className="lg:col-span-4">
               {activeTab === 'entities' ? (
                 <Card title={editingId ? "Edit Business Entity" : "Register New Entity"} icon={editingId ? Edit : PlusCircle} iconColor="bg-[#2c3e50]">
-                  <form className="space-y-4" onSubmit={handleSubmit}>
-                    <Field 
-                      label="Business Name" 
-                      placeholder="e.g. Acme Corp" 
-                      value={formData.name || ''} 
-                      onChange={(v: string) => setFormData({...formData, name: v})}
-                    />
-                    <Field 
-                      label="Company Number" 
-                      placeholder="CH-12345678" 
-                      value={formData.company_number || ''} 
-                      onChange={(v: string) => setFormData({...formData, company_number: v})}
-                    />
-                    <Field 
-                      label="Business Category" 
-                      isSelect 
-                      options={data.options?.categories || []} 
-                      value={formData.category || ''} 
-                      onChange={(v: string) => setFormData({...formData, category: v})}
-                    />
-                    <Field 
-                      label="Tax ID / VAT Number" 
-                      value={formData.tax_id || ''} 
-                      onChange={(v: string) => setFormData({...formData, tax_id: v})}
-                    />
-                    <Field 
-                      label="HQ Location" 
-                      placeholder="e.g. London, UK" 
-                      value={formData.hq_location || ''} 
-                      onChange={(v: string) => setFormData({...formData, hq_location: v})}
-                    />
+                  <form className="space-y-3" onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                      <div className="col-span-2">
+                        <Field 
+                          label="Business Name" 
+                          placeholder="e.g. Acme Corp" 
+                          value={formData.name || ''} 
+                          onChange={(v: string) => setFormData({...formData, name: v})}
+                        />
+                      </div>
+                      <Field 
+                        label="Company Number" 
+                        placeholder="CH-12345678" 
+                        value={formData.company_number || ''} 
+                        onChange={(v: string) => setFormData({...formData, company_number: v})}
+                      />
+                      <Field 
+                        label="Category" 
+                        isSelect 
+                        options={data.options?.categories || []} 
+                        value={formData.category || ''} 
+                        onChange={(v: string) => setFormData({...formData, category: v})}
+                      />
+                      <Field 
+                        label="Tax ID / VAT" 
+                        value={formData.tax_id || ''} 
+                        onChange={(v: string) => setFormData({...formData, tax_id: v})}
+                      />
+                      <Field 
+                        label="HQ Location" 
+                        placeholder="e.g. London" 
+                        value={formData.hq_location || ''} 
+                        onChange={(v: string) => setFormData({...formData, hq_location: v})}
+                      />
+                      <Field 
+                        label="Currency" 
+                        placeholder="e.g. GBP"
+                        list="currency-list"
+                        value={formData.currency || ''} 
+                        onChange={(v: string) => setFormData({...formData, currency: v})}
+                      />
+                      <datalist id="currency-list">
+                        <option value="GBP" />
+                        <option value="USD" />
+                        <option value="EUR" />
+                        <option value="AED" />
+                        <option value="SAR" />
+                        <option value="JPY" />
+                      </datalist>
+                      <Field 
+                        label="Timezone" 
+                        isSelect 
+                        options={['UTC', 'Europe/London', 'America/New_York', 'Asia/Dubai']} 
+                        value={formData.timezone || 'UTC'} 
+                        onChange={(v: string) => setFormData({...formData, timezone: v})}
+                      />
+                      <Field 
+                        label="Fiscal Year End" 
+                        placeholder="March 31" 
+                        value={formData.fiscal_year || ''} 
+                        onChange={(v: string) => setFormData({...formData, fiscal_year: v})}
+                      />
+                      <Field 
+                        label="Website" 
+                        placeholder="https://..." 
+                        value={formData.website || ''} 
+                        onChange={(v: string) => setFormData({...formData, website: v})}
+                      />
+                      <Field 
+                        label="Phone" 
+                        placeholder="+44..." 
+                        value={formData.phone || ''} 
+                        onChange={(v: string) => setFormData({...formData, phone: v})}
+                      />
+                      <Field 
+                        label="Email" 
+                        placeholder="info@..." 
+                        value={formData.email || ''} 
+                        onChange={(v: string) => setFormData({...formData, email: v})}
+                      />
+                      
+                      <div className="col-span-2">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Logo</label>
+                        <div className="flex items-center gap-3 mt-1">
+                          <label className="flex-1 border-2 border-dashed border-slate-200 rounded-lg p-1.5 text-center hover:bg-slate-50 cursor-pointer">
+                            <p className="text-[10px] text-slate-500 font-medium truncate">{businessLogo ? businessLogo.name : 'Upload'}</p>
+                            <input type="file" className="hidden" accept="image/*" onChange={e => setBusinessLogo(e.target.files?.[0] || null)} />
+                          </label>
+                          {formData.logo_url && !businessLogo && (
+                            <img src={formData.logo_url} alt="Logo" className="h-8 w-8 object-contain rounded border border-slate-100" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-                    {(editingId ? canEdit : canAdd) && (
-                      <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-md hover:bg-[#34495e] transition-all">
-                        {editingId ? "Update Business" : "Register Business"}
-                      </button>
-                    )}
-                    {editingId && (
-                      <button 
-                        type="button"
-                        onClick={handleCancelEdit}
-                        className="w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-all mt-2"
-                      >
-                        Cancel Edit
-                      </button>
-                    )}
+                    <div className="pt-2 flex flex-col gap-2">
+                      {(editingId ? canEdit : canAdd) && (
+                        <button className="w-full py-2 bg-[#2c3e50] text-white rounded-lg text-xs font-bold shadow-md hover:bg-[#34495e] transition-all">
+                          {editingId ? "Update Business" : "Register Business"}
+                        </button>
+                      )}
+                      {editingId && (
+                        <button 
+                          type="button"
+                          onClick={handleCancelEdit}
+                          className="w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
                   </form>
                 </Card>
               ) : (
@@ -391,9 +464,19 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                     {activeTab === 'entities' ? (
                       <tr>
                         <th className={thClass}>Business Name</th>
-                        <th className={thClass}>Company No.</th>
+                        <th className={thClass}>Logo</th>
+                        <th className={thClass}>Contact Info</th>
                         <th className={thClass}>Category</th>
-                        {isWide && <th className={thClass}>HQ Location</th>}
+                        {isWide && (
+                          <>
+                            <th className={thClass}>Tax ID</th>
+                            <th className={thClass}>HQ Location</th>
+                            <th className={thClass}>Currency</th>
+                            <th className={thClass}>Timezone</th>
+                            <th className={thClass}>Fiscal Year</th>
+                            <th className={thClass}>Website</th>
+                          </>
+                        )}
                         <th className={thClass}>Status</th>
                         <th className={thClass}>Actions</th>
                       </tr>
@@ -421,9 +504,17 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                             key={idx}
                             isWide={isWide}
                             name={e.name}
+                            logo={e.logo_url}
+                            phone={e.phone}
+                            email={e.email}
                             num={e.company_number}
                             cat={e.category}
                             hq={e.hq_location}
+                            tax_id={e.tax_id}
+                            currency={e.currency}
+                            timezone={e.timezone}
+                            fiscal_year={e.fiscal_year}
+                            website={e.website}
                             status={e.status}
                             onEdit={() => handleEdit(`entity-${e.id}`, e, 'entities')}
                             onDelete={() => handleDeleteClick(e.id)}
@@ -483,13 +574,46 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
 
 const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
 
-function EntityRow({ name, num, cat, hq, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
+function EntityRow({ 
+  name, logo, phone, email, num, cat, hq, tax_id, currency, timezone, fiscal_year, website,
+  isWide, onEdit, onDelete, canEdit, canDelete 
+}: any) {
   return (
     <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
-      <td className="px-4 py-3 text-slate-500">{num}</td>
-      <td className="px-4 py-3 text-slate-500">{cat}</td>
-      {isWide && <td className="px-4 py-3 text-slate-500">{hq}</td>}
+      <td className="px-4 py-3">
+        <div className="flex flex-col">
+          <span className="font-bold text-slate-800">{name}</span>
+          <span className="text-[10px] text-slate-400 font-mono">{num}</span>
+        </div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+          {logo ? <img src={logo} alt={name} className="w-full h-full object-cover" /> : <Building2 className="w-4 h-4 text-slate-400" />}
+        </div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex flex-col text-[10px]">
+          <span className="text-slate-600 font-medium">{phone || 'No Phone'}</span>
+          <span className="text-slate-400">{email || 'No Email'}</span>
+        </div>
+      </td>
+      <td className="px-4 py-3 text-slate-500 text-xs font-medium">{cat}</td>
+      {isWide && (
+        <>
+          <td className="px-4 py-3 text-slate-500 text-xs">{tax_id || '—'}</td>
+          <td className="px-4 py-3 text-slate-500 text-xs">{hq || '—'}</td>
+          <td className="px-4 py-3 text-slate-500 text-xs font-bold">{currency || '—'}</td>
+          <td className="px-4 py-3 text-slate-500 text-xs">{timezone || '—'}</td>
+          <td className="px-4 py-3 text-slate-500 text-xs">{fiscal_year || '—'}</td>
+          <td className="px-4 py-3 text-blue-500 text-xs italic truncate max-w-[120px]">
+            {website ? (
+              <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1">
+                <Globe size={10} /> {website.replace(/^https?:\/\//, '')}
+              </a>
+            ) : '—'}
+          </td>
+        </>
+      )}
       <td className="px-4 py-3">
         <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">Active</span>
       </td>
@@ -687,33 +811,34 @@ function DetailRow({ icon: Icon, label, value, highlight, multiline }: any) {
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, value, onChange }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, value, onChange, list }: any) {
   return (
-    <div>
-      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
+    <div className="space-y-0.5">
+      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">{label}</label>
       {isSelect ? (
         <select 
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500"
+          className="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs outline-none focus:border-blue-500 transition-colors"
         >
-          <option value="">Select {label}</option>
+          <option value="">Select...</option>
           {options.map((opt: string) => <option key={opt}>{opt}</option>)}
         </select>
       ) : isTextArea ? (
         <textarea 
-          rows={2} 
+          rows={1} 
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" 
+          className="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs outline-none focus:border-blue-500 transition-colors resize-none" 
           placeholder={placeholder} 
         />
       ) : (
         <input 
           type={type} 
           value={value}
+          list={list}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 ${type === 'file' ? 'file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200' : ''}`} 
+          className="w-full p-1.5 bg-slate-50 border border-slate-200 rounded text-xs outline-none focus:border-blue-500 transition-colors" 
           placeholder={placeholder} 
         />
       )}

@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import PageWrapper from '@/components/layouts/PageWrapper';
 import { API_ENDPOINTS } from '@/lib/api';
 import {
-  ArrowLeft, Building2, Truck, Package, Calculator, Boxes, Scale, Home, Eye
+  ArrowLeft, Building2, Truck, Package, Calculator, Boxes, Scale, Home, Eye,
+  Globe, Phone, Mail, Clock, CreditCard, CalendarDays, Shield, MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -378,46 +379,85 @@ export default function BusinessDetailPage() {
 
   if (!data) return null;
 
-  const business = data.business ?? {
-    name: slug?.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    category: '', hqLocation: '', companyNumber: '', taxId: '',
-  };
+  const business = data.business ?? {};
+  const logo = business.logo_url;
 
   const infoParts = [
-    business.category,
-    business.companyNumber ? `Co. ${business.companyNumber}` : '',
-    business.hqLocation,
-    business.taxId ? `VAT: ${business.taxId}` : '',
-  ].filter(Boolean);
+    { label: 'Category', value: business.category, icon: Building2 },
+    { label: 'Co. No', value: business.company_number, icon: Shield },
+    { label: 'VAT', value: business.tax_id, icon: CreditCard },
+    { label: 'HQ', value: business.hq_location, icon: MapPin },
+    { label: 'Currency', value: business.currency, icon: CreditCard },
+    { label: 'Timezone', value: business.timezone, icon: Clock },
+    { label: 'Fiscal Year', value: business.fiscal_year, icon: CalendarDays },
+  ].filter(p => p.value);
+
+  const contactParts = [
+    { label: 'Website', value: business.website, icon: Globe, isLink: true },
+    { label: 'Phone', value: business.phone, icon: Phone },
+    { label: 'Email', value: business.email, icon: Mail },
+  ].filter(p => p.value);
 
   return (
     <PageWrapper title="Business Profile">
       <div className="flex flex-col h-full overflow-hidden bg-[#f1f5f9]">
 
-        {/* ── Banner ── */}
-        <div className="bg-teal-600 text-white px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <Building2 size={20} className="text-white" />
+        <div className="bg-white border-b border-slate-200 px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
+              {logo ? (
+                <img src={logo} alt={business.name} className="w-full h-full object-contain p-2" />
+              ) : (
+                <Building2 size={32} className="text-slate-300" />
+              )}
             </div>
             <div>
-              <h2 className="text-lg font-black leading-tight">{business.name}</h2>
-              <div className="flex items-center gap-2 mt-0.5 text-teal-100 text-xs font-medium flex-wrap">
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-black text-slate-800 leading-tight">{business.name || slug}</h2>
+                <StatusBadge status={business.status || 'Active'} />
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2">
                 {infoParts.map((p, i) => (
-                  <React.Fragment key={i}>
-                    {i > 0 && <span className="opacity-50">•</span>}
-                    <span>{p}</span>
-                  </React.Fragment>
+                  <div key={i} className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                    <p.icon size={12} className="text-slate-400" />
+                    <span>{p.value}</span>
+                  </div>
                 ))}
               </div>
+
+              {contactParts.length > 0 && (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 pt-2 border-t border-slate-100">
+                  {contactParts.map((p, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-[11px] font-bold text-teal-600">
+                      <p.icon size={12} className="text-teal-500" />
+                      {p.isLink ? (
+                        <a href={p.value.startsWith('http') ? p.value : `https://${p.value}`} target="_blank" rel="noreferrer" className="hover:underline">
+                          {p.value.replace(/^https?:\/\//, '')}
+                        </a>
+                      ) : (
+                        <span>{p.value}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold rounded-lg transition-colors border border-white/30"
-          >
-            <ArrowLeft size={12} /> Back to Dashboard
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/business')}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all border border-slate-200"
+            >
+              <Building2 size={14} /> All Businesses
+            </button>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="flex items-center gap-2 px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white text-xs font-bold rounded-xl transition-all shadow-md"
+            >
+              <ArrowLeft size={14} /> Dashboard
+            </button>
+          </div>
         </div>
 
         {/* ── Sections Grid ── */}

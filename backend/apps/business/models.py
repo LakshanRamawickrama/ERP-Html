@@ -7,6 +7,13 @@ class BusinessEntity(models.Model):
     tax_id = models.CharField(max_length=100, blank=True, null=True)
     hq_location = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, default='Active')
+    currency = models.CharField(max_length=10, default='GBP')
+    timezone = models.CharField(max_length=100, default='UTC')
+    fiscal_year = models.CharField(max_length=100, blank=True, null=True)
+    business_logo = models.ImageField(upload_to='business/logos/', blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):

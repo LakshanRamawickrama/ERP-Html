@@ -6,10 +6,17 @@ class BusinessEntitySerializer(MongoSerializerMixin, serializers.ModelSerializer
     num = serializers.CharField(source='company_number', read_only=True)
     cat = serializers.CharField(source='category', read_only=True)
     hq = serializers.CharField(source='hq_location', read_only=True)
+    logo_url = serializers.SerializerMethodField()
     
     class Meta:
         model = BusinessEntity
         fields = '__all__'
+
+    def get_logo_url(self, obj):
+        if obj.business_logo and hasattr(obj.business_logo, 'url'):
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.business_logo.url) if request else obj.business_logo.url
+        return None
 
 class CompanyStructureSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     sic = serializers.CharField(source='sic_code', read_only=True)
