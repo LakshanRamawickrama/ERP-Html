@@ -33,12 +33,19 @@ export default function InventoryModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchInventory = async () => {
-    const token = localStorage.getItem('token');
-    const res = await fetch(API_ENDPOINTS.INVENTORY, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const d = await res.json();
-    setData(d);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.INVENTORY, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { console.error('Inventory fetch failed:', res.status); return; }
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) { console.error('Inventory: non-JSON response'); return; }
+      const d = await res.json();
+      setData(d);
+    } catch (err) {
+      console.error('Inventory fetch error:', err);
+    }
   };
 
   React.useEffect(() => {

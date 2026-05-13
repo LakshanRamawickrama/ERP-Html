@@ -50,7 +50,10 @@ export default function SupplierModule() {
         'Content-Type': 'application/json'
       }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(setData);
   }, []);
 

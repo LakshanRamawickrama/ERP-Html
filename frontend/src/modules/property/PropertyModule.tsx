@@ -54,7 +54,11 @@ export default function PropertyModule() {
     const token = localStorage.getItem('token');
     fetch(API_ENDPOINTS.PROPERTY, {
       headers: { 'Authorization': `Bearer ${token}` }
-    }).then(res => res.json()).then(setData);
+    }).then(res => {
+      if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+      return res.json();
+    }).then(setData)
+    .catch(err => console.error('Property fetch error:', err));
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {
@@ -87,8 +91,11 @@ export default function PropertyModule() {
       try {
         const res = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body });
         if (res.ok) {
-          const newData = await fetch(API_ENDPOINTS.PROPERTY, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+        const res = await fetch(API_ENDPOINTS.PROPERTY, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+          const newData = await res.json();
           setData(newData);
+        }
           handleCancelEdit();
         }
       } catch (err) {
@@ -102,8 +109,11 @@ export default function PropertyModule() {
           body: JSON.stringify(formData),
         });
         if (response.ok) {
-          const newData = await fetch(API_ENDPOINTS.PROPERTY, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json());
+        const res = await fetch(API_ENDPOINTS.PROPERTY, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+          const newData = await res.json();
           setData(newData);
+        }
           handleCancelEdit();
         }
       } catch (error) {

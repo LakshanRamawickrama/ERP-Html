@@ -118,8 +118,12 @@ export default function UserModule() {
     fetch(API_ENDPOINTS.USERS, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
-      .then(res => res.json())
-      .then(setData);
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(setData)
+      .catch(err => console.error('Users fetch error:', err));
   }, []);
 
   // When selected user changes, load their permissions
@@ -298,8 +302,9 @@ export default function UserModule() {
         },
         body: JSON.stringify({ permissions: permissionsMap }),
       });
-      const result = await res.json();
-      if (res.ok) {
+      const contentType = res.headers.get('content-type');
+      const result = contentType?.includes('application/json') ? await res.json() : null;
+      if (res.ok && result) {
         setData((prev: any) => ({
           ...prev,
           registry: prev.registry.map((u: any) => String(u.id) === String(selectedUserId) ? result : u),

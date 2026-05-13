@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
   REPORTS: `${API_BASE_URL}/reports/`,
   LOGIN: `${API_BASE_URL}/users/login/`,
   DASHBOARD: `${API_BASE_URL}/reports/dashboard/`,
+  PAYMENTS: `${API_BASE_URL}/payments/`,
 };
 
 export default API_BASE_URL;

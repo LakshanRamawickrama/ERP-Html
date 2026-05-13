@@ -50,7 +50,10 @@ export default function SystemAccessModule() {
         'Content-Type': 'application/json'
       }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(setData);
   }, []);
 
@@ -149,20 +152,23 @@ export default function SystemAccessModule() {
       });
       
       if (res.ok) {
-        const savedItem = await res.json();
-        setData((prev: any) => {
-          if (editingId) {
-            return {
-              ...prev,
-              credentials: prev.credentials.map((c: any) => c.id === editingId ? savedItem : c)
-            };
-          } else {
-            return {
-              ...prev,
-              credentials: [savedItem, ...prev.credentials]
-            };
-          }
-        });
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const savedItem = await res.json();
+          setData((prev: any) => {
+            if (editingId) {
+              return {
+                ...prev,
+                credentials: prev.credentials.map((c: any) => c.id === editingId ? savedItem : c)
+              };
+            } else {
+              return {
+                ...prev,
+                credentials: [savedItem, ...prev.credentials]
+              };
+            }
+          });
+        }
         setEditingId(null);
         setFormData({ biz: '', service: '', account: '', password: '', status: '', support: '', notes: '' });
       }

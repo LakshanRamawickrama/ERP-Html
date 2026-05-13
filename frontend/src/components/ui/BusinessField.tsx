@@ -58,8 +58,7 @@ export function BusinessField({ value, onChange, businesses: initialBusinesses =
             }
           });
 
-          if (!res.ok) throw new Error('Fetch failed');
-
+          if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
           const data = await res.json();
 
           // Try multiple locations for business names

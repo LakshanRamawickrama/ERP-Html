@@ -71,7 +71,10 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
         'Content-Type': 'application/json'
       }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then(d => {
         setData(d);
         setLoading(false);
@@ -145,8 +148,10 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
             'Content-Type': 'application/json'
           }
         });
-        const newData = await res.json();
-        setData(newData);
+        if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+          const newData = await res.json();
+          setData(newData);
+        }
         setLoading(false);
         handleCancelEdit();
       } else {
@@ -185,8 +190,10 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
               'Content-Type': 'application/json'
             }
           });
-          const newData = await res.json();
-          setData(newData);
+          if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+            const newData = await res.json();
+            setData(newData);
+          }
           setShowDeleteModal(false);
           setDeleteId(null);
         } else {

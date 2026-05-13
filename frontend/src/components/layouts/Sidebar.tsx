@@ -17,7 +17,8 @@ import {
   Building,
   ChartLine,
   LogOut,
-  Bell
+  Bell,
+  CreditCard
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,7 +37,8 @@ const navItems = [
   { label: 'Legal & Compliance',   href: '/legal',         icon: Gavel,           module: 'Legal & Compliance' },
   { label: 'Property Management',  href: '/property',      icon: Building,        module: 'Property Management' },
   { label: 'Reports',              href: '/reports',       icon: ChartLine,       module: 'Reports' },
-  { label: 'Reminders',            href: '/reminders',     icon: Bell,            module: 'Reminders' },
+  { label: 'Payment Services',    href: '/payments',      icon: CreditCard,       module: 'Payment Services' },
+  { label: 'Reminders',           href: '/reminders',     icon: Bell,             module: 'Reminders' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {

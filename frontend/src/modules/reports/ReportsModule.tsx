@@ -44,7 +44,10 @@ export default function ReportsModule() {
     fetch(`${API_ENDPOINTS.REPORTS}?days=${dateRange}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(setData)
       .finally(() => setTimeout(() => setRefreshing(false), 800));
   }, [dateRange]);

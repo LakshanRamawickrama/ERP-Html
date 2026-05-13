@@ -62,12 +62,19 @@ export default function AccountingModule() {
   const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
 
   const fetchAccounting = async () => {
-    const token = localStorage.getItem('token');
-    const res = await fetch(API_ENDPOINTS.ACCOUNTING, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const d = await res.json();
-    setData(d);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.ACCOUNTING, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { console.error('Accounting fetch failed:', res.status); return; }
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) { console.error('Accounting: non-JSON response'); return; }
+      const d = await res.json();
+      setData(d);
+    } catch (err) {
+      console.error('Accounting fetch error:', err);
+    }
   };
 
   React.useEffect(() => {

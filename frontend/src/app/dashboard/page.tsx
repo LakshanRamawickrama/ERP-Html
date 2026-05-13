@@ -132,8 +132,13 @@ export default function Dashboard() {
     fetch(API_ENDPOINTS.BUSINESS, { 
       headers: { 'Authorization': `Bearer ${token}` } 
     })
-      .then(res => res.json())
-      .then(data => setBusinesses(data.entities || []))
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
+        return res.json();
+      })
+      .then(data => {
+        if (data) setBusinesses(data.entities || []);
+      })
       .catch(() => {});
 
     fetch(API_ENDPOINTS.DASHBOARD, {
@@ -148,6 +153,7 @@ export default function Dashboard() {
         router.push('/login');
         return;
       }
+      if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
       return res.json();
     })
     .then(data => {
@@ -163,7 +169,10 @@ export default function Dashboard() {
       fetch(API_ENDPOINTS.REMINDERS, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
+        return res.json();
+      })
       .then(remindersData => {
         if (Array.isArray(remindersData)) {
           const urgent = remindersData.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
@@ -196,7 +205,10 @@ export default function Dashboard() {
       headers: authHeaders(),
       body: JSON.stringify({ ...newEmail, status: 'Connected' }),
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(saved => {
         if (editingEmailId) {
           setDash((prev: any) => ({
@@ -240,7 +252,10 @@ export default function Dashboard() {
       headers: authHeaders(),
       body: JSON.stringify({ text: noteInput, is_pinned: false, color: 'yellow' }),
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(saved => {
         setDash((prev: any) => ({ ...prev, notes: [saved, ...prev.notes] }));
         setNoteInput('');
@@ -253,7 +268,10 @@ export default function Dashboard() {
       headers: authHeaders(),
       body: JSON.stringify({ is_pinned: !currentPin }),
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(updated => {
         setDash((prev: any) => ({
           ...prev,
@@ -270,7 +288,10 @@ export default function Dashboard() {
       headers: authHeaders(),
       body: JSON.stringify({ color: nextColor }),
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(updated => {
         setDash((prev: any) => ({
           ...prev,

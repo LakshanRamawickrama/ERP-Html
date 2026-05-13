@@ -372,7 +372,10 @@ export default function BusinessDetailPage() {
     fetch(`${API_ENDPOINTS.BUSINESS}${slug}/`, {
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+        return res.json();
+      })
       .then(d => setData(d))
       .catch(err => console.error(err));
   }, [slug]);

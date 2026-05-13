@@ -40,6 +40,12 @@ export default function LoginPage() {
         body: JSON.stringify({ username: email, password: password }),
       });
 
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        setError('Server returned an invalid response. Please contact support.');
+        setIsLoading(false);
+        return;
+      }
       const data = await response.json();
 
       if (response.ok && data.status === 'success') {

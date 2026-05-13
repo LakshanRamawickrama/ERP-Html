@@ -42,6 +42,9 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
         const res = await fetch(API_ENDPOINTS.REMINDERS, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!res.ok) { console.error('Reminders fetch failed:', res.status); return; }
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) { console.error('Reminders: non-JSON response'); return; }
         const data = await res.json();
         
         // Map types to icons

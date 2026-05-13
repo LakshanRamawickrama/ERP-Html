@@ -49,6 +49,8 @@ export const FORM_OPTIONS = {
   fleetVehicleShort: ['CAR 1', 'VAN 2'],
   fleetAgreementStatuses: ['Active', 'Pending', 'Expired'],
   businessCategories: ['Retail', 'Manufacturing', 'Service Provider', 'Holding Company', 'Other'],
+  paymentProviders: ['Dojo', 'PayPoint', 'PayZone', 'Lottery', 'Barclaycard', 'Worldpay', 'SumUp', 'Square', 'Stripe'],
+  paymentStatuses: ['Pending', 'Processing', 'Paid', 'Failed', 'Reversed', 'Refunded'],
 };
 
 // Mock data removed - Now fetching from MongoDB via Django API
@@ -117,3 +119,51 @@ export const LOGIN_CREDENTIALS = {
 };
 export const REPORT_TEMPLATES = [];
 export const REMINDERS = [];
+export const PAYMENT_RECORDS = [
+  {
+    id: 'pay-001',
+    provider: 'Dojo',
+    biz: 'Main Retail Store',
+    type: 'Card Payment',
+    transDate: '2026-05-13',
+    transRef: 'DJ-999-001',
+    gross: '450.00',
+    comm: '12.50',
+    net: '437.50',
+    status: 'Paid',
+    method: 'Card',
+    staff: 'Admin',
+    notes: 'Standard settlement'
+  },
+  {
+    id: 'pay-002',
+    provider: 'Lottery',
+    biz: 'Whiterock Retail Ltd',
+    type: 'Lottery sale',
+    transDate: '2026-05-13',
+    transRef: 'LT-888-002',
+    gross: '120.00',
+    comm: '6.00',
+    net: '114.00',
+    status: 'Paid',
+    gameType: 'EuroMillions',
+    drawDate: '2026-05-14',
+    ticketNum: 'SN-777-111',
+    staff: 'Manager'
+  },
+  {
+    id: 'pay-003',
+    provider: 'PayPoint',
+    biz: 'Zenith Logistics Hub',
+    type: 'Bill payment',
+    transDate: '2026-05-12',
+    transRef: 'PP-111-003',
+    gross: '85.00',
+    comm: '1.50',
+    net: '83.50',
+    status: 'Pending',
+    billType: 'Electricity',
+    custRef: 'ACC-555',
+    providerName: 'British Gas'
+  }
+];
