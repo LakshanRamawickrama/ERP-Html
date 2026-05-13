@@ -235,11 +235,6 @@ export default function AccountingModule() {
             <Pill type="expense" label="Expenses" value={data.summary?.expenses || "$0.00"} />
           </div>
         </div>
-
-        <button onClick={() => setIsWide(!isWide)} className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all uppercase shadow-sm">
-          {isWide ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-          {isWide ? 'Standard' : 'Wide'}
-        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
