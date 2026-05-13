@@ -115,8 +115,25 @@ def seed_data():
 
     # 4. Accounting
     Transaction.objects.all().delete()
-    Transaction.objects.create(title='HQ Office Rent', category='Rent', type='Expense', amount=2500.00, date='2026-04-01', status='Paid', notes='Apr 2026 - Mar 2027', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
-    Transaction.objects.create(title='Product Sales Revenue', category='Income', type='Income', amount=12500.00, date='2026-04-15', status='Paid', notes='Retail sales Q1', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    # Rent Records
+    Transaction.objects.create(title='HQ Office Rent - April', category='Rent', type='Expense', amount=2500.00, date='2026-04-01', status='Paid', notes='Monthly rent for main London office', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Transaction.objects.create(title='Warehouse Rent - Manchester', category='Rent', type='Expense', amount=4500.00, date='2026-05-01', status='Pending', notes='Lease for Northern logistics base', business=BUSINESS_2, created_by=SUPER_ADMIN_EMAIL)
+    
+    # Supplier Payments
+    Transaction.objects.create(title='Payment to Global Logistics', category='Supplier Payments', type='Expense', amount=1250.00, date='2026-05-13', status='Paid', notes='Delivery service fees', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Transaction.objects.create(title='Stock Purchase - TechConnect', category='Supplier Payments', type='Expense', amount=3200.00, date='2026-05-10', status='Paid', notes='New till hardware', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Transaction.objects.create(title='Office Supplies - Depot', category='Supplier Payments', type='Expense', amount=145.50, date='2026-05-12', status='Paid', notes='Stationery and printer ink', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    
+    # Mortgage Records
+    Transaction.objects.create(title='Bristol Property Mortgage', category='Mortgage', type='Expense', amount=1850.00, date='2026-05-01', status='Paid', notes='Monthly repayment - Retail Unit 3', business=BUSINESS_3, created_by=SUPER_ADMIN_EMAIL)
+    Transaction.objects.create(title='London HQ Mortgage Repayment', category='Mortgage', type='Expense', amount=5200.00, date='2026-05-15', status='Pending', notes='Principal + Interest', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    
+    # Insurance Payments
+    Transaction.objects.create(title='Professional Indemnity Premium', category='Insurance', type='Expense', amount=450.00, date='2026-01-15', status='Paid', notes='Annual policy', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    
+    # Income Records
+    Transaction.objects.create(title='Retail Sales - Week 18', category='Income', type='Income', amount=12500.00, date='2026-05-07', status='Paid', notes='Store revenue', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    Transaction.objects.create(title='Consultancy Income', category='Income', type='Income', amount=3500.00, date='2026-05-12', status='Paid', notes='B2B logistics consulting', business=BUSINESS_2, created_by=SUPER_ADMIN_EMAIL)
 
     Invoice.objects.all().delete()
     Invoice.objects.create(number='INV-2026-001', client='Alpha Trading Co.', amount=5000.00, due_date='2026-04-30', status='Paid', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
@@ -130,7 +147,9 @@ def seed_data():
 
     InsurancePolicy.objects.all().delete()
     InsurancePolicy.objects.create(type='Public Liability', provider='Aviva Business', policy_number='PL-887766', premium=1200.00, start_date='2026-01-01', expiry_date='2026-12-31', renewal_reminder='30 Days Before', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    InsurancePolicy.objects.create(type='Fleet Insurance', provider='Direct Line', policy_number='FL-223344', premium=4500.00, start_date='2026-03-01', expiry_date='2027-03-01', renewal_reminder='15 Days Before', status='Active', business=BUSINESS_2, created_by=SUPER_ADMIN_EMAIL)
 
+    VATRecord.objects.all().delete()
     VATRecord.objects.create(
         type='VAT Return Q1', 
         amount=4250.00, 
@@ -139,6 +158,17 @@ def seed_data():
         filing_deadline='2026-04-10',
         payment_due='2026-04-10',
         status='Paid', 
+        business=BUSINESS_1, 
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    VATRecord.objects.create(
+        type='Corporation Tax 2025', 
+        amount=12400.00, 
+        period_start='2025-01-01',
+        period_end='2025-12-31',
+        filing_deadline='2026-09-30',
+        payment_due='2026-10-01',
+        status='Pending', 
         business=BUSINESS_1, 
         created_by=SUPER_ADMIN_EMAIL
     )

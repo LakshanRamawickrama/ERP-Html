@@ -26,6 +26,7 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -56,6 +57,7 @@ export default function AccountingModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [filterSub, setFilterSub] = useState<string>('All');
 
 
   const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
@@ -185,11 +187,7 @@ export default function AccountingModule() {
       const val = target.value;
       setFormData((prev: any) => {
         const next = { ...prev, [name]: val };
-        if (activeTab === 'dojo' && (name === 'amount' || name === 'fee')) {
-          const amt = parseFloat(next.amount || 0);
-          const fee = parseFloat(next.fee || 0);
-          next.net = (amt - fee).toFixed(2);
-        }
+
         return next;
       });
       if (name === 'category') {
@@ -253,6 +251,14 @@ export default function AccountingModule() {
                 title={editingId ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Record`}
                 icon={editingId ? Edit : Plus}
                 iconColor="bg-slate-800"
+                headerAction={isWide && canAdd && (
+                  <button 
+                    onClick={() => setIsWide(false)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-white text-[10px] font-bold rounded-lg shadow-sm hover:bg-slate-900 transition-all uppercase"
+                  >
+                    <Plus className="w-3 h-3" /> New Entry
+                  </button>
+                )}
               >
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'records' && (
@@ -268,7 +274,7 @@ export default function AccountingModule() {
                         name="category"
                         value={formData.category}
                         isSelect
-                        options={[...(data.categories || []), 'ADD_NEW']}
+                        options={['Supplier Payments', 'Rent', 'Mortgage', 'Accountant Fees', 'Bank Charges', 'Insurance', 'VAT / Tax', 'ADD_NEW']}
                         onChange={handleInputChange}
                       />
 
@@ -282,30 +288,73 @@ export default function AccountingModule() {
                         />
                       )}
 
-                      {recordCategory === 'Supplier Payments' && <Field label="Supplier" name="supplier" value={formData.supplier} onChange={handleInputChange} isSelect options={data.suppliers || []} />}
+                      {recordCategory === 'Supplier Payments' && <Field label="Supplier" name="supplier" value={formData.supplier} onChange={handleInputChange} isSelect options={['Global Supplies Ltd', 'Tech Connect Inc', 'Office Depot', 'Prime Logistics']} />}
+                      
                       {recordCategory === 'Rent' && (
                         <div className="grid grid-cols-2 gap-4">
-                          <Field label="Rent From" name="rentStart" value={formData.rentStart} onChange={handleInputChange} type="date" />
-                          <Field label="Rent To" name="rentEnd" value={formData.rentEnd} onChange={handleInputChange} type="date" />
-                        </div>
-                      )}
-                      {recordCategory === 'Mortgage' && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <Field label="Payment Mode" name="payMode" value={formData.payMode} onChange={handleInputChange} isSelect options={data.paymentModes || []} />
-                          <Field label="Rate (%)" name="interestRate" value={formData.interestRate} onChange={handleInputChange} type="number" step="0.01" />
+                          <Field label="Rent Term Start" name="rentStart" value={formData.rentStart} onChange={handleInputChange} type="date" />
+                          <Field label="Rent Term End" name="rentEnd" value={formData.rentEnd} onChange={handleInputChange} type="date" />
                         </div>
                       )}
 
+                      {recordCategory === 'Mortgage' && (
+                        <>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Paying Mode" name="mortMode" value={formData.mortMode} onChange={handleInputChange} isSelect options={['Monthly', 'Quarterly', 'Annually']} />
+                            <Field label="Term (Years)" name="mortTerm" value={formData.mortTerm} onChange={handleInputChange} type="number" placeholder="e.g. 25" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Interest Rate (%)" name="mortRate" value={formData.mortRate} onChange={handleInputChange} type="number" step="0.01" placeholder="0.00" />
+                            <Field label="Repayment (£)" name="mortRepay" value={formData.mortRepay} onChange={handleInputChange} type="number" step="0.01" placeholder="0.00" />
+                          </div>
+                        </>
+                      )}
+
+                      {recordCategory === 'Insurance' && (
+                        <>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Insurance Type" name="insType" value={formData.insType} onChange={handleInputChange} placeholder="e.g. Liability" />
+                            <Field label="Provider Name" name="insProvider" value={formData.insProvider} onChange={handleInputChange} />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Policy Number" name="insPolicy" value={formData.insPolicy} onChange={handleInputChange} />
+                            <Field label="Premium Amount (£)" name="insPremium" value={formData.insPremium} onChange={handleInputChange} type="number" step="0.01" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Start Date" name="insStart" value={formData.insStart} onChange={handleInputChange} type="date" />
+                            <Field label="Expiry Date" name="insExpiry" value={formData.insExpiry} onChange={handleInputChange} type="date" />
+                          </div>
+                          <Field label="Renewal Reminder" name="insReminderDynamic" value={formData.insReminderDynamic} onChange={handleInputChange} isSelect options={['30 Days Before', '15 Days Before', '7 Days Before']} />
+                        </>
+                      )}
+
+                      {recordCategory === 'VAT / Tax' && (
+                        <>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Tax Type" name="taxType" value={formData.taxType} onChange={handleInputChange} placeholder="e.g. Corporation Tax" />
+                            <Field label="Tax Amount (£)" name="taxAmount" value={formData.taxAmount} onChange={handleInputChange} type="number" step="0.01" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Period Start" name="taxStart" value={formData.taxStart} onChange={handleInputChange} type="date" />
+                            <Field label="Period End" name="taxEnd" value={formData.taxEnd} onChange={handleInputChange} type="date" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Field label="Filing Date" name="taxFiling" value={formData.taxFiling} onChange={handleInputChange} type="date" />
+                            <Field label="Payment Due" name="taxDue" value={formData.taxDue} onChange={handleInputChange} type="date" />
+                          </div>
+                        </>
+                      )}
+
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Type" name="type" value={formData.type} onChange={handleInputChange} isSelect options={data.recordTypes || []} />
-                        <Field label="Amount ($)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" step="0.01" />
+                        <Field label="Type" name="type" value={formData.type} onChange={handleInputChange} isSelect options={['Income', 'Expense', 'Asset', 'Equity', 'Liability']} />
+                        <Field label="Amount (£)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" step="0.01" placeholder="0.00" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Payment Method" name="payment_method" value={formData.payment_method} onChange={handleInputChange} isSelect options={data.paymentMethods || []} />
-                        <Field label="Reference Number" name="reference_number" value={formData.reference_number} onChange={handleInputChange} placeholder="TXN458921 / INV-2026-001" />
+                        <Field label="Payment Method" name="payment_method" value={formData.payment_method} onChange={handleInputChange} isSelect options={['Bank Transfer', 'Cash', 'Card', 'Cheque']} />
+                        <Field label="Reference # / Transaction ID" name="reference_number" value={formData.reference_number} onChange={handleInputChange} placeholder="e.g. TXN-458921" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.paymentStatuses || []} />
+                        <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={['Paid', 'Pending', 'Overdue']} />
                         <Field label="Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
                       </div>
                       <Field label="Upload Document" name="document" onChange={handleInputChange} type="file" />
@@ -463,7 +512,37 @@ export default function AccountingModule() {
           )}
 
           <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
-            <Card title={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Registry`} icon={FileText}>
+            <Card 
+              title={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Registry`} 
+              icon={FileText}
+              headerAction={
+                <div className="flex items-center gap-3">
+                  {activeTab === 'records' && (
+                    <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 overflow-x-auto no-scrollbar max-w-[600px]">
+                      {['All', 'Supplier Payments', 'Rent', 'Mortgage', 'Insurance', 'VAT / Tax'].map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => setFilterSub(cat)}
+                          className={cn(
+                            "px-3 py-1 text-[9px] font-bold rounded-md transition-all uppercase tracking-tight whitespace-nowrap",
+                            filterSub === cat ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                          )}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => setIsWide(!isWide)}
+                    className="flex items-center gap-1.5 px-2 py-1 text-[9px] font-bold text-slate-500 border border-slate-200 rounded-md hover:bg-white transition-all uppercase tracking-wider"
+                  >
+                    {isWide ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
+                    {isWide ? 'Standard' : 'Wide'} View
+                  </button>
+                </div>
+              }
+            >
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead className="bg-slate-50 border-b border-slate-100">
@@ -471,10 +550,13 @@ export default function AccountingModule() {
                       {activeTab === 'records' && (
                         <>
                           <th className={thClass}>Date</th>
-                          <th className={thClass}>Title</th>
+                          <th className={thClass}>Title / Ref</th>
+                          {isWide && <th className={thClass}>Entity</th>}
                           <th className={thClass}>Category</th>
+                          {isWide && <th className={thClass}>Record Details</th>}
                           <th className={thClass}>Amount</th>
                           <th className={thClass}>Status</th>
+                          {isWide && <th className={thClass}>Payment</th>}
                         </>
                       )}
                       {activeTab === 'invoices' && (
@@ -525,7 +607,20 @@ export default function AccountingModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {activeTab === 'records' && (data.history?.map((r: any, i: number) => <RecordRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'records')} onDelete={() => handleDeleteClick(`record-${r.id}`)} onView={() => handleViewDoc(r.title, r.document_url, r.category)} />) || null)}
+                    {activeTab === 'records' && (data.history
+                      ?.filter((r: any) => filterSub === 'All' || r.category === filterSub)
+                      .map((r: any, i: number) => (
+                        <RecordRow 
+                          key={i} 
+                          {...r} 
+                          isWide={isWide}
+                          canEdit={canEdit} 
+                          canDelete={canDelete} 
+                          onEdit={() => handleEdit(r.id, r, 'records')} 
+                          onDelete={() => handleDeleteClick(`record-${r.id}`)} 
+                          onView={() => handleViewDoc(r.title, r.document_url, r.category)} 
+                        />
+                      )) || null)}
                     {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
                     {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null)}
                     {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null)}
@@ -609,21 +704,73 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function RecordRow({ date, title, category, amount, status, ref, method, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function RecordRow({ date, title, category, amount, status, ref, method, biz, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 font-mono tracking-tighter text-xs">{date}</td>
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800">{title}</div>
-        {ref && <div className="text-[10px] text-slate-400 font-medium">Ref: {ref}</div>}
+        {ref && <div className="text-[10px] text-slate-400 font-medium">ID: {ref}</div>}
       </td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-block ${category === 'Income' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>{category}</div>
-        {method && <div className="text-[10px] text-slate-400 font-medium mt-1">{method}</div>}
+        <div className={cn(
+          "px-2 py-0.5 rounded text-[9px] font-black uppercase inline-block border",
+          category === 'Income' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+          category === 'Rent' ? "bg-indigo-50 text-indigo-600 border-indigo-100" :
+          category === 'Mortgage' ? "bg-blue-50 text-blue-600 border-blue-100" :
+          category === 'VAT / Tax' ? "bg-amber-50 text-amber-600 border-amber-100" :
+          "bg-slate-50 text-slate-600 border-slate-200"
+        )}>{category}</div>
       </td>
-      <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
+      {isWide && (
+        <td className="px-4 py-4">
+          {category === 'Rent' && (
+            <div className="text-[10px] text-slate-500 font-medium">
+              Term: {props.rentStart} to {props.rentEnd}
+            </div>
+          )}
+          {category === 'Mortgage' && (
+            <div className="text-[10px] text-slate-500 font-medium">
+              {props.mortMode} | {props.mortRate}% | {props.mortTerm} yrs
+            </div>
+          )}
+          {category === 'Insurance' && (
+            <div className="text-[10px] text-slate-500 font-medium">
+              Pol: {props.insPolicy} | Exp: {props.insExpiry}
+            </div>
+          )}
+          {category === 'VAT / Tax' && (
+            <div className="text-[10px] text-slate-500 font-medium">
+              Type: {props.taxType} | Due: {props.taxDue}
+            </div>
+          )}
+          {category === 'Supplier Payments' && (
+            <div className="text-[10px] text-slate-500 font-medium italic">
+              Supplier: {props.supplier || 'N/A'}
+            </div>
+          )}
+          {!['Rent', 'Mortgage', 'Insurance', 'VAT / Tax', 'Supplier Payments'].includes(category) && (
+            <div className="text-[10px] text-slate-400 italic">No extra details</div>
+          )}
+        </td>
+      )}
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800">£{Number(amount).toLocaleString()}</div>
+        {isWide && <div className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">GBP</div>}
+      </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} onView={onView} showEye canEdit={canEdit} canDelete={canDelete} /></td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] font-bold text-slate-600">{method || 'N/A'}</div>
+          <div className="text-[9px] text-slate-400 truncate max-w-[100px]">{props.reference_number || '-'}</div>
+        </td>
+      )}
+      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} onView={onView} showEye={!!props.document_url} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
