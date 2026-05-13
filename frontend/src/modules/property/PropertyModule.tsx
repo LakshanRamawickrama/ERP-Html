@@ -200,10 +200,18 @@ export default function PropertyModule() {
                       <Field 
                         label="Asset Type" 
                         isSelect 
-                        options={data.assetTypes || []} 
+                        options={[...(data.assetTypes || []), 'ADD_NEW']} 
                         value={formData.asset_type || ''} 
                         onChange={(val: string) => setFormData({...formData, asset_type: val})} 
                       />
+                      {formData.asset_type === 'ADD_NEW' && (
+                        <Field 
+                          label="Specify Asset Type" 
+                          placeholder="Enter new asset type" 
+                          value={formData.custom_asset_type || ''} 
+                          onChange={(val: string) => setFormData({...formData, custom_asset_type: val, asset_type: val})} 
+                        />
+                      )}
                       <Field 
                         label="Assigned Person" 
                         placeholder="Name of responsible person" 
@@ -419,39 +427,57 @@ export default function PropertyModule() {
                     <tr>
                       {activeTab === 'inventory' && (
                         <>
-                          <th className={thClass}>Asset</th>
-                          <th className={thClass}>Location</th>
-                          <th className={thClass}>Type</th>
-                          <th className={thClass}>Document</th>
-                          <th className={thClass}>Assigned / Contact</th>
-                          <th className={thClass}>Status</th>
+                          <th className={thClass}>Business Name</th>
+                          <th className={thClass}>Asset Name</th>
+                          <th className={thClass}>Location / Floor</th>
+                          <th className={thClass}>Asset Type</th>
+                          {isWide && (
+                            <>
+                              <th className={thClass}>Assigned Person</th>
+                              <th className={thClass}>Contact Number</th>
+                              <th className={thClass}>Notes</th>
+                            </>
+                          )}
+                          <th className={thClass}>Asset Document</th>
+                          {!isWide && <th className={thClass}>Assigned / Contact</th>}
                         </>
                       )}
                       {activeTab === 'requests' && (
                         <>
-                          <th className={thClass}>Date</th>
-                          <th className={thClass}>Issue</th>
+                          <th className={thClass}>Business Name</th>
+                          <th className={thClass}>Issue Description</th>
+                          <th className={thClass}>Request Date</th>
+                          <th className={thClass}>Select Asset</th>
                           <th className={thClass}>Priority</th>
-                          <th className={thClass}>Asset</th>
-                          <th className={thClass}>Technician</th>
-                          <th className={thClass}>Status</th>
+                          {isWide && (
+                            <>
+                              <th className={thClass}>Assigned Technician</th>
+                              <th className={thClass}>Request Notes</th>
+                            </>
+                          )}
+                          {!isWide && <th className={thClass}>Technician</th>}
                         </>
                       )}
                       {activeTab === 'waste' && (
                         <>
+                          <th className={thClass}>Business Name</th>
+                          <th className={thClass}>Contact Name</th>
+                          {isWide && <th className={thClass}>Phone Number</th>}
+                          <th className={thClass}>Collection Address</th>
                           <th className={thClass}>Pick-up Date</th>
-                          <th className={thClass}>Contact Person</th>
-                          <th className={thClass}>Address / Location</th>
-                          <th className={thClass}>Status</th>
+                          {isWide && <th className={thClass}>Notes</th>}
                         </>
                       )}
                       {activeTab === 'licence' && (
                         <>
-                          <th className={thClass}>Licence / Business</th>
-                          <th className={thClass}>Authority</th>
-                          <th className={thClass}>Expiry</th>
+                          <th className={thClass}>Licence Type</th>
+                          <th className={thClass}>Business Name</th>
                           <th className={thClass}>Issue Date</th>
+                          <th className={thClass}>Expiry Date</th>
+                          {isWide && <th className={thClass}>Issuing Authority</th>}
+                          {!isWide && <th className={thClass}>Authority</th>}
                           <th className={thClass}>Status</th>
+                          <th className={thClass}>Document</th>
                         </>
                       )}
                       <th className={thClass}>Actions</th>
@@ -463,6 +489,7 @@ export default function PropertyModule() {
                         <PropertyRow
                           key={i}
                           {...r}
+                          isWide={isWide}
                           onEdit={() => handleEdit(`asset-${i}`, r, 'inventory')}
                           onDelete={() => handleDeleteClick(`asset-${i}`)}
                           onView={() => handleViewDoc(r.doc)}
@@ -472,16 +499,17 @@ export default function PropertyModule() {
                     )}
 
                     {activeTab === 'requests' && (
-                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'waste' && (
-                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'licence' && (
                       data.licences?.map((r: any, i: number) => (
                         <LicenceRow
                           key={i}
                           {...r}
+                          isWide={isWide}
                           onEdit={() => handleEdit(`licence-${i}`, r, 'licence')}
                           onDelete={() => handleDeleteClick(`licence-${i}`)}
                           onView={() => handleViewDoc(r.type + " - " + r.biz)}
@@ -529,35 +557,50 @@ function TabButton({ active, label, onClick }: any) {
   );
 }
 
-function PropertyRow({ name, sub, type, doc, person, contact, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function PropertyRow({ name, location, asset_type, biz, doc, person, contact, status, notes, isWide, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
       <td className="px-4 py-3">
+        <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+      </td>
+      <td className="px-4 py-3">
         <div className="font-bold text-slate-800">{name}</div>
       </td>
-      <td className="px-4 py-3 text-slate-500 font-medium">{sub}</td>
-      <td className="px-4 py-3"><span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">{type}</span></td>
+      <td className="px-4 py-3 text-slate-500 font-medium">{location}</td>
+      <td className="px-4 py-3"><span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">{asset_type}</span></td>
+      {isWide && (
+        <>
+          <td className="px-4 py-3">
+            <div className="text-[11px] leading-tight font-bold text-slate-700">{person}</div>
+          </td>
+          <td className="px-4 py-3">
+            <div className="text-[11px] text-slate-400">{contact}</div>
+          </td>
+          <td className="px-4 py-3">
+            <div className="text-[10px] text-slate-500 max-w-[150px] truncate" title={notes}>{notes || 'N/A'}</div>
+          </td>
+        </>
+      )}
       <td className="px-4 py-3">
         <button 
           onClick={onView}
           className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 border border-slate-100 px-2 py-1 rounded-md w-fit hover:bg-white hover:shadow-sm transition-all cursor-pointer"
         >
           <FileText className="w-3 h-3 text-red-500" />
-          {doc}
+          {doc || 'Manual.pdf'}
         </button>
       </td>
 
-      <td className="px-4 py-3">
-        <div className="text-[11px] leading-tight">
-          <div className="font-bold text-slate-700">{person}</div>
-          <div className="text-slate-400">{contact}</div>
-        </div>
-      </td>
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase">{status}</span>
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex gap-2">
+      {!isWide && (
+        <td className="px-4 py-3">
+          <div className="text-[11px] leading-tight">
+            <div className="font-bold text-slate-700">{person}</div>
+            <div className="text-slate-400">{contact}</div>
+          </div>
+        </td>
+      )}
+      <td className="px-4 py-3 text-right">
+        <div className="flex justify-end gap-2">
           {canEdit && (
             <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
               <Edit className="w-3.5 h-3.5" />
@@ -574,23 +617,31 @@ function PropertyRow({ name, sub, type, doc, person, contact, status, onEdit, on
   );
 }
 
-function RequestRow({ date, issue, asset, tech, prio, status, onEdit, onDelete, canEdit, canDelete }: any) {
+function RequestRow({ date, issue, biz, asset_name, technician, priority, status, notes, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{date}</td>
+      <td className="px-4 py-3">
+        <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+      </td>
       <td className="px-4 py-3 font-bold text-slate-800">{issue}</td>
+      <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{date}</td>
+      <td className="px-4 py-3 text-slate-500 font-medium">{asset_name}</td>
       <td className="px-4 py-3">
         <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase ${
-          prio === 'Urgent' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
-        }`}>{prio}</span>
+          priority === 'Urgent' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+        }`}>{priority}</span>
       </td>
-      <td className="px-4 py-3 text-slate-500 font-medium">{asset}</td>
-      <td className="px-4 py-3 text-slate-600">{tech}</td>
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded uppercase">{status}</span>
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex gap-2">
+      {isWide && (
+        <>
+          <td className="px-4 py-3 text-slate-600 font-medium">{technician}</td>
+          <td className="px-4 py-3">
+            <div className="text-[10px] text-slate-500 max-w-[200px] truncate" title={notes}>{notes || 'No detailed description provided.'}</div>
+          </td>
+        </>
+      )}
+      {!isWide && <td className="px-4 py-3 text-slate-600">{technician}</td>}
+      <td className="px-4 py-3 text-right">
+        <div className="flex justify-end gap-2">
           {canEdit && (
             <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
               <Edit className="w-3.5 h-3.5" />
@@ -607,20 +658,26 @@ function RequestRow({ date, issue, asset, tech, prio, status, onEdit, onDelete, 
   );
 }
 
-function WasteRow({ date, contact, phone, addr, status, onEdit, onDelete, canEdit, canDelete }: any) {
+function WasteRow({ pickup_date, biz, contact_name, phone, address, status, notes, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{date}</td>
       <td className="px-4 py-3">
-        <div className="font-bold text-slate-800">{contact}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{phone}</div>
-      </td>
-      <td className="px-4 py-3 text-slate-500">{addr}</td>
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase">{status}</span>
+        <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
       </td>
       <td className="px-4 py-3">
-        <div className="flex gap-2">
+        <div className="font-bold text-slate-800">{contact_name}</div>
+        {!isWide && <div className="text-[10px] text-slate-400 font-medium">{phone}</div>}
+      </td>
+      {isWide && <td className="px-4 py-3 text-[11px] text-slate-500 font-medium">{phone}</td>}
+      <td className="px-4 py-3 text-slate-500">{address}</td>
+      <td className="px-4 py-3 text-slate-500 font-mono tracking-tighter">{pickup_date}</td>
+      {isWide && (
+        <td className="px-4 py-3">
+          <div className="text-[10px] text-slate-500 italic truncate max-w-[150px]" title={notes}>{notes || 'General Waste Collection'}</div>
+        </td>
+      )}
+      <td className="px-4 py-3 text-right">
+        <div className="flex justify-end gap-2">
           {canEdit && (
             <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
               <Edit className="w-3.5 h-3.5" />
@@ -637,34 +694,32 @@ function WasteRow({ date, contact, phone, addr, status, onEdit, onDelete, canEdi
   );
 }
 
-function LicenceRow({ type, biz, auth, expiry, issue, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function LicenceRow({ type, biz, auth, expiry_date, issue_date, status, licence_number, isWide, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={onView}
-            className="p-2 bg-slate-100 rounded-lg text-slate-500 hover:bg-white hover:shadow-sm transition-all"
-          >
-            <FileText className="w-3.5 h-3.5 text-red-500" />
-          </button>
-          <div className="flex flex-col">
-            <div className="font-bold text-slate-800">{type}</div>
-            <div className="text-[10px] text-slate-400 font-medium">{biz}</div>
-          </div>
-        </div>
-      </td>
-
-      <td className="px-4 py-3 text-slate-500 font-medium">{auth}</td>
-      <td className="px-4 py-3 font-mono text-slate-600">{expiry}</td>
-      <td className="px-4 py-3 font-mono text-slate-400 text-xs">{issue}</td>
+      <td className="px-4 py-3 font-bold text-slate-800">{type}</td>
+      <td className="px-4 py-3 text-xs font-bold text-slate-600">{biz}</td>
+      <td className="px-4 py-3 font-mono text-slate-400 text-xs">{issue_date}</td>
+      <td className="px-4 py-3 font-mono text-slate-600 font-bold">{expiry_date}</td>
+      {isWide && (
+        <td className="px-4 py-3 text-slate-500 font-medium text-xs">{auth}</td>
+      )}
+      {!isWide && <td className="px-4 py-3 text-slate-500 font-medium">{auth}</td>}
       <td className="px-4 py-3">
         <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase ${
           status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
         }`}>{status}</span>
       </td>
       <td className="px-4 py-3">
-        <div className="flex gap-2">
+        <button 
+          onClick={onView}
+          className="p-1.5 bg-slate-100 rounded-lg text-slate-500 hover:bg-white hover:shadow-sm transition-all"
+        >
+          <FileText className="w-3.5 h-3.5 text-red-500" />
+        </button>
+      </td>
+      <td className="px-4 py-3 text-right">
+        <div className="flex justify-end gap-2">
           {canEdit && (
             <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
               <Edit className="w-3.5 h-3.5" />
@@ -692,7 +747,11 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
           className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 transition-all"
         >
           <option value="">Select {label}</option>
-          {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+          {options.map((opt: string) => (
+            <option key={opt} value={opt}>
+              {opt === 'ADD_NEW' ? '+ Add New Category...' : opt}
+            </option>
+          ))}
         </select>
       ) : isTextArea ? (
         <textarea 
