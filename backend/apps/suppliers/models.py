@@ -1,12 +1,15 @@
 from django.db import models
 
 class Supplier(models.Model):
+    supplier_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     name = models.CharField(max_length=255)
     contact_person = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=50)
     category = models.CharField(max_length=100)
     status = models.CharField(max_length=50, default='Active')
+    address = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
     business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
 

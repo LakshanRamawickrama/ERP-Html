@@ -227,7 +227,7 @@ def seed_data():
 
     # 9. Suppliers
     Supplier.objects.all().delete()
-    s1 = Supplier.objects.create(name='Global Logistics Partners', contact_person='Sales Team', email='contact@global.com', phone='+44 20 7123 4567', category='Services', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    s1 = Supplier.objects.create(supplier_id='SUP-0001', name='Global Logistics Partners', contact_person='Sales Team', email='contact@global.com', phone='+44 20 7123 4567', category='Services', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
     PurchaseOrder.objects.all().delete()
     PurchaseOrder.objects.create(number='PO-2026-001', supplier=s1, product='Industrial Lubricants', quantity=12, amount=1250.00, date='2026-05-15', status='Paid', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)

@@ -42,19 +42,29 @@ export default function SupplierModule() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
+  const fetchData = () => {
     fetch(API_ENDPOINTS.SUPPLIERS, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json'
       }
     })
-      .then(res => {
-        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+      .then(async res => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
+          const text = await res.text();
+          console.error("Fetch error details:", text);
+          throw new Error('Fetch failed: ' + text.substring(0, 100));
+        }
         return res.json();
       })
-      .then(setData);
+      .then(setData)
+      .catch(err => {
+        console.error("Supplier data fetch error:", err);
+      });
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {
@@ -68,14 +78,31 @@ export default function SupplierModule() {
     setFormData({});
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      console.log('Updating:', editingId, formData);
-    } else {
-      console.log('Creating:', formData);
+    const isSupplier = activeTab === 'suppliers';
+    const endpoint = isSupplier ? `${API_ENDPOINTS.SUPPLIERS}suppliers/` : `${API_ENDPOINTS.SUPPLIERS}orders/`;
+    const url = editingId && !editingId.includes('supplier-') && !editingId.includes('order-') ? `${endpoint}${editingId}/` : endpoint;
+    const method = editingId && !editingId.includes('supplier-') && !editingId.includes('order-') ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!res.ok) throw new Error('Save failed');
+      
+      fetchData();
+      handleCancelEdit();
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Failed to save record.');
     }
-    handleCancelEdit();
   };
 
   const handleDeleteClick = (id: string) => {
@@ -88,11 +115,28 @@ export default function SupplierModule() {
     setIsDrawerOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    const isSupplier = activeTab === 'suppliers';
+    const endpoint = isSupplier ? `${API_ENDPOINTS.SUPPLIERS}suppliers/` : `${API_ENDPOINTS.SUPPLIERS}orders/`;
+    const url = `${endpoint}${deleteId}/`;
 
-    if (deleteId) {
-      console.log('Deleting:', deleteId);
-      // TODO: API call
+    try {
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!res.ok) throw new Error('Delete failed');
+      
+      fetchData();
+      setShowDeleteModal(false);
+      setDeleteId(null);
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Failed to delete record.');
     }
   };
 
@@ -148,12 +192,12 @@ export default function SupplierModule() {
                       />
                       <Field label="Category" isSelect options={data.options?.categories || []} value={formData.category || ''} onChange={(v: string) => setFormData({...formData, category: v})} />
                       <div className="grid grid-cols-1 gap-4">
-                        <Field label="Email Address" type="email" placeholder="contact@vendor.com" />
-                        <Field label="Phone Number" type="tel" placeholder="+44 20 0000 0000" />
+                        <Field label="Email Address" type="email" placeholder="contact@vendor.com" value={formData.email || ''} onChange={(v: string) => setFormData({...formData, email: v})} />
+                        <Field label="Phone Number" type="tel" placeholder="+44 20 0000 0000" value={formData.phone || ''} onChange={(v: string) => setFormData({...formData, phone: v})} />
                       </div>
-                      <Field label="Business Address" isTextArea placeholder="Full headquarters address..." />
-                      <Field label="Status" isSelect options={data.options?.statuses || []} />
-                      <Field label="Internal Notes" isTextArea placeholder="Payment terms, delivery preferences, etc." />
+                      <Field label="Business Address" isTextArea placeholder="Full headquarters address..." value={formData.address || ''} onChange={(v: string) => setFormData({...formData, address: v})} />
+                      <Field label="Status" isSelect options={data.options?.statuses || []} value={formData.status || ''} onChange={(v: string) => setFormData({...formData, status: v})} />
+                      <Field label="Internal Notes" isTextArea placeholder="Payment terms, delivery preferences, etc." value={formData.notes || ''} onChange={(v: string) => setFormData({...formData, notes: v})} />
                     </>
                   )}
 
@@ -164,19 +208,25 @@ export default function SupplierModule() {
                         onChange={(v) => setFormData({...formData, biz: v})} 
                         businesses={data.options?.businesses || []}
                       />
-                      <Field label="Select Supplier" isSelect options={data.options?.names || []} value={formData.supplier || ''} onChange={(v: string) => setFormData({...formData, supplier: v})} />
+                      <Field 
+                        label="Select Supplier" 
+                        isSelect 
+                        options={data.suppliers?.filter((s: any) => !formData.biz || s.biz === formData.biz).map((s: any) => s.name) || []} 
+                        value={formData.supplier || ''} 
+                        onChange={(v: string) => setFormData({...formData, supplier: v})} 
+                      />
                       <Field label="PO Number" placeholder="e.g. PO-2026-001" value={formData.num || ''} onChange={(v: string) => setFormData({...formData, num: v})} />
-                      <Field label="Order Amount ($)" type="number" step="0.01" />
+                      <Field label="Order Amount ($)" type="number" step="0.01" value={formData.amount || ''} onChange={(v: string) => setFormData({...formData, amount: v})} />
                       <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Product Details</div>
                          <div className="grid grid-cols-2 gap-3">
-                             <Field label="Product Category" isSelect options={data.options?.productCategories || []} />
-                            <Field label="Quantity" type="number" />
+                             <Field label="Product Category" isSelect options={data.options?.productCategories || []} value={formData.product_category || ''} onChange={(v: string) => setFormData({...formData, product_category: v})} />
+                            <Field label="Quantity" type="number" value={formData.qty || ''} onChange={(v: string) => setFormData({...formData, qty: v})} />
                          </div>
-                         <Field label="Product Name" placeholder="e.g. Paper Reams (A4)" />
+                         <Field label="Product Name" placeholder="e.g. Paper Reams (A4)" value={formData.product || ''} onChange={(v: string) => setFormData({...formData, product: v})} />
                       </div>
-                      <Field label="Delivery Due Date" type="date" />
-                       <Field label="Order Status" isSelect options={data.options?.orderStatuses || []} />
+                      <Field label="Delivery Due Date" type="date" value={formData.due || ''} onChange={(v: string) => setFormData({...formData, due: v})} />
+                       <Field label="Order Status" isSelect options={data.options?.orderStatuses || []} value={formData.status || ''} onChange={(v: string) => setFormData({...formData, status: v})} />
                     </>
                   )}
 
@@ -211,13 +261,17 @@ export default function SupplierModule() {
                         <>
                           <th className={thClass}>Supplier Name</th>
                           <th className={thClass}>Category</th>
+                          {isWide && <th className={thClass}>Business</th>}
                           <th className={thClass}>Contact Info</th>
+                          {isWide && <th className={thClass}>Address</th>}
+                          {isWide && <th className={thClass}>Notes</th>}
                           <th className={thClass}>Status</th>
                         </>
                       )}
                       {activeTab === 'orders' && (
                         <>
                           <th className={thClass}>PO # / Supplier</th>
+                          {isWide && <th className={thClass}>Business</th>}
                           <th className={thClass}>Product Details</th>
                           <th className={thClass}>Amount / Due</th>
                           <th className={thClass}>Status</th>
@@ -228,14 +282,15 @@ export default function SupplierModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'suppliers' && (
-                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} onEdit={() => handleEdit(`supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(`supplier-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} isWide={isWide} onEdit={() => handleEdit(s.id || `supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(s.id || `supplier-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'orders' && (
                       data.orders?.map((o: any, i: number) => (
                         <OrderRow
                           key={i}
                           {...o}
-                          onEdit={() => handleEdit(`order-${i}`, o, 'orders')}
+                          isWide={isWide}
+                          onEdit={() => handleEdit(o.id || `order-${i}`, o, 'orders')}
                           onView={() => handleViewDoc(`Purchase Order ${o.num}`, 'Procurement')}
                           canEdit={canEdit}
                         />
@@ -317,16 +372,21 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelete, canEdit, canDelete }: any) {
+function SupplierRow({ supId, name, category, email, phone, biz, addr, notes, status, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
-        <div className="text-[10px] text-slate-400 font-bold mb-0.5">{id}</div>
+        <div className="text-[10px] text-slate-400 font-bold mb-0.5">{supId}</div>
         <div className="font-bold text-slate-800">{name}</div>
       </td>
       <td className="px-4 py-4">
         <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase border border-slate-200">{category}</span>
       </td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded uppercase">{biz}</span>
+        </td>
+      )}
       <td className="px-4 py-4">
         <div className="flex items-center gap-1.5 text-xs text-slate-600 mb-1">
           <Mail className="w-3 h-3 text-slate-400" />
@@ -337,6 +397,8 @@ function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelet
           {phone}
         </div>
       </td>
+      {isWide && <td className="px-4 py-4 text-slate-500 text-[10px] max-w-[200px] truncate" title={addr}>{addr || "-"}</td>}
+      {isWide && <td className="px-4 py-4 text-slate-400 text-[10px] italic max-w-[150px] truncate" title={notes}>{notes || "-"}</td>}
       <td className="px-4 py-4">
         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
           status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
@@ -365,13 +427,18 @@ function SupplierRow({ id, name, category, email, phone, status, onEdit, onDelet
   );
 }
 
-function OrderRow({ num, supplier, product, qty, amount, due, status, onEdit, onView, canEdit }: any) {
+function OrderRow({ num, supplier, product, qty, amount, due, biz, status, isWide, onEdit, onView, canEdit }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800">{num}</div>
         <div className="text-[10px] text-slate-400 font-medium">{supplier}</div>
       </td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded uppercase">{biz}</span>
+        </td>
+      )}
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800 text-xs">{product}</div>
         <div className="text-[10px] text-slate-400 font-medium">Qty: {qty} units</div>
