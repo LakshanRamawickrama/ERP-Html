@@ -232,16 +232,40 @@ class VATRecordView(APIView):
         try:
             record = VATRecord.objects.create(
                 type=data.get('type', ''),
-                period=data.get('period', ''),
                 reference_number=data.get('ref', ''),
+                transaction_reference=data.get('txn_ref', ''),
                 amount=data.get('amount', 0) if data.get('amount') else 0,
-                date=data.get('date') or None,
+                period_start=data.get('start') or None,
+                period_end=data.get('end') or None,
+                filing_deadline=data.get('deadline') or None,
+                payment_due=data.get('due') or None,
                 document=files.get('document'),
-                status=data.get('status', 'Pending'),
+                status=data.get('status', 'Draft'),
                 business=getattr(request.user, 'assigned_business', ''),
                 created_by=request.user.email
             )
             return Response(VATRecordSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        record = get_object_or_404(VATRecord, pk=pk)
+        data = request.data
+        files = request.FILES
+        try:
+            record.type = data.get('type', record.type)
+            record.reference_number = data.get('ref', record.reference_number)
+            record.transaction_reference = data.get('txn_ref', record.transaction_reference)
+            record.amount = data.get('amount', record.amount)
+            record.period_start = data.get('start') or record.period_start
+            record.period_end = data.get('end') or record.period_end
+            record.filing_deadline = data.get('deadline') or record.filing_deadline
+            record.payment_due = data.get('due') or record.payment_due
+            record.status = data.get('status', record.status)
+            if files.get('document'):
+                record.document = files.get('document')
+            record.save()
+            return Response(VATRecordSerializer(record, context={'request': request}).data)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

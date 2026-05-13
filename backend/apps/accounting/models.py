@@ -76,10 +76,13 @@ class InsurancePolicy(models.Model):
 
 class VATRecord(models.Model):
     type = models.CharField(max_length=255)
-    period = models.CharField(max_length=100)
     reference_number = models.CharField(max_length=100, blank=True, null=True)
+    transaction_reference = models.CharField(max_length=255, blank=True, null=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
-    date = models.DateField(blank=True, null=True)
+    period_start = models.DateField(blank=True, null=True)
+    period_end = models.DateField(blank=True, null=True)
+    filing_deadline = models.DateField(blank=True, null=True)
+    payment_due = models.DateField(blank=True, null=True)
     document = models.FileField(upload_to='accounting/tax/', blank=True, null=True)
     status = models.CharField(max_length=50, default='Pending')
     business = models.CharField(max_length=255, blank=True, null=True)

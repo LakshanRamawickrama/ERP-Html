@@ -82,6 +82,12 @@ class InsurancePolicySerializer(MongoSerializerMixin, serializers.ModelSerialize
         return None
 
 class VATRecordSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+    ref = serializers.CharField(source='reference_number', required=False, allow_null=True)
+    txn_ref = serializers.CharField(source='transaction_reference', required=False, allow_null=True)
+    start = serializers.DateField(source='period_start', required=False, allow_null=True)
+    end = serializers.DateField(source='period_end', required=False, allow_null=True)
+    deadline = serializers.DateField(source='filing_deadline', required=False, allow_null=True)
+    due = serializers.DateField(source='payment_due', required=False, allow_null=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = VATRecord

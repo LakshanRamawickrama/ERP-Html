@@ -421,15 +421,24 @@ export default function AccountingModule() {
                         onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
-                      <Field label="Tax Type" name="type" value={formData.type} onChange={handleInputChange} placeholder="e.g. VAT Q1" />
-                      <Field label="Reference #" name="ref" value={formData.ref} onChange={handleInputChange} placeholder="HMRC-123456" />
-                      <Field label="Period" name="period" value={formData.period} onChange={handleInputChange} placeholder="Jan - Mar 2024" />
+                      <Field label="Tax Type" name="type" value={formData.type} onChange={handleInputChange} placeholder="Corporation Tax, VAT..." />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Amount ($)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" />
-                        <Field label="Filing Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
+                        <Field label="Tax Reference #" name="ref" value={formData.ref} onChange={handleInputChange} placeholder="e.g. VAT-123456789" />
+                        <Field label="Transaction / Invoice Ref" name="txn_ref" value={formData.txn_ref} onChange={handleInputChange} placeholder="e.g. INV-2024-001" />
                       </div>
-                      <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.vatStatuses || []} />
-                      <Field label="Filing Receipt" name="document" onChange={handleInputChange} type="file" />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Period Start" name="start" value={formData.start} onChange={handleInputChange} type="date" />
+                        <Field label="Period End" name="end" value={formData.end} onChange={handleInputChange} type="date" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Filing Deadline" name="deadline" value={formData.deadline} onChange={handleInputChange} type="date" />
+                        <Field label="Payment Due" name="due" value={formData.due} onChange={handleInputChange} type="date" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Tax Amount (£)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" step="0.01" />
+                        <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.vatStatuses || []} />
+                      </div>
+                      <Field label="Supporting Documents (Receipts, etc.)" name="document" onChange={handleInputChange} type="file" />
                     </>
                   )}
 
@@ -516,8 +525,9 @@ export default function AccountingModule() {
                       {activeTab === 'tax' && (
                         <>
                           <th className={thClass}>Tax Type / Period</th>
+                          <th className={thClass}>References</th>
                           <th className={thClass}>Amount</th>
-                          <th className={thClass}>Date</th>
+                          <th className={thClass}>Deadlines (File/Pay)</th>
                           <th className={thClass}>Status</th>
                         </>
                       )}
@@ -730,15 +740,24 @@ function InsuranceRow({ type, asset, provider, policy, premium, expiry, status, 
   );
 }
 
-function TaxRow({ type, period, amount, date, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function TaxRow({ type, start, end, amount, deadline, due, status, ref, txn_ref, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800">{type}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{period}</div>
+        <div className="text-[10px] text-slate-400 font-medium">{start} to {end}</div>
       </td>
-      <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
-      <td className="px-4 py-4 text-slate-500 font-mono text-xs">{date}</td>
+      <td className="px-4 py-4">
+        {ref && <div className="text-[11px] font-bold text-slate-700">Tax: {ref}</div>}
+        {txn_ref && <div className="text-[10px] text-slate-500 font-medium">Txn: {txn_ref}</div>}
+      </td>
+      <td className="px-4 py-4 font-bold text-slate-800">£{Number(amount).toLocaleString()}</td>
+      <td className="px-4 py-4 text-slate-500 font-mono text-xs">
+        <div className="flex flex-col">
+          <span className="text-[9px] uppercase font-bold text-slate-400">File: {deadline}</span>
+          <span className="text-[9px] uppercase font-bold text-red-400">Pay: {due}</span>
+        </div>
+      </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
       <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
