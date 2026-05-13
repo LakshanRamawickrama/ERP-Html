@@ -63,6 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    sessionStorage.removeItem('hasSeenReminderPopup');
     router.push('/login');
   };
 

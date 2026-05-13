@@ -44,6 +44,40 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+const playNotificationSound = () => {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+
+    const playTone = (freq: number, type: OscillatorType, timeOffset: number, duration: number, vol: number = 0.8) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + timeOffset);
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime + timeOffset);
+      gainNode.gain.linearRampToValueAtTime(vol, ctx.currentTime + timeOffset + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + timeOffset + duration);
+
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc.start(ctx.currentTime + timeOffset);
+      osc.stop(ctx.currentTime + timeOffset + duration);
+    };
+
+    // Play an attractive, loud 3-note modern chime (C5, E5, G5, C6)
+    playTone(523.25, 'triangle', 0.0, 0.4, 0.6);  // C5
+    playTone(659.25, 'triangle', 0.15, 0.4, 0.6); // E5
+    playTone(783.99, 'triangle', 0.3, 0.6, 0.7);  // G5
+    playTone(1046.50, 'sine', 0.45, 1.2, 0.8);    // C6 (High ring)
+  } catch (e) {
+    console.error('Audio playback failed', e);
+  }
+};
+
 export default function Dashboard() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -74,6 +108,8 @@ export default function Dashboard() {
   const [activeDoc, setActiveDoc] = useState<{url: string, title: string} | null>(null);
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState('All Entities');
+  const [showReminderPopup, setShowReminderPopup] = useState(false);
+  const [urgentReminders, setUrgentReminders] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -115,9 +151,32 @@ export default function Dashboard() {
       return res.json();
     })
     .then(data => {
-      if (data) setDash((prev: any) => ({ ...prev, ...data }));
+      if (data) {
+        setDash((prev: any) => ({ ...prev, ...data }));
+      }
     })
     .catch(err => console.error('Dashboard fetch error:', err));
+
+    // Fetch comprehensive reminders for the popup (includes auto-generated Fleet/Legal/etc)
+    const hasSeen = sessionStorage.getItem('hasSeenReminderPopup');
+    if (!hasSeen) {
+      fetch(API_ENDPOINTS.REMINDERS, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(remindersData => {
+        if (Array.isArray(remindersData)) {
+          const urgent = remindersData.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
+          if (urgent.length > 0) {
+            setUrgentReminders(urgent);
+            setShowReminderPopup(true);
+            sessionStorage.setItem('hasSeenReminderPopup', 'true');
+            playNotificationSound();
+          }
+        }
+      })
+      .catch(err => console.error('Reminders fetch error:', err));
+    }
   }, [router]);
 
   const authHeaders = () => ({
@@ -1466,6 +1525,62 @@ export default function Dashboard() {
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center gap-2">
                 <Lock size={10} /> Secure Vault Protection
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reminder Popup */}
+      {showReminderPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowReminderPopup(false)} />
+          <div className="relative bg-white w-full max-w-md rounded-[24px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-red-100">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center ring-4 ring-red-50/50">
+                  <Bell className="w-6 h-6 text-red-500 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 m-0">Attention Required</h3>
+                  <p className="text-[11px] text-slate-500 m-0">You have {urgentReminders.length} urgent/overdue reminder{urgentReminders.length > 1 ? 's' : ''}</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {urgentReminders.map((r, i) => (
+                  <Link 
+                    href="/reminders"
+                    onClick={() => setShowReminderPopup(false)}
+                    key={i} 
+                    className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-start gap-3 cursor-pointer hover:bg-slate-100 hover:border-indigo-200 transition-all block group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0 group-hover:bg-indigo-100 transition-colors">
+                      <AlertTriangle className="w-4 h-4 text-red-600 group-hover:text-indigo-600 transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[12px] font-bold text-slate-800 m-0 group-hover:text-indigo-700 transition-colors">{r.title}</h4>
+                      <p className="text-[10px] text-slate-500 m-0 truncate">{r.business}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        {r.is_overdue && <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold uppercase">Overdue</span>}
+                        {r.priority === 'High' && <span className="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase">High Priority</span>}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-6 flex gap-2">
+                <Link 
+                  href="/reminders"
+                  className="flex-1 flex items-center justify-center py-3 bg-red-600 text-white text-[12px] font-bold rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-100"
+                >
+                  View All Reminders
+                </Link>
+                <button 
+                  onClick={() => setShowReminderPopup(false)}
+                  className="px-6 py-3 bg-slate-100 text-slate-600 text-[12px] font-bold rounded-xl hover:bg-slate-200 transition-all"
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
           </div>
         </div>

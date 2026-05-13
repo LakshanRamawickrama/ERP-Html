@@ -262,11 +262,13 @@ class DashboardDataView(APIView):
 
         # ── Reminders ──────────────────────────────────────────────────
         reminders_data = []
-        for r in reminders_qs.exclude(is_completed=True).order_by('due_date')[:6]:
+        for r in reminders_qs.exclude(is_completed=True).order_by('due_date')[:10]:
             try:
                 due_str = r.due_date.strftime('%Y-%m-%d') if r.due_date else ""
+                is_overdue = r.due_date < today if r.due_date else False
             except Exception:
                 due_str = str(r.due_date)
+                is_overdue = False
             reminders_data.append({
                 "id":          str(r.id),
                 "title":       r.title,
@@ -275,6 +277,7 @@ class DashboardDataView(APIView):
                 "business":    r.business or "",
                 "date":        due_str,
                 "description": r.description,
+                "is_overdue":  is_overdue,
             })
 
         # ── Password Vault (super admin only) ─────────────────────────
