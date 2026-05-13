@@ -116,20 +116,20 @@ class DashboardDataView(APIView):
         ]
 
         # ── VAT / Tax ──────────────────────────────────────────────────
-        vat_data = [
-            {
+        vat_data = []
+        for v in vat_qs[:6]:
+            period_str = f"{v.period_start} to {v.period_end}" if (v.period_start and v.period_end) else "—"
+            vat_data.append({
                 "id": str(v.id),
                 "type":   v.type,
-                "period": v.period,
+                "period": period_str,
                 "ref": v.reference_number or "—",
-                "date": str(v.date) if v.date else "—",
+                "date": str(v.filing_deadline) if v.filing_deadline else "—",
                 "amount": _fmt(v.amount),
                 "doc": request.build_absolute_uri(v.document.url) if v.document else None,
                 "status": v.status,
                 "biz": v.business,
-            }
-            for v in vat_qs[:6]
-        ]
+            })
 
         # ── Sales (latest invoices) ────────────────────────────────────
         sales_data = [

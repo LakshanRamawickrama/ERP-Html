@@ -28,6 +28,13 @@ class CompanyStructure(models.Model):
     address = models.TextField(blank=True, null=True)
     balance_sheet = models.FileField(upload_to='business/balance_sheets/', blank=True, null=True)
     pl_statement = models.FileField(upload_to='business/pl_statements/', blank=True, null=True)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    house_code = models.CharField(max_length=50, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    gps_coordinates = models.CharField(max_length=100, blank=True, null=True)
+    contact_number = models.CharField(max_length=50, blank=True, null=True)
+    opening_hours = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=50, default='Active')
     created_by = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):

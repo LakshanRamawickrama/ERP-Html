@@ -219,6 +219,13 @@ class CompanyStructureView(APIView):
                 address=data.get('address') or data.get('addr', ''),
                 balance_sheet=files.get('balance_sheet'),
                 pl_statement=files.get('pl_statement'),
+                business=data.get('business', ''),
+                house_code=data.get('house_code', ''),
+                location=data.get('location', ''),
+                gps_coordinates=data.get('gps_coordinates', ''),
+                contact_number=data.get('contact_number', ''),
+                opening_hours=data.get('opening_hours', ''),
+                status=data.get('status', 'Active'),
                 created_by=request.user.email
             )
             return Response(CompanyStructureSerializer(structure, context={'request': request}).data, status=http_status.HTTP_201_CREATED)

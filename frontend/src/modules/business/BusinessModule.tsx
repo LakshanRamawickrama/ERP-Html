@@ -219,11 +219,8 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
   const entities = data.entities || [];
   const structures = data.structures || [];
 
-  // Entity names not yet registered in Companies House (exclude current editing target)
-  const registeredNames = new Set(structures.map((s: any) => s.name));
-  const unregisteredEntities = entities
-    .map((e: any) => e.name)
-    .filter((name: string) => !registeredNames.has(name) || name === formData.name);
+  // Business entity names for selection
+  const businessNames = entities.map((e: any) => e.name);
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -376,12 +373,21 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
               ) : (
                 <Card title={editingId ? "Edit Company Registry" : "Companies House Registration"} icon={editingId ? Edit : Landmark} iconColor="bg-[#2c3e50]">
                   <form className="space-y-4" onSubmit={handleSubmit}>
-                    <BusinessField 
-                      value={formData.name || ''} 
-                      onChange={(v) => setFormData({...formData, name: v})} 
-                      businesses={unregisteredEntities}
-                      label="Full Company Name"
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field 
+                        label="House / Office Name" 
+                        placeholder="e.g. London HQ"
+                        value={formData.name || ''} 
+                        onChange={(v: string) => setFormData({...formData, name: v})} 
+                      />
+                      <Field 
+                        label="Linked Business" 
+                        isSelect
+                        options={businessNames}
+                        value={formData.business || ''} 
+                        onChange={(v: string) => setFormData({...formData, business: v})} 
+                      />
+                    </div>
                     <Field 
                       label="Registration Number (CRN)" 
                       placeholder="8-digit number" 
@@ -396,12 +402,50 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <Field 
-                        label="SIC Code" 
-                        placeholder="Nature of Business" 
-                        value={formData.sic_code || ''} 
-                        onChange={(v: string) => setFormData({...formData, sic_code: v})}
+                        label="House Code" 
+                        value={formData.house_code || ''} 
+                        onChange={(v: string) => setFormData({...formData, house_code: v})}
+                      />
+                      <Field 
+                        label="Location" 
+                        value={formData.location || ''} 
+                        onChange={(v: string) => setFormData({...formData, location: v})}
                       />
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field 
+                        label="GPS Coordinates" 
+                        placeholder="e.g. 51.5074, -0.1278"
+                        value={formData.gps_coordinates || ''} 
+                        onChange={(v: string) => setFormData({...formData, gps_coordinates: v})}
+                      />
+                      <Field 
+                        label="Contact Number" 
+                        value={formData.contact_number || ''} 
+                        onChange={(v: string) => setFormData({...formData, contact_number: v})}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field 
+                        label="Opening Hours" 
+                        placeholder="e.g. 09:00 - 18:00"
+                        value={formData.opening_hours || ''} 
+                        onChange={(v: string) => setFormData({...formData, opening_hours: v})}
+                      />
+                      <Field 
+                        label="Status" 
+                        isSelect
+                        options={['Active', 'Inactive', 'Maintenance']}
+                        value={formData.status || 'Active'} 
+                        onChange={(v: string) => setFormData({...formData, status: v})}
+                      />
+                    </div>
+                    <Field 
+                      label="SIC Code" 
+                      placeholder="Nature of Business" 
+                      value={formData.sic_code || ''} 
+                      onChange={(v: string) => setFormData({...formData, sic_code: v})}
+                    />
                     <Field 
                       label="Registered Office Address" 
                       isTextArea 
@@ -465,7 +509,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                 </button>
               }
             >
-              <div className="overflow-x-auto">
+              <div className={isWide ? 'overflow-x-auto' : ''}>
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     {activeTab === 'entities' ? (
@@ -489,11 +533,20 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                       </tr>
                     ) : (
                       <tr>
-                        <th className={thClass}>Company Name</th>
+                        <th className={thClass}>House Name</th>
+                        <th className={thClass}>Code</th>
+                        <th className={thClass}>Business</th>
                         <th className={thClass}>CRN</th>
-                        <th className={thClass}>Managed By</th>
-                        {isWide && <th className={thClass}>SIC Code</th>}
+                        <th className={thClass}>Director</th>
+                        <th className={thClass}>Contact</th>
+                        {isWide && (
+                          <>
+                            <th className={thClass}>Location</th>
+                            <th className={thClass}>Opening Hours</th>
+                          </>
+                        )}
                         <th className={thClass}>Filing Due</th>
+                        <th className={thClass}>Status</th>
                         <th className={thClass}>Docs</th>
                         <th className={thClass}>Actions</th>
                       </tr>
@@ -579,7 +632,7 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
   );
 }
 
-const thClass = "px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider";
+const thClass = "px-3 py-3 text-[9px] font-bold text-slate-400 uppercase tracking-tight";
 
 function EntityRow({ 
   name, logo, phone, email, num, cat, hq, tax_id, currency, timezone, fiscal_year, website,
@@ -647,15 +700,40 @@ function EntityRow({
 
 function StructureRow({ data, name, crn, manager, sic, due, isWide, isSuperAdmin, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
-    <tr className="hover:bg-slate-50/50">
-      <td className="px-4 py-3 font-bold text-slate-800">{name}</td>
-      <td className="px-4 py-3 text-slate-500 font-mono text-xs">{crn}</td>
-      <td className="px-4 py-3 text-slate-500">{manager}</td>
-      {isWide && <td className="px-4 py-3 text-slate-500">{sic}</td>}
-      <td className="px-4 py-3">
-        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded">{due}</span>
+    <tr className="hover:bg-slate-50/50 text-[11px]">
+      <td className="px-3 py-3">
+        <div className="flex flex-col">
+          <span className="font-bold text-slate-800 leading-tight">{name}</span>
+          <span className="text-[9px] text-slate-400 font-medium">Record</span>
+        </div>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-3 py-3 text-slate-600 font-bold">{data.house_code || '—'}</td>
+      <td className="px-3 py-3">
+        <span className="px-1.5 py-0.5 bg-[#2c3e50]/5 text-[#2c3e50] text-[9px] font-bold rounded border border-[#2c3e50]/10 uppercase">
+          {data?.business || '—'}
+        </span>
+      </td>
+      <td className="px-3 py-3 text-slate-400 font-mono text-[10px]">{crn}</td>
+      <td className="px-3 py-3 text-slate-500 font-semibold">{manager}</td>
+      <td className="px-3 py-3 text-slate-500 font-medium">{data.contact_number || '—'}</td>
+      {isWide && (
+        <>
+          <td className="px-3 py-3 text-slate-500 truncate max-w-[120px]">{data.location || '—'}</td>
+          <td className="px-3 py-3 text-slate-500">{data.opening_hours || '—'}</td>
+        </>
+      )}
+      <td className="px-3 py-3">
+        <span className="text-red-500 font-bold">{due}</span>
+      </td>
+      <td className="px-3 py-3">
+        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
+          data.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 
+          data.status === 'Maintenance' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+        }`}>
+          {data.status || 'Active'}
+        </span>
+      </td>
+      <td className="px-3 py-3">
         <div className="flex gap-1.5">
           {data?.balance_sheet_url ? (
             <a href={data.balance_sheet_url} target="_blank" rel="noreferrer"
@@ -681,14 +759,6 @@ function StructureRow({ data, name, crn, manager, sic, due, isWide, isSuperAdmin
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-2">
-          {isSuperAdmin && (
-            <button
-              onClick={onView}
-              className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-[10px] font-bold hover:bg-blue-100 transition-all"
-            >
-              <Eye className="w-3 h-3" /> View
-            </button>
-          )}
           {canEdit && (
             <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 transition-all">
               <Edit className="w-3.5 h-3.5" />
@@ -751,9 +821,14 @@ function CompanyStructureDrawer({ isOpen, onClose, data }: { isOpen: boolean; on
 
             {/* Details grid */}
             <div className="bg-slate-50 rounded-xl border border-slate-200 divide-y divide-slate-200 overflow-hidden">
+              <DetailRow icon={Building2} label="Linked Business" value={data?.business} highlight />
+              <DetailRow icon={Hash} label="House Code" value={data?.house_code} />
               <DetailRow icon={User} label="Director / Manager" value={data?.manager} />
-              <DetailRow icon={Hash} label="SIC Code" value={data?.sic_code || '—'} />
+              <DetailRow icon={Briefcase} label="SIC Code" value={data?.sic_code || '—'} />
               <DetailRow icon={Calendar} label="Confirmation Statement Due" value={data?.filing_due} highlight />
+              <DetailRow icon={MapPin} label="Location" value={data?.location} />
+              <DetailRow icon={Globe} label="GPS Coordinates" value={data?.gps_coordinates} />
+              <DetailRow icon={Calendar} label="Opening Hours" value={data?.opening_hours} />
               <DetailRow icon={MapPin} label="Registered Address" value={data?.address || '—'} multiline />
             </div>
 

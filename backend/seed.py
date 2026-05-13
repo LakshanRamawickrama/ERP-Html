@@ -43,8 +43,36 @@ def seed_data():
     BusinessEntity.objects.create(name=BUSINESS_2, company_number='CH-11223344', category='Logistics', hq_location='Manchester, UK', created_by=SUPER_ADMIN_EMAIL)
     
     CompanyStructure.objects.all().delete()
-    CompanyStructure.objects.create(name=BUSINESS_1, crn='12345678', manager='John Smith', sic_code='47110', filing_due='2026-12-15', created_by=SUPER_ADMIN_EMAIL)
-    CompanyStructure.objects.create(name=BUSINESS_2, crn='87654321', manager='Sarah Jenkins', sic_code='52101', filing_due='2026-11-20', created_by=SUPER_ADMIN_EMAIL)
+    CompanyStructure.objects.create(
+        name='Main Retail HQ', 
+        business=BUSINESS_1,
+        house_code='HQ-LON-01',
+        location='123 Oxford Street, London',
+        gps_coordinates='51.5145, -0.1444',
+        contact_number='+44 20 7946 0123',
+        opening_hours='08:00 - 22:00',
+        status='Active',
+        crn='12345678', 
+        manager='John Smith', 
+        sic_code='47110', 
+        filing_due='2026-12-15', 
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    CompanyStructure.objects.create(
+        name='Northern Logistics Base', 
+        business=BUSINESS_2,
+        house_code='LB-MAN-05',
+        location='Trafford Park, Manchester',
+        gps_coordinates='53.4631, -2.3168',
+        contact_number='+44 161 496 0789',
+        opening_hours='24/7',
+        status='Active',
+        crn='87654321', 
+        manager='Sarah Jenkins', 
+        sic_code='52101', 
+        filing_due='2026-11-20', 
+        created_by=SUPER_ADMIN_EMAIL
+    )
 
     # 5. Legal
     LegalDocument.objects.all().delete()
@@ -92,8 +120,17 @@ def seed_data():
     InsurancePolicy.objects.all().delete()
     InsurancePolicy.objects.create(type='Public Liability', provider='Aviva Business', policy_number='PL-887766', premium=1200.00, start_date='2026-01-01', expiry_date='2026-12-31', renewal_reminder='30 Days Before', status='Active', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
 
-    VATRecord.objects.all().delete()
-    VATRecord.objects.create(type='VAT Return Q1', period='Jan - Mar 2026', amount=4250.00, date='2026-04-10', status='Paid', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
+    VATRecord.objects.create(
+        type='VAT Return Q1', 
+        amount=4250.00, 
+        period_start='2026-01-01',
+        period_end='2026-03-31',
+        filing_deadline='2026-04-10',
+        payment_due='2026-04-10',
+        status='Paid', 
+        business=BUSINESS_1, 
+        created_by=SUPER_ADMIN_EMAIL
+    )
 
     DojoSettlement.objects.all().delete()
     DojoSettlement.objects.create(date='2026-05-01', amount=3250.00, fee=32.50, net=3217.50, method='Contactless', status='Settled', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)
