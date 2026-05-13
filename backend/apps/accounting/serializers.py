@@ -52,6 +52,9 @@ class LoanSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     os = serializers.DecimalField(source='outstanding_amount', max_digits=15, decimal_places=2, read_only=True)
     monthly = serializers.DecimalField(source='monthly_payment', max_digits=15, decimal_places=2, read_only=True)
     rate = serializers.DecimalField(source='interest_rate', max_digits=5, decimal_places=2, read_only=True)
+    start = serializers.DateField(source='start_date', read_only=True)
+    end = serializers.DateField(source='end_date', read_only=True)
+    next = serializers.DateField(source='next_payment_date', read_only=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = Loan

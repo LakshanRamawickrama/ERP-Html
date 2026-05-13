@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
-import { 
-  FileText, 
-  Receipt, 
-  Landmark, 
-  HandCoins, 
-  ShieldCheck, 
-  Coins, 
-  ArrowDownCircle, 
+import {
+  FileText,
+  Receipt,
+  Landmark,
+  HandCoins,
+  ShieldCheck,
+  Coins,
+  ArrowDownCircle,
   ArrowUpCircle,
   Plus,
   Maximize2,
@@ -36,7 +36,7 @@ type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax' |
 
 export default function AccountingModule() {
   const [activeTab, setActiveTab] = useState<TabType>('records');
-  
+
   const permMap: Record<TabType, string> = {
     records: 'Financial Records',
     invoices: 'Invoices',
@@ -46,7 +46,7 @@ export default function AccountingModule() {
     tax: 'Tax Records',
     dojo: 'Dojo Settlements'
   };
-  
+
   const { canAdd, canEdit, canDelete } = usePermissions(permMap[activeTab], 'Accounting');
   const [isWide, setIsWide] = useState(false);
   const [recordCategory, setRecordCategory] = useState('');
@@ -94,7 +94,7 @@ export default function AccountingModule() {
     e.preventDefault();
     const token = localStorage.getItem('token');
     const body = new FormData();
-    
+
     Object.entries(formData).forEach(([k, v]) => {
       if (v !== null && v !== undefined && !(v instanceof File)) {
         if (k === 'id') return;
@@ -112,7 +112,7 @@ export default function AccountingModule() {
       tax: 'tax/',
       dojo: 'dojo/'
     };
-    
+
     const subPath = endpointMap[activeTab] || 'transactions/';
     const baseUrl = `${API_ENDPOINTS.ACCOUNTING}${subPath}`;
     const url = editingId ? `${baseUrl}${editingId}/` : baseUrl;
@@ -144,7 +144,7 @@ export default function AccountingModule() {
     const token = localStorage.getItem('token');
     const type = deleteId.split('-')[0];
     const realId = deleteId.split('-')[1];
-    
+
     const endpointMap: any = {
       record: 'transactions/',
       invoice: 'invoices/',
@@ -154,7 +154,7 @@ export default function AccountingModule() {
       insurance: 'insurance/',
       tax: 'tax/'
     };
-    
+
     const subPath = endpointMap[type] || 'transactions/';
     const url = `${API_ENDPOINTS.ACCOUNTING}${subPath}${realId}/`;
 
@@ -216,21 +216,20 @@ export default function AccountingModule() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as TabType)}
-                className={`py-4 text-xs font-bold transition-all border-b-2 whitespace-nowrap flex items-center gap-2 ${
-                  activeTab === tab.id 
-                  ? 'border-slate-800 text-slate-800' 
+                className={`py-4 text-xs font-bold transition-all border-b-2 whitespace-nowrap flex items-center gap-2 ${activeTab === tab.id
+                  ? 'border-slate-800 text-slate-800'
                   : 'border-transparent text-slate-400 hover:text-slate-600'
-                }`}
+                  }`}
               >
                 <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? 'text-slate-800' : 'text-slate-400'}`} />
                 {tab.label}
               </button>
             ))}
           </div>
-          
+
           <div className="hidden xl:flex gap-3 ml-6">
-             <Pill type="income" label="Income" value={data.summary?.income || "$0.00"} />
-             <Pill type="expense" label="Expenses" value={data.summary?.expenses || "$0.00"} />
+            <Pill type="income" label="Income" value={data.summary?.income || "$0.00"} />
+            <Pill type="expense" label="Expenses" value={data.summary?.expenses || "$0.00"} />
           </div>
         </div>
 
@@ -242,42 +241,42 @@ export default function AccountingModule() {
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-6`}>
-          
+
           {!isWide && canAdd && (
             <div className="lg:col-span-4">
               <Card
-                title={editingId ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Record`} 
-                icon={editingId ? Edit : Plus} 
+                title={editingId ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Record`}
+                icon={editingId ? Edit : Plus}
                 iconColor="bg-slate-800"
               >
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {activeTab === 'records' && (
                     <>
-                      <BusinessField 
-                        value={formData.biz || ''} 
-                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                      <BusinessField
+                        value={formData.biz || ''}
+                        onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Record Title" name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g. Monthly Rent" />
-                      <Field 
-                        label="Category" 
-                        name="category" 
-                        value={formData.category} 
-                        isSelect 
-                        options={[...(data.options || []), 'ADD_NEW']} 
-                        onChange={handleInputChange} 
+                      <Field
+                        label="Category"
+                        name="category"
+                        value={formData.category}
+                        isSelect
+                        options={[...(data.options || []), 'ADD_NEW']}
+                        onChange={handleInputChange}
                       />
-                      
+
                       {recordCategory === 'ADD_NEW' && (
-                        <Field 
-                          label="Specify Category" 
-                          name="customCategory" 
-                          value={formData.customCategory} 
-                          onChange={(e: any) => setFormData({...formData, category: e.target.value, customCategory: e.target.value})} 
-                          placeholder="Enter new category name" 
+                        <Field
+                          label="Specify Category"
+                          name="customCategory"
+                          value={formData.customCategory}
+                          onChange={(e: any) => setFormData({ ...formData, category: e.target.value, customCategory: e.target.value })}
+                          placeholder="Enter new category name"
                         />
                       )}
-                      
+
                       {recordCategory === 'Supplier Payments' && <Field label="Supplier" name="supplier" value={formData.supplier} onChange={handleInputChange} isSelect options={data.suppliers || []} />}
                       {recordCategory === 'Rent' && (
                         <div className="grid grid-cols-2 gap-4">
@@ -311,9 +310,9 @@ export default function AccountingModule() {
 
                   {activeTab === 'invoices' && (
                     <>
-                      <BusinessField 
-                        value={formData.biz || ''} 
-                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                      <BusinessField
+                        value={formData.biz || ''}
+                        onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Client Name" name="client" value={formData.client} onChange={handleInputChange} />
@@ -340,9 +339,9 @@ export default function AccountingModule() {
 
                   {activeTab === 'bank' && (
                     <>
-                      <BusinessField 
-                        value={formData.biz || ''} 
-                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                      <BusinessField
+                        value={formData.biz || ''}
+                        onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Bank Name" name="bank" value={formData.bank} onChange={handleInputChange} placeholder="e.g. Barclays" />
@@ -360,33 +359,40 @@ export default function AccountingModule() {
 
                   {activeTab === 'loans' && (
                     <>
-                      <BusinessField 
-                        value={formData.biz || ''} 
-                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                      <BusinessField
+                        value={formData.biz || ''}
+                        onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Loan Name" name="loan" value={formData.loan} onChange={handleInputChange} />
                       <Field label="Loan Purpose" name="purpose" value={formData.purpose} onChange={handleInputChange} placeholder="e.g. Equipment Financing" />
                       <Field label="Lender" name="lender" value={formData.lender} onChange={handleInputChange} />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Total ($)" name="total" value={formData.total} onChange={handleInputChange} type="number" />
-                        <Field label="O/S ($)" name="os" value={formData.os} onChange={handleInputChange} type="number" />
+                        <Field label="Total Amount ($)" name="total" value={formData.total} onChange={handleInputChange} type="number" />
+                        <Field label="Outstanding O/S ($)" name="os" value={formData.os} onChange={handleInputChange} type="number" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Monthly ($)" name="monthly" value={formData.monthly} onChange={handleInputChange} type="number" />
-                        <Field label="Interest (%)" name="rate" value={formData.rate} onChange={handleInputChange} type="number" />
+                        <Field label="Monthly Payment($)" name="monthly" value={formData.monthly} onChange={handleInputChange} type="number" />
+                        <Field label="Interest Rate (%)" name="rate" value={formData.rate} onChange={handleInputChange} type="number" />
                       </div>
-                      <Field label="Reminder" name="renewal" value={formData.renewal} onChange={handleInputChange} isSelect options={data.renewalReminders || []} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Start Date" name="start" value={formData.start} onChange={handleInputChange} type="date" />
+                        <Field label="End Date" name="end" value={formData.end} onChange={handleInputChange} type="date" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Next Payment" name="next" value={formData.next} onChange={handleInputChange} type="date" />
+                        <Field label="Reminder" name="renewal" value={formData.renewal} onChange={handleInputChange} isSelect options={data.loanReminders || []} />
+                      </div>
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.loanStatuses || []} />
-                      <Field label="Loan Agreement" name="document" onChange={handleInputChange} type="file" />
+                      <Field label="Upload Documents (Agreement, Schedule, etc.)" name="document" onChange={handleInputChange} type="file" />
                     </>
                   )}
 
                   {activeTab === 'insurance' && (
                     <>
-                      <BusinessField 
-                        value={formData.biz || ''} 
-                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                      <BusinessField
+                        value={formData.biz || ''}
+                        onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Policy Type" name="type" value={formData.type} onChange={handleInputChange} placeholder="e.g. Public Liability" />
@@ -407,9 +413,9 @@ export default function AccountingModule() {
 
                   {activeTab === 'tax' && (
                     <>
-                      <BusinessField 
-                        value={formData.biz || ''} 
-                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                      <BusinessField
+                        value={formData.biz || ''}
+                        onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Tax Type" name="type" value={formData.type} onChange={handleInputChange} placeholder="e.g. VAT Q1" />
@@ -426,9 +432,9 @@ export default function AccountingModule() {
 
                   {activeTab === 'dojo' && (
                     <>
-                      <BusinessField 
-                        value={formData.biz || ''} 
-                        onChange={(v) => setFormData({ ...formData, biz: v })} 
+                      <BusinessField
+                        value={formData.biz || ''}
+                        onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Transaction Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
@@ -565,11 +571,11 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
       <div className="relative">
         {isSelect ? (
           <>
-            <select 
-              name={name} 
-              value={value || ''} 
-              onChange={onChange} 
-              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white transition-all font-medium appearance-none pr-10"
+            <select
+              name={name}
+              value={value || ''}
+              onChange={onChange}
+              className="w-full h-[42px] p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white font-medium appearance-none pr-10 cursor-pointer"
             >
               <option value="">Select Option...</option>
               {options.map((opt: string) => (
@@ -585,23 +591,23 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
             </div>
           </>
         ) : isTextArea ? (
-          <textarea 
-            name={name} 
-            value={value || ''} 
-            onChange={onChange} 
-            rows={2} 
-            className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white transition-all font-medium" 
-            placeholder={placeholder} 
+          <textarea
+            name={name}
+            value={value || ''}
+            onChange={onChange}
+            rows={2}
+            className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white font-medium"
+            placeholder={placeholder}
           />
         ) : (
-          <input 
-            name={name} 
-            {...(type !== 'file' ? { value: value || '' } : {})} 
-            onChange={onChange} 
-            disabled={disabled} 
-            type={type} 
-            className={`w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white transition-all font-medium ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`} 
-            placeholder={placeholder} 
+          <input
+            name={name}
+            {...(type !== 'file' ? { value: value || '' } : {})}
+            onChange={onChange}
+            disabled={disabled}
+            type={type}
+            className={`w-full h-[42px] p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white font-medium ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+            placeholder={placeholder}
           />
         )}
       </div>
@@ -740,14 +746,13 @@ function StatusBadge({ status }: { status: string }) {
   const isPaid = status === 'Paid' || status === 'Active' || status === 'Settled';
   const isPending = status === 'Pending' || status === 'Sent' || status === 'Filed' || status === 'Partially Paid';
   const isDraft = status === 'Draft';
-  
+
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-      isPaid ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 
-      isPending ? 'bg-amber-50 border-amber-100 text-amber-600' : 
-      isDraft ? 'bg-slate-50 border-slate-100 text-slate-600' :
-      'bg-red-50 border-red-100 text-red-600'
-    }`}>
+    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${isPaid ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
+      isPending ? 'bg-amber-50 border-amber-100 text-amber-600' :
+        isDraft ? 'bg-slate-50 border-slate-100 text-slate-600' :
+          'bg-red-50 border-red-100 text-red-600'
+      }`}>
       {status}
     </span>
   );
