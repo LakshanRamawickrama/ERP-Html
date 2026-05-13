@@ -41,6 +41,8 @@ export default function SystemAccessModule() {
     support: '',
     notes: ''
   });
+  const [isCustomService, setIsCustomService] = useState(false);
+  const [customServiceName, setCustomServiceName] = useState('');
 
   React.useEffect(() => {
     const token = localStorage.getItem('token');
@@ -101,6 +103,14 @@ export default function SystemAccessModule() {
         support: item.support,
         notes: item.notes || ''
       });
+      const services = data.options?.services || [];
+      if (item.service && !services.includes(item.service)) {
+        setIsCustomService(true);
+        setCustomServiceName(item.service);
+      } else {
+        setIsCustomService(false);
+        setCustomServiceName('');
+      }
       // Scroll to form on mobile
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -148,7 +158,10 @@ export default function SystemAccessModule() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          service: isCustomService ? customServiceName : formData.service
+        })
       });
       
       if (res.ok) {
@@ -171,6 +184,8 @@ export default function SystemAccessModule() {
         }
         setEditingId(null);
         setFormData({ biz: '', service: '', account: '', password: '', status: '', support: '', notes: '' });
+        setIsCustomService(false);
+        setCustomServiceName('');
       }
     } catch (err) {
       console.error("Submit err", err);
@@ -216,10 +231,26 @@ export default function SystemAccessModule() {
                   <Field 
                     label="Service Name *" 
                     isSelect 
-                    options={data.options?.services || []} 
-                    value={formData.service}
-                    onChange={(val: string) => setFormData({ ...formData, service: val })}
+                    options={[...(data.options?.services || []), "Add Custom Service..."]} 
+                    value={isCustomService ? "Add Custom Service..." : formData.service}
+                    onChange={(val: string) => {
+                      if (val === "Add Custom Service...") {
+                        setIsCustomService(true);
+                        setFormData({ ...formData, service: '' });
+                      } else {
+                        setIsCustomService(false);
+                        setFormData({ ...formData, service: val });
+                      }
+                    }}
                   />
+                  {isCustomService && (
+                    <Field 
+                      label="Enter Custom Service Name *" 
+                      placeholder="e.g. Netflix, Azure, etc." 
+                      value={customServiceName}
+                      onChange={(val: string) => setCustomServiceName(val)}
+                    />
+                  )}
                   <Field 
                     label="Account / Username *" 
                     placeholder="Login ID or Username" 
@@ -263,7 +294,7 @@ export default function SystemAccessModule() {
                         type="button"
                         onClick={() => {
                           setEditingId(null);
-                          setFormData({ service: '', account: '', password: '', status: '', support: '', notes: '' });
+                          setFormData({ biz: '', service: '', account: '', password: '', status: '', support: '', notes: '' });
                         }}
                         className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
                       >

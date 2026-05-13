@@ -14,7 +14,7 @@ class SystemDataView(APIView):
         return Response({
             "credentials": SystemCredentialSerializer(credentials, many=True).data,
             "options": {
-                "services": ["Till Terminal", "PayPoint", "Admin Dashboard", "Cloud Storage", "AWS Portal", "Google Cloud", "Office 365"],
+                "services": ["Till Terminal", "AWS Portal", "Google Cloud", "Office 365"],
                 "statuses": ["Active", "Locked", "Maintenance"]
             }
         })
