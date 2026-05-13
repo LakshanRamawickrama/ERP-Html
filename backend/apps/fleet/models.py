@@ -8,11 +8,13 @@ class Vehicle(models.Model):
     insurance_date = models.DateField(blank=True, null=True)
     road_tax_date = models.DateField(blank=True, null=True)
     reminder_before = models.IntegerField(default=30)  # Days before expiry to remind
+    fuel_type = models.CharField(max_length=50, blank=True, null=True)
     status = models.CharField(max_length=50, default='Active')
     notes = models.TextField(blank=True, null=True)
     ins_doc = models.FileField(upload_to='fleet/insurance/', blank=True, null=True)
     mot_doc = models.FileField(upload_to='fleet/mot/', blank=True, null=True)
     tax_doc = models.FileField(upload_to='fleet/roadtax/', blank=True, null=True)
+    other_doc = models.FileField(upload_to='fleet/other/', blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):

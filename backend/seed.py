@@ -7,6 +7,15 @@ from django.utils import timezone
 # Set up Django environment
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+# Monkeypatch for django-mongodb-backend compatibility with newer pymongo
+from pymongo import MongoClient
+if not hasattr(MongoClient, '_options'):
+    def _get_options(self):
+        return getattr(self, '_MongoClient__options', None) or getattr(self, '_options_fallback', None)
+    def _set_options(self, val):
+        self._options_fallback = val
+    MongoClient._options = property(_get_options, _set_options)
+
 django.setup()
 
 from apps.business.models import BusinessEntity, CompanyStructure
@@ -36,11 +45,13 @@ def seed_data():
     SUPER_ADMIN_EMAIL = 'superadmin@erp.com'
     BUSINESS_1 = 'Main Retail Store'
     BUSINESS_2 = 'Logistics Hub'
-
+    BUSINESS_3 = 'Whiterock Retail Ltd'
+    
     # 1. Business Entities
     BusinessEntity.objects.all().delete()
     BusinessEntity.objects.create(name=BUSINESS_1, company_number='CH-98765432', category='Retail', hq_location='London, UK', created_by=SUPER_ADMIN_EMAIL)
     BusinessEntity.objects.create(name=BUSINESS_2, company_number='CH-11223344', category='Logistics', hq_location='Manchester, UK', created_by=SUPER_ADMIN_EMAIL)
+    BusinessEntity.objects.create(name=BUSINESS_3, company_number='CH-55667788', category='Retail', hq_location='Leeds, UK', created_by=SUPER_ADMIN_EMAIL)
     
     CompanyStructure.objects.all().delete()
     CompanyStructure.objects.create(
@@ -84,8 +95,8 @@ def seed_data():
 
     # 2. Fleet
     Vehicle.objects.all().delete()
-    v1 = Vehicle.objects.create(name='CAR 1', plate_number='ABC-1234', business=BUSINESS_1, mot_date='2026-05-20', insurance_date='2026-06-12', road_tax_date='2026-12-01', status='Active', created_by=SUPER_ADMIN_EMAIL)
-    v2 = Vehicle.objects.create(name="Ford Transit", plate_number="XY34 FGH", business=BUSINESS_2, mot_date="2026-05-15", insurance_date="2026-06-10", road_tax_date="2026-06-15", status="Active", created_by=SUPER_ADMIN_EMAIL)
+    v1 = Vehicle.objects.create(name='CAR 1', plate_number='ABC-1234', business=BUSINESS_1, mot_date='2026-05-20', insurance_date='2026-06-12', road_tax_date='2026-12-01', fuel_type='Petrol', status='Active', created_by=SUPER_ADMIN_EMAIL)
+    v2 = Vehicle.objects.create(name="Ford Transit", plate_number="XY34 FGH", business=BUSINESS_2, mot_date="2026-05-15", insurance_date="2026-06-10", road_tax_date="2026-06-15", fuel_type='Diesel', status="Active", created_by=SUPER_ADMIN_EMAIL)
 
     Delivery.objects.all().delete()
     Delivery.objects.create(vehicle=v1, pickup_date="2026-05-08", delivery_date="2026-05-09", address='Central Warehouse, London', contact_person='John Doe', contact_number='+44 7700 900077', status='Delivered', notes='Urgent delivery', business=BUSINESS_1, created_by=SUPER_ADMIN_EMAIL)

@@ -55,11 +55,13 @@ class VehicleView(APIView):
                 insurance_date=data.get('ins') or None,
                 road_tax_date=data.get('tax') or None,
                 reminder_before=remind_val,
+                fuel_type=data.get('fuelType', ''),
                 status=data.get('status', 'Active'),
                 notes=data.get('notes', ''),
                 ins_doc=files.get('insDoc'),
                 mot_doc=files.get('motDoc'),
                 tax_doc=files.get('taxDoc'),
+                other_doc=files.get('otherDoc'),
                 created_by=request.user.email
             )
             return Response(VehicleSerializer(vehicle, context={'request': request}).data, status=status.HTTP_201_CREATED)
@@ -81,11 +83,13 @@ class VehicleView(APIView):
             vehicle.insurance_date = data.get('ins', vehicle.insurance_date)
             vehicle.road_tax_date = data.get('tax', vehicle.road_tax_date)
             vehicle.status = data.get('status', vehicle.status)
+            vehicle.fuel_type = data.get('fuelType', vehicle.fuel_type)
             vehicle.notes = data.get('notes', vehicle.notes)
             
             if 'insDoc' in files: vehicle.ins_doc = files['insDoc']
             if 'motDoc' in files: vehicle.mot_doc = files['motDoc']
             if 'taxDoc' in files: vehicle.tax_doc = files['taxDoc']
+            if 'otherDoc' in files: vehicle.other_doc = files['otherDoc']
             
             vehicle.save()
             return Response(VehicleSerializer(vehicle, context={'request': request}).data)
@@ -122,6 +126,26 @@ class DeliveryView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, pk):
+        if pk.startswith('delivery-'): return Response({'message': 'Mock record updated'}, status=status.HTTP_200_OK)
+        delivery = get_object_or_404(Delivery, pk=pk)
+        data = request.data
+        try:
+            v_name = data.get('v', '').split(' (')[0]
+            vehicle = Vehicle.objects.filter(name=v_name).first()
+            delivery.vehicle = vehicle if vehicle else delivery.vehicle
+            delivery.pickup_date = data.get('pickupDate', delivery.pickup_date)
+            delivery.delivery_date = data.get('date', delivery.delivery_date)
+            delivery.address = data.get('addr', delivery.address)
+            delivery.contact_person = data.get('contact', delivery.contact_person)
+            delivery.contact_number = data.get('contactNum', delivery.contact_number)
+            delivery.status = data.get('status', delivery.status)
+            delivery.notes = data.get('notes', delivery.notes)
+            delivery.save()
+            return Response(DeliverySerializer(delivery, context={'request': request}).data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
         if pk.startswith('delivery-'): return Response(status=status.HTTP_204_NO_CONTENT)
         delivery = get_object_or_404(Delivery, pk=pk)
@@ -149,6 +173,26 @@ class ParcelPartnerView(APIView):
                 created_by=request.user.email
             )
             return Response(ParcelPartnerSerializer(partner, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        if pk.startswith('parcel-'): return Response({'message': 'Mock record updated'}, status=status.HTTP_200_OK)
+        partner = get_object_or_404(ParcelPartner, pk=pk)
+        data = request.data
+        try:
+            v_name = data.get('v', '')
+            vehicle = Vehicle.objects.filter(name=v_name).first()
+            partner.provider = data.get('provider', partner.provider)
+            partner.vehicle = vehicle if vehicle else partner.vehicle
+            partner.service_date = data.get('date', partner.service_date)
+            partner.area = data.get('area', partner.area)
+            partner.contact_name = data.get('contact', partner.contact_name)
+            partner.contact_number = data.get('contactNum', partner.contact_number)
+            partner.status = data.get('status', partner.status)
+            partner.notes = data.get('notes', partner.notes)
+            partner.save()
+            return Response(ParcelPartnerSerializer(partner, context={'request': request}).data)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

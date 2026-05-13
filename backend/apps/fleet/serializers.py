@@ -11,6 +11,7 @@ class VehicleSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     ins_doc_url = serializers.SerializerMethodField()
     mot_doc_url = serializers.SerializerMethodField()
     tax_doc_url = serializers.SerializerMethodField()
+    other_doc_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Vehicle
@@ -30,22 +31,35 @@ class VehicleSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     def get_tax_doc_url(self, obj):
         return self._file_url(self.context.get('request'), obj.tax_doc)
 
+    def get_other_doc_url(self, obj):
+        return self._file_url(self.context.get('request'), obj.other_doc)
+
 class DeliverySerializer(MongoSerializerMixin, serializers.ModelSerializer):
     date = serializers.DateField(source='delivery_date', read_only=True)
-    v = serializers.CharField(source='vehicle.name', read_only=True)
+    pickupDate = serializers.DateField(source='pickup_date', read_only=True)
+    v = serializers.SerializerMethodField()
+    biz = serializers.CharField(source='business', read_only=True)
     vNum = serializers.CharField(source='vehicle.plate_number', read_only=True)
     addr = serializers.CharField(source='address', read_only=True)
     contact = serializers.CharField(source='contact_person', read_only=True)
+    contactNum = serializers.CharField(source='contact_number', read_only=True)
     
     class Meta:
         model = Delivery
         fields = '__all__'
+
+    def get_v(self, obj):
+        if obj.vehicle:
+            return f"{obj.vehicle.name} ({obj.vehicle.plate_number})"
+        return ""
 
 class ParcelPartnerSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     provider = serializers.CharField(read_only=True)
     v = serializers.CharField(source='vehicle.name', read_only=True)
     date = serializers.DateField(source='service_date', read_only=True)
     contact = serializers.CharField(source='contact_name', read_only=True)
+    biz = serializers.CharField(source='business', read_only=True)
+    contactNum = serializers.CharField(source='contact_number', read_only=True)
     
     class Meta:
         model = ParcelPartner
