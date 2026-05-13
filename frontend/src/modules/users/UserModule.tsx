@@ -26,7 +26,8 @@ import {
   Landmark,
   FileText,
   AlertCircle,
-  MapPin
+  MapPin,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
@@ -50,7 +51,12 @@ const MODULE_GROUPS = [
   { 
     name: 'Accounting', 
     icon: Landmark,
-    sub: ['Financial Records', 'Invoices', 'Bank Accounts', 'Loans & Insurance', 'Tax Records', 'Dojo Settlements'] 
+    sub: ['Financial Records', 'Invoices', 'Bank Accounts', 'Loans & Insurance', 'Tax Records'] 
+  },
+  { 
+    name: 'Payment Services', 
+    icon: CreditCard,
+    sub: ['Merchant Services'] 
   },
   { name: 'Legal & Compliance', icon: ShieldCheck, sub: [] },
   { 
