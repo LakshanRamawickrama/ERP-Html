@@ -186,7 +186,13 @@ export default function AccountingModule() {
         }
         return next;
       });
-      if (name === 'category') setRecordCategory(target.value);
+      if (name === 'category') {
+        if (val === 'ADD_NEW') {
+          setRecordCategory('ADD_NEW');
+        } else {
+          setRecordCategory(val);
+        }
+      }
     }
   };
 
@@ -253,7 +259,24 @@ export default function AccountingModule() {
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Record Title" name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g. Monthly Rent" />
-                      <Field label="Category" name="category" value={formData.category} isSelect options={data.options || []} onChange={handleInputChange} />
+                      <Field 
+                        label="Category" 
+                        name="category" 
+                        value={formData.category} 
+                        isSelect 
+                        options={[...(data.options || []), 'ADD_NEW']} 
+                        onChange={handleInputChange} 
+                      />
+                      
+                      {recordCategory === 'ADD_NEW' && (
+                        <Field 
+                          label="Specify Category" 
+                          name="customCategory" 
+                          value={formData.customCategory} 
+                          onChange={(e: any) => setFormData({...formData, category: e.target.value, customCategory: e.target.value})} 
+                          placeholder="Enter new category name" 
+                        />
+                      )}
                       
                       {recordCategory === 'Supplier Payments' && <Field label="Supplier" name="supplier" value={formData.supplier} onChange={handleInputChange} isSelect options={data.suppliers || []} />}
                       {recordCategory === 'Rent' && (
@@ -274,6 +297,10 @@ export default function AccountingModule() {
                         <Field label="Amount ($)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" step="0.01" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
+                        <Field label="Payment Method" name="payment_method" value={formData.payment_method} onChange={handleInputChange} isSelect options={data.paymentMethods || []} />
+                        <Field label="Reference Number" name="reference_number" value={formData.reference_number} onChange={handleInputChange} placeholder="TXN458921 / INV-2026-001" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
                         <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.paymentStatuses || []} />
                         <Field label="Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
                       </div>
@@ -290,13 +317,24 @@ export default function AccountingModule() {
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Client Name" name="client" value={formData.client} onChange={handleInputChange} />
-                      <Field label="Inv Number" name="num" value={formData.num} onChange={handleInputChange} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Inv Number" name="num" value={formData.num} onChange={handleInputChange} />
+                        <Field label="Invoice Type" name="type" value={formData.type} onChange={handleInputChange} isSelect options={data.invoiceTypes || []} />
+                      </div>
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Amount ($)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" />
+                        <Field label="Payment Method" name="method" value={formData.method} onChange={handleInputChange} isSelect options={data.invoiceMethods || []} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Invoice Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
                         <Field label="Due Date" name="due" value={formData.due} onChange={handleInputChange} type="date" />
                       </div>
-                      <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.invoiceStatuses || []} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Reference #" name="ref" value={formData.ref} onChange={handleInputChange} placeholder="e.g. TXN458921" />
+                        <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.invoiceStatuses || []} />
+                      </div>
                       <Field label="Attach PDF" name="pdf" onChange={handleInputChange} type="file" />
+                      <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea />
                     </>
                   )}
 
@@ -316,6 +354,7 @@ export default function AccountingModule() {
                       <Field label="IBAN (Optional)" name="iban" value={formData.iban} onChange={handleInputChange} placeholder="GBXX XXXX..." />
                       <Field label="Account Type" name="type" value={formData.type} onChange={handleInputChange} isSelect options={data.bankTypes || []} />
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.bankStatuses || []} />
+                      <Field label="Supporting Document" name="document" onChange={handleInputChange} type="file" />
                     </>
                   )}
 
@@ -327,6 +366,7 @@ export default function AccountingModule() {
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Loan Name" name="loan" value={formData.loan} onChange={handleInputChange} />
+                      <Field label="Loan Purpose" name="purpose" value={formData.purpose} onChange={handleInputChange} placeholder="e.g. Equipment Financing" />
                       <Field label="Lender" name="lender" value={formData.lender} onChange={handleInputChange} />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Total ($)" name="total" value={formData.total} onChange={handleInputChange} type="number" />
@@ -336,7 +376,9 @@ export default function AccountingModule() {
                         <Field label="Monthly ($)" name="monthly" value={formData.monthly} onChange={handleInputChange} type="number" />
                         <Field label="Interest (%)" name="rate" value={formData.rate} onChange={handleInputChange} type="number" />
                       </div>
+                      <Field label="Reminder" name="renewal" value={formData.renewal} onChange={handleInputChange} isSelect options={data.renewalReminders || []} />
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.loanStatuses || []} />
+                      <Field label="Loan Agreement" name="document" onChange={handleInputChange} type="file" />
                     </>
                   )}
 
@@ -430,10 +472,10 @@ export default function AccountingModule() {
                       )}
                       {activeTab === 'invoices' && (
                         <>
-                          <th className={thClass}>Inv #</th>
-                          <th className={thClass}>Client</th>
-                          <th className={thClass}>Amount</th>
-                          <th className={thClass}>Due</th>
+                          <th className={thClass}>Inv # / Type</th>
+                          <th className={thClass}>Client / Ref</th>
+                          <th className={thClass}>Amount / Method</th>
+                          <th className={thClass}>Dates (Inv/Due)</th>
                           <th className={thClass}>Status</th>
                         </>
                       )}
@@ -485,8 +527,8 @@ export default function AccountingModule() {
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'records' && (data.history?.map((r: any, i: number) => <RecordRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'records')} onDelete={() => handleDeleteClick(`record-${r.id}`)} onView={() => handleViewDoc(r.title, r.document_url, r.category)} />) || null)}
                     {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
-                    {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} />) || null)}
-                    {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} />) || null)}
+                    {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null)}
+                    {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null)}
                     {activeTab === 'dojo' && (data.dojo?.map((r: any, i: number) => <DojoRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'dojo')} onDelete={() => handleDeleteClick(`dojo-${r.id}`)} />) || null)}
                     {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
                     {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
@@ -518,28 +560,67 @@ function Pill({ type, label, value }: { type: 'income' | 'expense', label: strin
 
 function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, onChange, disabled, value, name }: any) {
   return (
-    <div>
-      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
-      {isSelect ? (
-        <select name={name} value={value || ''} onChange={onChange} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium">
-          <option value="">Select Option...</option>
-          {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-        </select>
-      ) : isTextArea ? (
-        <textarea name={name} value={value || ''} onChange={onChange} rows={2} className="w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium" placeholder={placeholder} />
-      ) : (
-        <input name={name} {...(type !== 'file' ? { value: value || '' } : {})} onChange={onChange} disabled={disabled} type={type} className={`w-full mt-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 transition-all font-medium ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`} placeholder={placeholder} />
-      )}
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block">{label}</label>
+      <div className="relative">
+        {isSelect ? (
+          <>
+            <select 
+              name={name} 
+              value={value || ''} 
+              onChange={onChange} 
+              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white transition-all font-medium appearance-none pr-10"
+            >
+              <option value="">Select Option...</option>
+              {options.map((opt: string) => (
+                <option key={String(opt)} value={String(opt)}>
+                  {opt === 'ADD_NEW' ? '+ Add New Category...' : String(opt)}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </>
+        ) : isTextArea ? (
+          <textarea 
+            name={name} 
+            value={value || ''} 
+            onChange={onChange} 
+            rows={2} 
+            className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white transition-all font-medium" 
+            placeholder={placeholder} 
+          />
+        ) : (
+          <input 
+            name={name} 
+            {...(type !== 'file' ? { value: value || '' } : {})} 
+            onChange={onChange} 
+            disabled={disabled} 
+            type={type} 
+            className={`w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-800 focus:bg-white transition-all font-medium ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`} 
+            placeholder={placeholder} 
+          />
+        )}
+      </div>
     </div>
   );
 }
 
-function RecordRow({ date, title, category, amount, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function RecordRow({ date, title, category, amount, status, ref, method, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4 text-slate-500 font-mono tracking-tighter text-xs">{date}</td>
-      <td className="px-4 py-4 font-bold text-slate-800">{title}</td>
-      <td className="px-4 py-4"><span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${category === 'Income' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>{category}</span></td>
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800">{title}</div>
+        {ref && <div className="text-[10px] text-slate-400 font-medium">Ref: {ref}</div>}
+      </td>
+      <td className="px-4 py-4">
+        <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-block ${category === 'Income' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>{category}</div>
+        {method && <div className="text-[10px] text-slate-400 font-medium mt-1">{method}</div>}
+      </td>
       <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
       <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} onView={onView} showEye canEdit={canEdit} canDelete={canDelete} /></td>
@@ -547,20 +628,32 @@ function RecordRow({ date, title, category, amount, status, onEdit, onDelete, on
   );
 }
 
-function InvoiceRow({ num, client, amount, due, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function InvoiceRow({ num, client, amount, due, date, status, invoice_type, method, ref, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
-      <td className="px-4 py-4 font-bold text-slate-800">{num}</td>
-      <td className="px-4 py-4 text-slate-600 font-medium">{client}</td>
-      <td className="px-4 py-4 font-bold text-slate-800">${Number(amount).toLocaleString()}</td>
-      <td className="px-4 py-4 text-slate-500 font-mono text-xs">{due}</td>
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800">{num}</div>
+        <div className="text-[10px] text-slate-400 font-medium">{invoice_type}</div>
+      </td>
+      <td className="px-4 py-4">
+        <div className="text-slate-600 font-medium">{client}</div>
+        {ref && <div className="text-[10px] text-slate-400 font-medium">Ref: {ref}</div>}
+      </td>
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800">${Number(amount).toLocaleString()}</div>
+        <div className="text-[10px] text-slate-400 font-medium">{method}</div>
+      </td>
+      <td className="px-4 py-4 text-slate-500 font-mono text-xs">
+        <div>{date}</div>
+        <div className="text-[10px] text-red-400">Due: {due}</div>
+      </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
       <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
 
-function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete, canEdit, canDelete }: any) {
+function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -573,17 +666,17 @@ function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete, canEdit
       </td>
       <td className="px-4 py-4"><span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold border border-blue-100">{type}</span></td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} /></td>
+      <td className="px-4 py-4"><RowActions showEye onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
 
-function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit, onDelete, canEdit, canDelete }: any) {
+function LoanRow({ loan, purpose, lender, total, os, monthly, rate, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800">{loan}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{lender}</div>
+        <div className="text-[10px] text-slate-400 font-medium">{purpose || lender}</div>
       </td>
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800 text-xs">${Number(total).toLocaleString()}</div>
@@ -594,7 +687,7 @@ function LoanRow({ loan, lender, total, os, monthly, rate, status, onEdit, onDel
         <div className="text-[10px] text-slate-400 font-medium">{rate}% APR</div>
       </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} /></td>
+      <td className="px-4 py-4"><RowActions showEye onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
     </tr>
   );
 }
@@ -645,10 +738,16 @@ function TaxRow({ type, period, amount, date, status, onEdit, onDelete, onView, 
 
 function StatusBadge({ status }: { status: string }) {
   const isPaid = status === 'Paid' || status === 'Active' || status === 'Settled';
-  const isPending = status === 'Pending' || status === 'Sent' || status === 'Filed';
+  const isPending = status === 'Pending' || status === 'Sent' || status === 'Filed' || status === 'Partially Paid';
+  const isDraft = status === 'Draft';
   
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${isPaid ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : isPending ? 'bg-amber-50 border-amber-100 text-amber-600' : 'bg-red-50 border-red-100 text-red-600'}`}>
+    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+      isPaid ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 
+      isPending ? 'bg-amber-50 border-amber-100 text-amber-600' : 
+      isDraft ? 'bg-slate-50 border-slate-100 text-slate-600' :
+      'bg-red-50 border-red-100 text-red-600'
+    }`}>
       {status}
     </span>
   );

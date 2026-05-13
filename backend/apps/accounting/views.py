@@ -60,9 +60,12 @@ class AccountingDataView(APIView):
                 "expenses": f"${total_expenses:,.2f}"
             },
             "options": ["Rent", "Supplies", "Salary", "Income", "Tax", "Supplier Payments", "Mortgage"],
-            "recordTypes": ["Income", "Expense"],
+            "recordTypes": ["Income", "Expense", "Asset", "Equity", "Liability"],
+            "paymentMethods": ["Bank Transfer", "Cash", "Card", "Cheque"],
             "paymentStatuses": ["Paid", "Pending", "Overdue", "Settled"],
-            "invoiceStatuses": ["Paid", "Pending", "Overdue", "Sent"],
+            "invoiceStatuses": ["Draft", "Sent", "Partially Paid", "Paid", "Overdue", "Cancelled"],
+            "invoiceTypes": ["Sales Invoice", "Purchase Invoice", "Proforma Invoice", "Credit Note"],
+            "invoiceMethods": ["Bank Transfer", "Cash", "Card", "Cheque", "Online Payment"],
             "bankTypes": ["Business Current", "Savings", "Business Savings"],
             "bankStatuses": ["Active", "Inactive"],
             "loanStatuses": ["Active", "Settled", "Defaulted"],
@@ -87,6 +90,8 @@ class TransactionView(APIView):
                 date=data.get('date') or None,
                 status=data.get('status', 'Pending'),
                 notes=data.get('notes', ''),
+                payment_method=data.get('payment_method', ''),
+                reference_number=data.get('reference_number', ''),
                 document=files.get('document'),
                 business=getattr(request.user, 'assigned_business', ''),
                 created_by=request.user.email
@@ -109,9 +114,14 @@ class InvoiceView(APIView):
             record = Invoice.objects.create(
                 number=data.get('num', ''),
                 client=data.get('client', ''),
+                invoice_type=data.get('type', 'Sales Invoice'),
                 amount=data.get('amount', 0) if data.get('amount') else 0,
+                invoice_date=data.get('date') or None,
                 due_date=data.get('due') or None,
-                status=data.get('status', 'Pending'),
+                payment_method=data.get('method', 'Bank Transfer'),
+                reference_number=data.get('ref', ''),
+                status=data.get('status', 'Draft'),
+                notes=data.get('notes', ''),
                 pdf=files.get('pdf'),
                 business=getattr(request.user, 'assigned_business', ''),
                 created_by=request.user.email
@@ -138,6 +148,7 @@ class BankAccountView(APIView):
                 iban=data.get('iban', ''),
                 account_type=data.get('type', ''),
                 status=data.get('status', 'Active'),
+                document=request.FILES.get('document'),
                 business=getattr(request.user, 'assigned_business', ''),
                 created_by=request.user.email
             )
@@ -162,6 +173,9 @@ class LoanView(APIView):
                 outstanding_amount=data.get('os', 0) if data.get('os') else 0,
                 monthly_payment=data.get('monthly', 0) if data.get('monthly') else 0,
                 interest_rate=data.get('rate', 0) if data.get('rate') else 0,
+                purpose=data.get('purpose', ''),
+                reminder=data.get('renewal', ''), # Reusing renewal field name from frontend
+                document=request.FILES.get('document'),
                 status=data.get('status', 'Active'),
                 business=getattr(request.user, 'assigned_business', ''),
                 created_by=request.user.email

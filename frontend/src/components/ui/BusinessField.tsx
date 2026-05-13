@@ -23,7 +23,7 @@ export function BusinessField({ value, onChange, businesses: initialBusinesses =
       try {
         const parsed = JSON.parse(userData);
         setUser(parsed);
-        
+
         // If regular admin, automatically set their business and prevent change
         if (parsed.role === 'admin' && parsed.business && !value) {
           onChange(parsed.business);
@@ -43,7 +43,7 @@ export function BusinessField({ value, onChange, businesses: initialBusinesses =
 
     // Only fetch if we are a super admin and don't have businesses yet
     const isSuper = user?.role === 'super_admin' || user?.is_superuser;
-    
+
     if (user && isSuper && (!businesses || businesses.length === 0)) {
       const fetchBusinesses = async () => {
         setIsLoading(true);
@@ -52,16 +52,16 @@ export function BusinessField({ value, onChange, businesses: initialBusinesses =
           if (!token) return;
 
           const res = await fetch(API_ENDPOINTS.BUSINESS, {
-            headers: { 
+            headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             }
           });
-          
+
           if (!res.ok) throw new Error('Fetch failed');
-          
+
           const data = await res.json();
-          
+
           // Try multiple locations for business names
           let names: string[] = [];
           if (data.options?.names) {
@@ -71,9 +71,9 @@ export function BusinessField({ value, onChange, businesses: initialBusinesses =
           } else if (Array.isArray(data)) {
             names = data.map((e: any) => e.name || e);
           }
-          
+
           const uniqueNames = Array.from(new Set(names)).filter(Boolean) as string[];
-          
+
           if (uniqueNames.length > 0) {
             setBusinesses(uniqueNames);
           }
@@ -89,7 +89,7 @@ export function BusinessField({ value, onChange, businesses: initialBusinesses =
 
   const isSuperAdmin = user?.role === 'super_admin' || user?.is_superuser;
   const displayValue = !isSuperAdmin ? (user?.business || user?.assigned_business || value || 'Unassigned') : value;
-  
+
   // Ensure value exists in list if possible
   const displayList = value && !businesses.includes(value) ? [value, ...businesses] : businesses;
 
@@ -99,7 +99,7 @@ export function BusinessField({ value, onChange, businesses: initialBusinesses =
         <Building2 className="w-3 h-3" />
         {label}
       </label>
-      
+
       {isSuperAdmin ? (
         <div className="relative">
           <select
