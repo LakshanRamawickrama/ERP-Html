@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { BusinessField } from '@/components/ui/BusinessField';
 
-export default function SystemAccessModule() {
+export default function SystemAccessModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [isWide, setIsWide] = useState(false);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   const [data, setData] = useState<any>({ credentials: [], alerts: [] });
@@ -328,16 +328,18 @@ export default function SystemAccessModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {data.credentials?.map((cred: any) => (
-                      <CredentialRow 
-                        key={cred.id}
-                        {...cred}
-                        show={showPassword[cred.id]}
-                        onToggle={() => handleRevealClick(cred.id)}
-                        onEdit={() => handleEdit(cred.id)}
-                        onDelete={() => handleDeleteClick(cred.id)}
-                      />
-                    ))}
+                    {data.credentials
+                      ?.filter((cred: any) => selectedBusiness === 'All Entities' || cred.biz === selectedBusiness)
+                      .map((cred: any) => (
+                        <CredentialRow 
+                          key={cred.id}
+                          {...cred}
+                          show={showPassword[cred.id]}
+                          onToggle={() => handleRevealClick(cred.id)}
+                          onEdit={() => handleEdit(cred.id)}
+                          onDelete={() => handleDeleteClick(cred.id)}
+                        />
+                      ))}
                   </tbody>
                 </table>
               </div>

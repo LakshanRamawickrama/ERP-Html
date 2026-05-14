@@ -35,7 +35,7 @@ import { BusinessField } from '@/components/ui/BusinessField';
 
 type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax';
 
-export default function AccountingModule() {
+export default function AccountingModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [activeTab, setActiveTab] = useState<TabType>('records');
 
   const permMap: Record<TabType, string> = {
@@ -633,13 +633,47 @@ export default function AccountingModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {activeTab === 'records' && (data.records?.map((r: any, i: number) => <RecordRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'records')} onDelete={() => handleDeleteClick(`record-${r.id}`)} onView={() => handleViewDoc(r.title, r.document_url, r.category)} />) || null)}
-                    {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
-                    {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null)}
-                    {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null)}
-
-                    {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
-                    {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
+                    {activeTab === 'records' && (
+                      data.records
+                        ?.filter((r: any) => (selectedBusiness === 'All Entities' || r.biz === selectedBusiness) && (filterSub === 'All' || r.category === filterSub))
+                        .map((r: any, i: number) => (
+                          <RecordRow 
+                            key={i} 
+                            {...r} 
+                            isWide={isWide} 
+                            canEdit={canEdit} 
+                            canDelete={canDelete} 
+                            onEdit={() => handleEdit(r.id, r, 'records')} 
+                            onDelete={() => handleDeleteClick(`record-${r.id}`)} 
+                            onView={() => handleViewDoc(r.title, r.document_url, r.category)} 
+                          />
+                        )) || null
+                    )}
+                    {activeTab === 'invoices' && (
+                      data.invoices
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => <InvoiceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null
+                    )}
+                    {activeTab === 'bank' && (
+                      data.banks
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => <BankRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null
+                    )}
+                    {activeTab === 'loans' && (
+                      data.loans
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => <LoanRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null
+                    )}
+                    {activeTab === 'insurance' && (
+                      data.insurance
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => <InsuranceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null
+                    )}
+                    {activeTab === 'tax' && (
+                      data.vat
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => <TaxRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null
+                    )}
                   </tbody>
                 </table>
               </div>

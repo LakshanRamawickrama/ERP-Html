@@ -22,7 +22,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { BusinessField } from '@/components/ui/BusinessField';
 
 
-export default function LegalModule() {
+export default function LegalModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const { canAdd, canEdit, canDelete } = usePermissions('Legal & Compliance');
   const [isWide, setIsWide] = useState(false);
   const [data, setData] = useState<any>({ docs: [], summary: { expiredDocs: 0 } });
@@ -246,7 +246,9 @@ export default function LegalModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {docs.map((doc: any, i: number) => (
+                    {docs
+                      ?.filter((doc: any) => selectedBusiness === 'All Entities' || doc.biz === selectedBusiness)
+                      .map((doc: any, i: number) => (
                       <DocRow
                         key={i}
                         {...doc}

@@ -21,7 +21,7 @@ import { BusinessField } from '@/components/ui/BusinessField';
 
 type TabType = 'stock' | 'move';
 
-export default function InventoryModule() {
+export default function InventoryModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const { canAdd, canEdit, canDelete } = usePermissions('Inventory Management');
   const [activeTab, setActiveTab] = useState<TabType>('stock');
   const [isWide, setIsWide] = useState(false);
@@ -267,13 +267,17 @@ export default function InventoryModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'stock' ? (
-                      data.stock?.map((item: any, i: number) => (
-                        <StockRow key={i} {...item} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(item.id, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${item.id}`)} />
-                      )) || null
+                      data.stock
+                        ?.filter((item: any) => selectedBusiness === 'All Entities' || item.biz === selectedBusiness)
+                        .map((item: any, i: number) => (
+                          <StockRow key={i} {...item} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(item.id, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${item.id}`)} />
+                        )) || null
                     ) : (
-                      data.moves?.map((move: any, i: number) => (
-                        <MoveRow key={i} {...move} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(move.id, move, 'move')} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
-                      )) || null
+                      data.moves
+                        ?.filter((move: any) => selectedBusiness === 'All Entities' || move.biz === selectedBusiness)
+                        .map((move: any, i: number) => (
+                          <MoveRow key={i} {...move} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(move.id, move, 'move')} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
+                        )) || null
                     )}
                   </tbody>
                 </table>

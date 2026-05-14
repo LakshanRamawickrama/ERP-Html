@@ -30,7 +30,7 @@ import { AlertModal } from '@/components/ui/AlertModal';
 
 type TabType = 'suppliers' | 'orders';
 
-export default function SupplierModule() {
+export default function SupplierModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const { canAdd, canEdit, canDelete } = usePermissions('Suppliers');
   const [activeTab, setActiveTab] = useState<TabType>('suppliers');
   const [isWide, setIsWide] = useState(false);
@@ -298,19 +298,23 @@ export default function SupplierModule() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'suppliers' && (
-                      data.suppliers?.map((s: any, i: number) => <SupplierRow key={i} {...s} isWide={isWide} onEdit={() => handleEdit(s.id || `supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(s.id || `supplier-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      data.suppliers
+                        ?.filter((s: any) => selectedBusiness === 'All Entities' || s.biz === selectedBusiness)
+                        .map((s: any, i: number) => <SupplierRow key={i} {...s} isWide={isWide} onEdit={() => handleEdit(s.id || `supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(s.id || `supplier-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'orders' && (
-                      data.orders?.map((o: any, i: number) => (
-                        <OrderRow
-                          key={i}
-                          {...o}
-                          isWide={isWide}
-                          onEdit={() => handleEdit(o.id || `order-${i}`, o, 'orders')}
-                          onView={() => handleViewDoc(`Purchase Order ${o.num}`, 'Procurement')}
-                          canEdit={canEdit}
-                        />
-                      )) || null
+                      data.orders
+                        ?.filter((o: any) => selectedBusiness === 'All Entities' || o.biz === selectedBusiness)
+                        .map((o: any, i: number) => (
+                          <OrderRow
+                            key={i}
+                            {...o}
+                            isWide={isWide}
+                            onEdit={() => handleEdit(o.id || `order-${i}`, o, 'orders')}
+                            onView={() => handleViewDoc(`Purchase Order ${o.num}`, 'Procurement')}
+                            canEdit={canEdit}
+                          />
+                        )) || null
                     )}
 
                   </tbody>
