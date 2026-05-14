@@ -378,8 +378,9 @@ class ReminderDataView(APIView):
             from apps.suppliers.models import PurchaseOrder
             orders = get_filtered_queryset(request, PurchaseOrder)
             for order in orders:
-                if getattr(order, 'delivery_due_date', None):
-                    days_until = (order.delivery_due_date - today).days
+                due_date = order.delivery_due_date or order.date
+                if due_date:
+                    days_until = (due_date - today).days
                     threshold = getattr(order, 'reminder_days', 3)
                     if days_until <= threshold:
                         is_overdue = days_until < 0
@@ -387,7 +388,7 @@ class ReminderDataView(APIView):
                             'id': f"supplier-po-{order.id}",
                             'title': f"Order Delivery: {order.number}",
                             'description': f"Order {order.number} from {order.supplier.name} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
-                            'date': order.delivery_due_date.strftime('%Y-%m-%d'),
+                            'date': due_date.strftime('%Y-%m-%d'),
                             'priority': 'High' if days_until <= 1 else 'Medium',
                             'type': 'Suppliers',
                             'business': order.business,

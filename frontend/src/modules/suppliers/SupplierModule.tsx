@@ -225,7 +225,10 @@ export default function SupplierModule() {
                          </div>
                          <Field label="Product Name" placeholder="e.g. Paper Reams (A4)" value={formData.product || ''} onChange={(v: string) => setFormData({...formData, product: v})} />
                       </div>
-                      <Field label="Delivery Due Date" type="date" value={formData.due || ''} onChange={(v: string) => setFormData({...formData, due: v})} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Delivery Due Date" type="date" value={formData.due || ''} onChange={(v: string) => setFormData({...formData, due: v})} />
+                        <Field label="Reminder (Days)" isSelect options={['1', '3', '7', '14']} value={formData.reminder_days || '3'} onChange={(v: string) => setFormData({...formData, reminder_days: v})} />
+                      </div>
                        <Field label="Order Status" isSelect options={data.options?.orderStatuses || []} value={formData.status || ''} onChange={(v: string) => setFormData({...formData, status: v})} />
                     </>
                   )}

@@ -20,8 +20,10 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
     num = serializers.CharField(source='number', read_only=True)
     supplier = serializers.CharField(source='supplier.name', read_only=True)
     biz = serializers.CharField(source='business', read_only=True)
-    due = serializers.DateField(source='date', read_only=True)
+    orderDate = serializers.DateField(source='date', read_only=True)
+    due = serializers.DateField(source='delivery_due_date', read_only=True)
     qty = serializers.IntegerField(source='quantity', read_only=True)
+    reminderDays = serializers.IntegerField(source='reminder_days', read_only=True)
     
     class Meta:
         model = PurchaseOrder
