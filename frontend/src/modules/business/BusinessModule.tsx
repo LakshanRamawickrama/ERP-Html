@@ -57,6 +57,7 @@ export default function BusinessModule({ userRole, selectedBusiness = 'All Entit
   const [isStructureDrawerOpen, setIsStructureDrawerOpen] = useState(false);
   const [structureFiles, setStructureFiles] = useState<{ balance_sheet?: File; pl_statement?: File }>({});
   const [businessLogo, setBusinessLogo] = useState<File | null>(null);
+  const [selectedLogo, setSelectedLogo] = useState<{ url: string; name: string } | null>(null);
 
   React.useEffect(() => {
     const token = localStorage.getItem('token');
@@ -346,7 +347,9 @@ export default function BusinessModule({ userRole, selectedBusiness = 'All Entit
                             <input type="file" className="hidden" accept="image/*" onChange={e => setBusinessLogo(e.target.files?.[0] || null)} />
                           </label>
                           {formData.logo_url && !businessLogo && (
-                            <img src={formData.logo_url} alt="Logo" className="h-8 w-8 object-contain rounded border border-slate-100" />
+                            <div className="h-12 w-12 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm">
+                              <img src={formData.logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
+                            </div>
                           )}
                         </div>
                       </div>
@@ -580,6 +583,7 @@ export default function BusinessModule({ userRole, selectedBusiness = 'All Entit
                             status={e.status}
                             onEdit={() => handleEdit(`entity-${e.id}`, e, 'entities')}
                             onDelete={() => handleDeleteClick(e.id)}
+                            onLogoClick={setSelectedLogo}
                             canEdit={canEdit} canDelete={canDelete}
                           />
                         ))}
@@ -627,11 +631,34 @@ export default function BusinessModule({ userRole, selectedBusiness = 'All Entit
         documentData={selectedDoc}
       />
 
-      <CompanyStructureDrawer
-        isOpen={isStructureDrawerOpen}
-        onClose={() => setIsStructureDrawerOpen(false)}
-        data={selectedStructure}
+      <LogoPreviewModal 
+        isOpen={!!selectedLogo} 
+        onClose={() => setSelectedLogo(null)} 
+        logo={selectedLogo?.url} 
+        name={selectedLogo?.name} 
       />
+    </div>
+  );
+}
+
+function LogoPreviewModal({ isOpen, onClose, logo, name }: any) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
+      <div className="relative max-w-2xl w-full bg-white rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-black text-slate-800">{name}</h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Brand Logo Preview</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center p-8 min-h-[300px]">
+          <img src={logo} alt={name} className="max-w-full max-h-[500px] object-contain drop-shadow-lg" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -640,7 +667,7 @@ const thClass = "px-3 py-3 text-[9px] font-bold text-slate-400 uppercase trackin
 
 function EntityRow({ 
   name, logo, phone, email, num, cat, hq, tax_id, currency, timezone, fiscal_year, website,
-  isWide, onEdit, onDelete, canEdit, canDelete 
+  isWide, onEdit, onDelete, canEdit, canDelete, onLogoClick 
 }: any) {
   return (
     <tr className="hover:bg-slate-50/50">
@@ -651,8 +678,12 @@ function EntityRow({
         </div>
       </td>
       <td className="px-4 py-3">
-        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
-          {logo ? <img src={logo} alt={name} className="w-full h-full object-cover" /> : <Building2 className="w-4 h-4 text-slate-400" />}
+        <div 
+          className="w-12 h-12 rounded-xl bg-white flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm transition-all hover:scale-110 hover:border-slate-400 cursor-zoom-in active:scale-95 group/logo"
+          onClick={() => logo && onLogoClick({ url: logo, name })}
+          title="Click to expand logo"
+        >
+          {logo ? <img src={logo} alt={name} className="w-full h-full object-contain p-1" /> : <Building2 className="w-5 h-5 text-slate-300" />}
         </div>
       </td>
       <td className="px-4 py-3">
