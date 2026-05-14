@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
 from .models import Supplier, PurchaseOrder
 from .serializers import SupplierSerializer, PurchaseOrderSerializer
 from apps.users.utils import get_filtered_queryset
@@ -96,7 +97,9 @@ class PurchaseOrderView(APIView):
                 product=data.get('product', 'General Supplies'),
                 quantity=int(data.get('qty', 1)),
                 amount=float(data.get('amount', 0.00)),
-                date=data.get('due', ''),
+                date=data.get('order_date') or timezone.now().date(),
+                delivery_due_date=data.get('due') or None,
+                reminder_days=int(data.get('reminder_days', 3)) if data.get('reminder_days') else 3,
                 status=data.get('status', 'Pending'),
                 business=user_business if user_business != 'All' else data.get('biz', ''),
                 created_by=request.user.email
@@ -115,7 +118,9 @@ class PurchaseOrderView(APIView):
             record.product = data.get('product', record.product)
             record.quantity = int(data.get('qty', record.quantity))
             record.amount = float(data.get('amount', record.amount))
-            record.date = data.get('due', record.date)
+            record.date = data.get('order_date') or record.date
+            record.delivery_due_date = data.get('due') or record.delivery_due_date
+            record.reminder_days = int(data.get('reminder_days', record.reminder_days)) if data.get('reminder_days') else record.reminder_days
             record.status = data.get('status', record.status)
             record.business = data.get('biz', record.business)
             record.save()
