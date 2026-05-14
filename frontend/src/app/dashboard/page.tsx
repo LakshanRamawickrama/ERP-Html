@@ -173,9 +173,10 @@ export default function Dashboard() {
         if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
         return res.json();
       })
-      .then(remindersData => {
-        if (Array.isArray(remindersData)) {
-          const urgent = remindersData.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
+      .then(responseData => {
+        const rawReminders = responseData?.reminders || [];
+        if (Array.isArray(rawReminders)) {
+          const urgent = rawReminders.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
           if (urgent.length > 0) {
             setUrgentReminders(urgent);
             setShowReminderPopup(true);

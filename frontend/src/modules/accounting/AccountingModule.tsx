@@ -60,7 +60,7 @@ export default function AccountingModule() {
   const [filterSub, setFilterSub] = useState<string>('All');
 
 
-  const [data, setData] = useState<any>({ history: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
+  const [data, setData] = useState<any>({ records: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
 
   const fetchAccounting = async () => {
     try {
@@ -182,7 +182,11 @@ export default function AccountingModule() {
     const { name } = e.target;
     const target = e.target;
     if (target instanceof HTMLInputElement && target.type === 'file' && target.files?.[0]) {
-      setFileFields(prev => ({ ...prev, [name]: target.files![0] }));
+      const file = target.files[0];
+      setFileFields(prev => ({ ...prev, [name]: file }));
+      // Clear existing URL so UI shows replacement status
+      const urlKey = name === 'pdf' ? 'pdf_url' : 'document_url';
+      setFormData((prev: any) => ({ ...prev, [urlKey]: null }));
     } else {
       const val = target.value;
       setFormData((prev: any) => {
@@ -352,7 +356,7 @@ export default function AccountingModule() {
                         <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={['Paid', 'Pending', 'Overdue']} />
                         <Field label="Date" name="date" value={formData.date} onChange={handleInputChange} type="date" />
                       </div>
-                      <Field label="Upload Document" name="document" onChange={handleInputChange} type="file" />
+                      <Field label="Upload Document" name="document" onChange={handleInputChange} type="file" existingFile={formData.document_url} fileFields={fileFields} />
                       <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea />
                     </>
                   )}
@@ -381,7 +385,7 @@ export default function AccountingModule() {
                         <Field label="Reference #" name="ref" value={formData.ref} onChange={handleInputChange} placeholder="e.g. TXN458921" />
                         <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.invoiceStatuses || []} />
                       </div>
-                      <Field label="Attach PDF" name="pdf" onChange={handleInputChange} type="file" />
+                      <Field label="Attach PDF" name="pdf" onChange={handleInputChange} type="file" existingFile={formData.pdf_url} fileFields={fileFields} />
                       <Field label="Notes" name="notes" value={formData.notes} onChange={handleInputChange} isTextArea />
                     </>
                   )}
@@ -402,7 +406,7 @@ export default function AccountingModule() {
                       <Field label="IBAN (Optional)" name="iban" value={formData.iban} onChange={handleInputChange} placeholder="GBXX XXXX..." />
                       <Field label="Account Type" name="type" value={formData.type} onChange={handleInputChange} isSelect options={data.bankTypes || []} />
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.bankStatuses || []} />
-                      <Field label="Supporting Document" name="document" onChange={handleInputChange} type="file" />
+                      <Field label="Supporting Document" name="document" onChange={handleInputChange} type="file" existingFile={formData.document_url} fileFields={fileFields} />
                     </>
                   )}
 
@@ -433,7 +437,7 @@ export default function AccountingModule() {
                         <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['7', '14', '30', '60']} />
                       </div>
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.loanStatuses || []} />
-                      <Field label="Upload Documents (Agreement, Schedule, etc.)" name="document" onChange={handleInputChange} type="file" />
+                      <Field label="Upload Documents (Agreement, Schedule, etc.)" name="document" onChange={handleInputChange} type="file" existingFile={formData.document_url} fileFields={fileFields} />
                     </>
                   )}
 
@@ -459,7 +463,7 @@ export default function AccountingModule() {
                       </div>
                       <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['15', '30', '60', '90']} />
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={['Active', 'Expired']} />
-                      <Field label="Attach Policy PDF" name="document" onChange={handleInputChange} type="file" />
+                      <Field label="Attach Policy PDF" name="document" onChange={handleInputChange} type="file" existingFile={formData.document_url} fileFields={fileFields} />
                     </>
                   )}
 
@@ -488,7 +492,7 @@ export default function AccountingModule() {
                         <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['7', '14', '30']} />
                       </div>
                       <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.vatStatuses || []} />
-                      <Field label="Supporting Documents (Receipts, etc.)" name="document" onChange={handleInputChange} type="file" />
+                      <Field label="Supporting Documents (Receipts, etc.)" name="document" onChange={handleInputChange} type="file" existingFile={formData.document_url} fileFields={fileFields} />
                     </>
                   )}
 
@@ -662,7 +666,7 @@ function Pill({ type, label, value }: { type: 'income' | 'expense', label: strin
   );
 }
 
-function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, onChange, disabled, value, name }: any) {
+function Field({ label, placeholder, type = "text", isSelect, options = [], isTextArea, onChange, disabled, value, name, existingFile, fileFields }: any) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block">{label}</label>
@@ -709,6 +713,22 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
           />
         )}
       </div>
+      {type === 'file' && existingFile && (
+        <div className="mt-1 flex items-center gap-2 bg-indigo-50/50 p-1.5 rounded-lg border border-indigo-100/50">
+          <span className="text-[8px] font-black text-indigo-400 uppercase tracking-tighter">Current File:</span>
+          <a href={existingFile} target="_blank" rel="noreferrer" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
+            <Eye className="w-3 h-3" /> View Uploaded Document
+          </a>
+        </div>
+      )}
+      {type === 'file' && !existingFile && name in fileFields && (
+        <div className="mt-1 flex items-center gap-2 bg-emerald-50/50 p-1.5 rounded-lg border border-emerald-100/50">
+          <span className="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">Status:</span>
+          <span className="text-[9px] font-bold text-emerald-600 flex items-center gap-1 italic">
+            <Plus className="w-3 h-3" /> Ready to upload: {(fileFields as any)[name]?.name}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -1093,8 +1113,7 @@ function RowActions({ showDownload, showEye, onEdit, onDelete, onView, canEdit, 
   return (
     <div className="flex gap-2">
       {canEdit && <button onClick={onEdit} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Edit className="w-3.5 h-3.5" /></button>}
-      {showEye && <button onClick={onView} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Eye className="w-3.5 h-3.5" /></button>}
-      {showDownload && <button onClick={onView} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><FileSearch className="w-3.5 h-3.5" /></button>}
+      {(showEye || showDownload) && <button onClick={onView} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"><Eye className="w-3.5 h-3.5" /></button>}
       {canDelete && <button onClick={onDelete} className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>}
     </div>
   );

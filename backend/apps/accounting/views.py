@@ -49,7 +49,7 @@ class AccountingDataView(APIView):
             total_expenses += Decimal(str(l.monthly_payment))
 
         return Response({
-            "history": TransactionSerializer(transactions, many=True, context={'request': request}).data,
+            "records": TransactionSerializer(transactions, many=True, context={'request': request}).data,
             "banks": BankAccountSerializer(banks, many=True, context={'request': request}).data,
             "invoices": InvoiceSerializer(invoices, many=True, context={'request': request}).data,
             "loans": LoanSerializer(loans, many=True, context={'request': request}).data,
@@ -149,6 +149,27 @@ class InvoiceView(APIView):
                 created_by=request.user.email
             )
             return Response(InvoiceSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, pk):
+        record = get_object_or_404(Invoice, pk=pk)
+        data = request.data
+        try:
+            record.number = data.get('num', record.number)
+            record.client = data.get('client', record.client)
+            record.invoice_type = data.get('type', record.invoice_type)
+            record.amount = data.get('amount', record.amount)
+            record.invoice_date = data.get('date') or record.invoice_date
+            record.due_date = data.get('due') or record.due_date
+            record.payment_method = data.get('method', record.payment_method)
+            record.reference_number = data.get('ref', record.reference_number)
+            record.status = data.get('status', record.status)
+            record.notes = data.get('notes', record.notes)
+            if request.FILES.get('pdf'):
+                record.pdf = request.FILES.get('pdf')
+            record.save()
+            return Response(InvoiceSerializer(record, context={'request': request}).data)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
