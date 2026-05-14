@@ -59,7 +59,8 @@ export default function PaymentModule() {
     billType: '',
     custRef: '',
     providerName: '',
-    voucherCode: ''
+    voucherCode: '',
+    reminderDays: 1
   });
 
   const fetchPayments = async () => {
@@ -311,8 +312,9 @@ export default function PaymentModule() {
                       <Field label="Ticket Number" value={formData.ticketNum} onChange={(v: string) => handleInputChange('ticketNum', v)} />
                       <div className="grid grid-cols-2 gap-3">
                          <Field label="Prize (£)" type="number" value={formData.prize} onChange={(v: string) => handleInputChange('prize', v)} />
-                         <Field label="Claim Status" isSelect options={['Unclaimed', 'Claimed', 'Expired']} value={formData.claimStatus} onChange={(v: string) => handleInputChange('claimStatus', v)} />
+                         <Field label="Reminder (Days)" isSelect options={['1', '2', '3', '7']} value={formData.reminderDays || '1'} onChange={(v: string) => handleInputChange('reminderDays', v)} />
                       </div>
+                      <Field label="Claim Status" isSelect options={['Unclaimed', 'Claimed', 'Expired']} value={formData.claimStatus} onChange={(v: string) => handleInputChange('claimStatus', v)} />
                     </div>
                   )}
 

@@ -97,6 +97,7 @@ class PaymentServiceRecord(models.Model):
     type = models.CharField(max_length=100)
     date = models.DateField(blank=True, null=True)
     reference = models.CharField(max_length=100, blank=True, null=True)
+    reminder_days = models.IntegerField(default=1)
     gross_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     fee_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     net_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
@@ -117,9 +118,15 @@ class PaymentServiceRecord(models.Model):
     prize = models.DecimalField(max_digits=15, decimal_places=2, default=0.00) # Lottery
     claim_status = models.CharField(max_length=50, blank=True, null=True) # Lottery
     voucher_code = models.CharField(max_length=100, blank=True, null=True) # PayPoint/PayZone
-
-    business = models.CharField(max_length=255, blank=True, null=True) # For consistency with other models
+    business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.biz and not self.business:
+            self.business = self.biz
+        elif self.business and not self.biz:
+            self.biz = self.business
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.provider} - {self.type} - {self.date}"

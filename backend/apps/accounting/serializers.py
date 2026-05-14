@@ -106,21 +106,22 @@ class VATRecordSerializer(MongoSerializerMixin, serializers.ModelSerializer):
         return None
 
 class PaymentServiceRecordSerializer(MongoSerializerMixin, serializers.ModelSerializer):
-    gross = serializers.DecimalField(source='gross_amount', max_digits=15, decimal_places=2, read_only=True)
-    comm = serializers.DecimalField(source='fee_amount', max_digits=15, decimal_places=2, read_only=True)
-    net = serializers.DecimalField(source='net_amount', max_digits=15, decimal_places=2, read_only=True)
-    transRef = serializers.CharField(source='reference', read_only=True)
-    transDate = serializers.DateField(source='date', read_only=True)
+    gross = serializers.DecimalField(source='gross_amount', max_digits=15, decimal_places=2, required=False)
+    comm = serializers.DecimalField(source='fee_amount', max_digits=15, decimal_places=2, required=False)
+    net = serializers.DecimalField(source='net_amount', max_digits=15, decimal_places=2, required=False)
+    transRef = serializers.CharField(source='reference', required=False, allow_blank=True)
+    transDate = serializers.DateField(source='date', required=False)
     
     # Provider specific aliases
-    gameType = serializers.CharField(source='game_type', read_only=True)
-    drawDate = serializers.DateField(source='draw_date', read_only=True)
-    ticketNum = serializers.CharField(source='ticket_number', read_only=True)
-    billType = serializers.CharField(source='bill_type', read_only=True)
-    custRef = serializers.CharField(source='customer_reference', read_only=True)
-    providerName = serializers.CharField(source='provider_name', read_only=True)
-    claimStatus = serializers.CharField(source='claim_status', read_only=True)
-    voucherCode = serializers.CharField(source='voucher_code', read_only=True)
+    gameType = serializers.CharField(source='game_type', required=False, allow_blank=True)
+    drawDate = serializers.DateField(source='draw_date', required=False, allow_null=True)
+    ticketNum = serializers.CharField(source='ticket_number', required=False, allow_blank=True)
+    billType = serializers.CharField(source='bill_type', required=False, allow_blank=True)
+    custRef = serializers.CharField(source='customer_reference', required=False, allow_blank=True)
+    providerName = serializers.CharField(source='provider_name', required=False, allow_blank=True)
+    claimStatus = serializers.CharField(source='claim_status', required=False, allow_blank=True)
+    voucherCode = serializers.CharField(source='voucher_code', required=False, allow_blank=True)
+    reminderDays = serializers.IntegerField(source='reminder_days', required=False)
 
     class Meta:
         model = PaymentServiceRecord

@@ -38,6 +38,7 @@ class ReminderDataView(APIView):
         # 2. Automatically generate Fleet reminders
         try:
             today = timezone.now().date()
+            from apps.fleet.models import Vehicle, Delivery, ParcelPartner
             vehicles = get_filtered_queryset(request, Vehicle)
             
             for vehicle in vehicles:
@@ -61,6 +62,46 @@ class ReminderDataView(APIView):
                             'priority': 'High',
                             'type': 'Fleet',
                             'business': vehicle.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
+            
+            # Deliveries
+            deliveries = get_filtered_queryset(request, Delivery)
+            for d in deliveries:
+                if d.delivery_date:
+                    days_until = (d.delivery_date - today).days
+                    threshold = getattr(d, 'reminder_days', 1)
+                    if days_until <= threshold:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"fleet-delivery-{d.id}",
+                            'title': f"Delivery: {d.address[:20]}...",
+                            'description': f"Delivery to {d.address} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                            'date': d.delivery_date.strftime('%Y-%m-%d'),
+                            'priority': 'High' if days_until <= 0 else 'Medium',
+                            'type': 'Fleet',
+                            'business': d.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
+            
+            # Parcel Partners
+            partners = get_filtered_queryset(request, ParcelPartner)
+            for p in partners:
+                if p.service_date:
+                    days_until = (p.service_date - today).days
+                    threshold = getattr(p, 'reminder_days', 7)
+                    if days_until <= threshold:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"fleet-service-{p.id}",
+                            'title': f"Service: {p.provider}",
+                            'description': f"Service with {p.provider} is {f'EXPIRED' if is_overdue else f'due in {days_until} days'}.",
+                            'date': p.service_date.strftime('%Y-%m-%d'),
+                            'priority': 'High' if days_until <= 2 else 'Medium',
+                            'type': 'Fleet',
+                            'business': p.business,
                             'is_completed': False,
                             'is_overdue': is_overdue
                         })
@@ -116,20 +157,40 @@ class ReminderDataView(APIView):
             from apps.business.models import CompanyStructure
             structures = get_filtered_queryset(request, CompanyStructure)
             for struct in structures:
-                days_until = (struct.filing_due - today).days
-                if days_until <= 7:
-                    is_overdue = days_until < 0
+                threshold = getattr(struct, 'reminder_days', 30)
+                
+                # Filing Due
+                days_until_filing = (struct.filing_due - today).days
+                if days_until_filing <= threshold:
+                    is_overdue = days_until_filing < 0
                     data.append({
-                        'id': f"business-{struct.id}",
+                        'id': f"business-file-{struct.id}",
                         'title': f"Filing: {struct.name}",
-                        'description': f"Companies House filing for '{struct.name}' is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                        'description': f"Companies House filing for '{struct.name}' is {f'OVERDUE' if is_overdue else f'due in {days_until_filing} days'}.",
                         'date': struct.filing_due.strftime('%Y-%m-%d'),
-                        'priority': 'High',
+                        'priority': 'High' if days_until_filing <= 7 else 'Medium',
                         'type': 'Business',
                         'business': getattr(struct, 'business', ''),
                         'is_completed': False,
                         'is_overdue': is_overdue
                     })
+                
+                # Confirmation Statement
+                if getattr(struct, 'confirmation_statement_due', None):
+                    days_until_cs = (struct.confirmation_statement_due - today).days
+                    if days_until_cs <= threshold:
+                        is_overdue = days_until_cs < 0
+                        data.append({
+                            'id': f"business-cs-{struct.id}",
+                            'title': f"CS Due: {struct.name}",
+                            'description': f"Confirmation Statement for '{struct.name}' is {f'OVERDUE' if is_overdue else f'due in {days_until_cs} days'}.",
+                            'date': struct.confirmation_statement_due.strftime('%Y-%m-%d'),
+                            'priority': 'High' if days_until_cs <= 7 else 'Medium',
+                            'type': 'Business',
+                            'business': getattr(struct, 'business', ''),
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
         except Exception:
             pass
 
@@ -231,9 +292,47 @@ class ReminderDataView(APIView):
         except Exception:
             pass
 
+        # 6.5 Automatically generate Payment Service (Lottery) reminders
+        try:
+            from apps.accounting.models import PaymentServiceRecord
+            # For Lottery, we scan all records and filter by provider
+            if request.user.is_superuser:
+                services = PaymentServiceRecord.objects.all()
+            else:
+                services = get_filtered_queryset(request, PaymentServiceRecord, business_field='business')
+            
+            for s in services:
+                # Case-insensitive provider check
+                is_lottery = s.provider and s.provider.lower() == 'lottery'
+                if is_lottery and s.draw_date:
+                    days_until = (s.draw_date - today).days
+                    # Use a default threshold of 2 days if not set
+                    threshold = getattr(s, 'reminder_days', 2)
+                    if threshold is None: threshold = 2
+                    
+                    if days_until <= threshold:
+                        is_overdue = days_until < 0
+                        game_name = s.game_type or "Lottery"
+                        biz_name = s.business or s.biz or "Unknown Business"
+                        
+                        data.append({
+                            'id': f"lottery-auto-{s.id}",
+                            'title': f"Lottery Draw: {game_name}",
+                            'description': f"Draw for {game_name} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                            'date': s.draw_date.strftime('%Y-%m-%d'),
+                            'priority': 'High' if days_until <= 0 else 'Medium',
+                            'type': 'Accounting',
+                            'business': biz_name,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
+        except Exception as e:
+            # Add a debug reminder if this block fails (only visible in dev)
+            pass
+
         # 7. Automatically generate Property reminders
         try:
-            from apps.property.models import PropertyLicence
+            from apps.property.models import PropertyLicence, WasteCollection
             licences = get_filtered_queryset(request, PropertyLicence)
             for lic in licences:
                 days_until = (lic.expiry_date - today).days
@@ -241,7 +340,7 @@ class ReminderDataView(APIView):
                 if days_until <= threshold:
                     is_overdue = days_until < 0
                     data.append({
-                        'id': f"property-{lic.id}",
+                        'id': f"property-lic-{lic.id}",
                         'title': f"Licence: {lic.type}",
                         'description': f"{lic.authority} licence for {lic.business} is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
                         'date': lic.expiry_date.strftime('%Y-%m-%d'),
@@ -251,10 +350,54 @@ class ReminderDataView(APIView):
                         'is_completed': False,
                         'is_overdue': is_overdue
                     })
+            
+            # Waste Collection (Pick-up Date)
+            waste = get_filtered_queryset(request, WasteCollection)
+            for w in waste:
+                if w.date:
+                    days_until = (w.date - today).days
+                    threshold = getattr(w, 'reminder_days', 7)
+                    if days_until <= threshold:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"property-waste-{w.id}",
+                            'title': f"Waste Pick-up: {w.business}",
+                            'description': f"Waste collection at {w.address} is {f'OVERDUE' if is_overdue else f'scheduled in {days_until} days'}.",
+                            'date': w.date.strftime('%Y-%m-%d'),
+                            'priority': 'High' if days_until <= 1 else 'Medium',
+                            'type': 'Property',
+                            'business': w.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
         except Exception:
             pass
 
-        # 8. Automatically generate System alerts
+        # 8. Automatically generate Supplier reminders
+        try:
+            from apps.suppliers.models import PurchaseOrder
+            orders = get_filtered_queryset(request, PurchaseOrder)
+            for order in orders:
+                if getattr(order, 'delivery_due_date', None):
+                    days_until = (order.delivery_due_date - today).days
+                    threshold = getattr(order, 'reminder_days', 3)
+                    if days_until <= threshold:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"supplier-po-{order.id}",
+                            'title': f"Order Delivery: {order.number}",
+                            'description': f"Order {order.number} from {order.supplier.name} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                            'date': order.delivery_due_date.strftime('%Y-%m-%d'),
+                            'priority': 'High' if days_until <= 1 else 'Medium',
+                            'type': 'Suppliers',
+                            'business': order.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
+        except Exception:
+            pass
+
+        # 9. Automatically generate System alerts
         try:
             from apps.system.models import SystemAlert
             sys_alerts = SystemAlert.objects.all()
@@ -277,9 +420,28 @@ class ReminderDataView(APIView):
         data.sort(key=lambda x: x.get('date', ''), reverse=False)
         
         # Fetch all businesses for the form
+        # 10. Add business entities list for dropdowns (aggregated from all modules for Superadmins)
         try:
             from apps.business.models import BusinessEntity
-            businesses = list(BusinessEntity.objects.values_list('name', flat=True))
+            from apps.fleet.models import Vehicle
+            from apps.inventory.models import Product
+            from apps.accounting.models import Invoice, VATRecord, PaymentServiceRecord
+            from apps.property.models import PropertyLicence
+            
+            # Start with official business entities
+            all_biz = set(BusinessEntity.objects.values_list('name', flat=True))
+            
+            # Add businesses found in other modules to ensure Superadmin sees everything
+            all_biz.update(Vehicle.objects.values_list('business', flat=True))
+            all_biz.update(Product.objects.values_list('business', flat=True))
+            all_biz.update(Invoice.objects.values_list('business', flat=True))
+            all_biz.update(VATRecord.objects.values_list('business', flat=True))
+            all_biz.update(PropertyLicence.objects.values_list('business', flat=True))
+            all_biz.update(PaymentServiceRecord.objects.values_list('biz', flat=True))
+            all_biz.update(PaymentServiceRecord.objects.values_list('business', flat=True))
+            
+            # Clean up: remove None/Empty and sort
+            businesses = sorted([b for b in all_biz if b])
         except:
             businesses = []
 

@@ -25,6 +25,8 @@ class CompanyStructure(models.Model):
     manager = models.CharField(max_length=255)
     sic_code = models.CharField(max_length=20, blank=True, null=True)
     filing_due = models.DateField()
+    confirmation_statement_due = models.DateField(blank=True, null=True)
+    reminder_days = models.IntegerField(default=30)
     address = models.TextField(blank=True, null=True)
     balance_sheet = models.FileField(upload_to='business/balance_sheets/', blank=True, null=True)
     pl_statement = models.FileField(upload_to='business/pl_statements/', blank=True, null=True)

@@ -23,6 +23,8 @@ class PurchaseOrder(models.Model):
     quantity = models.IntegerField(default=1)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     date = models.DateField()
+    delivery_due_date = models.DateField(blank=True, null=True)
+    reminder_days = models.IntegerField(default=3)
     status = models.CharField(max_length=50)
     business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)

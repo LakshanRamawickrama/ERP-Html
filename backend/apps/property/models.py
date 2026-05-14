@@ -29,6 +29,7 @@ class WasteCollection(models.Model):
     phone = models.CharField(max_length=50)
     address = models.TextField()
     status = models.CharField(max_length=50)
+    reminder_days = models.IntegerField(default=7)
     notes = models.TextField(blank=True, null=True)
     business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
