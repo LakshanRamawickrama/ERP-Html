@@ -379,7 +379,7 @@ export default function Dashboard() {
         />
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-[0.75rem_0.75rem_1.5rem] scrollbar-custom bg-[#f1f5f9]/30">
+        <div className="flex-1 overflow-y-auto p-[0.75rem_0.75rem_1.5rem] no-scrollbar bg-[#f1f5f9]/30">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             
             {/* 1. BUSINESS DETAILS */}
@@ -398,6 +398,7 @@ export default function Dashboard() {
                   <tbody>
                     {dash.businesses
                       .filter((row: any) => selectedBusiness === 'All Entities' || row.name === selectedBusiness)
+                      .slice(0, 5)
                       .map((row: any) => (
                       <tr 
                         key={row.id} 
@@ -407,7 +408,7 @@ export default function Dashboard() {
                         <td className="truncate">
                           <strong className="group-hover:text-[#3b82f6] transition-colors">{row.name}</strong>
                         </td>
-                        <td className="truncate text-[10px] text-slate-500">{row.admin || 'System Admin'}</td>
+                        <td className="truncate text-[10px] text-slate-500">{row.admin || 'Not Assigned'}</td>
                         <td className="text-right text-[#198754] font-bold">{row.inc}</td>
                         <td className="text-right text-[#dc3545]">{row.exp}</td>
                         <td className="text-center">
@@ -714,7 +715,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ) : (
-                    <div className="max-h-[220px] overflow-y-auto pr-1 scrollbar-custom space-y-3 animate-in fade-in duration-300">
+                    <div className="max-h-[220px] overflow-y-auto pr-1 no-scrollbar space-y-3 animate-in fade-in duration-300">
                       {dash.emails.map((email: any) => (
                         <div key={email.id} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg group">
                           <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold shrink-0`}><Mail size={14} /></div>
@@ -1679,7 +1680,8 @@ export default function Dashboard() {
         .widget-header { background: #fff; padding: .65rem .85rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
         .widget-header-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: .5rem; color: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .05); }
         .widget-title { font-size: 13px; font-weight: 700; color: #1e293b; }
-        .widget-body { padding: .65rem .85rem; flex: 1; overflow: hidden; }
+        .widget-body { padding: .65rem .85rem; flex: 1; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
+        .widget-body::-webkit-scrollbar { display: none; }
 
         .wt { width: 100%; border-collapse: collapse; font-size: 11px; }
         .wt th { font-size: 9px; font-weight: 800; text-transform: uppercase; color: #64748b; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }

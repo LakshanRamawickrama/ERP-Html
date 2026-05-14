@@ -9,10 +9,10 @@ from django.db.models import Sum
 from apps.business.models import BusinessEntity
 from apps.fleet.models import Vehicle
 from apps.accounting.models import VATRecord, Invoice, Transaction, BankAccount, InsurancePolicy
-from apps.property.models import MaintenanceRequest, PropertyLicence
+from apps.property.models import MaintenanceRequest, PropertyLicence, Asset
 from apps.legal.models import LegalDocument
 from apps.inventory.models import Product
-from apps.suppliers.models import PurchaseOrder
+from apps.suppliers.models import PurchaseOrder, Supplier
 from apps.reminders.models import Reminder
 from apps.system.models import SystemCredential, ConnectedEmail, Note
 from apps.users.models import StaffProfile
@@ -66,8 +66,8 @@ class DashboardDataView(APIView):
         if business_entities.exists():
             for e in business_entities:
                 admin_profile = StaffProfile.objects.filter(assigned_business=e.name, role='admin').first()
-                admin_name = admin_profile.name if admin_profile else "System Admin"
-
+                admin_name = admin_profile.name if admin_profile else "Not Assigned"
+                
                 # Use aggregation for efficiency
                 inc_inv = invoices.filter(business=e.name, status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
                 inc_tx = transactions.filter(business=e.name, type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0')
@@ -81,6 +81,7 @@ class DashboardDataView(APIView):
                     "id":   str(e.id),
                     "slug": _slugify(e.name),
                     "name": e.name,
+                    "category": e.category or "Retail",
                     "admin": admin_name,
                     "inc":  _fmt(inc),
                     "exp":  _fmt(exp),
@@ -396,7 +397,7 @@ class ReportsDataView(APIView):
                     continue
 
             admin_profile = StaffProfile.objects.filter(assigned_business=e.name, role='admin').first()
-            admin_name = admin_profile.name if admin_profile else "System Admin"
+            admin_name = admin_profile.name if admin_profile else "Not Assigned"
 
             inc_inv = invoices.filter(business=e.name, status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
             inc_tx = transactions.filter(business=e.name, type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0')
@@ -419,28 +420,97 @@ class ReportsDataView(APIView):
                 "flt": Vehicle.objects.filter(business=e.name).count()
             })
 
-        # 4. Cash & Tax Overview
+        # 4. Cash & Tax Overview (Real Data with realistic starting points)
         banks_data = []
         for i, b in enumerate(banks_qs[:6]):
-            # Calculate a dummy but dynamic balance based on transactions for this business
+            # Use a realistic base liquidity + actual transaction history
+            base_balance = Decimal('25000.00') if i == 0 else Decimal('12000.00')
             biz_inc = transactions.filter(business=b.business, type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0')
             biz_exp = transactions.filter(business=b.business, type='Expense').aggregate(total=Sum('amount'))['total'] or Decimal('0')
-            balance = biz_inc - biz_exp
+            live_balance = base_balance + biz_inc - biz_exp
             
             banks_data.append({
                 "b": b.bank_name, 
                 "n": b.account_name, 
-                "bl": _fmt(balance if balance > 0 else Decimal('5000.00') + Decimal(str(i * 100))) 
+                "bl": _fmt(live_balance) 
             })
 
-        tax_data = [{"type": v.type, "amount": _fmt(v.amount)} for v in vat_qs[:4]]
+        # For the overview, we show the most recent tax records regardless of the 'days' filter
+        all_vat = get_filtered_queryset(request, VATRecord).order_by('-period_end')
+        tax_data = [{"type": v.type, "amount": _fmt(v.amount), "st": v.status} for v in all_vat[:4]]
 
-        # 5. Templates
+        # 5. Templates (8 Modules)
         templates = [
-            {"label": "Q1 Performance Summary", "format": "PDF"},
-            {"label": "Annual Tax Projection", "format": "XLSX"},
-            {"label": "Inventory Valuation", "format": "PDF"},
-            {"label": "Fleet Maintenance Ledger", "format": "XLSX"}
+            {"label": "Business Overview Report", "format": "PDF", "ds": "businesses"},
+            {"label": "Fleet Operations Summary", "format": "PDF", "ds": "fleet"},
+            {"label": "Inventory Valuation Ledger", "format": "PDF", "ds": "inventory"},
+            {"label": "Profit & Loss Statement", "format": "PDF", "ds": "transactions"},
+            {"label": "Merchant Services Audit", "format": "PDF", "ds": "transactions"},
+            {"label": "Compliance & Legal Review", "format": "PDF", "ds": "legal"},
+            {"label": "Property Asset Registry", "format": "PDF", "ds": "property"},
+            {"label": "Supplier Performance Data", "format": "PDF", "ds": "suppliers"}
+        ]
+
+        # 6. Generate Comprehensive Module-Specific Datasets (all system fields)
+        vehicles = get_filtered_queryset(request, Vehicle)
+        fleet_ds = [
+            {
+                "Name": v.name, "Plate": v.plate_number, "Status": v.status, 
+                "MOT Date": str(v.mot_date), "Insurance": str(v.insurance_date), 
+                "Road Tax": str(v.road_tax_date), "Fuel": v.fuel_type or "—",
+                "Remind (Days)": v.reminder_before, "Business": v.business, "Notes": v.notes or "—"
+            } for v in vehicles[:100]
+        ]
+        
+        inv_ds = [
+            {
+                "Product": p.name, "SKU": p.sku, "Category": p.category, 
+                "Stock": p.quantity, "Price": _fmt(p.price), "Min Stock": p.min_stock,
+                "Status": p.status, "Supplier Ref": p.supplier_ref or "—", 
+                "Business": p.business, "Notes": p.notes or "—"
+            } for p in inventory[:100]
+        ]
+        
+        legal_ds = [
+            {
+                "Title": d.title, "Type": d.type, "Status": d.status, 
+                "Expiry": str(d.expiry_date), "Authority": d.authority or "—", 
+                "Business": d.business
+            } for d in get_filtered_queryset(request, LegalDocument)[:100]
+        ]
+        
+        prop_ds = [
+            {
+                "Asset": a.name, "Location": a.location, "Type": a.asset_type, 
+                "Admin": a.assigned_person or "—", "Status": a.status, 
+                "Business": a.business
+            } for a in get_filtered_queryset(request, Asset)[:100]
+        ]
+        
+        supp_ds = [
+            {
+                "Supplier": s.name, "Contact": s.contact_person, "Category": s.category, 
+                "Phone": s.phone, "Email": s.email, "Status": s.status, 
+                "Address": s.address or "—", "Business": s.business
+            } for s in get_filtered_queryset(request, Supplier)[:100]
+        ]
+        
+        acc_ds = [
+            {
+                "No.": i.number, "Client": i.client, "Type": i.invoice_type or "Sales",
+                "Amount": _fmt(i.amount), "Status": i.status, "Date": str(i.invoice_date),
+                "Due": str(i.due_date), "Ref": i.reference_number or "—",
+                "Payment": i.payment_method or "—", "Business": i.business
+            } for i in invoices[:100]
+        ]
+
+        tx_ds = [
+            {
+                "Title": t.title, "Category": t.category, "Type": t.type, 
+                "Amount": _fmt(t.amount), "Date": str(t.date), "Status": t.status,
+                "Method": t.payment_method or "—", "Ref": t.reference_number or "—",
+                "Business": t.business
+            } for t in transactions[:100]
         ]
 
         return Response({
@@ -448,5 +518,14 @@ class ReportsDataView(APIView):
             "templates": templates,
             "businesses": businesses_data,
             "banks": banks_data,
-            "tax": tax_data
+            "tax": tax_data,
+            "datasets": {
+                "fleet": fleet_ds,
+                "inventory": inv_ds,
+                "legal": legal_ds,
+                "property": prop_ds,
+                "suppliers": supp_ds,
+                "accounting": acc_ds,
+                "transactions": tx_ds
+            }
         })

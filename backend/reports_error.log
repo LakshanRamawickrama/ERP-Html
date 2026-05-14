@@ -1,0 +1,28 @@
+
+--- ERROR 2026-05-14 ---
+Traceback (most recent call last):
+  File "C:\Users\USER\Desktop\ERP-Html\backend\apps\reports\views.py", line 443, in get
+    inv_ds = [{"n": p.name, "sku": p.sku, "cat": p.category, "stk": p.stock_level, "prc": _fmt(p.unit_price), "biz": p.business} for p in inventory[:50]]
+                                                                    ^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'stock_level'
+
+--- ERROR 2026-05-14 ---
+Traceback (most recent call last):
+  File "C:\Users\USER\Desktop\ERP-Html\backend\apps\reports\views.py", line 443, in get
+    inv_ds = [{"n": p.name, "sku": p.sku, "cat": p.category, "stk": p.stock_level, "prc": _fmt(p.unit_price), "biz": p.business} for p in inventory[:50]]
+                                                                    ^^^^^^^^^^^^^
+AttributeError: 'Product' object has no attribute 'stock_level'
+
+--- ERROR 2026-05-14 ---
+Traceback (most recent call last):
+  File "C:\Users\USER\Desktop\ERP-Html\backend\apps\reports\views.py", line 444, in get
+    legal_ds = [{"t": d.title, "ref": d.reference_number, "exp": str(d.expiry_date), "st": d.status, "biz": d.business} for d in get_filtered_queryset(request, LegalDocument)[:50]]
+                                      ^^^^^^^^^^^^^^^^^^
+AttributeError: 'LegalDocument' object has no attribute 'reference_number'
+
+--- ERROR 2026-05-14 ---
+Traceback (most recent call last):
+  File "C:\Users\USER\Desktop\ERP-Html\backend\apps\reports\views.py", line 444, in get
+    legal_ds = [{"t": d.title, "ref": d.reference_number, "exp": str(d.expiry_date), "st": d.status, "biz": d.business} for d in get_filtered_queryset(request, LegalDocument)[:50]]
+                                      ^^^^^^^^^^^^^^^^^^
+AttributeError: 'LegalDocument' object has no attribute 'reference_number'

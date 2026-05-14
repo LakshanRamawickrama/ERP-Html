@@ -69,6 +69,7 @@ export default function ReportsModule() {
   const businesses = data.businesses || [];
   const banks = data.banks || [];
   const tax = data.tax || [];
+  const datasets = data.datasets || {};
 
   const handleViewDoc = (docTitle: string, format: string, contentData?: any[]) => {
     setSelectedDoc({ title: docTitle, type: `Report (${format})`, content: contentData });
@@ -255,15 +256,24 @@ export default function ReportsModule() {
         {/* Top Feature Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* 1. Available Templates */}
-          <div className="space-y-2">
+          <div className="flex flex-col space-y-2 min-h-[260px]">
             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Available Templates</h5>
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 h-[180px] overflow-y-auto">
-              <div className="space-y-1">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex-1 no-scrollbar overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3">
                 {templates.map((t: any, i: number) => (
                   <ExportItem 
                     key={i} 
                     {...t} 
-                    onClick={() => handleViewDoc(t.label, t.format)}
+                    onClick={() => {
+                      const filename = t.label.replace(/\s+/g, '_');
+                      const dataToExport = t.ds === 'businesses' ? businesses : (datasets[t.ds] || []);
+                      
+                      if (t.format === 'PDF') {
+                        downloadPDF(dataToExport, filename);
+                      } else {
+                        downloadExcel(dataToExport, filename);
+                      }
+                    }}
                   />
                 ))}
               </div>
@@ -272,12 +282,12 @@ export default function ReportsModule() {
           </div>
 
           {/* 2. Top Performance Leaderboard */}
-          <div className="space-y-2">
+          <div className="flex flex-col space-y-2 min-h-[260px]">
             <div className="flex items-center justify-between">
               <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Top Performers</h5>
               <Trophy className="w-3 h-3 text-amber-500" />
             </div>
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[180px] overflow-y-auto">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 no-scrollbar overflow-y-auto">
               <div className="p-1">
                 {[...businesses].sort((a, b) => parseFloat(b.inc.replace(/[$,]/g, '')) - parseFloat(a.inc.replace(/[$,]/g, ''))).slice(0, 5).map((biz, i) => (
                   <div key={biz.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-xl transition-all group">
@@ -285,9 +295,9 @@ export default function ReportsModule() {
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-[9px] ${
                         i === 0 ? 'bg-amber-100 text-amber-600' : 
                         i === 1 ? 'bg-slate-100 text-slate-600' : 
-                        'bg-orange-50 text-orange-600'
+                        'bg-blue-50 text-blue-600'
                       }`}>
-                        #{i + 1}
+                        {biz.admin?.split(' ').map((n: string) => n[0]).join('') || 'NA'}
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[11px] font-bold text-slate-700 truncate max-w-[120px]">{biz.name}</span>
@@ -302,9 +312,9 @@ export default function ReportsModule() {
           </div>
 
           {/* 3. Consolidated Cash & Tax Overview */}
-          <div className="space-y-2">
+          <div className="flex flex-col space-y-2 min-h-[260px]">
             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Cash & Tax Overview</h5>
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[180px] flex flex-col">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col">
               <div className="bg-slate-50/50 px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-3 h-3 text-slate-400" />
@@ -312,7 +322,7 @@ export default function ReportsModule() {
                 </div>
                 <span className="text-[10px] font-black text-emerald-600">${banks.reduce((acc: any, b: any) => acc + parseFloat((b.bl || '0').replace(/[$,]/g, '')), 0).toLocaleString()}</span>
               </div>
-              <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
+              <div className="flex-1 overflow-y-auto divide-y divide-slate-50 no-scrollbar">
                 {banks.map((bank: any, i: number) => (
                   <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-2">
@@ -457,15 +467,19 @@ function ExportItem({ label, format, onClick }: any) {
   return (
     <div 
       onClick={onClick}
-      className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors group cursor-pointer"
+      className="flex items-center justify-between p-1.5 bg-slate-50/40 border border-slate-100 hover:bg-white hover:border-slate-300 hover:shadow-sm rounded-lg transition-all group cursor-pointer"
     >
-
-      <span className="text-xs font-bold text-slate-600 group-hover:text-[#2c3e50]">{label}</span>
-      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${
-        format === 'PDF' ? 'bg-red-50 text-red-600' : 
-        format === 'XLSX' ? 'bg-emerald-50 text-emerald-600' : 
-        'bg-slate-100 text-slate-600'
-      }`}>{format}</span>
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span className="text-[10px] font-bold text-slate-600 group-hover:text-[#2c3e50] leading-tight truncate pr-2">
+          {label}
+        </span>
+        <span className={`w-fit text-[7px] font-black px-1 py-0.2 rounded uppercase tracking-tighter ${
+          format === 'PDF' ? 'bg-red-50 text-red-600' : 
+          format === 'XLSX' ? 'bg-emerald-50 text-emerald-600' : 
+          'bg-slate-100 text-slate-600'
+        }`}>{format}</span>
+      </div>
+      <Download className="w-3 h-3 text-slate-300 group-hover:text-slate-500 transition-colors shrink-0" />
     </div>
   );
 }
