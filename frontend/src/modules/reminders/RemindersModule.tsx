@@ -230,7 +230,7 @@ export default function RemindersModule({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
           
           {/* Main List - Scrollable Area */}
-          <div className="lg:col-span-8 overflow-y-auto pr-2 scrollbar-custom space-y-4 pb-10">
+          <div className="lg:col-span-8 overflow-y-auto pr-2 scrollbar-custom grid grid-cols-1 xl:grid-cols-2 gap-4 auto-rows-min pb-10 content-start">
             {filtered.map((reminder) => (
               <div key={reminder.id} className={`bg-white border ${reminder.is_overdue ? 'border-red-200 bg-red-50/10' : 'border-slate-200'} rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all group`}>
                 <div className="flex items-center gap-4">
