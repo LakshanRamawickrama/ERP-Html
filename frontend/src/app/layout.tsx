@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nexa ERP | Next-Gen Management",
+  title: "Zerozzz ERP | Next-Gen Management",
   description: "Modern Business Management System",
 };
 

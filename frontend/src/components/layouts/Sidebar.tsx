@@ -88,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
           </div>
         </div>
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-          <h5 className="text-sm font-black tracking-tight text-white uppercase">Zerozz ERP</h5>
+          <h5 className="text-sm font-black tracking-tight text-white uppercase">Zerozzz ERP</h5>
           <small className="text-[9px] font-bold text-cyan-400 block uppercase tracking-widest leading-none mt-0.5">{userRole?.replace('_', ' ')}</small>
         </div>
       </div>
