@@ -2,11 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VATRecord, DojoSettlement
-from .serializers import TransactionSerializer, BankAccountSerializer, InvoiceSerializer, LoanSerializer, InsurancePolicySerializer, VATRecordSerializer, DojoSettlementSerializer
+from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VATRecord, PaymentServiceRecord
+from .serializers import TransactionSerializer, BankAccountSerializer, InvoiceSerializer, LoanSerializer, InsurancePolicySerializer, VATRecordSerializer, PaymentServiceRecordSerializer
 from apps.users.utils import get_filtered_queryset
 from django.shortcuts import get_object_or_404
 from decimal import Decimal
+from apps.business.models import BusinessEntity
 
 class AccountingDataView(APIView):
     permission_classes = [IsAuthenticated]
@@ -18,7 +19,7 @@ class AccountingDataView(APIView):
         loans = get_filtered_queryset(request, Loan)
         insurance = get_filtered_queryset(request, InsurancePolicy)
         vat = get_filtered_queryset(request, VATRecord)
-        dojo = get_filtered_queryset(request, DojoSettlement)
+        payments = get_filtered_queryset(request, PaymentServiceRecord)
 
         # Robust summary calculation
         total_income = Decimal('0.00')
@@ -36,9 +37,9 @@ class AccountingDataView(APIView):
             if inv.status == 'Paid':
                 total_income += Decimal(str(inv.amount))
 
-        # 3. From Dojo Settlements (Income)
-        for d in dojo:
-            total_income += Decimal(str(d.net))
+        # 3. From Payment Service Records (Income)
+        for d in payments:
+            total_income += Decimal(str(d.net_amount))
 
         # 4. From Recurring Expenses
         for ins in insurance:
@@ -54,7 +55,7 @@ class AccountingDataView(APIView):
             "loans": LoanSerializer(loans, many=True, context={'request': request}).data,
             "insurance": InsurancePolicySerializer(insurance, many=True, context={'request': request}).data,
             "vat": VATRecordSerializer(vat, many=True, context={'request': request}).data,
-            "dojo": DojoSettlementSerializer(dojo, many=True, context={'request': request}).data,
+            "dojo": PaymentServiceRecordSerializer(payments, many=True, context={'request': request}).data,
             "summary": {
                 "income": f"${total_income:,.2f}",
                 "expenses": f"${total_expenses:,.2f}"
@@ -274,28 +275,80 @@ class VATRecordView(APIView):
         record.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class DojoSettlementView(APIView):
+class PaymentServiceRecordView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        records = get_filtered_queryset(request, PaymentServiceRecord)
+        return Response({
+            "transactions": PaymentServiceRecordSerializer(records, many=True, context={'request': request}).data,
+            "businesses": list(BusinessEntity.objects.values_list('name', flat=True))
+        })
+
     def post(self, request):
         data = request.data
         try:
-            amount = Decimal(data.get('amount', '0'))
-            fee = Decimal(data.get('fee', '0'))
-            record = DojoSettlement.objects.create(
-                date=data.get('date') or None,
-                amount=amount,
-                fee=fee,
-                net=amount - fee,
+            record = PaymentServiceRecord.objects.create(
+                provider=data.get('provider', 'Dojo'),
+                biz=data.get('biz', ''),
+                type=data.get('type', 'Card Payment'),
+                date=data.get('transDate') or None,
+                reference=data.get('transRef', ''),
+                gross_amount=Decimal(str(data.get('gross', '0'))),
+                fee_amount=Decimal(str(data.get('comm', '0'))),
+                net_amount=Decimal(str(data.get('net', '0'))),
                 method=data.get('method', 'Card'),
-                status=data.get('status', 'Settled'),
-                business=getattr(request.user, 'assigned_business', ''),
+                status=data.get('status', 'Paid'),
+                staff=data.get('staff', ''),
+                notes=data.get('notes', ''),
+                game_type=data.get('gameType'),
+                draw_date=data.get('drawDate') or None,
+                ticket_number=data.get('ticketNum'),
+                bill_type=data.get('billType'),
+                customer_reference=data.get('custRef'),
+                provider_name=data.get('providerName'),
+                prize=Decimal(str(data.get('prize', '0'))),
+                claim_status=data.get('claimStatus'),
+                voucher_code=data.get('voucherCode'),
+                business=data.get('biz', ''), # Sync business field
                 created_by=request.user.email
             )
-            return Response(DojoSettlementSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+            return Response(PaymentServiceRecordSerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        record = get_object_or_404(PaymentServiceRecord, pk=pk)
+        data = request.data
+        try:
+            record.provider = data.get('provider', record.provider)
+            record.biz = data.get('biz', record.biz)
+            record.type = data.get('type', record.type)
+            record.date = data.get('transDate') or record.date
+            record.reference = data.get('transRef', record.reference)
+            record.gross_amount = Decimal(str(data.get('gross', record.gross_amount)))
+            record.fee_amount = Decimal(str(data.get('comm', record.fee_amount)))
+            record.net_amount = Decimal(str(data.get('net', record.net_amount)))
+            record.method = data.get('method', record.method)
+            record.status = data.get('status', record.status)
+            record.staff = data.get('staff', record.staff)
+            record.notes = data.get('notes', record.notes)
+            record.game_type = data.get('gameType', record.game_type)
+            record.draw_date = data.get('drawDate') or record.draw_date
+            record.ticket_number = data.get('ticketNum', record.ticket_number)
+            record.bill_type = data.get('billType', record.bill_type)
+            record.customer_reference = data.get('custRef', record.customer_reference)
+            record.provider_name = data.get('providerName', record.provider_name)
+            record.prize = Decimal(str(data.get('prize', record.prize)))
+            record.claim_status = data.get('claimStatus', record.claim_status)
+            record.voucher_code = data.get('voucherCode', record.voucher_code)
+            record.business = data.get('biz', record.business)
+            record.save()
+            return Response(PaymentServiceRecordSerializer(record, context={'request': request}).data)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        record = get_object_or_404(DojoSettlement, pk=pk)
+        record = get_object_or_404(PaymentServiceRecord, pk=pk)
         record.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

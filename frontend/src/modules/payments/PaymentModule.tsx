@@ -20,7 +20,6 @@ import { BusinessField } from '@/components/ui/BusinessField';
 import { usePermissions } from '@/hooks/usePermissions';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
-import { PAYMENT_RECORDS } from '@/lib/db';
 
 export default function PaymentModule() {
   const { canAdd, canEdit, canDelete } = usePermissions('Payment Services');
@@ -36,7 +35,7 @@ export default function PaymentModule() {
   const [filterProvider, setFilterProvider] = useState<string>('All');
 
   // Initialize with seed data
-  const [data, setData] = useState<any>({ transactions: PAYMENT_RECORDS, businesses: [] });
+  const [data, setData] = useState<any>({ transactions: [], businesses: [] });
   const [formData, setFormData] = useState<any>({
     biz: '',
     type: 'Bill payment',

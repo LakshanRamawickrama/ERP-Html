@@ -33,7 +33,7 @@ class BusinessDataView(APIView):
         })
 
 from apps.fleet.models import Vehicle, Delivery, ParcelPartner
-from apps.accounting.models import Invoice, Transaction, BankAccount, Loan, InsurancePolicy, VATRecord, DojoSettlement
+from apps.accounting.models import Invoice, Transaction, BankAccount, Loan, InsurancePolicy, VATRecord, PaymentServiceRecord
 from apps.inventory.models import Product, StockMovement
 from apps.suppliers.models import Supplier, PurchaseOrder
 from apps.legal.models import LegalDocument
@@ -91,8 +91,8 @@ class BusinessDetailView(APIView):
             accounting.append({"_kind": "insurance", "name": ip.type, "provider": ip.provider, "policyNumber": ip.policy_number, "premium": fmt(ip.premium), "expiry": str(ip.expiry_date), "status": ip.status})
         for vr in VATRecord.objects.filter(business=business_name):
             accounting.append({"_kind": "vat", "name": vr.type, "period": vr.period, "amount": fmt(vr.amount), "date": str(vr.date), "status": vr.status})
-        for ds in DojoSettlement.objects.filter(business=business_name):
-            accounting.append({"_kind": "dojo", "date": str(ds.date), "method": ds.method, "amount": fmt(ds.amount), "fee": fmt(ds.fee), "net": fmt(ds.net), "status": ds.status})
+        for ds in PaymentServiceRecord.objects.filter(biz=business_name):
+            accounting.append({"_kind": "payment", "date": str(ds.date), "method": ds.method, "amount": fmt(ds.gross_amount), "fee": fmt(ds.fee_amount), "net": fmt(ds.net_amount), "status": ds.status, "provider": ds.provider})
 
         # ── Inventory ──
         inventory = []

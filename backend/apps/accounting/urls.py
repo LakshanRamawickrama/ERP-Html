@@ -7,7 +7,7 @@ from .views import (
     LoanView, 
     InsurancePolicyView, 
     VATRecordView, 
-    DojoSettlementView
+    PaymentServiceRecordView
 )
 
 urlpatterns = [
@@ -31,6 +31,6 @@ urlpatterns = [
     path('tax/', VATRecordView.as_view(), name='tax-create'),
     path('tax/<str:pk>/', VATRecordView.as_view(), name='tax-detail'),
     
-    path('dojo/', DojoSettlementView.as_view(), name='dojo-create'),
-    path('dojo/<str:pk>/', DojoSettlementView.as_view(), name='dojo-detail'),
+    path('payments/', PaymentServiceRecordView.as_view(), name='payment-create'),
+    path('payments/<str:pk>/', PaymentServiceRecordView.as_view(), name='payment-detail'),
 ]

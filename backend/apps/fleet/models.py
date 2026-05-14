@@ -43,3 +43,14 @@ class ParcelPartner(models.Model):
     notes = models.TextField(blank=True, null=True)
     business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
+
+class Parcel(models.Model):
+    reference = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
+    status = models.CharField(max_length=100)
+    business = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
+    date_received = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.reference} - {self.client_name}"

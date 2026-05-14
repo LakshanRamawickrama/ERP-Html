@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import Vehicle, Delivery, ParcelPartner
-from .serializers import VehicleSerializer, DeliverySerializer, ParcelPartnerSerializer
+from .models import Vehicle, Delivery, ParcelPartner, Parcel
+from .serializers import VehicleSerializer, DeliverySerializer, ParcelPartnerSerializer, ParcelSerializer
 from apps.users.utils import get_filtered_queryset
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -15,6 +15,7 @@ class FleetDataView(APIView):
         vehicles = get_filtered_queryset(request, Vehicle)
         deliveries = get_filtered_queryset(request, Delivery)
         partners = get_filtered_queryset(request, ParcelPartner)
+        parcels = get_filtered_queryset(request, Parcel)
 
         user_business = getattr(request.user, 'assigned_business', 'All')
         
@@ -22,6 +23,7 @@ class FleetDataView(APIView):
             "vehicles": VehicleSerializer(vehicles, many=True, context={'request': request}).data,
             "deliveries": DeliverySerializer(deliveries, many=True, context={'request': request}).data,
             "parcels": ParcelPartnerSerializer(partners, many=True, context={'request': request}).data,
+            "tracking": ParcelSerializer(parcels, many=True, context={'request': request}).data,
             "reminders": [], # Centralized in Reminders module
             "options": {
                 "businesses": [user_business] if user_business != 'All' else ["Main Retail Store", "Logistics Hub", "Whiterock Retail Ltd"],

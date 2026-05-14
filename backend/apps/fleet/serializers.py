@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from core.mixins import MongoSerializerMixin
-from .models import Vehicle, Delivery, ParcelPartner
+from .models import Vehicle, Delivery, ParcelPartner, Parcel
 
 class VehicleSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     plate = serializers.CharField(source='plate_number', read_only=True)
@@ -63,4 +63,9 @@ class ParcelPartnerSerializer(MongoSerializerMixin, serializers.ModelSerializer)
     
     class Meta:
         model = ParcelPartner
+        fields = '__all__'
+
+class ParcelSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Parcel
         fields = '__all__'

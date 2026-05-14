@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from core.mixins import MongoSerializerMixin
-from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VATRecord, DojoSettlement
+from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VATRecord, PaymentServiceRecord
 
 class TransactionSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     ref = serializers.CharField(source='reference_number', read_only=True)
@@ -98,7 +98,23 @@ class VATRecordSerializer(MongoSerializerMixin, serializers.ModelSerializer):
             return request.build_absolute_uri(obj.document.url) if request else obj.document.url
         return None
 
-class DojoSettlementSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+class PaymentServiceRecordSerializer(MongoSerializerMixin, serializers.ModelSerializer):
+    gross = serializers.DecimalField(source='gross_amount', max_digits=15, decimal_places=2, read_only=True)
+    comm = serializers.DecimalField(source='fee_amount', max_digits=15, decimal_places=2, read_only=True)
+    net = serializers.DecimalField(source='net_amount', max_digits=15, decimal_places=2, read_only=True)
+    transRef = serializers.CharField(source='reference', read_only=True)
+    transDate = serializers.DateField(source='date', read_only=True)
+    
+    # Provider specific aliases
+    gameType = serializers.CharField(source='game_type', read_only=True)
+    drawDate = serializers.DateField(source='draw_date', read_only=True)
+    ticketNum = serializers.CharField(source='ticket_number', read_only=True)
+    billType = serializers.CharField(source='bill_type', read_only=True)
+    custRef = serializers.CharField(source='customer_reference', read_only=True)
+    providerName = serializers.CharField(source='provider_name', read_only=True)
+    claimStatus = serializers.CharField(source='claim_status', read_only=True)
+    voucherCode = serializers.CharField(source='voucher_code', read_only=True)
+
     class Meta:
-        model = DojoSettlement
+        model = PaymentServiceRecord
         fields = '__all__'

@@ -88,12 +88,35 @@ class VATRecord(models.Model):
     business = models.CharField(max_length=255, blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)
 
-class DojoSettlement(models.Model):
+class PaymentServiceRecord(models.Model):
+    provider = models.CharField(max_length=100) # Dojo, Lottery, PayPoint, PayZone
+    biz = models.CharField(max_length=255, blank=True, null=True)
+    type = models.CharField(max_length=100)
     date = models.DateField(blank=True, null=True)
-    amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
-    fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    net = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
-    method = models.CharField(max_length=100, default='Card')
-    status = models.CharField(max_length=50, default='Settled')
-    business = models.CharField(max_length=255, blank=True, null=True)
+    reference = models.CharField(max_length=100, blank=True, null=True)
+    gross_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    fee_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    net_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=50, default='Paid')
+    method = models.CharField(max_length=100, blank=True, null=True)
+    staff = models.CharField(max_length=255, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    
+    # Provider specific fields
+    game_type = models.CharField(max_length=100, blank=True, null=True) # Lottery
+    draw_date = models.DateField(blank=True, null=True) # Lottery
+    ticket_number = models.CharField(max_length=100, blank=True, null=True) # Lottery
+    
+    bill_type = models.CharField(max_length=100, blank=True, null=True) # PayPoint/PayZone
+    customer_reference = models.CharField(max_length=100, blank=True, null=True) # PayPoint/PayZone
+    provider_name = models.CharField(max_length=255, blank=True, null=True) # PayPoint/PayZone (e.g. British Gas, EE)
+    
+    prize = models.DecimalField(max_digits=15, decimal_places=2, default=0.00) # Lottery
+    claim_status = models.CharField(max_length=50, blank=True, null=True) # Lottery
+    voucher_code = models.CharField(max_length=100, blank=True, null=True) # PayPoint/PayZone
+
+    business = models.CharField(max_length=255, blank=True, null=True) # For consistency with other models
     created_by = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.provider} - {self.type} - {self.date}"
