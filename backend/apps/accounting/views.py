@@ -292,13 +292,13 @@ class InsurancePolicyView(APIView):
                 coverage_amount=data.get('coverage', 0) if data.get('coverage') else 0,
                 asset_details=data.get('asset', ''),
                 contact_info=data.get('contact', ''),
-                start_date=data.get('startDate') or None,
-                expiry_date=data.get('expiry') or None,
+                start_date=data.get('start') or data.get('startDate') or None,
+                expiry_date=data.get('expiry') or data.get('expiryDate') or None,
                 renewal_reminder=data.get('renewal', ''),
                 reminder_days=int(data.get('reminder_days', 30)) if data.get('reminder_days') else 30,
                 document=files.get('document'),
                 status=data.get('status', 'Active'),
-                business=getattr(request.user, 'assigned_business', ''),
+                business=data.get('biz') or getattr(request.user, 'assigned_business', ''),
                 created_by=request.user.email
             )
             return Response(InsurancePolicySerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
@@ -316,11 +316,12 @@ class InsurancePolicyView(APIView):
             record.coverage_amount = data.get('coverage', record.coverage_amount)
             record.asset_details = data.get('asset', record.asset_details)
             record.contact_info = data.get('contact', record.contact_info)
-            record.start_date = data.get('startDate') or record.start_date
-            record.expiry_date = data.get('expiry') or record.expiry_date
+            record.start_date = data.get('start') or data.get('startDate') or record.start_date
+            record.expiry_date = data.get('expiry') or data.get('expiryDate') or record.expiry_date
             record.renewal_reminder = data.get('renewal', record.renewal_reminder)
             record.reminder_days = int(data.get('reminder_days', record.reminder_days)) if data.get('reminder_days') else record.reminder_days
             record.status = data.get('status', record.status)
+            record.business = data.get('biz', record.business)
             if request.FILES.get('document'):
                 record.document = request.FILES.get('document')
             record.save()

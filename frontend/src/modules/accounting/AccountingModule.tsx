@@ -37,6 +37,7 @@ type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax';
 
 export default function AccountingModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [activeTab, setActiveTab] = useState<TabType>('records');
+  const [showCustomPolicyType, setShowCustomPolicyType] = useState(false);
 
   const permMap: Record<TabType, string> = {
     records: 'Financial Records',
@@ -96,6 +97,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
     setFormData({});
     setFileFields({});
     setRecordCategory('');
+    setShowCustomPolicyType(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -441,28 +443,65 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                     </>
                   )}
 
-                  {activeTab === 'insurance' && (
+                   {activeTab === 'insurance' && (
                     <>
                       <BusinessField
                         value={formData.biz || ''}
                         onChange={(v) => setFormData({ ...formData, biz: v })}
                         businesses={data.options?.businesses || []}
                       />
-                      <Field label="Policy Type" name="type" value={formData.type} onChange={handleInputChange} placeholder="e.g. Public Liability" />
-                      <Field label="Provider" name="provider" value={formData.provider} onChange={handleInputChange} />
-                      <Field label="Policy #" name="policy" value={formData.policy} onChange={handleInputChange} />
+                      <Field 
+                        label="Policy Type" 
+                        name="type" 
+                        value={showCustomPolicyType ? 'ADD_NEW' : formData.type} 
+                        onChange={(e: any) => {
+                          const val = e.target.value;
+                          if (val === 'ADD_NEW') {
+                            setShowCustomPolicyType(true);
+                            setFormData((prev: any) => ({ ...prev, type: '' }));
+                          } else {
+                            setShowCustomPolicyType(false);
+                            setFormData((prev: any) => ({ ...prev, type: val }));
+                          }
+                        }} 
+                        isSelect 
+                        options={[
+                          'Public Liability', 
+                          'Employers Liability', 
+                          'Vehicle Insurance', 
+                          'Property / Building', 
+                          'Professional Indemnity',
+                          'Business Interruption',
+                          'Product Liability',
+                          'Cyber Insurance',
+                          'ADD_NEW'
+                        ]} 
+                      />
+                      {showCustomPolicyType && (
+                        <div className="animate-in slide-in-from-top-2 duration-200">
+                          <Field 
+                            label="Custom Policy Type" 
+                            name="custom_type" 
+                            value={formData.type}
+                            placeholder="Enter new policy type..." 
+                            onChange={(e: any) => setFormData((prev: any) => ({ ...prev, type: e.target.value }))} 
+                          />
+                        </div>
+                      )}
+                      <Field label="Insurance Provider" name="provider" value={formData.provider} onChange={handleInputChange} placeholder="e.g. AXA, Aviva, Allianz" />
+                      <Field label="Policy Number" name="policy" value={formData.policy} onChange={handleInputChange} placeholder="e.g. POL-882910" />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Premium ($)" name="premium" value={formData.premium} onChange={handleInputChange} type="number" />
-                        <Field label="Coverage ($)" name="coverage" value={formData.coverage} onChange={handleInputChange} type="number" />
+                        <Field label="Premium (£)" name="premium" value={formData.premium} onChange={handleInputChange} type="number" />
+                        <Field label="Coverage (£)" name="coverage" value={formData.coverage} onChange={handleInputChange} type="number" />
                       </div>
                       <Field label="Insured Asset / Details" name="asset" value={formData.asset} onChange={handleInputChange} placeholder="Address, Registration, or Equipment" />
                       <Field label="Provider Contact" name="contact" value={formData.contact} onChange={handleInputChange} placeholder="Phone or Email" />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Start Date" name="start_date" value={formData.start_date} onChange={handleInputChange} type="date" />
-                        <Field label="Expiry Date" name="expiry_date" value={formData.expiry_date} onChange={handleInputChange} type="date" />
+                        <Field label="Start Date" name="start" value={formData.start} onChange={handleInputChange} type="date" />
+                        <Field label="Renewal Date" name="expiry" value={formData.expiry} onChange={handleInputChange} type="date" />
                       </div>
-                      <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['15', '30', '60', '90']} />
-                      <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={['Active', 'Expired']} />
+                      <Field label="Renewal Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['15', '30', '60', '90']} />
+                      <Field label="Policy Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={['Active', 'Expired', 'Pending Renewal']} />
                       <Field label="Attach Policy PDF" name="document" onChange={handleInputChange} type="file" existingFile={formData.document_url} fileFields={fileFields} />
                     </>
                   )}
@@ -611,7 +650,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                           {isWide && <th className={thClass}>Asset / Details</th>}
                           {isWide && <th className={thClass}>Contact</th>}
                           {isWide && <th className={thClass}>Start Date</th>}
-                          <th className={thClass}>Expiry Date</th>
+                          <th className={thClass}>Renewal Date</th>
                           {isWide && <th className={thClass}>Reminder</th>}
                           <th className={thClass}>Status</th>
                         </>
@@ -942,7 +981,7 @@ function BankRow({ bank, acc, num, sort, type, status, biz, iban, isWide, onEdit
         </td>
       )}
       <td className="px-4 py-4">
-        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{type}</div>
+        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{props.account_type || '-'}</div>
       </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
       <td className="px-4 py-4">
@@ -1001,7 +1040,9 @@ function LoanRow({ loan, purpose, lender, total, os, monthly, rate, status, biz,
       )}
       {isWide && (
         <td className="px-4 py-4">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">{renewal || '-'}</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">
+            {props.reminder_days ? `${props.reminder_days} Days` : '-'}
+          </div>
         </td>
       )}
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
@@ -1057,12 +1098,14 @@ function InsuranceRow({ type, asset, provider, policy, premium, expiry, status, 
         </td>
       )}
       {isWide && (
-        <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">{start || '-'}</td>
+        <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">
+          {start || '-'}
+        </td>
       )}
       <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">{expiry}</td>
       {isWide && (
         <td className="px-4 py-4">
-          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">{renewal || '-'}</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">{props.reminder_days ? `${props.reminder_days} Days` : '-'}</div>
         </td>
       )}
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
