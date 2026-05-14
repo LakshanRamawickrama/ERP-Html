@@ -320,10 +320,12 @@ export default function SystemAccessModule({ selectedBusiness = 'All Entities' }
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     <tr>
-                      <th className={thClass}>Service</th>
+                      {isWide && <th className={thClass}>Entity</th>}
+                      <th className={thClass}>Service / Password</th>
                       <th className={thClass}>Account / ID</th>
                       <th className={thClass}>Status</th>
                       <th className={thClass}>Support No</th>
+                      {isWide && <th className={thClass}>Security Notes</th>}
                       <th className={thClass}>Actions</th>
                     </tr>
                   </thead>
@@ -334,6 +336,7 @@ export default function SystemAccessModule({ selectedBusiness = 'All Entities' }
                         <CredentialRow 
                           key={cred.id}
                           {...cred}
+                          isWide={isWide}
                           show={showPassword[cred.id]}
                           onToggle={() => handleRevealClick(cred.id)}
                           onEdit={() => handleEdit(cred.id)}
@@ -476,11 +479,16 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function CredentialRow({ service, account, status, support, password, id, show, onToggle, onEdit, onDelete }: any) {
+function CredentialRow({ service, account, status, support, password, id, show, biz, notes, isWide, onToggle, onEdit, onDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">{biz || 'Main Entity'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{service}</div>
+        <div className="font-bold text-slate-800 text-xs">{service}</div>
         <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-medium font-mono mt-1">
           {show ? password : '••••••••••••••••'}
           <button onClick={onToggle} className="text-slate-300 hover:text-slate-600 transition-colors">
@@ -488,16 +496,21 @@ function CredentialRow({ service, account, status, support, password, id, show, 
           </button>
         </div>
       </td>
-      <td className="px-4 py-4 font-medium text-slate-600">{account}</td>
+      <td className="px-4 py-4 font-bold text-slate-600 text-xs">{account}</td>
       <td className="px-4 py-4">
         <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[10px] font-bold uppercase tracking-wider">{status}</span>
       </td>
       <td className="px-4 py-4">
         <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-          <Phone className="w-3 h-3" />
-          {support}
+          <Phone className="w-3 h-3 text-slate-300" />
+          {support || 'N/A'}
         </div>
       </td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-500 italic max-w-[200px] truncate" title={notes}>{notes || '—'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
         <div className="flex gap-2">
           <button 

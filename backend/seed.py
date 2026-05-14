@@ -310,9 +310,16 @@ def seed_data():
 
     SystemAlert.objects.all().delete()
     SystemAlert.objects.create(label='Low Stock', type='warning', message='Milk Packet 1L is approaching limit')
+    SystemAlert.objects.create(label='Compliance Due', type='info', message='Annual health and safety audit due in 15 days')
     
     SystemCredential.objects.all().delete()
-    SystemCredential.objects.create(service='Till Access', status='Active')
+    SystemCredential.objects.create(service='Retail Till Access', account='admin_till_01', password='PIN-8822', status='Active', biz=BIZ_1, support='020 7946 0999', notes='Primary checkout till - Main Store', created_by=SUPER_ADMIN_EMAIL)
+    SystemCredential.objects.create(service='HMRC Tax Portal', account='zerotax_admin', password='Tax-Pass-2026!', status='Active', biz=BIZ_5, support='0300 200 3300', notes='Used for quarterly VAT and Corp Tax filings', created_by=SUPER_ADMIN_EMAIL)
+    SystemCredential.objects.create(service='Fleet Tracking (GPS)', account='ops_manager_02', password='Fleet-Secure-88', status='Active', biz=BIZ_2, support='0161 496 0777', notes='Live tracking portal for delivery vans', created_by=SUPER_ADMIN_EMAIL)
+    SystemCredential.objects.create(service='Inventory ERP Backup', account='db_backup_sys', password='DB-Backup-Admin-!23', status='Active', biz=BIZ_ALL, support='IT Support Ext 101', notes='Scheduled database maintenance and backups', created_by=SUPER_ADMIN_EMAIL)
+    SystemCredential.objects.create(service='CCTV Remote View', account='security_hq', password='Cam-Master-View-7', status='Active', biz=BIZ_1, support='020 7946 0555', notes='Remote access for London HQ security cameras', created_by=SUPER_ADMIN_EMAIL)
+    SystemCredential.objects.create(service='Merchant Dojo Terminal', account='store_manager_br', password='Dojo-Login-5544', status='Active', biz=BIZ_3, support='0800 032 1088', notes='Merchant portal for Bristol card payments', created_by=SUPER_ADMIN_EMAIL)
+    SystemCredential.objects.create(service='Supplier Portal - Prime', account='whiterock_buyer', password='Supply-Chain-2026', status='Active', biz=BIZ_3, support='0117 920 0444', notes='Order management system for Whiterock', created_by=SUPER_ADMIN_EMAIL)
 
     print("Seeding Complete! All data from db.ts migrated to MongoDB.")
 

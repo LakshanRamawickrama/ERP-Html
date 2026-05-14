@@ -16,6 +16,8 @@ class SystemCredential(models.Model):
     support = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, default='Active')
     notes = models.TextField(blank=True, null=True)
+    biz = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.CharField(max_length=255, blank=True, null=True)
 
 class SystemAlert(models.Model):
     label = models.CharField(max_length=255)
