@@ -556,44 +556,70 @@ export default function AccountingModule() {
                       )}
                       {activeTab === 'invoices' && (
                         <>
-                          <th className={thClass}>Inv # / Type</th>
-                          <th className={thClass}>Client / Ref</th>
-                          <th className={thClass}>Amount / Method</th>
-                          <th className={thClass}>Dates (Inv/Due)</th>
+                          {isWide && <th className={thClass}>Business Name</th>}
+                          <th className={thClass}>Client Name</th>
+                          <th className={thClass}>Inv Number</th>
+                          {isWide && <th className={thClass}>Invoice Type</th>}
+                          <th className={thClass}>Amount ($)</th>
+                          {isWide && <th className={thClass}>Payment Method</th>}
+                          <th className={thClass}>Invoice Date</th>
+                          {isWide && <th className={thClass}>Due Date</th>}
+                          {isWide && <th className={thClass}>Reference #</th>}
                           <th className={thClass}>Status</th>
+                          {isWide && <th className={thClass}>Notes</th>}
                         </>
                       )}
                       {activeTab === 'bank' && (
                         <>
-                          <th className={thClass}>Bank / Acc Name</th>
-                          <th className={thClass}>Acc / Sort</th>
+                          {isWide && <th className={thClass}>Business Name</th>}
+                          <th className={thClass}>Bank Name</th>
+                          <th className={thClass}>Account Name</th>
+                          <th className={thClass}>Account Number</th>
+                          {isWide && <th className={thClass}>Sort Code</th>}
+                          {isWide && <th className={thClass}>IBAN</th>}
                           <th className={thClass}>Type</th>
                           <th className={thClass}>Status</th>
                         </>
                       )}
                       {activeTab === 'loans' && (
                         <>
-                          <th className={thClass}>Loan / Lender</th>
+                          {isWide && <th className={thClass}>Business Name</th>}
+                          <th className={thClass}>{isWide ? 'Loan Name' : 'Loan Name / Purpose'}</th>
+                          {isWide && <th className={thClass}>Purpose</th>}
+                          <th className={thClass}>Lender</th>
                           <th className={thClass}>Total / O/S</th>
                           <th className={thClass}>Monthly / Rate</th>
+                          {isWide && <th className={thClass}>Term Dates</th>}
+                          {isWide && <th className={thClass}>Next Payment</th>}
+                          {isWide && <th className={thClass}>Reminder</th>}
                           <th className={thClass}>Status</th>
                         </>
                       )}
                       {activeTab === 'insurance' && (
                         <>
-                          <th className={thClass}>Type / Provider</th>
+                          {isWide && <th className={thClass}>Business Name</th>}
+                          <th className={thClass}>Policy Type</th>
+                          <th className={thClass}>Provider</th>
                           <th className={thClass}>Policy #</th>
-                          <th className={thClass}>Premium</th>
-                          <th className={thClass}>Expiry</th>
+                          <th className={thClass}>Premium ($)</th>
+                          {isWide && <th className={thClass}>Coverage ($)</th>}
+                          {isWide && <th className={thClass}>Asset / Details</th>}
+                          {isWide && <th className={thClass}>Contact</th>}
+                          {isWide && <th className={thClass}>Start Date</th>}
+                          <th className={thClass}>Expiry Date</th>
+                          {isWide && <th className={thClass}>Reminder</th>}
                           <th className={thClass}>Status</th>
                         </>
                       )}
                       {activeTab === 'tax' && (
                         <>
-                          <th className={thClass}>Tax Type / Period</th>
-                          <th className={thClass}>References</th>
-                          <th className={thClass}>Amount</th>
+                          {isWide && <th className={thClass}>Business Name</th>}
+                          <th className={thClass}>Tax Type</th>
+                          {isWide && <th className={thClass}>Tax Reference #</th>}
+                          {isWide && <th className={thClass}>Txn / Inv Ref</th>}
+                          <th className={thClass}>Period (Start/End)</th>
                           <th className={thClass}>Deadlines (File/Pay)</th>
+                          <th className={thClass}>Amount (£)</th>
                           <th className={thClass}>Status</th>
                         </>
                       )}
@@ -616,12 +642,12 @@ export default function AccountingModule() {
                           onView={() => handleViewDoc(r.title, r.document_url, r.category)} 
                         />
                       )) || null)}
-                    {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
-                    {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null)}
-                    {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null)}
+                    {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
+                    {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null)}
+                    {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null)}
 
-                    {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
-                    {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
+                    {activeTab === 'insurance' && (data.insurance?.map((r: any, i: number) => <InsuranceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null)}
+                    {activeTab === 'tax' && (data.vat?.map((r: any, i: number) => <TaxRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null)}
                   </tbody>
                 </table>
               </div>
@@ -770,55 +796,136 @@ function RecordRow({ date, title, category, amount, status, ref, method, biz, is
   );
 }
 
-function InvoiceRow({ num, client, amount, due, date, status, invoice_type, method, ref, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function InvoiceRow({ num, client, amount, due, date, status, invoice_type, method, ref, biz, notes, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{num}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{invoice_type}</div>
+        <div className="text-slate-600 font-bold text-xs">{client}</div>
       </td>
       <td className="px-4 py-4">
-        <div className="text-slate-600 font-medium">{client}</div>
-        {ref && <div className="text-[10px] text-slate-400 font-medium">Ref: {ref}</div>}
+        <div className="font-black text-slate-800 text-xs">{num}</div>
+        {!isWide && <div className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">{invoice_type}</div>}
       </td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{invoice_type}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">${Number(amount).toLocaleString()}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{method}</div>
+        <div className="font-black text-slate-800 text-xs">${Number(amount).toLocaleString()}</div>
+        {!isWide && <div className="text-[10px] text-slate-400 font-medium">{method}</div>}
       </td>
-      <td className="px-4 py-4 text-slate-500 font-mono text-xs">
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{method}</div>
+        </td>
+      )}
+      <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">
         <div>{date}</div>
-        <div className="text-[10px] text-red-400">Due: {due}</div>
+        {!isWide && <div className="text-[9px] text-red-400 font-bold tracking-tighter">Due: {due}</div>}
       </td>
+      {isWide && (
+        <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">
+          <div className="text-red-500 font-bold">{due}</div>
+        </td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-400 font-mono">{ref || '-'}</div>
+        </td>
+      )}
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
+      {isWide && (
+        <td className="px-4 py-4 max-w-[150px] truncate">
+          <div className="text-[10px] text-slate-500 italic" title={notes}>{notes || '-'}</div>
+        </td>
+      )}
+      <td className="px-4 py-4">
+        <RowActions 
+          showDownload 
+          showEye={!!props.pdf_url}
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+          onView={onView} 
+          canEdit={canEdit} 
+          canDelete={canDelete} 
+        />
+      </td>
     </tr>
   );
 }
 
-function BankRow({ bank, acc, num, sort, type, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function BankRow({ bank, acc, num, sort, type, status, biz, iban, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{bank}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{acc}</div>
+        <div className="font-bold text-slate-800 text-xs">{bank}</div>
       </td>
       <td className="px-4 py-4">
-        <div className="font-mono text-slate-600 text-xs">{num}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{sort}</div>
+        <div className="text-slate-600 font-medium text-xs">{acc}</div>
       </td>
-      <td className="px-4 py-4"><span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold border border-blue-100">{type}</span></td>
+      <td className="px-4 py-4">
+        <div className="font-mono text-xs font-bold text-slate-700">{num}</div>
+        {!isWide && <div className="text-[10px] text-slate-400 font-medium font-mono">{sort}</div>}
+      </td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-xs font-mono text-slate-500">{sort}</div>
+        </td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-400 font-mono">{iban || '-'}</div>
+        </td>
+      )}
+      <td className="px-4 py-4">
+        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{type}</div>
+      </td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showEye onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
+      <td className="px-4 py-4">
+        <RowActions 
+          showDownload
+          showEye={!!props.document_url}
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+          onView={onView} 
+          canEdit={canEdit} 
+          canDelete={canDelete} 
+        />
+      </td>
     </tr>
   );
 }
 
-function LoanRow({ loan, purpose, lender, total, os, monthly, rate, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function LoanRow({ loan, purpose, lender, total, os, monthly, rate, status, biz, start, end, next, renewal, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{loan}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{purpose || lender}</div>
+        <div className="font-bold text-slate-800 text-xs">{loan}</div>
+        {!isWide && <div className="text-[10px] text-slate-400 font-medium italic">{purpose}</div>}
+      </td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-500 font-medium italic">{purpose || '-'}</div>
+        </td>
+      )}
+      <td className="px-4 py-4">
+        <div className="text-slate-600 font-bold text-xs">{lender}</div>
       </td>
       <td className="px-4 py-4">
         <div className="font-bold text-slate-800 text-xs">${Number(total).toLocaleString()}</div>
@@ -828,50 +935,141 @@ function LoanRow({ loan, purpose, lender, total, os, monthly, rate, status, onEd
         <div className="font-bold text-slate-800 text-xs">${Number(monthly).toLocaleString()}</div>
         <div className="text-[10px] text-slate-400 font-medium">{rate}% APR</div>
       </td>
+      {isWide && (
+        <td className="px-4 py-4 text-slate-500 font-mono text-[10px]">
+          <div>S: {start}</div>
+          <div className="text-red-400">E: {end}</div>
+        </td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4 text-slate-500 font-mono text-[10px]">
+          <div className="font-black text-slate-700">{next}</div>
+        </td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">{renewal || '-'}</div>
+        </td>
+      )}
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showEye onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
+      <td className="px-4 py-4">
+        <RowActions 
+          showDownload
+          showEye={!!props.document_url} 
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+          onView={onView} 
+          canEdit={canEdit} 
+          canDelete={canDelete} 
+        />
+      </td>
     </tr>
   );
 }
 
 
 
-function InsuranceRow({ type, asset, provider, policy, premium, expiry, status, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function InsuranceRow({ type, asset, provider, policy, premium, expiry, status, biz, coverage, contact, start, renewal, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{type}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{asset || provider}</div>
+        <div className="font-bold text-slate-800 text-xs">{type}</div>
+        {!isWide && <div className="text-[10px] text-slate-400 font-medium">{asset || provider}</div>}
       </td>
-      <td className="px-4 py-4 font-mono text-slate-600 text-xs">{policy}</td>
-      <td className="px-4 py-4 font-bold text-slate-800">${Number(premium).toLocaleString()}</td>
-      <td className="px-4 py-4 text-slate-500 font-mono text-xs">{expiry}</td>
+      <td className="px-4 py-4">
+        <div className="text-slate-600 font-bold text-xs">{provider}</div>
+      </td>
+      <td className="px-4 py-4">
+        <div className="font-mono text-slate-500 text-[11px]">{policy}</div>
+      </td>
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800 text-xs">${Number(premium).toLocaleString()}</div>
+      </td>
+      {isWide && (
+        <td className="px-4 py-4 font-bold text-slate-800 text-xs">${Number(coverage).toLocaleString()}</td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-500 italic truncate max-w-[150px]" title={asset}>{asset || '-'}</div>
+        </td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-500 font-medium">{contact || '-'}</div>
+        </td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">{start || '-'}</td>
+      )}
+      <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">{expiry}</td>
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">{renewal || '-'}</div>
+        </td>
+      )}
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
+      <td className="px-4 py-4">
+        <RowActions 
+          showDownload 
+          showEye={!!props.document_url}
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+          onView={onView} 
+          canEdit={canEdit} 
+          canDelete={canDelete} 
+        />
+      </td>
     </tr>
   );
 }
 
-function TaxRow({ type, start, end, amount, deadline, due, status, ref, txn_ref, onEdit, onDelete, onView, canEdit, canDelete }: any) {
+function TaxRow({ type, start, end, amount, deadline, due, status, ref, txn_ref, biz, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
+      {isWide && (
+        <td className="px-4 py-4">
+          <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
+        </td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{type}</div>
-        <div className="text-[10px] text-slate-400 font-medium">{start} to {end}</div>
+        <div className="font-bold text-slate-800 text-xs">{type}</div>
       </td>
-      <td className="px-4 py-4">
-        {ref && <div className="text-[11px] font-bold text-slate-700">Tax: {ref}</div>}
-        {txn_ref && <div className="text-[10px] text-slate-500 font-medium">Txn: {txn_ref}</div>}
+      {isWide && (
+        <td className="px-4 py-4 font-mono text-slate-500 text-[11px]">{ref || '-'}</td>
+      )}
+      {isWide && (
+        <td className="px-4 py-4 font-mono text-slate-500 text-[11px]">{txn_ref || '-'}</td>
+      )}
+      <td className="px-4 py-4 text-slate-500 font-mono text-xs">
+        <div className="flex flex-col">
+          <span>{start}</span>
+          <span>{end}</span>
+        </div>
       </td>
-      <td className="px-4 py-4 font-bold text-slate-800">£{Number(amount).toLocaleString()}</td>
       <td className="px-4 py-4 text-slate-500 font-mono text-xs">
         <div className="flex flex-col">
           <span className="text-[9px] uppercase font-bold text-slate-400">File: {deadline}</span>
           <span className="text-[9px] uppercase font-bold text-red-400">Pay: {due}</span>
         </div>
       </td>
+      <td className="px-4 py-4 font-bold text-slate-800 text-xs">£{Number(amount).toLocaleString()}</td>
       <td className="px-4 py-4"><StatusBadge status={status} /></td>
-      <td className="px-4 py-4"><RowActions showDownload onEdit={onEdit} onDelete={onDelete} onView={onView} canEdit={canEdit} canDelete={canDelete} /></td>
+      <td className="px-4 py-4">
+        <RowActions 
+          showDownload 
+          showEye={!!props.document_url}
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+          onView={onView} 
+          canEdit={canEdit} 
+          canDelete={canDelete} 
+        />
+      </td>
     </tr>
   );
 }

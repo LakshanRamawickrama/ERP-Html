@@ -20,6 +20,7 @@ class BankAccountSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     acc = serializers.CharField(source='account_name', read_only=True)
     num = serializers.CharField(source='account_number', read_only=True)
     sort = serializers.CharField(source='sort_code', read_only=True)
+    biz = serializers.CharField(source='business', read_only=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = BankAccount
@@ -36,6 +37,7 @@ class InvoiceSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     date = serializers.DateField(source='invoice_date', read_only=True)
     method = serializers.CharField(source='payment_method', read_only=True)
     ref = serializers.CharField(source='reference_number', read_only=True)
+    biz = serializers.CharField(source='business', read_only=True)
     pdf_url = serializers.SerializerMethodField()
     class Meta:
         model = Invoice
@@ -55,6 +57,7 @@ class LoanSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     start = serializers.DateField(source='start_date', read_only=True)
     end = serializers.DateField(source='end_date', read_only=True)
     next = serializers.DateField(source='next_payment_date', read_only=True)
+    biz = serializers.CharField(source='business', read_only=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = Loan
@@ -71,6 +74,8 @@ class InsurancePolicySerializer(MongoSerializerMixin, serializers.ModelSerialize
     coverage = serializers.DecimalField(source='coverage_amount', max_digits=15, decimal_places=2, read_only=True)
     asset = serializers.CharField(source='asset_details', read_only=True)
     contact = serializers.CharField(source='contact_info', read_only=True)
+    biz = serializers.CharField(source='business', read_only=True)
+    start = serializers.DateField(source='start_date', read_only=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = InsurancePolicy
@@ -88,6 +93,7 @@ class VATRecordSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     end = serializers.DateField(source='period_end', required=False, allow_null=True)
     deadline = serializers.DateField(source='filing_deadline', required=False, allow_null=True)
     due = serializers.DateField(source='payment_due', required=False, allow_null=True)
+    biz = serializers.CharField(source='business', read_only=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = VATRecord
