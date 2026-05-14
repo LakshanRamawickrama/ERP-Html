@@ -106,6 +106,16 @@ def seed_data():
         created_by=SUPER_ADMIN_EMAIL
     )
     CompanyStructure.objects.create(
+        name='Main Retail Warehouse', business=BIZ_1, crn='CRN-001W',
+        filing_due=timezone.now().date() + timedelta(days=90),
+        manager='Tom Harris', status='Active', sic_code='52100',
+        address='Unit 4, Retail Park, London',
+        location='London', house_code='LON-001W',
+        contact_number='020 7946 0011',
+        opening_hours='Mon-Sat 06:00-18:00',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    CompanyStructure.objects.create(
         name='Northern Logistics Hub', business=BIZ_2, crn='CRN-002',
         filing_due=timezone.now().date() + timedelta(days=120),
         manager='Sarah Wilson', status='Active', sic_code='49410',
@@ -151,32 +161,43 @@ def seed_data():
     LegalDocument.objects.create(title='Alcohol License', type='License Applications', expiry_date='2027-12-31', status='Active', authority='Local Council', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     LegalDocument.objects.create(title='Public Liability Certificate', type='Temp Records', expiry_date='2026-12-31', status='Active', authority='Insurance Provider', business=BIZ_ALL, created_by=SUPER_ADMIN_EMAIL)
     LegalDocument.objects.create(title='Trade License', type='License', status='Active', expiry_date='2027-05-20', authority='City Council', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    LegalDocument.objects.create(title='Fire Safety Certificate', type='Safety', expiry_date='2028-01-01', status='Active', authority='Fire Brigade', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    LegalDocument.objects.create(title='Health & Safety Policy', type='Policy', expiry_date='2027-01-01', status='Active', authority='HSE', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     # 3. Fleet
     Vehicle.objects.all().delete()
     v1 = Vehicle.objects.create(name='CAR 1', plate_number='ABC-1234', business=BIZ_2, status='Active', fuel_type='Petrol', created_by=SUPER_ADMIN_EMAIL)
     v2 = Vehicle.objects.create(name='VAN 2', plate_number='XYZ-5678', business=BIZ_2, status='In Service', fuel_type='Diesel', created_by=SUPER_ADMIN_EMAIL)
     v3_biz1 = Vehicle.objects.create(name='RETAIL VAN 1', plate_number='RTL-9999', business=BIZ_1, status='Active', fuel_type='Electric', created_by=SUPER_ADMIN_EMAIL)
+    v4_biz1 = Vehicle.objects.create(name='RETAIL VAN 2', plate_number='RTL-8888', business=BIZ_1, status='Active', fuel_type='Hybrid', created_by=SUPER_ADMIN_EMAIL)
     
     Delivery.objects.all().delete()
     Delivery.objects.create(vehicle=v1, address='Birmingham', contact_person='Driver A', contact_number='0123456789', status='In Transit', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
     Delivery.objects.create(vehicle=v2, address='Liverpool', contact_person='Driver B', contact_number='0123456789', status='Delivered', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
     Delivery.objects.create(vehicle=v3_biz1, address='London HQ', contact_person='Driver Retail', contact_number='0123456789', status='In Transit', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    Delivery.objects.create(vehicle=v4_biz1, address='North London', contact_person='Driver Sam', contact_number='0123456789', status='Pending', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     
     Parcel.objects.all().delete()
     Parcel.objects.create(reference='PC-123', client_name='Alice Johnson', status='Ready for Collection', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    Parcel.objects.create(reference='PC-124', client_name='Bob Smith', status='In Transit', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     ParcelPartner.objects.all().delete()
     ParcelPartner.objects.create(provider='DPD Logistics', vehicle=v1, service_date='2026-05-10', area='London Central', contact_name='Alice Cooper', contact_number='0123456789', status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    ParcelPartner.objects.create(provider='Royal Mail', vehicle=v3_biz1, service_date='2026-05-11', area='London North', contact_name='Postmaster', contact_number='0123456789', status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     # 4. Inventory
     Product.objects.all().delete()
     Product.objects.create(name='Milk Packet 1L', category='Food & Beverages', quantity=150, min_stock=50, price=1.20, business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    Product.objects.create(name='Artisan Bread', category='Bakery', quantity=45, min_stock=20, price=2.50, business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    Product.objects.create(name='Cheddar Cheese 500g', category='Dairy', quantity=80, min_stock=30, price=4.20, business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    Product.objects.create(name='Fairtrade Coffee Beans 1kg', category='Beverages', quantity=15, min_stock=10, price=12.99, business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     Product.objects.create(name='Sugar 1kg', category='Groceries', quantity=200, min_stock=30, price=0.85, business=BIZ_3, created_by=SUPER_ADMIN_EMAIL)
 
     # 5. Accounting - Transactions (Financial Records)
     Transaction.objects.all().delete()
     Transaction.objects.create(title='Monthly Rent - Main Office', category='Rent', type='Expense', amount=2500.00, date='2026-05-13', status='Paid', business=BIZ_1, payment_method='Bank Transfer', reference_number='RENT-MAY-26', notes='Monthly lease for High Street premises', created_by=SUPER_ADMIN_EMAIL)
+    Transaction.objects.create(title='POS Revenue - Main Store', category='Sales Revenue', type='Income', amount=8500.00, date='2026-05-12', status='Paid', business=BIZ_1, payment_method='Card Terminal', reference_number='REV-MS-12', notes='Daily POS takings', created_by=SUPER_ADMIN_EMAIL)
+    Transaction.objects.create(title='Electricity Bill', category='Utilities', type='Expense', amount=350.00, date='2026-05-14', status='Paid', business=BIZ_1, payment_method='Direct Debit', reference_number='UTL-ELEC', notes='Monthly electricity', created_by=SUPER_ADMIN_EMAIL)
     Transaction.objects.create(title='Stock Purchase - Prime Logistics', category='Supplier Payments', type='Expense', amount=450.50, date='2026-05-12', status='Pending', business=BIZ_2, payment_method='Credit Card', reference_number='PO-77889', notes='Bulk order for Manchester warehouse', created_by=SUPER_ADMIN_EMAIL)
     Transaction.objects.create(title='Business Mortgage Repayment', category='Mortgage', type='Expense', amount=2450.00, date='2026-05-10', status='Paid', business=BIZ_5, payment_method='Direct Debit', reference_number='MORT-771', notes='Monthly mortgage instalment', created_by=SUPER_ADMIN_EMAIL)
     Transaction.objects.create(title='Annual Liability Insurance', category='Insurance', type='Expense', amount=850.00, date='2026-05-08', status='Paid', business=BIZ_ALL, payment_method='Bank Transfer', notes='Annual premium for public liability cover', created_by=SUPER_ADMIN_EMAIL)
@@ -191,6 +212,7 @@ def seed_data():
     Invoice.objects.all().delete()
     Invoice.objects.create(number='INV-2026-001', client='Global Supplies Ltd', amount=850.00, invoice_date='2026-05-10', due_date='2026-05-24', status='Sent', invoice_type='Service', payment_method='Bank Transfer', reference_number='REF-GS-001', business=BIZ_1, notes='Monthly consulting retainer', created_by=SUPER_ADMIN_EMAIL)
     Invoice.objects.create(number='INV-2026-002', client='Prime Office Supplies', amount=120.50, invoice_date='2026-05-12', due_date='2026-05-26', status='Paid', invoice_type='Product', payment_method='Card', reference_number='REF-POS-002', business=BIZ_1, notes='Stationery and printer cartridges', created_by=SUPER_ADMIN_EMAIL)
+    Invoice.objects.create(number='INV-2026-006', client='Local Event Organizers', amount=450.00, invoice_date='2026-05-13', due_date='2026-05-27', status='Sent', invoice_type='Product', payment_method='Card', reference_number='REF-LEO-006', business=BIZ_1, notes='Bulk supply for local event', created_by=SUPER_ADMIN_EMAIL)
     Invoice.objects.create(number='INV-2026-003', client='Zenith Transport Co', amount=3200.00, invoice_date='2026-05-05', due_date='2026-05-19', status='Overdue', invoice_type='Service', payment_method='Bank Transfer', reference_number='REF-ZT-003', business=BIZ_4, notes='Cross-country freight charges', created_by=SUPER_ADMIN_EMAIL)
     Invoice.objects.create(number='INV-2026-004', client='Whiterock Wholesale', amount=1580.00, invoice_date='2026-05-08', due_date='2026-06-08', status='Pending', invoice_type='Product', payment_method='Credit Card', reference_number='REF-WW-004', business=BIZ_3, notes='Bulk FMCG goods for retail', created_by=SUPER_ADMIN_EMAIL)
     Invoice.objects.create(number='INV-2026-005', client='Harrison & Partners', amount=2400.00, invoice_date='2026-04-28', due_date='2026-05-28', status='Draft', invoice_type='Service', payment_method='Bank Transfer', reference_number='REF-HP-005', business=BIZ_5, notes='Legal advisory services', created_by=SUPER_ADMIN_EMAIL)
@@ -199,6 +221,7 @@ def seed_data():
     BankAccount.objects.all().delete()
     BankAccount.objects.create(bank_name='Barclays', account_name='Main Business Current', account_number='****5678', sort_code='20-30-40', iban='GB29 BARC 2030 4012 3456 78', account_type='Business Current', status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     BankAccount.objects.create(bank_name='HSBC', account_name='Business Savings', account_number='****1122', sort_code='40-50-60', iban='GB82 HSBC 4050 6098 7611 22', account_type='Business Savings', status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    BankAccount.objects.create(bank_name='Cash in Hand', account_name='Petty Cash', account_number='N/A', sort_code='N/A', iban='N/A', account_type='Cash', status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     BankAccount.objects.create(bank_name='Lloyds', account_name='Logistics Ops Account', account_number='****3344', sort_code='30-80-12', iban='GB55 LOYD 3080 1209 8733 44', account_type='Business Current', status='Active', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
     BankAccount.objects.create(bank_name='NatWest', account_name='Whiterock Trading', account_number='****7788', sort_code='60-10-22', iban='GB41 NWBK 6010 2211 2277 88', account_type='Business Current', status='Active', business=BIZ_3, created_by=SUPER_ADMIN_EMAIL)
     BankAccount.objects.create(bank_name='Starling', account_name='Zenith Fleet Card', account_number='****9900', sort_code='60-83-71', iban='GB12 STRG 6083 7100 1199 00', account_type='Business Current', status='Active', business=BIZ_4, created_by=SUPER_ADMIN_EMAIL)
@@ -206,12 +229,14 @@ def seed_data():
     # 5d. Loans
     Loan.objects.all().delete()
     Loan.objects.create(name='Equipment Finance', lender='NatWest Business', total_amount=25000.00, outstanding_amount=12450.00, monthly_payment=450.00, interest_rate=5.2, purpose='Shop fit-out and refrigeration', start_date='2025-01-01', end_date='2030-01-01', next_payment_date='2026-06-01', reminder_days=7, status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    Loan.objects.create(name='Store Expansion Loan', lender='HSBC', total_amount=50000.00, outstanding_amount=45000.00, monthly_payment=950.00, interest_rate=4.5, purpose='Expanding retail floor', start_date='2025-08-01', end_date='2030-08-01', next_payment_date='2026-06-01', reminder_days=7, status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     Loan.objects.create(name='Commercial Vehicle Lease', lender='Close Brothers', total_amount=48000.00, outstanding_amount=32000.00, monthly_payment=800.00, interest_rate=4.8, purpose='Fleet expansion - 2 new vans', start_date='2025-06-01', end_date='2030-06-01', next_payment_date='2026-06-01', reminder_days=14, status='Active', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
     Loan.objects.create(name='Premises Renovation Loan', lender='Barclays Business', total_amount=75000.00, outstanding_amount=68500.00, monthly_payment=1250.00, interest_rate=6.1, purpose='Bristol store refurbishment', start_date='2026-01-15', end_date='2031-01-15', next_payment_date='2026-06-15', reminder_days=7, status='Active', business=BIZ_3, created_by=SUPER_ADMIN_EMAIL)
 
     # 5e. Insurance Policies
     InsurancePolicy.objects.all().delete()
     InsurancePolicy.objects.create(type='Public Liability', provider='AXA Business', policy_number='AXA-PL-44210', premium=680.00, coverage_amount=5000000.00, asset_details='All business premises and public areas', contact_info='0800 169 5656', start_date='2026-01-01', expiry_date='2027-01-01', reminder_days=30, status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    InsurancePolicy.objects.create(type='Property / Building', provider='Aviva', policy_number='AVV-PROP-999', premium=1100.00, coverage_amount=3000000.00, asset_details='123 High Street, London', contact_info='0800 068 6800', start_date='2026-01-01', expiry_date='2027-01-01', reminder_days=30, status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     InsurancePolicy.objects.create(type='Employers Liability', provider='Aviva', policy_number='AVV-EL-88901', premium=520.00, coverage_amount=10000000.00, asset_details='All employed staff across entities', contact_info='0800 068 6800', start_date='2026-03-01', expiry_date='2027-03-01', reminder_days=30, status='Active', business=BIZ_ALL, created_by=SUPER_ADMIN_EMAIL)
     InsurancePolicy.objects.create(type='Vehicle Insurance', provider='Direct Line Business', policy_number='DLB-VEH-55123', premium=1450.00, coverage_amount=250000.00, asset_details='CAR 1 (ABC-1234), VAN 2 (XYZ-5678)', contact_info='0345 246 3761', start_date='2026-02-01', expiry_date='2027-02-01', reminder_days=30, status='Active', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
     InsurancePolicy.objects.create(type='Property / Building', provider='Zurich', policy_number='ZUR-PROP-33210', premium=890.00, coverage_amount=2000000.00, asset_details='78 Broadmead, Bristol BS1 3DG', contact_info='0800 232 1903', start_date='2025-11-01', expiry_date='2026-11-01', reminder_days=60, status='Active', business=BIZ_3, created_by=SUPER_ADMIN_EMAIL)
@@ -222,6 +247,7 @@ def seed_data():
     VATRecord.objects.all().delete()
     VATRecord.objects.create(type='VAT Q1 2026', period_start='2026-01-01', period_end='2026-03-31', amount=3420.15, filing_deadline='2026-05-07', payment_due='2026-05-14', status='Pending', reference_number='VAT-Q1-26', transaction_reference='TXN-VAT-Q1', reminder_days=14, business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     VATRecord.objects.create(type='VAT Q4 2025', period_start='2025-10-01', period_end='2025-12-31', amount=2890.50, filing_deadline='2026-02-07', payment_due='2026-02-14', status='Paid', reference_number='VAT-Q4-25', transaction_reference='TXN-VAT-Q4', reminder_days=14, business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    VATRecord.objects.create(type='PAYE Monthly - May', period_start='2026-05-01', period_end='2026-05-31', amount=2100.00, filing_deadline='2026-06-19', payment_due='2026-06-22', status='Pending', reference_number='PAYE-MAY-26-B1', reminder_days=7, business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     VATRecord.objects.create(type='Corporation Tax 2025', period_start='2025-04-01', period_end='2026-03-31', amount=12500.00, filing_deadline='2026-12-31', payment_due='2027-01-01', status='Filed', reference_number='CT-2025-26', transaction_reference='TXN-CT-2526', reminder_days=30, business=BIZ_5, created_by=SUPER_ADMIN_EMAIL)
     VATRecord.objects.create(type='PAYE Monthly - May', period_start='2026-05-01', period_end='2026-05-31', amount=1840.00, filing_deadline='2026-06-19', payment_due='2026-06-22', status='Pending', reference_number='PAYE-MAY-26', reminder_days=7, business=BIZ_3, created_by=SUPER_ADMIN_EMAIL)
     VATRecord.objects.create(type='VAT Q1 2026 - Logistics', period_start='2026-01-01', period_end='2026-03-31', amount=5610.00, filing_deadline='2026-05-07', payment_due='2026-05-14', status='Paid', reference_number='VAT-Q1-LOG', transaction_reference='TXN-VAT-LOG', reminder_days=14, business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
@@ -240,22 +266,28 @@ def seed_data():
     Supplier.objects.all().delete()
     s1 = Supplier.objects.create(supplier_id='SUP-001', name='Global Logistics Partners', category='Logistics', status='Active', phone='020 7946 0000', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     s2 = Supplier.objects.create(supplier_id='SUP-002', name='Prime Office Supplies', category='Office Supplies', status='Active', phone='0161 496 0000', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
+    s3 = Supplier.objects.create(supplier_id='SUP-003', name='Local Bakery Supplies', category='Food & Beverages', status='Active', phone='020 7946 0022', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     PurchaseOrder.objects.all().delete()
     PurchaseOrder.objects.create(number='PO-2026-001', supplier=s2, amount=250.00, status='Paid', date='2026-05-10', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    PurchaseOrder.objects.create(number='PO-2026-002', supplier=s3, amount=180.00, status='Pending', date='2026-05-14', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     Asset.objects.all().delete()
     a1 = Asset.objects.create(name='Main Office HVAC', location='Floor 1', asset_type='HVAC', assigned_person='Robert Chen', contact='0123456789', status='Operational', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    a2 = Asset.objects.create(name='POS System Terminal 1', location='Checkout 1', asset_type='Electronics', assigned_person='Store Manager', contact='020 7946 0001', status='Operational', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     
     MaintenanceRequest.objects.all().delete()
     MaintenanceRequest.objects.create(issue='Leaking Tap', asset=a1, priority='Medium', technician='Mike Plumb', status='Pending', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
     MaintenanceRequest.objects.create(issue='AC Filter Replacement', asset=a1, priority='High', technician='Cooling Co', status='Pending', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    MaintenanceRequest.objects.create(issue='Software Update Required', asset=a2, priority='Low', technician='IT Support', status='Pending', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     WasteCollection.objects.all().delete()
     WasteCollection.objects.create(date=timezone.now().date(), contact_person='Waste Team', phone='0123456789', address='Main Street Warehouse', status='Collected', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    WasteCollection.objects.create(date=timezone.now().date() + timedelta(days=2), contact_person='Recycling Team', phone='0123456789', address='123 High Street, London', status='Scheduled', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     PropertyLicence.objects.all().delete()
     PropertyLicence.objects.create(type='Premises License', authority='Local Council', issue_date=timezone.now().date(), status='Active', expiry_date=timezone.now().date() + timedelta(days=365), business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    PropertyLicence.objects.create(type='Music License', authority='PRS for Music', issue_date='2026-01-01', status='Active', expiry_date='2026-12-31', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     from django.contrib.auth.hashers import make_password
     import json
@@ -339,6 +371,10 @@ def seed_data():
     Note.objects.create(text='Restock milk packets before the weekend rush.', business=BIZ_1, color='red', is_pinned=False, created_by=SUPER_ADMIN_EMAIL)
     Note.objects.create(text='Team meeting at 9 AM on Monday.', business=BIZ_1, color='yellow', is_pinned=False, created_by=SUPER_ADMIN_EMAIL)
     Note.objects.create(text='Check with supplier regarding delayed invoice.', business=BIZ_1, color='green', is_pinned=False, created_by=SUPER_ADMIN_EMAIL)
+    
+    ConnectedEmail.objects.all().delete()
+    ConnectedEmail.objects.create(email='info@mainretail.co.uk', label='Customer Service', type='primary', password='password123', status='Connected', created_by=SUPER_ADMIN_EMAIL)
+    ConnectedEmail.objects.create(email='sales@mainretail.co.uk', label='Sales Enquiries', type='secondary', password='password123', status='Connected', created_by=SUPER_ADMIN_EMAIL)
     
     SystemCredential.objects.all().delete()
     SystemCredential.objects.create(service='Retail Till Access', account='admin_till_01', password='PIN-8822', status='Active', biz=BIZ_1, support='020 7946 0999', notes='Primary checkout till - Main Store', created_by=SUPER_ADMIN_EMAIL)
