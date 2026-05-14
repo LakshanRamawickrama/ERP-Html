@@ -225,8 +225,58 @@ def seed_data():
     PropertyLicence.objects.create(type='Premises License', authority='Local Council', issue_date=timezone.now().date(), status='Active', expiry_date=timezone.now().date() + timedelta(days=365), business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     from django.contrib.auth.hashers import make_password
+    import json
     StaffProfile.objects.all().delete()
-    StaffProfile.objects.create(name='Lakshan Ramawickrama', username='superadmin', role='super_admin', email='superadmin@erp.com', status='Active', assigned_business='All', password=make_password('superadmin123'))
+    
+    # Super Admin
+    StaffProfile.objects.create(
+        name='Lakshan Ramawickrama', 
+        username='superadmin', 
+        role='super_admin', 
+        email='superadmin@erp.com', 
+        status='Active', 
+        assigned_business='All', 
+        access='All',
+        permissions='{}',
+        password=make_password('superadmin123')
+    )
+    
+    # John Retailer - Only Retail/Inventory modules
+    john_perms = {
+        'Business Profile': ['view', 'add', 'edit'],
+        'Inventory Management': ['view', 'add', 'edit', 'delete'],
+        'Accounting': ['view'],
+        'Dashboard': ['Business Details', 'Profit & Loss', 'Low Stock']
+    }
+    StaffProfile.objects.create(
+        name='John Retailer', 
+        username='admin_retail', 
+        role='admin', 
+        email='john@retail.co.uk', 
+        status='Active', 
+        assigned_business=BIZ_1, 
+        access='Business Management, Inventory Management, Accounting',
+        permissions=json.dumps(john_perms),
+        password=make_password('admin123')
+    )
+    
+    # Sarah Logistics - Only Fleet/Suppliers modules
+    sarah_perms = {
+        'Fleet Management': ['view', 'add', 'edit', 'delete'],
+        'Suppliers': ['view', 'add', 'edit'],
+        'Dashboard': ['Fleet Management', 'Supplier Payments', 'Recent Activity']
+    }
+    StaffProfile.objects.create(
+        name='Sarah Logistics', 
+        username='admin_logistics', 
+        role='admin', 
+        email='sarah@logistics.co.uk', 
+        status='Active', 
+        assigned_business=BIZ_2, 
+        access='Fleet Management, Suppliers',
+        permissions=json.dumps(sarah_perms),
+        password=make_password('admin123')
+    )
 
     SystemAlert.objects.all().delete()
     SystemAlert.objects.create(label='Low Stock', type='warning', message='Milk Packet 1L is approaching limit')

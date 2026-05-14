@@ -97,7 +97,7 @@ export default function UserModule() {
 
   const [data, setData] = useState<any>({ systemMap: [], registry: [], roles: [], businesses: [] });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<any>({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
+  const [formData, setFormData] = useState<any>({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '', access: [] });
   const [formError, setFormError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -164,14 +164,15 @@ export default function UserModule() {
 
   const handleEdit = (id: string, rowData: any) => {
     setEditingId(id);
-    setFormData({ ...rowData, password: '', confirmPassword: '' });
+    const accessList = typeof rowData.access === 'string' ? rowData.access.split(',').map((s: any) => s.trim()).filter(Boolean) : [];
+    setFormData({ ...rowData, access: accessList, password: '', confirmPassword: '' });
     setActiveTab('registry');
     setFormError('');
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
+    setFormData({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '', access: [] });
     setFormError('');
   };
 
@@ -190,6 +191,7 @@ export default function UserModule() {
       email: formData.email,
       role: 'admin',
       assigned_business: formData.assigned_business,
+      access: Array.isArray(formData.access) ? formData.access.join(', ') : formData.access,
     };
     if (!editingId) payload.password = formData.password;
 
@@ -413,6 +415,33 @@ export default function UserModule() {
                         Admin
                       </div>
                     </div>
+                  </div>
+
+                  {/* Module Access Multi-Select */}
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 block">Module Access</label>
+                    <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl max-h-[160px] overflow-y-auto">
+                      {MODULE_GROUPS.map(mod => (
+                        <label key={mod.name} className="flex items-center gap-2 cursor-pointer group">
+                          <input 
+                            type="checkbox"
+                            className="w-3.5 h-3.5 rounded border-slate-300 accent-slate-800"
+                            checked={formData.access?.includes(mod.name)}
+                            onChange={(e) => {
+                              const current = formData.access || [];
+                              const next = e.target.checked 
+                                ? [...current, mod.name]
+                                : current.filter((m: string) => m !== mod.name);
+                              setFormData({...formData, access: next});
+                            }}
+                          />
+                          <span className="text-[11px] font-medium text-slate-600 group-hover:text-slate-800 transition-colors truncate">
+                            {mod.name}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    <p className="mt-1.5 text-[9px] text-slate-400 font-medium italic">Detailed permissions (add/edit/delete) can be configured in the Role Permissions tab.</p>
                   </div>
 
                   {!editingId && (

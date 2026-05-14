@@ -42,6 +42,15 @@ class StaffView(APIView):
             return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            # Initialize basic view permissions if access modules are provided
+            access_str = data.get('access', '')
+            access_list = [m.strip() for m in access_str.split(',') if m.strip()]
+            
+            initial_perms = {}
+            if access_list:
+                for mod in access_list:
+                    initial_perms[mod] = ['view']
+
             profile = StaffProfile.objects.create(
                 name=name,
                 username=username,
@@ -49,8 +58,8 @@ class StaffView(APIView):
                 assigned_business=assigned_business,
                 email=email,
                 password=make_password(password),
-                access='',
-                permissions='{}',
+                access=access_str,
+                permissions=json.dumps(initial_perms),
                 status='Active',
             )
             return Response(StaffProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
@@ -83,6 +92,9 @@ class StaffView(APIView):
                 profile.name = data['name']
             if 'assigned_business' in data:
                 profile.assigned_business = data['assigned_business']
+            if 'access' in data and 'permissions' not in data:
+                # If access is updated but perms aren't, keep them in sync
+                profile.access = data['access']
             if 'status' in data:
                 profile.status = data['status']
 

@@ -395,7 +395,7 @@ export default function ReportsModule() {
                           <div className="flex items-center justify-center gap-2">
                             <Briefcase className="w-3 h-3 text-slate-300" />
                             <span className="text-[11px] font-bold text-slate-600">
-                              {biz.id % 2 === 0 ? 'Logistics' : 'Retail'}
+                              {biz.category}
                             </span>
                           </div>
                         </td>
