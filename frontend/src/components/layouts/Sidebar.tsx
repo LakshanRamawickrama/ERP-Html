@@ -82,11 +82,13 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     <aside className="group fixed left-0 top-0 h-screen bg-[#2c3e50] text-[#ecf0f1] w-[70px] hover:w-[240px] transition-all duration-300 shadow-xl z-[1100] flex flex-col overflow-hidden">
       {/* Brand */}
       <div className="flex items-center gap-3 p-4 border-b border-white/10 min-h-[70px] whitespace-nowrap overflow-hidden">
-        <div className="min-w-[38px] flex justify-center">
-          <img src="/images/logo.png" alt="Zerozzz Logo" className="w-9 h-9 object-contain" />
+        <div className="min-w-[44px] flex justify-center">
+          <div className="w-11 h-11 rounded-2xl bg-slate-900/40 backdrop-blur-xl flex items-center justify-center p-1.5 border-2 border-cyan-400/60 shadow-[0_0_15px_rgba(34,211,238,0.4)] animate-logo-pulse transition-all duration-300 group-hover:scale-105">
+            <img src="/images/logo.png" alt="Zerozzz Logo" className="w-full h-full object-contain brightness-110 contrast-125" />
+          </div>
         </div>
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-          <h5 className="text-[15px] font-black tracking-tighter text-white uppercase leading-none">Zerozzz ERP</h5>
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-1">
+          <h5 className="text-[16px] font-black tracking-tighter text-white uppercase leading-none">Zerozzz ERP</h5>
           <small className="text-[9px] font-bold text-cyan-400 block uppercase tracking-widest leading-none mt-0.5">{userRole?.replace('_', ' ')}</small>
         </div>
       </div>
