@@ -429,7 +429,7 @@ export default function AccountingModule() {
                         <Field label="End Date" name="end" value={formData.end} onChange={handleInputChange} type="date" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Next Payment" name="next_payment_date" value={formData.next_payment_date} onChange={handleInputChange} type="date" />
+                        <Field label="Next Payment" name="next" value={formData.next} onChange={handleInputChange} type="date" />
                         <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['7', '14', '30', '60']} />
                       </div>
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.loanStatuses || []} />

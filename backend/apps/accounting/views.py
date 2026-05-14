@@ -217,7 +217,8 @@ class LoanView(APIView):
                 reminder=data.get('renewal', ''), # Reusing renewal field name from frontend
                 start_date=data.get('start') or None,
                 end_date=data.get('end') or None,
-                next_payment_date=data.get('next') or None,
+                next_payment_date=data.get('next') or data.get('next_payment_date') or None,
+                reminder_days=int(data.get('reminder_days', 7)) if data.get('reminder_days') else 7,
                 document=request.FILES.get('document'),
                 status=data.get('status', 'Active'),
                 business=getattr(request.user, 'assigned_business', ''),
@@ -241,7 +242,8 @@ class LoanView(APIView):
             record.reminder = data.get('renewal', record.reminder)
             record.start_date = data.get('start') or record.start_date
             record.end_date = data.get('end') or record.end_date
-            record.next_payment_date = data.get('next') or record.next_payment_date
+            record.next_payment_date = data.get('next') or data.get('next_payment_date') or record.next_payment_date
+            record.reminder_days = int(data.get('reminder_days', record.reminder_days)) if data.get('reminder_days') else record.reminder_days
             record.status = data.get('status', record.status)
             if request.FILES.get('document'):
                 record.document = request.FILES.get('document')
@@ -272,6 +274,7 @@ class InsurancePolicyView(APIView):
                 start_date=data.get('startDate') or None,
                 expiry_date=data.get('expiry') or None,
                 renewal_reminder=data.get('renewal', ''),
+                reminder_days=int(data.get('reminder_days', 30)) if data.get('reminder_days') else 30,
                 document=files.get('document'),
                 status=data.get('status', 'Active'),
                 business=getattr(request.user, 'assigned_business', ''),
@@ -295,6 +298,7 @@ class InsurancePolicyView(APIView):
             record.start_date = data.get('startDate') or record.start_date
             record.expiry_date = data.get('expiry') or record.expiry_date
             record.renewal_reminder = data.get('renewal', record.renewal_reminder)
+            record.reminder_days = int(data.get('reminder_days', record.reminder_days)) if data.get('reminder_days') else record.reminder_days
             record.status = data.get('status', record.status)
             if request.FILES.get('document'):
                 record.document = request.FILES.get('document')
@@ -323,6 +327,7 @@ class VATRecordView(APIView):
                 period_end=data.get('end') or None,
                 filing_deadline=data.get('deadline') or None,
                 payment_due=data.get('due') or None,
+                reminder_days=int(data.get('reminder_days', 14)) if data.get('reminder_days') else 14,
                 document=files.get('document'),
                 status=data.get('status', 'Draft'),
                 business=getattr(request.user, 'assigned_business', ''),
@@ -345,29 +350,10 @@ class VATRecordView(APIView):
             record.period_end = data.get('end') or record.period_end
             record.filing_deadline = data.get('deadline') or record.filing_deadline
             record.payment_due = data.get('due') or record.payment_due
+            record.reminder_days = int(data.get('reminder_days', record.reminder_days)) if data.get('reminder_days') else record.reminder_days
             record.status = data.get('status', record.status)
             if files.get('document'):
                 record.document = files.get('document')
-            record.save()
-            return Response(VATRecordSerializer(record, context={'request': request}).data)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, pk):
-        record = get_object_or_404(VATRecord, pk=pk)
-        data = request.data
-        try:
-            record.type = data.get('type', record.type)
-            record.reference_number = data.get('ref', record.reference_number)
-            record.transaction_reference = data.get('txn_ref', record.transaction_reference)
-            record.amount = data.get('amount', record.amount)
-            record.period_start = data.get('start') or record.period_start
-            record.period_end = data.get('end') or record.period_end
-            record.filing_deadline = data.get('deadline') or record.filing_deadline
-            record.payment_due = data.get('due') or record.payment_due
-            record.status = data.get('status', record.status)
-            if request.FILES.get('document'):
-                record.document = request.FILES.get('document')
             record.save()
             return Response(VATRecordSerializer(record, context={'request': request}).data)
         except Exception as e:
