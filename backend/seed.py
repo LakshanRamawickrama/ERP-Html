@@ -271,12 +271,31 @@ def seed_data():
         password=make_password('superadmin123')
     )
     
-    # John Retailer - Only Retail/Inventory modules
+    # John Retailer - Requested full permissions
     john_perms = {
-        'Business Profile': ['view', 'add', 'edit'],
+        'Business Management': ['view', 'add', 'edit', 'delete'],
+        'Business Profile': ['view', 'add', 'edit', 'delete'],
+        'Company Structure': ['view', 'add', 'edit', 'delete'],
+        'Fleet Management': ['view', 'add', 'edit', 'delete'],
+        'Vehicle Fleet': ['view', 'add', 'edit', 'delete'],
+        'Delivery Tracking': ['view', 'add', 'edit', 'delete'],
+        'Parcel Services': ['view', 'add', 'edit', 'delete'],
         'Inventory Management': ['view', 'add', 'edit', 'delete'],
-        'Accounting': ['view'],
-        'Dashboard': ['Business Details', 'Profit & Loss', 'Low Stock']
+        'Accounting': ['view', 'add', 'edit', 'delete'],
+        'Financial Records': ['view', 'add', 'edit', 'delete'],
+        'Invoices': ['view', 'add', 'edit', 'delete'],
+        'Bank Accounts': ['view', 'add', 'edit', 'delete'],
+        'Loans & Insurance': ['view', 'add', 'edit', 'delete'],
+        'Tax Records': ['view', 'add', 'edit', 'delete'],
+        'Property Management': ['view', 'add', 'edit', 'delete'],
+        'Property Inventory': ['view', 'add', 'edit', 'delete'],
+        'Maintenance Requests': ['view', 'add', 'edit', 'delete'],
+        'Waste Collection': ['view', 'add', 'edit', 'delete'],
+        'Licences & Permits': ['view', 'add', 'edit', 'delete'],
+        'Payment Services': ['view', 'add', 'edit', 'delete'],
+        'Merchant Services': ['view', 'add', 'edit', 'delete'],
+        'Reminders': ['view', 'add', 'edit', 'delete'],
+        'Dashboard': ['Business Details', 'Profit & Loss', 'Low Stock', 'Fleet Management', 'Bank Accounts', 'Maintenance', 'System Reminders']
     }
     StaffProfile.objects.create(
         name='John Retailer', 
@@ -285,7 +304,7 @@ def seed_data():
         email='john@retail.co.uk', 
         status='Active', 
         assigned_business=BIZ_1, 
-        access='Business Management, Inventory Management, Accounting',
+        access='Business Management, Fleet Management, Inventory Management, Accounting, Property Management, Payment Services, Reminders',
         permissions=json.dumps(john_perms),
         password=make_password('admin123')
     )
