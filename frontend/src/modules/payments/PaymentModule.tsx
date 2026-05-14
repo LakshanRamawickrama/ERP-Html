@@ -446,11 +446,6 @@ export default function PaymentModule() {
                         )}
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
-                            {t.docUrl && (
-                              <button onClick={() => handleViewDoc(t)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-all">
-                                <Eye size={14} />
-                              </button>
-                            )}
                             {canEdit && (
                               <button onClick={() => handleEdit(t.id, t)} className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
                                 <Edit size={14} />
@@ -461,9 +456,6 @@ export default function PaymentModule() {
                                 <Trash2 size={14} />
                               </button>
                             )}
-                            <button className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all">
-                              <Printer size={14} />
-                            </button>
                           </div>
                         </td>
                       </tr>
