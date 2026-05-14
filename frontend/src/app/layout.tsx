@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Zerozzz ERP | Next-Gen Management",
   description: "Modern Business Management System",
+  icons: {
+    icon: '/images/logo.png',
+  },
 };
 
 export default function RootLayout({

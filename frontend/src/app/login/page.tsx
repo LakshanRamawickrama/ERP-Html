@@ -88,8 +88,8 @@ export default function LoginPage() {
           {/* Left Side: Branding & Features */}
           <div className="hidden lg:block space-y-10 animate-in fade-in slide-in-from-left-8 duration-700">
             <div className="flex items-center gap-4 group">
-              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl font-black">Z</span>
+              <div className="w-16 h-16 bg-white/5 backdrop-blur-sm rounded-2xl flex items-center justify-center p-2 shadow-xl border border-white/10 group-hover:scale-110 transition-transform duration-300">
+                <img src="/images/logo.png" alt="Zerozzz ERP Logo" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 uppercase">
@@ -132,8 +132,8 @@ export default function LoginPage() {
           <div className="animate-in fade-in slide-in-from-right-8 duration-700">
             {/* Mobile Logo */}
             <div className="lg:hidden flex flex-col items-center mb-10 text-center">
-              <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-xl shadow-cyan-500/20">
-                <span className="text-2xl font-black">Z</span>
+              <div className="w-16 h-16 bg-white/5 backdrop-blur-sm rounded-2xl flex items-center justify-center p-2 shadow-xl border border-white/10 mb-4">
+                <img src="/images/logo.png" alt="Zerozzz ERP Logo" className="w-full h-full object-contain" />
               </div>
               <h1 className="text-3xl font-black text-white uppercase tracking-tight">Zerozzz ERP</h1>
             </div>
