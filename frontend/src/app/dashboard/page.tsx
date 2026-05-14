@@ -252,7 +252,12 @@ export default function Dashboard() {
     fetch(API_ENDPOINTS.NOTES, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ text: noteInput, is_pinned: false, color: 'yellow' }),
+      body: JSON.stringify({ 
+        text: noteInput, 
+        is_pinned: false, 
+        color: 'yellow',
+        biz: selectedBusiness !== 'All Entities' ? selectedBusiness : '' 
+      }),
     })
       .then(res => {
         if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
@@ -560,79 +565,93 @@ export default function Dashboard() {
             {/* 3. NOTES */}
             {canShowCard('Notes') && (
               <Widget title="Notes" icon={FileText} color="bg-[#f59e0b]">
-                <div className="space-y-2">
-                  {dash.notes
-                    .sort((a: any, b: any) => {
-                      if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
-                      return b.id > a.id ? 1 : -1; // Fallback to id for latest first
-                    })
-                    .map((note: any) => (
-                    <div 
-                      key={note.id} 
-                      className={cn(
-                        "rounded-lg p-2 relative group shadow-sm transition-all border",
-                        note.color === 'blue' ? "bg-blue-50 border-blue-100" :
-                        note.color === 'green' ? "bg-emerald-50 border-emerald-100" :
-                        note.color === 'red' ? "bg-red-50 border-red-100" :
-                        "bg-[#fffbeb] border-[#fef3c7]"
-                      )}
-                    >
-                      <p className={cn(
-                        "text-[11px] leading-[1.3] m-0 pr-10",
-                        note.color === 'blue' ? "text-blue-900" :
-                        note.color === 'green' ? "text-emerald-900" :
-                        note.color === 'red' ? "text-red-900" :
-                        "text-[#1e293b]"
-                      )}>
-                        {note.text}
-                      </p>
-  
-                      {note.created_at && (
-                        <div className={cn(
-                          "text-[8px] font-bold mt-1.5 opacity-60 flex items-center gap-1",
-                          note.color === 'blue' ? "text-blue-700" :
-                          note.color === 'green' ? "text-emerald-700" :
-                          note.color === 'red' ? "text-red-700" :
-                          "text-slate-400"
+                <div className="space-y-2 h-full flex flex-col">
+                  <div className="flex-1 overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                    {dash.notes
+                      .filter((note: any) => selectedBusiness === 'All Entities' || note.biz === selectedBusiness)
+                      .sort((a: any, b: any) => {
+                        if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+                        return b.id > a.id ? 1 : -1; // Fallback to id for latest first
+                      })
+                      .map((note: any) => (
+                      <div 
+                        key={note.id} 
+                        className={cn(
+                          "rounded-lg p-2 relative group shadow-sm transition-all border",
+                          note.color === 'blue' ? "bg-blue-50 border-blue-100" :
+                          note.color === 'green' ? "bg-emerald-50 border-emerald-100" :
+                          note.color === 'red' ? "bg-red-50 border-red-100" :
+                          "bg-[#fffbeb] border-[#fef3c7]"
+                        )}
+                      >
+                        <p className={cn(
+                          "text-[11px] leading-[1.3] m-0 pr-10",
+                          note.color === 'blue' ? "text-blue-900" :
+                          note.color === 'green' ? "text-emerald-900" :
+                          note.color === 'red' ? "text-red-900" :
+                          "text-[#1e293b]"
                         )}>
-                          <Clock size={8} /> {new Date(note.created_at).toLocaleDateString()} — {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                      )}
-                      
-                      <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                        <button
-                          onClick={() => handleCycleNoteColor(note.id, note.color || 'yellow')}
-                          className="p-1 hover:bg-black/5 rounded transition-colors"
-                          title="Highlight"
-                        >
+                          {note.text}
+                        </p>
+                        {selectedBusiness === 'All Entities' && note.biz && (
+                          <span className="inline-block mt-1 text-[8px] font-black px-1.5 py-0.5 rounded-lg bg-white/50 border border-black/5 text-slate-500 uppercase tracking-tighter">
+                            {note.biz}
+                          </span>
+                        )}
+    
+                        {note.created_at && (
                           <div className={cn(
-                            "w-2.5 h-2.5 rounded-full border border-black/10",
-                            note.color === 'blue' ? "bg-blue-400" :
-                            note.color === 'green' ? "bg-emerald-400" :
-                            note.color === 'red' ? "bg-red-400" :
-                            "bg-yellow-400"
-                          )} />
-                        </button>
-                        <button
-                          onClick={() => handleTogglePinNote(note.id, note.is_pinned)}
-                          className={cn(
-                            "p-1 rounded transition-colors",
-                            note.is_pinned ? "text-indigo-600 opacity-100" : "text-slate-400 hover:bg-black/5"
-                          )}
-                          title={note.is_pinned ? "Unpin" : "Pin to top"}
-                        >
-                          <Pin className={cn("w-3 h-3", note.is_pinned && "fill-current")} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteNote(note.id)}
-                          className="p-1 text-[#ef4444] hover:bg-red-50 rounded transition-all"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
+                            "text-[8px] font-bold mt-1.5 opacity-60 flex items-center gap-1",
+                            note.color === 'blue' ? "text-blue-700" :
+                            note.color === 'green' ? "text-emerald-700" :
+                            note.color === 'red' ? "text-red-700" :
+                            "text-slate-400"
+                          )}>
+                            <Clock size={8} /> {new Date(note.created_at).toLocaleDateString()} — {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        )}
+                        
+                        <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                          <button
+                            onClick={() => handleCycleNoteColor(note.id, note.color || 'yellow')}
+                            className="p-1 hover:bg-black/5 rounded transition-colors"
+                            title="Highlight"
+                          >
+                            <div className={cn(
+                              "w-2.5 h-2.5 rounded-full border border-black/10",
+                              note.color === 'blue' ? "bg-blue-400" :
+                              note.color === 'green' ? "bg-emerald-400" :
+                              note.color === 'red' ? "bg-red-400" :
+                              "bg-yellow-400"
+                            )} />
+                          </button>
+                          <button
+                            onClick={() => handleTogglePinNote(note.id, note.is_pinned)}
+                            className={cn(
+                              "p-1 rounded transition-colors",
+                              note.is_pinned ? "text-indigo-600 opacity-100" : "text-slate-400 hover:bg-black/5"
+                            )}
+                            title={note.is_pinned ? "Unpin" : "Pin to top"}
+                          >
+                            <Pin className={cn("w-3 h-3", note.is_pinned && "fill-current")} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteNote(note.id)}
+                            className="p-1 text-[#ef4444] hover:bg-red-50 rounded transition-all"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                    {dash.notes.filter((note: any) => selectedBusiness === 'All Entities' || note.biz === selectedBusiness).length === 0 && (
+                      <div className="h-full flex flex-col items-center justify-center py-10 opacity-30">
+                        <FileText size={24} className="mb-2" />
+                        <p className="text-[10px] font-bold uppercase tracking-wider">No notes recorded</p>
+                      </div>
+                    )}
+                  </div>
                   <div className="space-y-2 pt-1">
                     <textarea 
                       value={noteInput}
@@ -1682,12 +1701,14 @@ export default function Dashboard() {
         .scrollbar-custom::-webkit-scrollbar { width: 6px; }
         .scrollbar-custom::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        .widget-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0, 0, 0, .04); overflow: hidden; }
+        .widget-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0, 0, 0, .04); overflow: hidden; height: 320px; }
         .widget-header { background: #fff; padding: .65rem .85rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
         .widget-header-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: .5rem; color: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .05); }
         .widget-title { font-size: 13px; font-weight: 700; color: #1e293b; }
-        .widget-body { padding: .65rem .85rem; flex: 1; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
-        .widget-body::-webkit-scrollbar { display: none; }
+        .widget-body { padding: .65rem .85rem; flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .widget-body::-webkit-scrollbar { width: 4px; }
+        .widget-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .widget-body::-webkit-scrollbar-track { background: transparent; }
 
         .wt { width: 100%; border-collapse: collapse; font-size: 11px; }
         .wt th { font-size: 9px; font-weight: 800; text-transform: uppercase; color: #64748b; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
