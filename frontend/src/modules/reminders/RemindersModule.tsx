@@ -24,6 +24,7 @@ import {
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
 import { BusinessField } from '@/components/ui/BusinessField';
+import { AlertModal } from '@/components/ui/AlertModal';
 
 export default function RemindersModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const { canAdd, canDelete } = usePermissions('Reminders');
@@ -35,6 +36,8 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
   const [newReminder, setNewReminder] = useState({ title: '', business: '', description: '', date: '', priority: 'Medium', type: 'Manual' });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'info' as 'info' | 'warning' | 'error' });
 
   const fetchReminders = async () => {
     try {
@@ -114,7 +117,12 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
     
     // Check if it's an automated reminder (those have string IDs like 'fleet-...')
     if (deleteId.toString().includes('-')) {
-      alert("Automated reminders cannot be deleted manually. Please resolve the underlying issue.");
+      setAlertConfig({
+        title: "Action Restricted",
+        message: "Automated reminders cannot be deleted manually. Please resolve the underlying issue in the source module.",
+        type: 'warning'
+      });
+      setShowAlert(true);
       setShowDeleteModal(false);
       return;
     }
@@ -439,6 +447,14 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
+      />
+
+      <AlertModal 
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
       />
     </div>
   );

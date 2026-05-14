@@ -25,6 +25,7 @@ import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { usePermissions } from '@/hooks/usePermissions';
 import { BusinessField } from '@/components/ui/BusinessField';
+import { AlertModal } from '@/components/ui/AlertModal';
 
 
 type TabType = 'suppliers' | 'orders';
@@ -40,6 +41,8 @@ export default function SupplierModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'info' as 'info' | 'warning' | 'error' });
 
 
   const fetchData = () => {
@@ -101,7 +104,12 @@ export default function SupplierModule() {
       handleCancelEdit();
     } catch (err) {
       console.error('Submit error:', err);
-      alert('Failed to save record.');
+      setAlertConfig({
+        title: "Submission Error",
+        message: "Failed to save the record. Please check your connection and try again.",
+        type: 'error'
+      });
+      setShowAlert(true);
     }
   };
 
@@ -136,7 +144,12 @@ export default function SupplierModule() {
       setDeleteId(null);
     } catch (err) {
       console.error('Delete error:', err);
-      alert('Failed to delete record.');
+      setAlertConfig({
+        title: "Deletion Failed",
+        message: "We encountered an error while trying to delete this record.",
+        type: 'error'
+      });
+      setShowAlert(true);
     }
   };
 
@@ -318,6 +331,14 @@ export default function SupplierModule() {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         documentData={selectedDoc}
+      />
+
+      <AlertModal 
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
       />
     </div>
 
