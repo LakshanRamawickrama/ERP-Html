@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Boxes,
-  Briefcase
+  Briefcase,
+  Edit2
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -40,6 +41,7 @@ export default function RemindersModule({
   const [filter, setFilter] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newReminder, setNewReminder] = useState({ title: '', business: '', description: '', date: '', priority: 'Medium', type: 'Manual' });
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showAlert, setShowAlert] = useState(false);
@@ -67,17 +69,23 @@ export default function RemindersModule({
         }));
       }
       
-      // Map types to icons
-      const withIcons = rawData.map((r: any) => ({
-        ...r,
-        icon: r.type === 'Fleet' ? Truck : 
-              r.type === 'Legal' ? FileText :
-              r.type === 'Accounting' ? ShieldAlert :
-              r.type === 'Inventory' ? Boxes :
-              r.type === 'Business' ? Briefcase :
-              r.type === 'System' ? AlertTriangle :
-              r.type === 'Property' ? Bell : Bell
-      }));
+      // Map types to icons and normalize dates
+      const withIcons = rawData.map((r: any) => {
+        const rawDate = r.due_date || r.date || '';
+        const normalizedDate = rawDate.includes('T') ? rawDate.split('T')[0] : rawDate;
+        
+        return {
+          ...r,
+          date: normalizedDate,
+          icon: r.type === 'Fleet' ? Truck : 
+                r.type === 'Legal' ? FileText :
+                r.type === 'Accounting' ? ShieldAlert :
+                r.type === 'Inventory' ? Boxes :
+                r.type === 'Business' ? Briefcase :
+                r.type === 'System' ? AlertTriangle :
+                r.type === 'Property' ? Bell : Bell
+        };
+      });
       
       setReminders(withIcons);
     } catch (error) {
@@ -98,20 +106,22 @@ export default function RemindersModule({
     }
   }, [businesses]);
 
-  const handleAddReminder = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newReminder.title) return;
     
     try {
       const token = localStorage.getItem('token');
-      // Backend expects due_date, we have date in state
       const payload = {
         ...newReminder,
         due_date: newReminder.date || new Date().toISOString()
       };
       
-      const res = await fetch(API_ENDPOINTS.REMINDERS, {
-        method: 'POST',
+      const method = editingId ? 'PUT' : 'POST';
+      const url = editingId ? `${API_ENDPOINTS.REMINDERS}${editingId}/` : API_ENDPOINTS.REMINDERS;
+
+      const res = await fetch(url, {
+        method,
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}` 
@@ -123,10 +133,24 @@ export default function RemindersModule({
         fetchReminders();
         setNewReminder({ title: '', business: '', description: '', date: '', priority: 'Medium', type: 'Manual' });
         setShowAddForm(false);
+        setEditingId(null);
       }
     } catch (error) {
-      console.error('Add reminder failed:', error);
+      console.error('Reminder submit failed:', error);
     }
+  };
+
+  const handleEditClick = (reminder: any) => {
+    setNewReminder({
+      title: reminder.title || '',
+      business: reminder.business || '',
+      description: reminder.description || '',
+      date: reminder.date || '',
+      priority: reminder.priority || 'Medium',
+      type: reminder.type || 'Manual'
+    });
+    setEditingId(reminder.id);
+    setShowAddForm(true);
   };
 
   const handleDeleteClick = (id: string) => {
@@ -272,8 +296,16 @@ export default function RemindersModule({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  {canDelete && !reminder.id.toString().startsWith('fleet-') && (
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                  {!reminder.id.toString().includes('-') && (
+                    <button
+                      onClick={() => handleEditClick(reminder)}
+                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                  )}
+                  {canDelete && !reminder.id.toString().includes('-') && (
                     <button
                       onClick={() => handleDeleteClick(reminder.id)}
                       className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
@@ -296,8 +328,8 @@ export default function RemindersModule({
           {/* Sidebar Info / Add Form */}
           <div className="lg:col-span-4 overflow-y-auto no-scrollbar space-y-6 pb-10">
             {showAddForm ? (
-              <Card title="New Reminder" icon={Plus} iconColor="bg-slate-800">
-                <form onSubmit={handleAddReminder} className="space-y-3">
+              <Card title={editingId ? "Edit Reminder" : "New Reminder"} icon={editingId ? Edit2 : Plus} iconColor="bg-slate-800">
+                <form onSubmit={handleSubmit} className="space-y-3">
                   <div>
                     <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Title</label>
                     <input 
@@ -358,11 +390,11 @@ export default function RemindersModule({
                       type="submit"
                       className="flex-1 py-2.5 bg-slate-800 text-white rounded-lg text-xs font-bold shadow-lg hover:bg-slate-700 transition-all"
                     >
-                      Save Reminder
+                      {editingId ? "Update Reminder" : "Save Reminder"}
                     </button>
                     <button 
                       type="button"
-                      onClick={() => setShowAddForm(false)}
+                      onClick={() => { setShowAddForm(false); setEditingId(null); setNewReminder({ title: '', business: '', description: '', date: '', priority: 'Medium', type: 'Manual' }); }}
                       className="px-3 py-2.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all"
                     >
                       Cancel
