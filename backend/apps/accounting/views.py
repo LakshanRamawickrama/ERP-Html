@@ -102,6 +102,26 @@ class TransactionView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, pk):
+        record = get_object_or_404(Transaction, pk=pk)
+        data = request.data
+        try:
+            record.title = data.get('title', record.title)
+            record.category = data.get('category', record.category)
+            record.type = data.get('type', record.type)
+            record.amount = data.get('amount', record.amount)
+            record.date = data.get('date') or record.date
+            record.status = data.get('status', record.status)
+            record.notes = data.get('notes', record.notes)
+            record.payment_method = data.get('payment_method', record.payment_method)
+            record.reference_number = data.get('reference_number', record.reference_number)
+            if request.FILES.get('document'):
+                record.document = request.FILES.get('document')
+            record.save()
+            return Response(TransactionSerializer(record, context={'request': request}).data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
         record = get_object_or_404(Transaction, pk=pk)
         record.delete()
@@ -158,6 +178,24 @@ class BankAccountView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, pk):
+        record = get_object_or_404(BankAccount, pk=pk)
+        data = request.data
+        try:
+            record.bank_name = data.get('bank', record.bank_name)
+            record.account_name = data.get('acc', record.account_name)
+            record.account_number = data.get('num', record.account_number)
+            record.sort_code = data.get('sort', record.sort_code)
+            record.iban = data.get('iban', record.iban)
+            record.account_type = data.get('type', record.account_type)
+            record.status = data.get('status', record.status)
+            if request.FILES.get('document'):
+                record.document = request.FILES.get('document')
+            record.save()
+            return Response(BankAccountSerializer(record, context={'request': request}).data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
         record = get_object_or_404(BankAccount, pk=pk)
         record.delete()
@@ -189,6 +227,29 @@ class LoanView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, pk):
+        record = get_object_or_404(Loan, pk=pk)
+        data = request.data
+        try:
+            record.name = data.get('loan', record.name)
+            record.lender = data.get('lender', record.lender)
+            record.total_amount = data.get('total', record.total_amount)
+            record.outstanding_amount = data.get('os', record.outstanding_amount)
+            record.monthly_payment = data.get('monthly', record.monthly_payment)
+            record.interest_rate = data.get('rate', record.interest_rate)
+            record.purpose = data.get('purpose', record.purpose)
+            record.reminder = data.get('renewal', record.reminder)
+            record.start_date = data.get('start') or record.start_date
+            record.end_date = data.get('end') or record.end_date
+            record.next_payment_date = data.get('next') or record.next_payment_date
+            record.status = data.get('status', record.status)
+            if request.FILES.get('document'):
+                record.document = request.FILES.get('document')
+            record.save()
+            return Response(LoanSerializer(record, context={'request': request}).data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
         record = get_object_or_404(Loan, pk=pk)
         record.delete()
@@ -217,6 +278,28 @@ class InsurancePolicyView(APIView):
                 created_by=request.user.email
             )
             return Response(InsurancePolicySerializer(record, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        record = get_object_or_404(InsurancePolicy, pk=pk)
+        data = request.data
+        try:
+            record.type = data.get('type', record.type)
+            record.provider = data.get('provider', record.provider)
+            record.policy_number = data.get('policy', record.policy_number)
+            record.premium = data.get('premium', record.premium)
+            record.coverage_amount = data.get('coverage', record.coverage_amount)
+            record.asset_details = data.get('asset', record.asset_details)
+            record.contact_info = data.get('contact', record.contact_info)
+            record.start_date = data.get('startDate') or record.start_date
+            record.expiry_date = data.get('expiry') or record.expiry_date
+            record.renewal_reminder = data.get('renewal', record.renewal_reminder)
+            record.status = data.get('status', record.status)
+            if request.FILES.get('document'):
+                record.document = request.FILES.get('document')
+            record.save()
+            return Response(InsurancePolicySerializer(record, context={'request': request}).data)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -265,6 +348,26 @@ class VATRecordView(APIView):
             record.status = data.get('status', record.status)
             if files.get('document'):
                 record.document = files.get('document')
+            record.save()
+            return Response(VATRecordSerializer(record, context={'request': request}).data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        record = get_object_or_404(VATRecord, pk=pk)
+        data = request.data
+        try:
+            record.type = data.get('type', record.type)
+            record.reference_number = data.get('ref', record.reference_number)
+            record.transaction_reference = data.get('txn_ref', record.transaction_reference)
+            record.amount = data.get('amount', record.amount)
+            record.period_start = data.get('start') or record.period_start
+            record.period_end = data.get('end') or record.period_end
+            record.filing_deadline = data.get('deadline') or record.filing_deadline
+            record.payment_due = data.get('due') or record.payment_due
+            record.status = data.get('status', record.status)
+            if request.FILES.get('document'):
+                record.document = request.FILES.get('document')
             record.save()
             return Response(VATRecordSerializer(record, context={'request': request}).data)
         except Exception as e:
