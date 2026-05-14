@@ -42,6 +42,32 @@ function isOffice(url: string) {
 
 export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawerProps) {
   const [mounted, setMounted] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      setIsDownloading(true);
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      
+      const ext = url.split('.').pop()?.split('?')[0] || 'pdf';
+      const fullFilename = filename.includes('.') ? filename : `${filename}.${ext}`;
+      
+      link.download = fullFilename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Download failed', err);
+      window.open(url, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -141,13 +167,14 @@ export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawer
                         Office documents (Word, Excel, PowerPoint) require external software to view. Please download the file to view it on your device.
                       </p>
                       <div className="pt-4">
-                        <a
-                          href={fileUrl}
-                          download
-                          className="inline-flex items-center gap-2 px-8 py-3 bg-[#2c3e50] text-white rounded-xl text-sm font-bold shadow-xl hover:bg-[#34495e] hover:-translate-y-0.5 transition-all active:scale-95"
+                        <button
+                          onClick={() => handleDownload(fileUrl!, documentData?.title || 'document')}
+                          disabled={isDownloading}
+                          className="inline-flex items-center gap-2 px-8 py-3 bg-[#2c3e50] text-white rounded-xl text-sm font-bold shadow-xl hover:bg-[#34495e] hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait"
                         >
-                          <Download className="w-4 h-4" /> Download to View
-                        </a>
+                          <Download className={`w-4 h-4 ${isDownloading ? 'animate-bounce' : ''}`} /> 
+                          {isDownloading ? 'Downloading...' : 'Download to View'}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -161,13 +188,14 @@ export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawer
                       <p className="text-base font-bold text-slate-700">Preview Not Supported</p>
                       <p className="text-xs text-slate-400">This file type cannot be previewed in the browser.</p>
                     </div>
-                    <a
-                      href={fileUrl}
-                      download
-                      className="flex items-center gap-2 px-6 py-2.5 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition-all"
+                    <button
+                      onClick={() => handleDownload(fileUrl!, documentData?.title || 'document')}
+                      disabled={isDownloading}
+                      className="flex items-center gap-2 px-6 py-2.5 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition-all disabled:opacity-50 disabled:cursor-wait"
                     >
-                      <Download className="w-4 h-4" /> Download File
-                    </a>
+                      <Download className={`w-4 h-4 ${isDownloading ? 'animate-bounce' : ''}`} /> 
+                      {isDownloading ? 'Downloading...' : 'Download File'}
+                    </button>
                   </div>
                 )}
               </div>
@@ -201,13 +229,14 @@ export function DocumentDrawer({ isOpen, onClose, documentData }: DocumentDrawer
                 Close
               </button>
               {hasRealFile ? (
-                <a
-                  href={fileUrl}
-                  download
-                  className="flex items-center gap-2 px-6 py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-lg hover:bg-[#34495e] transition-all"
+                <button
+                  onClick={() => handleDownload(fileUrl!, documentData?.title || 'document')}
+                  disabled={isDownloading}
+                  className="flex items-center gap-2 px-6 py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-lg hover:bg-[#34495e] transition-all disabled:opacity-50 disabled:cursor-wait"
                 >
-                  <Download className="w-4 h-4" /> Download
-                </a>
+                  <Download className={`w-4 h-4 ${isDownloading ? 'animate-bounce' : ''}`} /> 
+                  {isDownloading ? 'Downloading...' : 'Download'}
+                </button>
               ) : (
                 <button className="px-6 py-2 bg-[#2c3e50] text-white rounded-lg text-sm font-bold shadow-lg hover:bg-[#34495e] transition-all">
                   Download PDF

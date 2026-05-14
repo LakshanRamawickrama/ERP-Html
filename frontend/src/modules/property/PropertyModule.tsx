@@ -200,7 +200,7 @@ export default function PropertyModule() {
                       <Field 
                         label="Asset Type" 
                         isSelect 
-                        options={[...(data.assetTypes || []), 'ADD_NEW']} 
+                        options={[...(data.options?.assetTypes || []), 'ADD_NEW']} 
                         value={formData.asset_type || ''} 
                         onChange={(val: string) => setFormData({...formData, asset_type: val})} 
                       />
@@ -272,7 +272,7 @@ export default function PropertyModule() {
                       <Field 
                         label="Priority" 
                         isSelect 
-                        options={data.priorities || []} 
+                        options={data.options?.priorities || []} 
                         value={formData.priority || ''} 
                         onChange={(val: string) => setFormData({...formData, priority: val})} 
                       />
@@ -368,7 +368,7 @@ export default function PropertyModule() {
                       <Field 
                         label="Status" 
                         isSelect 
-                        options={data.statuses || []} 
+                        options={data.options?.statuses || []} 
                         value={formData.status || ''} 
                         onChange={(val: string) => setFormData({...formData, status: val})} 
                       />

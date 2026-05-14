@@ -164,7 +164,7 @@ export default function InventoryModule() {
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Item Name *" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. Milk Packet 1L" />
-                      <Field label="Category *" name="category" value={formData.category} onChange={handleInputChange} isSelect options={data.inventoryCategories || []} />
+                      <Field label="Category *" name="category" value={formData.category} onChange={handleInputChange} isSelect options={data.options?.categories || []} />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Initial Stock" name="quantity" value={formData.quantity} onChange={handleInputChange} type="number" />
                         <Field label="Min Stock Level" name="min_stock" value={formData.min_stock} onChange={handleInputChange} type="number" />

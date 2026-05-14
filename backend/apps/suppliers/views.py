@@ -5,12 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Supplier, PurchaseOrder
 from .serializers import SupplierSerializer, PurchaseOrderSerializer
 from apps.users.utils import get_filtered_queryset
+from apps.business.models import BusinessEntity
 
 class SupplierDataView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
         try:
+            user_business = getattr(request.user, 'assigned_business', 'All')
             suppliers = get_filtered_queryset(request, Supplier)
             orders = get_filtered_queryset(request, PurchaseOrder)
             
@@ -22,7 +24,8 @@ class SupplierDataView(APIView):
                     "statuses": ["Active", "Inactive"],
                     "names": [s.name for s in suppliers],
                     "productCategories": ["Electronics", "Furniture", "Stationery", "Raw Materials"],
-                    "orderStatuses": ["Pending", "Paid", "Cancelled"]
+                    "orderStatuses": ["Pending", "Paid", "Cancelled"],
+                    "businesses": [user_business] if user_business != 'All' else list(BusinessEntity.objects.values_list('name', flat=True).distinct())
                 },
                 "metadata": {
                     "nextId": f"SUP-{suppliers.count() + 1:04d}"

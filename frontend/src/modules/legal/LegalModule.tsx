@@ -33,6 +33,8 @@ export default function LegalModule() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isCustomType, setIsCustomType] = useState(false);
+  const [customTypeName, setCustomTypeName] = useState('');
 
 
   useEffect(() => {
@@ -49,12 +51,22 @@ export default function LegalModule() {
   const handleEdit = (id: string, rowData: any) => {
     setEditingId(id);
     setFormData(rowData);
+    const options = data.options || [];
+    if (rowData.type && !options.includes(rowData.type)) {
+      setIsCustomType(true);
+      setCustomTypeName(rowData.type);
+    } else {
+      setIsCustomType(false);
+      setCustomTypeName('');
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({});
     setDocFile(null);
+    setIsCustomType(false);
+    setCustomTypeName('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,8 +74,9 @@ export default function LegalModule() {
     const token = localStorage.getItem('token');
     const body = new FormData();
     body.append('title', formData.title || '');
-    body.append('type', formData.type || '');
+    body.append('type', isCustomType ? customTypeName : (formData.type || ''));
     body.append('status', formData.status || 'Active');
+    body.append('authority', formData.authority || '');
     if (formData.expiry_date) body.append('expiry_date', formData.expiry_date);
     if (docFile) body.append('document_file', docFile);
 
@@ -151,8 +164,31 @@ export default function LegalModule() {
                     businesses={data.options?.businesses || []}
                   />
                   <Field label="Document Title" placeholder="Trade License" value={formData.title || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, title: v }))} />
-                  <Field label="Document Type" isSelect options={data.options || []} value={formData.type || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, type: v }))} />
+                  <Field 
+                    label="Document Type" 
+                    isSelect 
+                    options={[...(data.options?.types || []), "Add Custom Type..."]} 
+                    value={isCustomType ? "Add Custom Type..." : (formData.type || '')} 
+                    onChange={(v: string) => {
+                      if (v === "Add Custom Type...") {
+                        setIsCustomType(true);
+                        setFormData((p: any) => ({ ...p, type: '' }));
+                      } else {
+                        setIsCustomType(false);
+                        setFormData((p: any) => ({ ...p, type: v }));
+                      }
+                    }} 
+                  />
+                  {isCustomType && (
+                    <Field 
+                      label="Enter Custom Document Type *" 
+                      placeholder="e.g. Employee Handbook..." 
+                      value={customTypeName}
+                      onChange={(v: string) => setCustomTypeName(v)}
+                    />
+                  )}
                   <Field label="Expiry Date" type="date" value={formData.expiry_date || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, expiry_date: v }))} />
+                  <Field label="Issuing Authority" placeholder="e.g. City Council, Legal Dept." value={formData.authority || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, authority: v }))} />
                   <Field label="Status" isSelect options={['Active', 'Expired', 'Pending']} value={formData.status || 'Active'} onChange={(v: string) => setFormData((p: any) => ({ ...p, status: v }))} />
 
                   <div className="space-y-2">
@@ -210,8 +246,8 @@ export default function LegalModule() {
                       <DocRow
                         key={i}
                         {...doc}
-                        onEdit={() => handleEdit(`doc-${i}`, doc)}
-                        onDelete={() => handleDeleteClick(`doc-${i}`)}
+                        onEdit={() => handleEdit(doc.id, doc)}
+                        onDelete={() => handleDeleteClick(doc.id)}
                         onView={() => handleViewDoc(doc)}
                         canEdit={canEdit} canDelete={canDelete}
                       />
@@ -252,9 +288,11 @@ function DocRow({ title, type, auth, file, status, onEdit, onDelete, onView, can
       <td className="px-4 py-3">
         <button 
           onClick={onView}
-          className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded hover:bg-white hover:shadow-sm transition-all cursor-pointer"
+          title={file}
+          className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold rounded hover:bg-white hover:shadow-sm transition-all cursor-pointer max-w-[200px]"
         >
-          <FileText className="w-3 h-3 text-red-500" /> {file}
+          <FileText className="w-3 h-3 text-red-500 shrink-0" /> 
+          <span className="truncate">{file}</span>
         </button>
       </td>
 

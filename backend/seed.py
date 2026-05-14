@@ -48,22 +48,109 @@ def seed_data():
     
     # 1. Business Entities
     BusinessEntity.objects.all().delete()
-    BusinessEntity.objects.create(name=BIZ_1, company_number='CH-0001', category='Retail', hq_location='London', created_by=SUPER_ADMIN_EMAIL)
-    BusinessEntity.objects.create(name=BIZ_2, company_number='CH-0002', category='Service Provider', hq_location='Manchester', created_by=SUPER_ADMIN_EMAIL)
-    BusinessEntity.objects.create(name=BIZ_3, company_number='CH-0003', category='Retail', hq_location='Bristol', created_by=SUPER_ADMIN_EMAIL)
-    BusinessEntity.objects.create(name=BIZ_4, company_number='CH-0004', category='Logistics', hq_location='Birmingham', created_by=SUPER_ADMIN_EMAIL)
-    BusinessEntity.objects.create(name=BIZ_5, company_number='CH-0005', category='Holding Company', hq_location='London', created_by=SUPER_ADMIN_EMAIL)
-    
+    BusinessEntity.objects.create(
+        name=BIZ_1, company_number='CH-0001', category='Retail',
+        hq_location='123 High Street, London, EC1A 1BB',
+        tax_id='GB-VAT-123456789', currency='GBP', timezone='Europe/London',
+        fiscal_year='April - March', status='Active',
+        phone='020 7946 0001', email='info@mainretail.co.uk',
+        website='https://www.mainretail.co.uk',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    BusinessEntity.objects.create(
+        name=BIZ_2, company_number='CH-0002', category='Service Provider',
+        hq_location='45 Quay Street, Manchester, M3 3EY',
+        tax_id='GB-VAT-987654321', currency='GBP', timezone='Europe/London',
+        fiscal_year='January - December', status='Active',
+        phone='0161 496 0002', email='ops@logisticshub.co.uk',
+        website='https://www.logisticshub.co.uk',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    BusinessEntity.objects.create(
+        name=BIZ_3, company_number='CH-0003', category='Retail',
+        hq_location='78 Broadmead, Bristol, BS1 3DG',
+        tax_id='GB-VAT-112233445', currency='GBP', timezone='Europe/London',
+        fiscal_year='April - March', status='Active',
+        phone='0117 920 0003', email='contact@whiterockretail.co.uk',
+        website='https://www.whiterockretail.co.uk',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    BusinessEntity.objects.create(
+        name=BIZ_4, company_number='CH-0004', category='Logistics',
+        hq_location='12 Broad Street, Birmingham, B1 2HF',
+        tax_id='GB-VAT-556677889', currency='GBP', timezone='Europe/London',
+        fiscal_year='January - December', status='Active',
+        phone='0121 230 0004', email='dispatch@zenithlogistics.co.uk',
+        website='https://www.zenithlogistics.co.uk',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    BusinessEntity.objects.create(
+        name=BIZ_5, company_number='CH-0005', category='Holding Company',
+        hq_location='One Canada Square, London, E14 5AB',
+        tax_id='GB-VAT-998877665', currency='GBP', timezone='Europe/London',
+        fiscal_year='April - March', status='Active',
+        phone='020 7946 0005', email='group@holdingco.co.uk',
+        website='https://www.holdingco.co.uk',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+
     CompanyStructure.objects.all().delete()
-    CompanyStructure.objects.create(name='Main Retail HQ', business=BIZ_1, crn='CRN-001', filing_due=timezone.now().date(), manager='John Smith', status='Active', created_by=SUPER_ADMIN_EMAIL)
-    CompanyStructure.objects.create(name='Northern Logistics Hub', business=BIZ_2, crn='CRN-002', filing_due=timezone.now().date(), manager='Sarah Wilson', status='Active', created_by=SUPER_ADMIN_EMAIL)
-    CompanyStructure.objects.create(name='Whiterock Branch', business=BIZ_3, crn='CRN-003', filing_due=timezone.now().date(), manager='Mike Brown', status='Active', created_by=SUPER_ADMIN_EMAIL)
+    CompanyStructure.objects.create(
+        name='Main Retail HQ', business=BIZ_1, crn='CRN-001',
+        filing_due=timezone.now().date() + timedelta(days=90),
+        manager='John Smith', status='Active', sic_code='47190',
+        address='123 High Street, London, EC1A 1BB',
+        location='London', house_code='LON-001',
+        contact_number='020 7946 0001',
+        opening_hours='Mon-Sat 08:00-20:00, Sun 10:00-18:00',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    CompanyStructure.objects.create(
+        name='Northern Logistics Hub', business=BIZ_2, crn='CRN-002',
+        filing_due=timezone.now().date() + timedelta(days=120),
+        manager='Sarah Wilson', status='Active', sic_code='49410',
+        address='45 Quay Street, Manchester, M3 3EY',
+        location='Manchester', house_code='MCR-002',
+        contact_number='0161 496 0002',
+        opening_hours='Mon-Fri 07:00-18:00',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    CompanyStructure.objects.create(
+        name='Whiterock Branch', business=BIZ_3, crn='CRN-003',
+        filing_due=timezone.now().date() + timedelta(days=60),
+        manager='Mike Brown', status='Active', sic_code='47190',
+        address='78 Broadmead, Bristol, BS1 3DG',
+        location='Bristol', house_code='BST-003',
+        contact_number='0117 920 0003',
+        opening_hours='Mon-Sat 09:00-19:00, Sun 11:00-17:00',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    CompanyStructure.objects.create(
+        name='Zenith Birmingham Depot', business=BIZ_4, crn='CRN-004',
+        filing_due=timezone.now().date() + timedelta(days=150),
+        manager='Emily Clarke', status='Active', sic_code='52100',
+        address='12 Broad Street, Birmingham, B1 2HF',
+        location='Birmingham', house_code='BHM-004',
+        contact_number='0121 230 0004',
+        opening_hours='Mon-Fri 06:00-22:00',
+        created_by=SUPER_ADMIN_EMAIL
+    )
+    CompanyStructure.objects.create(
+        name='Holding Company HQ', business=BIZ_5, crn='CRN-005',
+        filing_due=timezone.now().date() + timedelta(days=200),
+        manager='David Harrison', status='Active', sic_code='64205',
+        address='One Canada Square, London, E14 5AB',
+        location='London (Canary Wharf)', house_code='CW-005',
+        contact_number='020 7946 0005',
+        opening_hours='Mon-Fri 09:00-17:30',
+        created_by=SUPER_ADMIN_EMAIL
+    )
 
     # 2. Legal Documents
     LegalDocument.objects.all().delete()
-    LegalDocument.objects.create(title='Alcohol License', type='License Applications', expiry_date='2027-12-31', status='Active', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
-    LegalDocument.objects.create(title='Public Liability Certificate', type='Temp Records', expiry_date='2026-12-31', status='Active', business=BIZ_ALL, created_by=SUPER_ADMIN_EMAIL)
-    LegalDocument.objects.create(title='Trade License', type='License', status='Active', expiry_date='2027-05-20', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    LegalDocument.objects.create(title='Alcohol License', type='License Applications', expiry_date='2027-12-31', status='Active', authority='Local Council', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
+    LegalDocument.objects.create(title='Public Liability Certificate', type='Temp Records', expiry_date='2026-12-31', status='Active', authority='Insurance Provider', business=BIZ_ALL, created_by=SUPER_ADMIN_EMAIL)
+    LegalDocument.objects.create(title='Trade License', type='License', status='Active', expiry_date='2027-05-20', authority='City Council', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     # 3. Fleet
     Vehicle.objects.all().delete()
@@ -139,9 +226,7 @@ def seed_data():
 
     from django.contrib.auth.hashers import make_password
     StaffProfile.objects.all().delete()
-    StaffProfile.objects.create(name='Admin User', role='Admin', email='admin@erp.com', status='Active', assigned_business=BIZ_ALL, password=make_password('admin123'))
-    StaffProfile.objects.create(name='Store Manager', role='Manager', email='manager@erp.com', status='Active', assigned_business=BIZ_1, password=make_password('manager123'))
-    StaffProfile.objects.create(name='Lakshan Ramawickrama', role='super_admin', email='superadmin@erp.com', status='Active', assigned_business='All', password=make_password('superadmin123'))
+    StaffProfile.objects.create(name='Lakshan Ramawickrama', username='superadmin', role='super_admin', email='superadmin@erp.com', status='Active', assigned_business='All', password=make_password('superadmin123'))
 
     SystemAlert.objects.all().delete()
     SystemAlert.objects.create(label='Low Stock', type='warning', message='Milk Packet 1L is approaching limit')

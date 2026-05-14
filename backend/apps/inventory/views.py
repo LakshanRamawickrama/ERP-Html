@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Product, StockMovement
 from .serializers import ProductSerializer, StockMovementSerializer
 from apps.users.utils import get_filtered_queryset
+from apps.business.models import BusinessEntity
 from django.shortcuts import get_object_or_404
 import uuid
 
@@ -14,11 +15,15 @@ class InventoryDataView(APIView):
     def get(self, request):
         products = get_filtered_queryset(request, Product)
         movements = get_filtered_queryset(request, StockMovement)
+        user_business = getattr(request.user, 'assigned_business', 'All')
         return Response({
             "stock": ProductSerializer(products, many=True).data,
             "moves": StockMovementSerializer(movements, many=True).data,
             "alerts": [], # Centralized in Reminders module
-            "inventoryCategories": ["Food & Beverages", "Groceries", "Stationery", "Electronics", "Cleaning"],
+            "options": {
+                "categories": ["Food & Beverages", "Groceries", "Stationery", "Electronics", "Cleaning"],
+                "businesses": [user_business] if user_business != 'All' else list(BusinessEntity.objects.values_list('name', flat=True).distinct())
+            },
             "inventoryItems": [p.name for p in products],
         })
 

@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Asset, MaintenanceRequest, WasteCollection, PropertyLicence
 from .serializers import AssetSerializer, MaintenanceRequestSerializer, WasteCollectionSerializer, PropertyLicenceSerializer
 from apps.users.utils import get_filtered_queryset
+from apps.business.models import BusinessEntity
 
 class PropertyDataView(APIView):
     permission_classes = [IsAuthenticated]
@@ -15,14 +16,18 @@ class PropertyDataView(APIView):
         waste = get_filtered_queryset(request, WasteCollection)
         licences = get_filtered_queryset(request, PropertyLicence)
 
+        user_business = getattr(request.user, 'assigned_business', 'All')
         return Response({
             "assets": AssetSerializer(assets, many=True, context={'request': request}).data,
             "requests": MaintenanceRequestSerializer(requests, many=True, context={'request': request}).data,
             "waste": WasteCollectionSerializer(waste, many=True, context={'request': request}).data,
             "licences": PropertyLicenceSerializer(licences, many=True, context={'request': request}).data,
-            "assetTypes": ["HVAC", "Elevator", "Electrical", "Plumbing", "Security", "Fire Safety"],
-            "priorities": ["Urgent", "Standard", "Low"],
-            "statuses": ["Active", "Expired", "Pending"]
+            "options": {
+                "assetTypes": ["HVAC", "Elevator", "Electrical", "Plumbing", "Security", "Fire Safety"],
+                "priorities": ["Urgent", "Standard", "Low"],
+                "statuses": ["Active", "Expired", "Pending"],
+                "businesses": [user_business] if user_business != 'All' else list(BusinessEntity.objects.values_list('name', flat=True).distinct())
+            }
         })
 
 class PropertyLicenceView(APIView):

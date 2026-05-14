@@ -7,6 +7,7 @@ from .serializers import VehicleSerializer, DeliverySerializer, ParcelPartnerSer
 from apps.users.utils import get_filtered_queryset
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from apps.business.models import BusinessEntity
 
 class FleetDataView(APIView):
     permission_classes = [IsAuthenticated]
@@ -26,7 +27,7 @@ class FleetDataView(APIView):
             "tracking": ParcelSerializer(parcels, many=True, context={'request': request}).data,
             "reminders": [], # Centralized in Reminders module
             "options": {
-                "businesses": [user_business] if user_business != 'All' else ["Main Retail Store", "Logistics Hub", "Whiterock Retail Ltd"],
+                "businesses": [user_business] if user_business != 'All' else list(BusinessEntity.objects.values_list('name', flat=True).distinct()),
                 "vehicles": [f"{v.name} ({v.plate_number})" for v in vehicles],
                 "vehicleShort": [v.name for v in vehicles],
                 "deliveryStatuses": ["Pending", "In Transit", "Delivered", "Failed"],
