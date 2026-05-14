@@ -156,10 +156,12 @@ def seed_data():
     Vehicle.objects.all().delete()
     v1 = Vehicle.objects.create(name='CAR 1', plate_number='ABC-1234', business=BIZ_2, status='Active', fuel_type='Petrol', created_by=SUPER_ADMIN_EMAIL)
     v2 = Vehicle.objects.create(name='VAN 2', plate_number='XYZ-5678', business=BIZ_2, status='In Service', fuel_type='Diesel', created_by=SUPER_ADMIN_EMAIL)
+    v3_biz1 = Vehicle.objects.create(name='RETAIL VAN 1', plate_number='RTL-9999', business=BIZ_1, status='Active', fuel_type='Electric', created_by=SUPER_ADMIN_EMAIL)
     
     Delivery.objects.all().delete()
     Delivery.objects.create(vehicle=v1, address='Birmingham', contact_person='Driver A', contact_number='0123456789', status='In Transit', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
     Delivery.objects.create(vehicle=v2, address='Liverpool', contact_person='Driver B', contact_number='0123456789', status='Delivered', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
+    Delivery.objects.create(vehicle=v3_biz1, address='London HQ', contact_person='Driver Retail', contact_number='0123456789', status='In Transit', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
     
     Parcel.objects.all().delete()
     Parcel.objects.create(reference='PC-123', client_name='Alice Johnson', status='Ready for Collection', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
@@ -247,6 +249,7 @@ def seed_data():
     
     MaintenanceRequest.objects.all().delete()
     MaintenanceRequest.objects.create(issue='Leaking Tap', asset=a1, priority='Medium', technician='Mike Plumb', status='Pending', business=BIZ_2, created_by=SUPER_ADMIN_EMAIL)
+    MaintenanceRequest.objects.create(issue='AC Filter Replacement', asset=a1, priority='High', technician='Cooling Co', status='Pending', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
 
     WasteCollection.objects.all().delete()
     WasteCollection.objects.create(date=timezone.now().date(), contact_person='Waste Team', phone='0123456789', address='Main Street Warehouse', status='Collected', business=BIZ_1, created_by=SUPER_ADMIN_EMAIL)
@@ -295,7 +298,7 @@ def seed_data():
         'Payment Services': ['view', 'add', 'edit', 'delete'],
         'Merchant Services': ['view', 'add', 'edit', 'delete'],
         'Reminders': ['view', 'add', 'edit', 'delete'],
-        'Dashboard': ['Business Details', 'Profit & Loss', 'Low Stock', 'Fleet Management', 'Bank Accounts', 'Maintenance', 'System Reminders']
+        'Dashboard': ['Business Details', 'Profit & Loss', 'Low Stock', 'Fleet Management', 'Bank Accounts', 'Maintenance', 'System Reminders', 'Notes']
     }
     StaffProfile.objects.create(
         name='John Retailer', 
@@ -330,6 +333,12 @@ def seed_data():
     SystemAlert.objects.all().delete()
     SystemAlert.objects.create(label='Low Stock', type='warning', message='Milk Packet 1L is approaching limit')
     SystemAlert.objects.create(label='Compliance Due', type='info', message='Annual health and safety audit due in 15 days')
+    
+    Note.objects.all().delete()
+    Note.objects.create(text='Follow up on the new AC installation quote.', business=BIZ_1, color='blue', is_pinned=True, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Restock milk packets before the weekend rush.', business=BIZ_1, color='red', is_pinned=False, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Team meeting at 9 AM on Monday.', business=BIZ_1, color='yellow', is_pinned=False, created_by=SUPER_ADMIN_EMAIL)
+    Note.objects.create(text='Check with supplier regarding delayed invoice.', business=BIZ_1, color='green', is_pinned=False, created_by=SUPER_ADMIN_EMAIL)
     
     SystemCredential.objects.all().delete()
     SystemCredential.objects.create(service='Retail Till Access', account='admin_till_01', password='PIN-8822', status='Active', biz=BIZ_1, support='020 7946 0999', notes='Primary checkout till - Main Store', created_by=SUPER_ADMIN_EMAIL)
