@@ -174,16 +174,17 @@ export default function Dashboard() {
         return res.json();
       })
       .then(responseData => {
-        const rawReminders = responseData?.reminders || [];
-        if (Array.isArray(rawReminders)) {
-          const urgent = rawReminders.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
-          if (urgent.length > 0) {
-            setUrgentReminders(urgent);
-            setShowReminderPopup(true);
-            sessionStorage.setItem('hasSeenReminderPopup', 'true');
-            playNotificationSound();
+          const rawReminders = responseData?.reminders || [];
+          if (Array.isArray(rawReminders)) {
+            const filteredReminders = rawReminders.filter((r: any) => selectedBusiness === 'All Entities' || r.business === selectedBusiness);
+            const urgent = filteredReminders.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
+            if (urgent.length > 0) {
+              setUrgentReminders(urgent);
+              setShowReminderPopup(true);
+              sessionStorage.setItem('hasSeenReminderPopup', 'true');
+              playNotificationSound();
+            }
           }
-        }
       })
       .catch(err => console.error('Reminders fetch error:', err));
     }
@@ -1007,7 +1008,9 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 scrollbar-custom">
-                    {dash.passwords.map((row: any, i: number) => (
+                    {dash.passwords
+                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                      .map((row: any, i: number) => (
                       <div 
                         key={i} 
                         onClick={() => { setSelectedPassword(row); setIsVaultAuthed(false); setVaultAuthInput(''); }} 
@@ -1167,7 +1170,9 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dash.sales.map((row: any, i: number) => (
+                  {dash.sales
+                    .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                    .map((row: any, i: number) => (
                     <tr key={i}>
                       <td><strong>{row.i}</strong></td>
                       <td className="truncate">{row.c}</td>

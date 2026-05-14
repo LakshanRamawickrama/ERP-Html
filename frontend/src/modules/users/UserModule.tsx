@@ -91,7 +91,7 @@ const DASHBOARD_CARDS = [
   'Recent Activity',
 ];
 
-export default function UserModule() {
+export default function UserModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [activeTab, setActiveTab] = useState<'registry' | 'roles'>('registry');
   const [isWide, setIsWide] = useState(false);
 
@@ -607,7 +607,9 @@ export default function UserModule() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {data.registry?.map((u: any, i: number) => (
+                        {data.registry
+                          ?.filter((u: any) => selectedBusiness === 'All Entities' || u.assigned_business === selectedBusiness)
+                          .map((u: any, i: number) => (
                           <UserRow
                             key={i}
                             name={u.name}

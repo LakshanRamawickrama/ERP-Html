@@ -39,10 +39,15 @@ export default function TopBar({
     })
     .then(res => res.json())
     .then(data => {
+      let remindersList = [];
       if (Array.isArray(data)) {
-        const urgent = data.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
-        setUrgentReminders(urgent);
+        remindersList = data;
+      } else if (data && Array.isArray(data.reminders)) {
+        remindersList = data.reminders;
       }
+      
+      const urgent = remindersList.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
+      setUrgentReminders(urgent);
     })
     .catch(() => {});
   }, []);

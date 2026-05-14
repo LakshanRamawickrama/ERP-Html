@@ -26,7 +26,13 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { BusinessField } from '@/components/ui/BusinessField';
 import { AlertModal } from '@/components/ui/AlertModal';
 
-export default function RemindersModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
+export default function RemindersModule({ 
+  selectedBusiness = 'All Entities',
+  businesses = []
+}: { 
+  selectedBusiness?: string;
+  businesses?: string[];
+}) {
   const { canAdd, canDelete } = usePermissions('Reminders');
   const [reminders, setReminders] = useState<any[]>([]);
   const [options, setOptions] = useState<any>({ businesses: [] });
@@ -50,7 +56,16 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
       if (!contentType || !contentType.includes('application/json')) { console.error('Reminders: non-JSON response'); return; }
       const responseData = await res.json();
       const rawData = responseData.reminders || [];
-      setOptions(responseData.options || { businesses: [] });
+      
+      // Merge options safely
+      if (responseData.options) {
+        setOptions((prev: any) => ({
+          ...prev,
+          ...responseData.options,
+          // Preserve businesses from props if they are already there
+          businesses: (businesses && businesses.length > 0) ? businesses : (responseData.options.businesses || prev.businesses)
+        }));
+      }
       
       // Map types to icons
       const withIcons = rawData.map((r: any) => ({
@@ -75,6 +90,13 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
   useEffect(() => {
     fetchReminders();
   }, []);
+
+  // Update options.businesses if businesses prop changes
+  useEffect(() => {
+    if (businesses && businesses.length > 0) {
+      setOptions((prev: any) => ({ ...prev, businesses }));
+    }
+  }, [businesses]);
 
   const handleAddReminder = async (e: React.FormEvent) => {
     e.preventDefault();

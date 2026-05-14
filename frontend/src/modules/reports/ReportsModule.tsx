@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 
 
-export default function ReportsModule() {
+export default function ReportsModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [data, setData] = React.useState<any>({ stats: [], templates: [], businesses: [] });
   const [selectedBiz, setSelectedBiz] = React.useState('All Entities');
   const [user, setUser] = React.useState<any>(null);
@@ -63,6 +63,13 @@ export default function ReportsModule() {
     }
     fetchReports();
   }, [fetchReports]);
+
+  // Sync internal selectedBiz with global selectedBusiness prop
+  React.useEffect(() => {
+    if (selectedBusiness) {
+      setSelectedBiz(selectedBusiness);
+    }
+  }, [selectedBusiness]);
 
   const stats = data.stats || [];
   const templates = data.templates || [];
@@ -289,7 +296,11 @@ export default function ReportsModule() {
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 no-scrollbar overflow-y-auto">
               <div className="p-1">
-                {[...businesses].sort((a, b) => parseFloat(b.inc.replace(/[$,]/g, '')) - parseFloat(a.inc.replace(/[$,]/g, ''))).slice(0, 5).map((biz, i) => (
+                {[...businesses]
+                  .filter(biz => selectedBiz === 'All Entities' || biz.name === selectedBiz)
+                  .sort((a, b) => parseFloat(b.inc.replace(/[$,]/g, '')) - parseFloat(a.inc.replace(/[$,]/g, '')))
+                  .slice(0, 5)
+                  .map((biz, i) => (
                   <div key={biz.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-xl transition-all group">
                     <div className="flex items-center gap-3">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-[9px] ${
@@ -374,7 +385,9 @@ export default function ReportsModule() {
                   </tr>
                 </thead>
                 <tbody>
-                  {businesses.map((biz: any) => {
+                  {businesses
+                    .filter((biz: any) => selectedBiz === 'All Entities' || biz.name === selectedBiz)
+                    .map((biz: any) => {
                     const incVal = parseFloat(biz.inc.replace(/[$,]/g, '')) || 0;
                     const expVal = parseFloat(biz.exp.replace(/[$,]/g, '')) || 0;
                     const netVal = incVal - expVal;

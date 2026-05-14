@@ -21,7 +21,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 
-export default function PaymentModule() {
+export default function PaymentModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const { canAdd, canEdit, canDelete } = usePermissions('Payment Services');
   const [isWide, setIsWide] = useState(false);
   const [provider, setProvider] = useState<string>('');
@@ -395,7 +395,7 @@ export default function PaymentModule() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {data.transactions
-                    ?.filter((t: any) => filterProvider === 'All' || t.provider === filterProvider)
+                    ?.filter((t: any) => (selectedBusiness === 'All Entities' || t.biz === selectedBusiness) && (filterProvider === 'All' || t.provider === filterProvider))
                     .map((t: any) => (
                       <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-4 py-3">

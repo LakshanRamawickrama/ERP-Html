@@ -27,7 +27,7 @@ import {
 
 type TabType = 'entities' | 'structure';
 
-export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
+export default function BusinessModule({ userRole, selectedBusiness = 'All Entities' }: { userRole?: UserRole; selectedBusiness?: string }) {
   const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
   const entitiesPerm = usePermissions('Business Profile', 'Business Management');
   const structurePerm = usePermissions('Company Structure', 'Business Management');
@@ -559,7 +559,9 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                       </tr>
                     ) : activeTab === 'entities' ? (
                       <>
-                        {entities.map((e: any, idx: number) => (
+                         {entities
+                          ?.filter((e: any) => selectedBusiness === 'All Entities' || e.name === selectedBusiness)
+                          .map((e: any, idx: number) => (
                           <EntityRow
                             key={idx}
                             isWide={isWide}
@@ -584,7 +586,9 @@ export default function BusinessModule({ userRole }: { userRole?: UserRole }) {
                       </>
                     ) : (
                       <>
-                        {structures.map((s: any, idx: number) => (
+                        {structures
+                          ?.filter((s: any) => selectedBusiness === 'All Entities' || s.business === selectedBusiness)
+                          .map((s: any, idx: number) => (
                           <StructureRow
                             key={idx}
                             isWide={isWide}

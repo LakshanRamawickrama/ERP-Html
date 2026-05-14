@@ -30,7 +30,7 @@ import { BusinessField } from '@/components/ui/BusinessField';
 
 type TabType = 'vehicles' | 'deliveries' | 'parcels';
 
-export default function FleetModule() {
+export default function FleetModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [activeTab, setActiveTab] = useState<TabType>('vehicles');
   
   const permMap: Record<TabType, string> = {
@@ -356,9 +356,11 @@ export default function FleetModule() {
                       <th className={thClass}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'vehicles' && (
-                      data.vehicles?.map((v: any, i: number) => (
+                      data.vehicles
+                        ?.filter((v: any) => selectedBusiness === 'All Entities' || v.biz === selectedBusiness)
+                        .map((v: any, i: number) => (
                         <VehicleRow
                           key={i}
                           {...v}
@@ -373,10 +375,14 @@ export default function FleetModule() {
                     )}
 
                     {activeTab === 'deliveries' && (
-                      data.deliveries?.map((d: any, i: number) => <DeliveryRow key={i} {...d} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(d.id || `delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(d.id || `delivery-${i}`)} />) || null
+                      data.deliveries
+                        ?.filter((d: any) => selectedBusiness === 'All Entities' || d.biz === selectedBusiness)
+                        .map((d: any, i: number) => <DeliveryRow key={i} {...d} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(d.id || `delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(d.id || `delivery-${i}`)} />) || null
                     )}
                     {activeTab === 'parcels' && (
-                      data.parcels?.map((p: any, i: number) => <ParcelRow key={i} {...p} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(p.id || `parcel-${i}`, p, 'parcels')} onDelete={() => handleDeleteClick(p.id || `parcel-${i}`)} />) || null
+                      data.parcels
+                        ?.filter((p: any) => selectedBusiness === 'All Entities' || p.biz === selectedBusiness)
+                        .map((p: any, i: number) => <ParcelRow key={i} {...p} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(p.id || `parcel-${i}`, p, 'parcels')} onDelete={() => handleDeleteClick(p.id || `parcel-${i}`)} />) || null
                     )}
                   </tbody>
                 </table>

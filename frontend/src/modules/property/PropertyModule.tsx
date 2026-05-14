@@ -28,7 +28,7 @@ import { BusinessField } from '@/components/ui/BusinessField';
 
 type TabType = 'inventory' | 'requests' | 'waste' | 'licence';
 
-export default function PropertyModule() {
+export default function PropertyModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const [activeTab, setActiveTab] = useState<TabType>('inventory');
 
   const permMap: Record<TabType, string> = {
@@ -490,9 +490,11 @@ export default function PropertyModule() {
                       <th className={thClass}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'inventory' && (
-                      data.assets?.map((r: any, i: number) => (
+                      data.assets
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => (
                         <PropertyRow
                           key={i}
                           {...r}
@@ -506,13 +508,19 @@ export default function PropertyModule() {
                     )}
 
                     {activeTab === 'requests' && (
-                      data.requests?.map((r: any, i: number) => <RequestRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      data.requests
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => <RequestRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'waste' && (
-                      data.waste?.map((r: any, i: number) => <WasteRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      data.waste
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => <WasteRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
                     )}
                     {activeTab === 'licence' && (
-                      data.licences?.map((r: any, i: number) => (
+                      data.licences
+                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => (
                         <LicenceRow
                           key={i}
                           {...r}

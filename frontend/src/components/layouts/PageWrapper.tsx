@@ -81,7 +81,10 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
         <div className="flex-1 overflow-y-auto">
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
-              return React.cloneElement(child as React.ReactElement<any>, { selectedBusiness });
+              return React.cloneElement(child as React.ReactElement<any>, { 
+                selectedBusiness,
+                businesses: businesses.map(b => b.name || b)
+              });
             }
             return child;
           })}
