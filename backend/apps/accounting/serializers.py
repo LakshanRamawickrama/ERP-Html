@@ -5,6 +5,7 @@ from .models import Transaction, BankAccount, Invoice, Loan, InsurancePolicy, VA
 class TransactionSerializer(MongoSerializerMixin, serializers.ModelSerializer):
     ref = serializers.CharField(source='reference_number', read_only=True)
     method = serializers.CharField(source='payment_method', read_only=True)
+    biz = serializers.CharField(source='business', read_only=True)
     document_url = serializers.SerializerMethodField()
     class Meta:
         model = Transaction

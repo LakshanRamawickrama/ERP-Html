@@ -5,6 +5,7 @@ class LegalDocument(models.Model):
     type = models.CharField(max_length=100)
     status = models.CharField(max_length=50)
     expiry_date = models.DateField()
+    reminder_days = models.IntegerField(default=7)
     authority = models.CharField(max_length=255, blank=True, null=True)
     document_file = models.FileField(upload_to='legal/documents/', blank=True, null=True)
     business = models.CharField(max_length=255, blank=True, null=True)

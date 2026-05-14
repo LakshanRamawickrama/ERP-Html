@@ -28,6 +28,7 @@ import { BusinessField } from '@/components/ui/BusinessField';
 export default function RemindersModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
   const { canAdd, canDelete } = usePermissions('Reminders');
   const [reminders, setReminders] = useState<any[]>([]);
+  const [options, setOptions] = useState<any>({ businesses: [] });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -35,52 +36,72 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  const fetchReminders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.REMINDERS, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { console.error('Reminders fetch failed:', res.status); return; }
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) { console.error('Reminders: non-JSON response'); return; }
+      const responseData = await res.json();
+      const rawData = responseData.reminders || [];
+      setOptions(responseData.options || { businesses: [] });
+      
+      // Map types to icons
+      const withIcons = rawData.map((r: any) => ({
+        ...r,
+        icon: r.type === 'Fleet' ? Truck : 
+              r.type === 'Legal' ? FileText :
+              r.type === 'Accounting' ? ShieldAlert :
+              r.type === 'Inventory' ? Boxes :
+              r.type === 'Business' ? Briefcase :
+              r.type === 'System' ? AlertTriangle :
+              r.type === 'Property' ? Bell : Bell
+      }));
+      
+      setReminders(withIcons);
+    } catch (error) {
+      console.error('Failed to fetch reminders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchReminders = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(API_ENDPOINTS.REMINDERS, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) { console.error('Reminders fetch failed:', res.status); return; }
-        const contentType = res.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) { console.error('Reminders: non-JSON response'); return; }
-        const data = await res.json();
-        
-        // Map types to icons
-        const withIcons = data.map((r: any) => ({
-          ...r,
-          icon: r.type === 'Fleet' ? Truck : 
-                r.type === 'Legal' ? FileText :
-                r.type === 'Accounting' ? ShieldAlert :
-                r.type === 'Inventory' ? Boxes :
-                r.type === 'Business' ? Briefcase :
-                r.type === 'System' ? AlertTriangle :
-                r.type === 'Property' ? Bell : Bell
-        }));
-        
-        setReminders(withIcons);
-      } catch (error) {
-        console.error('Failed to fetch reminders:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchReminders();
   }, []);
 
-  const handleAddReminder = (e: React.FormEvent) => {
+  const handleAddReminder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newReminder.title) return;
-    const reminder = {
-      ...newReminder,
-      id: Date.now().toString(),
-      icon: Bell
-    };
-    setReminders([reminder, ...reminders]);
-    setNewReminder({ title: '', business: '', description: '', date: '', priority: 'Medium', type: 'Manual' });
-    setShowAddForm(false);
+    
+    try {
+      const token = localStorage.getItem('token');
+      // Backend expects due_date, we have date in state
+      const payload = {
+        ...newReminder,
+        due_date: newReminder.date || new Date().toISOString()
+      };
+      
+      const res = await fetch(API_ENDPOINTS.REMINDERS, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      if (res.ok) {
+        fetchReminders();
+        setNewReminder({ title: '', business: '', description: '', date: '', priority: 'Medium', type: 'Manual' });
+        setShowAddForm(false);
+      }
+    } catch (error) {
+      console.error('Add reminder failed:', error);
+    }
   };
 
   const handleDeleteClick = (id: string) => {
@@ -88,9 +109,30 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    setReminders(reminders.filter(r => r.id !== deleteId));
-    setShowDeleteModal(false);
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    
+    // Check if it's an automated reminder (those have string IDs like 'fleet-...')
+    if (deleteId.toString().includes('-')) {
+      alert("Automated reminders cannot be deleted manually. Please resolve the underlying issue.");
+      setShowDeleteModal(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_ENDPOINTS.REMINDERS}${deleteId}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        fetchReminders();
+        setShowDeleteModal(false);
+      }
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
   };
 
   const filtered = reminders.filter(r => {
@@ -243,7 +285,7 @@ export default function RemindersModule({ selectedBusiness = 'All Entities' }: {
                       <BusinessField 
                         value={newReminder.business || ''} 
                         onChange={(v) => setNewReminder({...newReminder, business: v})} 
-                        businesses={reminders.map(r => r.business).filter((v, i, a) => a.indexOf(v) === i) || []}
+                        businesses={options.businesses || []}
                       />
                     </div>
                     <div>

@@ -12,7 +12,13 @@ from datetime import timedelta
 class ReminderDataView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def get(self, request):
+    def get(self, request, pk=None):
+        if pk:
+            reminder = Reminder.objects.filter(id=pk).first()
+            if not reminder:
+                return Response({'error': 'Not found'}, status=404)
+            return Response(ReminderSerializer(reminder).data)
+
         # 1. Fetch standard reminders from database
         if request.user.is_superuser:
             reminders_objs = Reminder.objects.all()
@@ -88,14 +94,15 @@ class ReminderDataView(APIView):
             docs = get_filtered_queryset(request, LegalDocument)
             for doc in docs:
                 days_until = (doc.expiry_date - today).days
-                if days_until <= 7:
+                threshold = getattr(doc, 'reminder_days', 7)
+                if days_until <= threshold:
                     is_overdue = days_until < 0
                     data.append({
                         'id': f"legal-{doc.id}",
                         'title': f"Legal: {doc.title}",
                         'description': f"Document '{doc.title}' ({doc.type}) is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
                         'date': doc.expiry_date.strftime('%Y-%m-%d'),
-                        'priority': 'High',
+                        'priority': 'High' if days_until <= 3 else 'Medium',
                         'type': 'Legal',
                         'business': doc.business,
                         'is_completed': False,
@@ -128,7 +135,7 @@ class ReminderDataView(APIView):
 
         # 6. Automatically generate Accounting reminders
         try:
-            from apps.accounting.models import Invoice, InsurancePolicy, VATRecord
+            from apps.accounting.models import Invoice, InsurancePolicy, VATRecord, Loan
             invoices = get_filtered_queryset(request, Invoice)
             for inv in invoices:
                 if inv.status != 'Paid' and inv.due_date:
@@ -151,23 +158,103 @@ class ReminderDataView(APIView):
             for policy in policies:
                 if policy.expiry_date:
                     days_until = (policy.expiry_date - today).days
-                    if days_until <= 7:
+                    threshold = getattr(policy, 'reminder_days', 30)
+                    if days_until <= threshold:
                         is_overdue = days_until < 0
                         data.append({
                             'id': f"insurance-{policy.id}",
-                            'title': f"Policy: {policy.type}",
-                            'description': f"Insurance policy {policy.policy_number} ({policy.provider}) is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
+                            'title': f"Insurance: {policy.type}",
+                            'description': f"Policy {policy.policy_number} ({policy.provider}) is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
                             'date': policy.expiry_date.strftime('%Y-%m-%d'),
-                            'priority': 'High',
+                            'priority': 'High' if days_until <= 7 else 'Medium',
                             'type': 'Accounting',
                             'business': policy.business,
                             'is_completed': False,
                             'is_overdue': is_overdue
                         })
+
+            loans = get_filtered_queryset(request, Loan)
+            for loan in loans:
+                if loan.next_payment_date:
+                    days_until = (loan.next_payment_date - today).days
+                    threshold = getattr(loan, 'reminder_days', 7)
+                    if days_until <= threshold:
+                        is_overdue = days_until < 0
+                        data.append({
+                            'id': f"loan-{loan.id}",
+                            'title': f"Loan: {loan.name}",
+                            'description': f"Payment of £{loan.monthly_payment} to {loan.lender} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                            'date': loan.next_payment_date.strftime('%Y-%m-%d'),
+                            'priority': 'High',
+                            'type': 'Accounting',
+                            'business': loan.business,
+                            'is_completed': False,
+                            'is_overdue': is_overdue
+                        })
+
+            vat_records = get_filtered_queryset(request, VATRecord)
+            for vat in vat_records:
+                if vat.status != 'Paid':
+                    threshold = getattr(vat, 'reminder_days', 14)
+                    # Filing Reminder
+                    if vat.filing_deadline:
+                        days_until = (vat.filing_deadline - today).days
+                        if days_until <= threshold:
+                            is_overdue = days_until < 0
+                            data.append({
+                                'id': f"tax-file-{vat.id}",
+                                'title': f"Tax Filing: {vat.type}",
+                                'description': f"Filing for {vat.type} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                                'date': vat.filing_deadline.strftime('%Y-%m-%d'),
+                                'priority': 'High' if days_until <= 3 else 'Medium',
+                                'type': 'Accounting',
+                                'business': vat.business,
+                                'is_completed': False,
+                                'is_overdue': is_overdue
+                            })
+                    # Payment Reminder
+                    if vat.payment_due:
+                        days_until = (vat.payment_due - today).days
+                        if days_until <= threshold:
+                            is_overdue = days_until < 0
+                            data.append({
+                                'id': f"tax-pay-{vat.id}",
+                                'title': f"Tax Payment: {vat.type}",
+                                'description': f"Payment of £{vat.amount} for {vat.type} is {f'OVERDUE' if is_overdue else f'due in {days_until} days'}.",
+                                'date': vat.payment_due.strftime('%Y-%m-%d'),
+                                'priority': 'High' if days_until <= 5 else 'Medium',
+                                'type': 'Accounting',
+                                'business': vat.business,
+                                'is_completed': False,
+                                'is_overdue': is_overdue
+                            })
         except Exception:
             pass
 
-        # 7. Automatically generate System alerts
+        # 7. Automatically generate Property reminders
+        try:
+            from apps.property.models import PropertyLicence
+            licences = get_filtered_queryset(request, PropertyLicence)
+            for lic in licences:
+                days_until = (lic.expiry_date - today).days
+                threshold = getattr(lic, 'reminder_days', 30)
+                if days_until <= threshold:
+                    is_overdue = days_until < 0
+                    data.append({
+                        'id': f"property-{lic.id}",
+                        'title': f"Licence: {lic.type}",
+                        'description': f"{lic.authority} licence for {lic.business} is {f'EXPIRED' if is_overdue else f'expiring in {days_until} days'}.",
+                        'date': lic.expiry_date.strftime('%Y-%m-%d'),
+                        'priority': 'High' if days_until <= 7 else 'Medium',
+                        'type': 'Property',
+                        'business': lic.business,
+                        'is_completed': False,
+                        'is_overdue': is_overdue
+                    })
+        except Exception:
+            pass
+
+        # 8. Automatically generate System alerts
         try:
             from apps.system.models import SystemAlert
             sys_alerts = SystemAlert.objects.all()
@@ -189,4 +276,35 @@ class ReminderDataView(APIView):
         # Sort by date (optional, but good for UX)
         data.sort(key=lambda x: x.get('date', ''), reverse=False)
         
-        return Response(data)
+        # Fetch all businesses for the form
+        try:
+            from apps.business.models import BusinessEntity
+            businesses = list(BusinessEntity.objects.values_list('name', flat=True))
+        except:
+            businesses = []
+
+        return Response({
+            'reminders': data,
+            'options': {
+                'businesses': businesses
+            }
+        })
+
+    def post(self, request):
+        serializer = ReminderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user.username)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk=None):
+        if not pk:
+            return Response({'error': 'PK required'}, status=400)
+        
+        try:
+            reminder = Reminder.objects.get(pk=pk)
+            # Only allow deleting manual reminders for now
+            reminder.delete()
+            return Response(status=204)
+        except Reminder.DoesNotExist:
+            return Response({'error': 'Not found'}, status=404)

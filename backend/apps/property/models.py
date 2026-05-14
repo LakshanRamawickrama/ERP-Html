@@ -39,6 +39,7 @@ class PropertyLicence(models.Model):
     authority = models.CharField(max_length=255)
     issue_date = models.DateField()
     expiry_date = models.DateField()
+    reminder_days = models.IntegerField(default=30)
     status = models.CharField(max_length=50)
     document = models.FileField(upload_to='property/licences/', blank=True, null=True)
     created_by = models.CharField(max_length=255, blank=True, null=True)

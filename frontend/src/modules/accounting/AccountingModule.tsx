@@ -429,8 +429,8 @@ export default function AccountingModule() {
                         <Field label="End Date" name="end" value={formData.end} onChange={handleInputChange} type="date" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Next Payment" name="next" value={formData.next} onChange={handleInputChange} type="date" />
-                        <Field label="Reminder" name="renewal" value={formData.renewal} onChange={handleInputChange} isSelect options={data.loanReminders || []} />
+                        <Field label="Next Payment" name="next_payment_date" value={formData.next_payment_date} onChange={handleInputChange} type="date" />
+                        <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['7', '14', '30', '60']} />
                       </div>
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.loanStatuses || []} />
                       <Field label="Upload Documents (Agreement, Schedule, etc.)" name="document" onChange={handleInputChange} type="file" />
@@ -454,10 +454,10 @@ export default function AccountingModule() {
                       <Field label="Insured Asset / Details" name="asset" value={formData.asset} onChange={handleInputChange} placeholder="Address, Registration, or Equipment" />
                       <Field label="Provider Contact" name="contact" value={formData.contact} onChange={handleInputChange} placeholder="Phone or Email" />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Start Date" name="startDate" value={formData.startDate} onChange={handleInputChange} type="date" />
-                        <Field label="Expiry Date" name="expiry" value={formData.expiry} onChange={handleInputChange} type="date" />
+                        <Field label="Start Date" name="start_date" value={formData.start_date} onChange={handleInputChange} type="date" />
+                        <Field label="Expiry Date" name="expiry_date" value={formData.expiry_date} onChange={handleInputChange} type="date" />
                       </div>
-                      <Field label="Reminder" name="renewal" value={formData.renewal} onChange={handleInputChange} isSelect options={data.renewalReminders || []} />
+                      <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['15', '30', '60', '90']} />
                       <Field label="Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={['Active', 'Expired']} />
                       <Field label="Attach Policy PDF" name="document" onChange={handleInputChange} type="file" />
                     </>
@@ -485,8 +485,9 @@ export default function AccountingModule() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Tax Amount (£)" name="amount" value={formData.amount} onChange={handleInputChange} type="number" step="0.01" />
-                        <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.vatStatuses || []} />
+                        <Field label="Reminder (Days)" name="reminder_days" value={formData.reminder_days} onChange={handleInputChange} isSelect options={['7', '14', '30']} />
                       </div>
+                      <Field label="Payment Status" name="status" value={formData.status} onChange={handleInputChange} isSelect options={data.vatStatuses || []} />
                       <Field label="Supporting Documents (Receipts, etc.)" name="document" onChange={handleInputChange} type="file" />
                     </>
                   )}
@@ -544,14 +545,14 @@ export default function AccountingModule() {
                     <tr>
                       {activeTab === 'records' && (
                         <>
-                          <th className={thClass}>Date</th>
-                          <th className={thClass}>Title / Ref</th>
-                          {isWide && <th className={thClass}>Entity</th>}
+                          {isWide && <th className={thClass}>Business Name</th>}
+                          <th className={thClass}>Record Title</th>
                           <th className={thClass}>Category</th>
                           {isWide && <th className={thClass}>Record Details</th>}
-                          <th className={thClass}>Amount</th>
+                          {isWide && <th className={thClass}>Date</th>}
+                          <th className={thClass}>Amount (£)</th>
+                          {isWide && <th className={thClass}>Payment Method</th>}
                           <th className={thClass}>Status</th>
-                          {isWide && <th className={thClass}>Payment</th>}
                         </>
                       )}
                       {activeTab === 'invoices' && (
@@ -628,20 +629,7 @@ export default function AccountingModule() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {activeTab === 'records' && (data.history
-                      ?.filter((r: any) => filterSub === 'All' || r.category === filterSub)
-                      .map((r: any, i: number) => (
-                        <RecordRow 
-                          key={i} 
-                          {...r} 
-                          isWide={isWide}
-                          canEdit={canEdit} 
-                          canDelete={canDelete} 
-                          onEdit={() => handleEdit(r.id, r, 'records')} 
-                          onDelete={() => handleDeleteClick(`record-${r.id}`)} 
-                          onView={() => handleViewDoc(r.title, r.document_url, r.category)} 
-                        />
-                      )) || null)}
+                    {activeTab === 'records' && (data.records?.map((r: any, i: number) => <RecordRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'records')} onDelete={() => handleDeleteClick(`record-${r.id}`)} onView={() => handleViewDoc(r.title, r.document_url, r.category)} />) || null)}
                     {activeTab === 'invoices' && (data.invoices?.map((r: any, i: number) => <InvoiceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null)}
                     {activeTab === 'bank' && (data.banks?.map((r: any, i: number) => <BankRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null)}
                     {activeTab === 'loans' && (data.loans?.map((r: any, i: number) => <LoanRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null)}
@@ -725,19 +713,18 @@ function Field({ label, placeholder, type = "text", isSelect, options = [], isTe
   );
 }
 
-function RecordRow({ date, title, category, amount, status, ref, method, biz, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
+function RecordRow({ title, category, amount, status, date, method, biz, isWide, onEdit, onDelete, onView, canEdit, canDelete, ...props }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
-      <td className="px-4 py-4 text-slate-500 font-mono tracking-tighter text-xs">{date}</td>
-      <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">{title}</div>
-        {ref && <div className="text-[10px] text-slate-400 font-medium">ID: {ref}</div>}
-      </td>
       {isWide && (
         <td className="px-4 py-4">
           <div className="text-xs font-bold text-slate-600">{biz || 'Main Entity'}</div>
         </td>
       )}
+      <td className="px-4 py-4">
+        <div className="font-bold text-slate-800 text-xs">{title}</div>
+        {!isWide && <div className="text-[10px] text-slate-400 font-medium">{date}</div>}
+      </td>
       <td className="px-4 py-4">
         <div className={cn(
           "px-2 py-0.5 rounded text-[9px] font-black uppercase inline-block border",
@@ -780,18 +767,30 @@ function RecordRow({ date, title, category, amount, status, ref, method, biz, is
           )}
         </td>
       )}
+      {isWide && (
+        <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">{date}</td>
+      )}
       <td className="px-4 py-4">
-        <div className="font-bold text-slate-800">£{Number(amount).toLocaleString()}</div>
-        {isWide && <div className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">GBP</div>}
+        <div className="font-bold text-slate-800 text-xs">£{Number(amount).toLocaleString()}</div>
+        {!isWide && <div className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">{method || 'N/A'}</div>}
       </td>
-      <td className="px-4 py-4"><StatusBadge status={status} /></td>
       {isWide && (
         <td className="px-4 py-4">
           <div className="text-[10px] font-bold text-slate-600">{method || 'N/A'}</div>
-          <div className="text-[9px] text-slate-400 truncate max-w-[100px]">{props.reference_number || '-'}</div>
         </td>
       )}
-      <td className="px-4 py-4"><RowActions onEdit={onEdit} onDelete={onDelete} onView={onView} showEye={!!props.document_url} canEdit={canEdit} canDelete={canDelete} /></td>
+      <td className="px-4 py-4"><StatusBadge status={status} /></td>
+      <td className="px-4 py-4">
+        <RowActions 
+          showDownload 
+          showEye={!!props.document_url}
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+          onView={onView} 
+          canEdit={canEdit} 
+          canDelete={canDelete} 
+        />
+      </td>
     </tr>
   );
 }

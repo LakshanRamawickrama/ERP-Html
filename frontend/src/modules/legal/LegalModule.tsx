@@ -78,6 +78,7 @@ export default function LegalModule() {
     body.append('status', formData.status || 'Active');
     body.append('authority', formData.authority || '');
     if (formData.expiry_date) body.append('expiry_date', formData.expiry_date);
+    if (formData.reminder_days) body.append('reminder_days', String(formData.reminder_days));
     if (docFile) body.append('document_file', docFile);
 
     const url = editingId
@@ -187,7 +188,10 @@ export default function LegalModule() {
                       onChange={(v: string) => setCustomTypeName(v)}
                     />
                   )}
-                  <Field label="Expiry Date" type="date" value={formData.expiry_date || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, expiry_date: v }))} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Expiry Date" type="date" value={formData.expiry_date || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, expiry_date: v }))} />
+                    <Field label="Reminder (Days)" isSelect options={['7', '14', '30', '60']} value={formData.reminder_days || '7'} onChange={(v: string) => setFormData((p: any) => ({ ...p, reminder_days: v }))} />
+                  </div>
                   <Field label="Issuing Authority" placeholder="e.g. City Council, Legal Dept." value={formData.authority || ''} onChange={(v: string) => setFormData((p: any) => ({ ...p, authority: v }))} />
                   <Field label="Status" isSelect options={['Active', 'Expired', 'Pending']} value={formData.status || 'Active'} onChange={(v: string) => setFormData((p: any) => ({ ...p, status: v }))} />
 

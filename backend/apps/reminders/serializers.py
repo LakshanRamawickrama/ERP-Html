@@ -3,15 +3,12 @@ from core.mixins import MongoSerializerMixin
 from .models import Reminder
 
 class ReminderSerializer(MongoSerializerMixin, serializers.ModelSerializer):
-    date = serializers.SerializerMethodField()
-    description = serializers.CharField(read_only=True)
+    date = serializers.CharField(source='due_date', required=False)
 
     class Meta:
         model = Reminder
-        fields = '__all__'
-
-    def get_date(self, obj):
-        # Return formatted date string for frontend display
-        if obj.due_date:
-            return obj.due_date.strftime('%Y-%m-%d')
-        return ''
+        fields = ['id', 'title', 'description', 'due_date', 'date', 'priority', 'is_completed', 'business', 'created_by']
+        extra_kwargs = {
+            'due_date': {'required': False},
+            'description': {'required': False}
+        }

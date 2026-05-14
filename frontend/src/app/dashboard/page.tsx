@@ -874,6 +874,7 @@ export default function Dashboard() {
                     )}>
                       {reminder.type === 'Fleet' ? <Truck className="w-4 h-4" /> : 
                        reminder.type === 'Legal' ? <FileText className="w-4 h-4" /> :
+                       reminder.type === 'Property' ? <Building2 className="w-4 h-4" /> :
                        reminder.type === 'Accounting' ? <ShieldAlert className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
                     </div>
                     <div className="min-w-0 flex-1">

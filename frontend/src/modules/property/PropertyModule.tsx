@@ -360,6 +360,13 @@ export default function PropertyModule() {
                         />
                       </div>
                       <Field 
+                        label="Reminder (Days)" 
+                        isSelect 
+                        options={['15', '30', '60', '90']} 
+                        value={formData.reminder_days || '30'} 
+                        onChange={(val: string) => setFormData({...formData, reminder_days: val})} 
+                      />
+                      <Field 
                         label="Issuing Authority" 
                         placeholder="e.g. Local City Council" 
                         value={formData.auth || ''} 
