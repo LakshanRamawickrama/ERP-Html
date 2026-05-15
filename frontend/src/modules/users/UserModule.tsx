@@ -98,7 +98,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
 
   const [data, setData] = useState<any>({ systemMap: [], registry: [], roles: [], businesses: [] });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<any>({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '', access: [] });
+  const [formData, setFormData] = useState<any>({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
   const [formError, setFormError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -112,6 +112,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
   const [savedNotif, setSavedNotif] = useState(false);
   const [viewingUser, setViewingUser] = useState<any>(null);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+  const [selectedAccess, setSelectedAccess] = useState<string[]>([]);
 
   const toggleGroup = (groupName: string) => {
     setExpandedGroups(prev => 
@@ -137,10 +138,13 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
   useEffect(() => {
     if (!selectedUserId) {
       setPermissionsMap({});
+      setSelectedAccess([]);
       return;
     }
     const user = data.registry?.find((u: any) => String(u.id) === String(selectedUserId));
     if (user) {
+      const accessList = typeof user.access === 'string' ? user.access.split(',').map((s: any) => s.trim()).filter(Boolean) : (user.access || []);
+      setSelectedAccess(accessList);
       try {
         let pStr = user.permissions;
         if (typeof pStr === 'string') {
@@ -173,7 +177,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '', access: [] });
+    setFormData({ name: '', username: '', email: '', role: 'admin', assigned_business: '', password: '', confirmPassword: '' });
     setFormError('');
   };
 
@@ -192,7 +196,6 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
       email: formData.email,
       role: 'admin',
       assigned_business: formData.assigned_business,
-      access: Array.isArray(formData.access) ? formData.access.join(', ') : formData.access,
     };
     if (!editingId) payload.password = formData.password;
 
@@ -275,23 +278,6 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
 
       let newMap = { ...prev, [mod]: next };
 
-      // Find if this is a main group and apply to sub-modules
-      const group = MODULE_GROUPS.find(g => g.name === mod);
-      if (group && group.sub.length > 0) {
-        group.sub.forEach(sub => {
-          const subCurrent = prev[sub] || [];
-          const subNext = isChecking
-            ? (subCurrent.includes(action) ? subCurrent : [...subCurrent, action])
-            : subCurrent.filter(a => a !== action);
-          
-          if (subNext.length === 0) {
-            delete newMap[sub];
-          } else {
-            newMap[sub] = subNext;
-          }
-        });
-      }
-
       if (next.length === 0) {
         delete newMap[mod];
       }
@@ -309,7 +295,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ permissions: permissionsMap }),
+        body: JSON.stringify({ permissions: permissionsMap, access: selectedAccess.join(', ') }),
       });
       const contentType = res.headers.get('content-type');
       const result = contentType?.includes('application/json') ? await res.json() : null;
@@ -418,32 +404,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
                     </div>
                   </div>
 
-                  {/* Module Access Multi-Select */}
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 block">Module Access</label>
-                    <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl max-h-[160px] overflow-y-auto">
-                      {MODULE_GROUPS.map(mod => (
-                        <label key={mod.name} className="flex items-center gap-2 cursor-pointer group">
-                          <input 
-                            type="checkbox"
-                            className="w-3.5 h-3.5 rounded border-slate-300 accent-slate-800"
-                            checked={formData.access?.includes(mod.name)}
-                            onChange={(e) => {
-                              const current = formData.access || [];
-                              const next = e.target.checked 
-                                ? [...current, mod.name]
-                                : current.filter((m: string) => m !== mod.name);
-                              setFormData({...formData, access: next});
-                            }}
-                          />
-                          <span className="text-[11px] font-medium text-slate-600 group-hover:text-slate-800 transition-colors truncate">
-                            {mod.name}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                    <p className="mt-1.5 text-[9px] text-slate-400 font-medium italic">Detailed permissions (add/edit/delete) can be configured in the Role Permissions tab.</p>
-                  </div>
+
 
                   {!editingId && (
                     <>
@@ -529,34 +490,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
 
                   {selectedUserId && (
                     <>
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-3">Module Permissions</p>
-                        <div className="space-y-1">
-                          <div className="grid grid-cols-5 gap-1 pb-1 border-b border-slate-200">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase">Module</span>
-                            {ACTIONS.map(a => (
-                              <span key={a} className="text-[9px] font-bold text-slate-400 uppercase text-center capitalize">{a}</span>
-                            ))}
-                          </div>
-                          {MODULE_GROUPS.map(group => (
-                            <div key={group.name} className="grid grid-cols-5 gap-1 items-center py-2 border-b border-slate-100">
-                              <span className="text-[10px] font-black text-slate-800 truncate pr-1">
-                                {group.name}
-                              </span>
-                              {ACTIONS.map(action => (
-                                <div key={action} className="flex justify-center">
-                                  <input
-                                    type="checkbox"
-                                    className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-slate-800"
-                                    checked={(permissionsMap[group.name] || []).includes(action)}
-                                    onChange={() => togglePermission(group.name, action)}
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+
                       <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <p className="text-[10px] font-bold text-slate-400 uppercase mb-3">Dashboard Widgets</p>
                         <div className="grid grid-cols-2 gap-x-3 gap-y-2">
@@ -643,6 +577,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
                       <thead className="bg-slate-50 border-b border-slate-100 border-t">
                         <tr className="text-center">
                           <th className={`${thClass} text-left`}>Module Name</th>
+                          <th className={`${thClass} text-center`}>Access</th>
                           <th className={thClass}>View</th>
                           <th className={thClass}>Add</th>
                           <th className={thClass}>Edit</th>
@@ -679,20 +614,55 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
                                     </div>
                                   </div>
                                 </td>
+                                <td className="px-4 py-3 text-center">
+                                  <div className="flex justify-center">
+                                    <input
+                                      type="checkbox"
+                                      disabled={!selectedUserId}
+                                      className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-emerald-500 disabled:opacity-30"
+                                      checked={selectedAccess.includes(group.name)}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        const isChecking = !selectedAccess.includes(group.name);
+                                        setSelectedAccess(prev => isChecking ? [...prev, group.name] : prev.filter(x => x !== group.name));
+                                        
+                                        setPermissionsMap(prev => {
+                                          const newMap = { ...prev };
+                                          if (isChecking) {
+                                            if (hasSub) {
+                                              group.sub.forEach(sub => { newMap[sub] = ['view', 'add', 'edit', 'delete']; });
+                                            } else {
+                                              newMap[group.name] = ['view', 'add', 'edit', 'delete'];
+                                            }
+                                          } else {
+                                            if (hasSub) {
+                                              group.sub.forEach(sub => { delete newMap[sub]; });
+                                            } else {
+                                              delete newMap[group.name];
+                                            }
+                                          }
+                                          return newMap;
+                                        });
+                                      }}
+                                    />
+                                  </div>
+                                </td>
                                 {ACTIONS.map(action => (
                                   <td key={action} className="px-4 py-3 text-center">
-                                    <div className="flex justify-center">
-                                      <input
-                                        type="checkbox"
-                                        disabled={!selectedUserId}
-                                        className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-emerald-500 disabled:opacity-30"
-                                        checked={(permissionsMap[group.name] || []).includes(action)}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          togglePermission(group.name, action);
-                                        }}
-                                      />
-                                    </div>
+                                    {!hasSub && (
+                                      <div className="flex justify-center">
+                                        <input
+                                          type="checkbox"
+                                          disabled={!selectedUserId}
+                                          className="w-3.5 h-3.5 rounded border-slate-300 cursor-pointer accent-emerald-500 disabled:opacity-30"
+                                          checked={(permissionsMap[group.name] || []).includes(action)}
+                                          onChange={(e) => {
+                                            e.stopPropagation();
+                                            togglePermission(group.name, action);
+                                          }}
+                                        />
+                                      </div>
+                                    )}
                                   </td>
                                 ))}
                               </tr>
@@ -705,6 +675,7 @@ export default function UserModule({ selectedBusiness = 'All Entities', userRole
                                       {sub}
                                     </div>
                                   </td>
+                                  <td className="px-4 py-2.5 text-center"></td>
                                   {ACTIONS.map(action => (
                                     <td key={action} className="px-4 py-2.5 text-center">
                                       <div className="flex justify-center">
