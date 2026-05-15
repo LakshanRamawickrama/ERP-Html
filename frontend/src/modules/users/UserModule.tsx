@@ -91,7 +91,8 @@ const DASHBOARD_CARDS = [
   'Recent Activity',
 ];
 
-export default function UserModule({ selectedBusiness = 'All Entities' }: { selectedBusiness?: string }) {
+export default function UserModule({ selectedBusiness = 'All Entities', userRole }: { selectedBusiness?: string; userRole?: string }) {
+  const isSuperAdmin = userRole === 'super_admin';
   const [activeTab, setActiveTab] = useState<'registry' | 'roles'>('registry');
   const [isWide, setIsWide] = useState(false);
 
@@ -619,9 +620,20 @@ export default function UserModule({ selectedBusiness = 'All Entities' }: { sele
                             scope={u.assigned_business}
                             access={u.access}
                             status={u.status}
+                            userId={u.id}
+                            businesses={data.businesses || []}
+                            isSuperAdmin={isSuperAdmin}
                             onEdit={() => handleEdit(u.id, u)}
                             onDelete={() => handleDeleteClick(u.id)}
                             onView={() => setViewingUser(u)}
+                            onReassignBusiness={(id: string, newBiz: string) => {
+                              setData((prev: any) => ({
+                                ...prev,
+                                registry: prev.registry.map((usr: any) =>
+                                  String(usr.id) === String(id) ? { ...usr, assigned_business: newBiz } : usr
+                                )
+                              }));
+                            }}
                           />
                         )) || null}
                       </tbody>
@@ -763,7 +775,27 @@ function AccessBadge({ access }: { access: string }) {
   );
 }
 
-function UserRow({ name, username, email, roles, scope, access, status, onEdit, onDelete, onView }: any) {
+function UserRow({ name, username, email, roles, scope, access, status, userId, businesses, isSuperAdmin, onEdit, onDelete, onView, onReassignBusiness }: any) {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : '';
+
+  const handleReassign = async (newBiz: string) => {
+    try {
+      const res = await fetch(`${API_ENDPOINTS.USERS}staff/${userId}/`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ assigned_business: newBiz })
+      });
+      if (res.ok) {
+        onReassignBusiness && onReassignBusiness(userId, newBiz);
+      }
+    } catch (err) {
+      console.error('Failed to reassign business', err);
+    }
+  };
+
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -774,7 +806,23 @@ function UserRow({ name, username, email, roles, scope, access, status, onEdit, 
         <div className="text-[10px] text-slate-400 font-mono tracking-tighter leading-none mt-1">{email}</div>
       </td>
       <td className="px-4 py-4 font-bold text-slate-400 text-[10px] uppercase">{roles}</td>
-      <td className="px-4 py-4 text-slate-500 text-xs italic">{scope || '—'}</td>
+      <td className="px-4 py-4">
+        {isSuperAdmin && roles !== 'super_admin' ? (
+          <select
+            value={scope || ''}
+            onChange={(e) => handleReassign(e.target.value)}
+            className="text-[11px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all cursor-pointer w-full max-w-[160px]"
+            title="Reassign business"
+          >
+            <option value="">— Unassigned —</option>
+            {businesses?.map((b: string) => (
+              <option key={b} value={b}>{b}</option>
+            ))}
+          </select>
+        ) : (
+          <span className="text-slate-500 text-xs italic">{scope || '—'}</span>
+        )}
+      </td>
       <td className="px-4 py-4">
         <AccessBadge access={access} />
       </td>

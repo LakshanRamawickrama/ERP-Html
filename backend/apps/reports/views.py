@@ -259,7 +259,7 @@ class DashboardDataView(APIView):
             inc += invoices.filter(business=e.name, status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
             exp = transactions.filter(business=e.name, type='Expense').aggregate(total=Sum('amount'))['total'] or Decimal('0')
             
-            live_balance = Decimal('25000.00') + inc - exp
+            live_balance = inc - exp
             
             pending_inv = invoices.filter(business=e.name, status='Pending').count()
             pending_tx = transactions.filter(business=e.name, status='Pending').count()

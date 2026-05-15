@@ -398,22 +398,23 @@ class ReminderDataView(APIView):
         except Exception:
             pass
 
-        # 9. Automatically generate System alerts
+        # 9. Automatically generate System alerts (Super Admin only)
         try:
             from apps.system.models import SystemAlert
-            sys_alerts = SystemAlert.objects.all()
-            for alert in sys_alerts:
-                data.append({
-                    'id': f"system-{alert.id}",
-                    'title': f"System: {alert.label}",
-                    'description': alert.message,
-                    'date': timezone.now().date().strftime('%Y-%m-%d'),
-                    'priority': 'High' if alert.type in ['warning', 'soon'] else 'Medium',
-                    'type': 'System',
-                    'business': 'All',
-                    'is_completed': False,
-                    'is_overdue': alert.type == 'warning'
-                })
+            if request.user.is_superuser:
+                sys_alerts = SystemAlert.objects.all()
+                for alert in sys_alerts:
+                    data.append({
+                        'id': f"system-{alert.id}",
+                        'title': f"System: {alert.label}",
+                        'description': alert.message,
+                        'date': timezone.now().date().strftime('%Y-%m-%d'),
+                        'priority': 'High' if alert.type in ['warning', 'soon'] else 'Medium',
+                        'type': 'System',
+                        'business': 'All',
+                        'is_completed': False,
+                        'is_overdue': alert.type == 'warning'
+                    })
         except Exception:
             pass  # SystemAlert collection may not exist yet
 
