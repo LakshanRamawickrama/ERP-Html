@@ -379,8 +379,8 @@ export default function PaymentModule({ selectedBusiness = 'All Entities' }: { s
               </div>
             }
           >
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm whitespace-nowrap">
+            <div className="">
+              <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
                     <th className={thClass}>Provider / Ref</th>

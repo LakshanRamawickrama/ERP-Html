@@ -512,8 +512,8 @@ export default function BusinessModule({ userRole, selectedBusiness = 'All Entit
                 </button>
               }
             >
-              <div className={isWide ? 'overflow-x-auto' : ''}>
-                <table className="w-full text-left text-sm whitespace-nowrap">
+              <div className={isWide ? '' : ''}>
+                <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     {activeTab === 'entities' ? (
                       <tr>

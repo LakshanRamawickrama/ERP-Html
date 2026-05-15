@@ -370,18 +370,18 @@ export default function ReportsModule({ selectedBusiness = 'All Entities' }: { s
           </div>
           
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse table-fixed min-w-[900px]">
+            <div className="">
+              <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[22%]">Business Entity</th>
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[15%]">Admin Name</th>
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Category</th>
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Revenue</th>
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center w-[10%]">Expenses</th>
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[15%]">Net Result</th>
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap w-[9%]">Assets</th>
-                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-right w-[9%]">Status</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest w-[22%]">Business Entity</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest w-[15%]">Admin Name</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-[10%]">Category</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-[10%]">Revenue</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-[10%]">Expenses</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest w-[15%]">Net Result</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest w-[9%]">Assets</th>
+                    <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right w-[9%]">Status</th>
                   </tr>
                 </thead>
                 <tbody>

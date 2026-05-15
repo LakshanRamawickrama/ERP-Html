@@ -316,8 +316,8 @@ export default function SystemAccessModule({ selectedBusiness = 'All Entities' }
           {/* Table Column */}
           <div className={isWide ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card title="Credential Inventory" icon={Lock}>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm whitespace-nowrap">
+              <div className="">
+                <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     <tr>
                       {isWide && <th className={thClass}>Entity</th>}

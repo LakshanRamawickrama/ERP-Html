@@ -338,8 +338,8 @@ export default function FleetModule({ selectedBusiness = 'All Entities' }: { sel
               title={activeTab === 'vehicles' ? "Fleet Inventory" : activeTab === 'deliveries' ? "Delivery History" : "Service Partners"} 
               icon={activeTab === 'vehicles' ? Truck : activeTab === 'deliveries' ? MapPin : Box}
             >
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm whitespace-nowrap">
+              <div className="">
+                <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     <tr>
                       {activeTab === 'vehicles' && (
