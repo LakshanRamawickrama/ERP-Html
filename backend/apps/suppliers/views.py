@@ -17,14 +17,33 @@ class SupplierDataView(APIView):
             suppliers = get_filtered_queryset(request, Supplier)
             orders = get_filtered_queryset(request, PurchaseOrder)
             
+            # Merge default categories with any custom ones already saved in DB
+            default_categories = ["Food & Beverage", "Hardware", "Logistics", "Office Supplies"]
+            if request.user.is_superuser:
+                db_categories = list(Supplier.objects.values_list('category', flat=True).distinct())
+            elif user_business and user_business != 'All':
+                db_categories = list(Supplier.objects.filter(business=user_business).values_list('category', flat=True).distinct())
+            else:
+                db_categories = []
+            all_categories = sorted(set(default_categories + [c for c in db_categories if c]))
+            # Merge default product categories with any already used in PO records
+            default_product_cats = ["Electronics", "Furniture", "Raw Materials", "Stationery"]
+            if request.user.is_superuser:
+                db_prod_cats = list(PurchaseOrder.objects.values_list('product', flat=True).distinct())
+            elif user_business and user_business != 'All':
+                db_prod_cats = list(PurchaseOrder.objects.filter(business=user_business).values_list('product', flat=True).distinct())
+            else:
+                db_prod_cats = []
+            all_product_cats = sorted(set(default_product_cats + [c for c in db_prod_cats if c and len(c) < 50]))
+            
             return Response({
                 "suppliers": SupplierSerializer(suppliers, many=True).data,
                 "orders": PurchaseOrderSerializer(orders, many=True).data,
                 "options": {
-                    "categories": ["Office Supplies", "Hardware", "Logistics", "Food & Beverage"],
+                    "categories": all_categories,
                     "statuses": ["Active", "Inactive"],
                     "names": [s.name for s in suppliers],
-                    "productCategories": ["Electronics", "Furniture", "Stationery", "Raw Materials"],
+                    "productCategories": all_product_cats,
                     "orderStatuses": ["Pending", "Paid", "Cancelled"],
                     "businesses": [user_business] if user_business != 'All' else list(BusinessEntity.objects.values_list('name', flat=True).distinct())
                 },

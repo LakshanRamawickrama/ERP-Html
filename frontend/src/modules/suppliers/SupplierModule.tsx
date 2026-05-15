@@ -18,9 +18,13 @@ import {
   Package,
   Calendar,
   DollarSign,
+<<<<<<< Updated upstream
   Printer,
   FileText,
   FileSearch
+=======
+  FileText
+>>>>>>> Stashed changes
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -246,7 +250,11 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
                         onChange={(v) => setFormData({...formData, biz: v})} 
                         businesses={data.options?.businesses || []}
                       />
-                      <Field label="Category" isSelect options={data.options?.categories || []} value={formData.category || ''} onChange={(v: string) => setFormData({...formData, category: v})} />
+                      <CategoryField
+                        value={formData.category || ''}
+                        options={data.options?.categories || []}
+                        onChange={(v: string) => setFormData({...formData, category: v})}
+                      />
                       <div className="grid grid-cols-1 gap-4">
                         <Field label="Email Address" type="email" placeholder="contact@vendor.com" value={formData.email || ''} onChange={(v: string) => setFormData({...formData, email: v})} />
                         <Field label="Phone Number" type="tel" placeholder="+44 20 0000 0000" value={formData.phone || ''} onChange={(v: string) => setFormData({...formData, phone: v})} />
@@ -276,7 +284,11 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
                       <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Product Details</div>
                          <div className="grid grid-cols-2 gap-3">
-                             <Field label="Product Category" isSelect options={data.options?.productCategories || []} value={formData.product_category || ''} onChange={(v: string) => setFormData({...formData, product_category: v})} />
+                             <CategoryField
+                               value={formData.product_category || ''}
+                               options={data.options?.productCategories || []}
+                               onChange={(v: string) => setFormData({...formData, product_category: v})}
+                             />
                             <Field label="Quantity" type="number" value={formData.qty || ''} onChange={(v: string) => setFormData({...formData, qty: v})} />
                          </div>
                          <Field label="Product Name" placeholder="e.g. Paper Reams (A4)" value={formData.product || ''} onChange={(v: string) => setFormData({...formData, product: v})} />
@@ -350,8 +362,9 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
                             {...o}
                             isWide={isWide}
                             onEdit={() => handleEdit(o.id || `order-${i}`, o, 'orders')}
-                            onView={() => handleViewDoc(`Purchase Order ${o.num}`, 'Procurement')}
+                            onDelete={() => handleDeleteClick(o.id || `order-${i}`)}
                             canEdit={canEdit}
+                            canDelete={canDelete}
                           />
                         ))
                     )}
@@ -401,6 +414,74 @@ function TabButton({ active, label, icon: Icon, onClick }: any) {
       <Icon className={`w-3.5 h-3.5 ${active ? 'text-slate-800' : 'text-slate-400'}`} />
       {label}
     </button>
+  );
+}
+
+function CategoryField({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
+  const [showCustomInput, setShowCustomInput] = React.useState(false);
+  const [customInput, setCustomInput] = React.useState('');
+
+  const isValueCustom = value && !options.includes(value);
+  const dropdownValue = showCustomInput ? '__custom__' : (isValueCustom ? '__custom__' : (value || ''));
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value === '__custom__') {
+      setShowCustomInput(true);
+      setCustomInput('');
+    } else {
+      setShowCustomInput(false);
+      onChange(e.target.value);
+    }
+  };
+
+  const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomInput(e.target.value);
+    onChange(e.target.value);
+  };
+
+  const handleCustomKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); if (customInput.trim()) setShowCustomInput(false); }
+    if (e.key === 'Escape') { setShowCustomInput(false); }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Category</label>
+        <div className="relative mt-1.5">
+          <select
+            value={dropdownValue}
+            onChange={handleSelectChange}
+            className="w-full p-2.5 pr-9 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-400 transition-all font-medium text-slate-700 appearance-none shadow-sm"
+          >
+            <option value="">Select Option...</option>
+            {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+            <option value="__custom__">+ Add New Category...</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </div>
+        </div>
+      </div>
+      {showCustomInput && (
+        <div>
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Specify Category</label>
+          <input
+            autoFocus
+            type="text"
+            placeholder="Enter new category name"
+            value={customInput}
+            onChange={handleCustomChange}
+            onKeyDown={handleCustomKeyDown}
+            className="w-full mt-1.5 p-2.5 bg-white border border-slate-300 rounded-xl text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-50 transition-all font-medium text-slate-700 shadow-sm"
+          />
+          <p className="mt-1 text-[10px] text-slate-400">Press Enter to confirm or Escape to cancel</p>
+        </div>
+      )}
+      {isValueCustom && !showCustomInput && (
+        <p className="text-[10px] text-indigo-500 font-semibold -mt-1">Custom category: "{value}" ✓</p>
+      )}
+    </div>
   );
 }
 
@@ -494,7 +575,7 @@ function SupplierRow({ supId, name, category, email, phone, biz, addr, notes, st
   );
 }
 
-function OrderRow({ num, supplier, product, qty, amount, due, biz, status, isWide, onEdit, onView, canEdit }: any) {
+function OrderRow({ num, supplier, product, qty, amount, due, biz, status, isWide, onEdit, onDelete, canEdit, canDelete }: any) {
   return (
     <tr className="hover:bg-slate-50/50 transition-colors">
       <td className="px-4 py-4">
@@ -536,12 +617,14 @@ function OrderRow({ num, supplier, product, qty, amount, due, biz, status, isWid
               <Edit className="w-3.5 h-3.5" />
             </button>
           )}
-          <button
-            onClick={onView}
-            className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all"
-          >
-            <Printer className="w-3.5 h-3.5" />
-          </button>
+          {canDelete && (
+            <button
+              onClick={onDelete}
+              className="p-1.5 border border-slate-200 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
 

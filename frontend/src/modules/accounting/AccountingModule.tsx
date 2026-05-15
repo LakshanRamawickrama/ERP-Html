@@ -614,6 +614,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                           {isWide && <th className={thClass}>Business Name</th>}
                           <th className={thClass}>Record Title</th>
                           <th className={thClass}>Category</th>
+                          <th className={thClass}>Type</th>
                           {isWide && <th className={thClass}>Record Details</th>}
                           {isWide && <th className={thClass}>Date</th>}
                           <th className={thClass}>Amount (£)</th>
@@ -856,6 +857,17 @@ function RecordRow({ title, category, amount, status, date, method, biz, isWide,
           category === 'VAT / Tax' ? "bg-amber-50 text-amber-600 border-amber-100" :
           "bg-slate-50 text-slate-600 border-slate-200"
         )}>{category}</div>
+      </td>
+      <td className="px-4 py-4">
+        <div className={cn(
+          "px-2 py-0.5 rounded text-[9px] font-black uppercase inline-block border",
+          props.type === 'Income'   ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
+          props.type === 'Expense'  ? "bg-red-50 text-red-600 border-red-100" :
+          props.type === 'Asset'    ? "bg-sky-50 text-sky-600 border-sky-100" :
+          props.type === 'Equity'   ? "bg-violet-50 text-violet-600 border-violet-100" :
+          props.type === 'Liability'? "bg-orange-50 text-orange-600 border-orange-100" :
+          "bg-slate-50 text-slate-400 border-slate-200"
+        )}>{props.type || '—'}</div>
       </td>
       {isWide && (
         <td className="px-4 py-4">
