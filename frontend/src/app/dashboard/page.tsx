@@ -145,8 +145,8 @@ export default function Dashboard() {
   const [dash, setDash] = useState<any>({
     businesses: [], fleet: [], notes: [], vat: [], todos: [],
     passwords: [], supplierPayments: [], sales: [], banks: [],
-    maintenance: [], lowStock: [], activity: [], quickbooks: { status: 'Disconnected', lastSync: '—', bankFeed: 'Inactive', balance: '$0', pending: 0 },
-    pl: { income: '$0', expenses: '$0', grossProfit: '$0', tax: '$0', netProfit: '$0' },
+    maintenance: [], lowStock: [], activity: [], quickbooks: [],
+    pl: [],
     emails: [],
     reminders: []
   });
