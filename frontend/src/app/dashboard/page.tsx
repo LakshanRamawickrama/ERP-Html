@@ -145,8 +145,8 @@ export default function Dashboard() {
   const [dash, setDash] = useState<any>({
     businesses: [], fleet: [], notes: [], vat: [], todos: [],
     passwords: [], supplierPayments: [], sales: [], banks: [],
-    maintenance: [], lowStock: [], activity: [], quickbooks: [],
-    pl: [],
+    maintenance: [], lowStock: [], activity: [], quickbooks: { status: 'Disconnected', lastSync: '—', bankFeed: 'Inactive', balance: '$0', pending: 0 },
+    pl: { income: '$0', expenses: '$0', grossProfit: '$0', tax: '$0', netProfit: '$0' },
     emails: [],
     reminders: []
   });
@@ -1121,17 +1121,32 @@ export default function Dashboard() {
             )}
 
             {/* 8. PROFIT & LOSS */}
-            {canShowCard('Profit & Loss') && (
+            {canShowCard('Profit & Loss') && (() => {
+              const plData = Array.isArray(dash.pl)
+                ? (selectedBusiness === 'All Entities'
+                  ? {
+                      income: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.income || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      expenses: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.expenses || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      grossProfit: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.grossProfit || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      tax: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.tax || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      netProfit: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.netProfit || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                    }
+                  : dash.pl.find((pl: any) => pl.biz === selectedBusiness) || { income: '$0.00', expenses: '$0.00', grossProfit: '$0.00', tax: '$0.00', netProfit: '$0.00' }
+                )
+                : (dash.pl || { income: '$0.00', expenses: '$0.00', grossProfit: '$0.00', tax: '$0.00', netProfit: '$0.00' });
+
+              return (
               <Widget title="Profit & Loss Statement" icon={PieChart} color="bg-[#10b981]">
                 <div className="space-y-1">
-                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{dash.pl.income}</strong></div>
-                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">{dash.pl.expenses}</strong></div>
-                  <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>{dash.pl.grossProfit}</strong></div>
-                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">{dash.pl.tax}</strong></div>
-                  <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{dash.pl.netProfit}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{plData.income}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">{plData.expenses}</strong></div>
+                  <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>{plData.grossProfit}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">{plData.tax}</strong></div>
+                  <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{plData.netProfit}</strong></div>
                 </div>
               </Widget>
-            )}
+              );
+            })()}
 
             {/* 9. SUPPLIER PAYMENTS */}
             {canShowCard('Supplier Payments') && (
