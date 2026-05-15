@@ -18,13 +18,7 @@ import {
   Package,
   Calendar,
   DollarSign,
-<<<<<<< Updated upstream
-  Printer,
-  FileText,
-  FileSearch
-=======
   FileText
->>>>>>> Stashed changes
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
