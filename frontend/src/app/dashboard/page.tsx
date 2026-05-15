@@ -8,10 +8,10 @@ import { API_ENDPOINTS } from '@/lib/api';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/constants/roles';
-import { 
-  LayoutDashboard, 
-  TrendingUp, 
-  Truck, 
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Truck,
   Search,
   Briefcase,
   Mail,
@@ -44,22 +44,30 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const playNotificationSound = () => {
+let lastNotificationTime = 0;
+
+const playNotificationSound = (count?: number) => {
+  const now = Date.now();
+  if (now - lastNotificationTime < 3000) return;
+  lastNotificationTime = now;
+
   try {
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
 
-    const playTone = (freq: number, type: OscillatorType, timeOffset: number, duration: number, vol: number = 0.8) => {
+    const playModernTone = (freq: number, timeOffset: number, duration: number, vol: number = 0.4) => {
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
 
-      osc.type = type;
+      osc.type = 'sine'; // Sine is smoother and more modern
       osc.frequency.setValueAtTime(freq, ctx.currentTime + timeOffset);
-      
+
       gainNode.gain.setValueAtTime(0, ctx.currentTime + timeOffset);
-      gainNode.gain.linearRampToValueAtTime(vol, ctx.currentTime + timeOffset + 0.05);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + timeOffset + duration);
+      // Soft attack
+      gainNode.gain.linearRampToValueAtTime(vol, ctx.currentTime + timeOffset + 0.02);
+      // Smooth decay
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + timeOffset + duration);
 
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
@@ -68,11 +76,63 @@ const playNotificationSound = () => {
       osc.stop(ctx.currentTime + timeOffset + duration);
     };
 
-    // Play an attractive, loud 3-note modern chime (C5, E5, G5, C6)
-    playTone(523.25, 'triangle', 0.0, 0.4, 0.6);  // C5
-    playTone(659.25, 'triangle', 0.15, 0.4, 0.6); // E5
-    playTone(783.99, 'triangle', 0.3, 0.6, 0.7);  // G5
-    playTone(1046.50, 'sine', 0.45, 1.2, 0.8);    // C6 (High ring)
+    // Modern "Glassy" System Notification (Harmonically rich arpeggio)
+    playModernTone(880, 0.0, 0.8, 0.15);  // High shimmer
+    playModernTone(440, 0.05, 0.6, 0.3);  // Core tone
+    playModernTone(659, 0.1, 0.5, 0.2);   // Soft harmonic
+    playModernTone(1320, 0.15, 0.4, 0.1); // Crystal peak
+
+    // Voice Announcement (High-Tech AI Intelligence Persona)
+    if (count !== undefined && count > 0 && 'speechSynthesis' in window) {
+      setTimeout(() => {
+        const speak = () => {
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance();
+          // High-tech AI briefing style
+          utterance.text = `Welcome back. You have ${count} high priority reminders for your attention today.`;
+
+          const voices = window.speechSynthesis.getVoices();
+
+          // Prioritize high-fidelity, futuristic, and crisp "Natural" voices
+          const voiceKeywords = [
+            'google uk english female',
+            'google us english',
+            'microsoft aria',  // Very modern/clean
+            'microsoft hazel',
+            'samantha',
+            'victoria',
+            'english (great britain)',
+            'english (united states)'
+          ];
+
+          let selectedVoice = null;
+          for (const keyword of voiceKeywords) {
+            selectedVoice = voices.find(v => v.name.toLowerCase().includes(keyword) && v.lang.startsWith('en'));
+            if (selectedVoice) break;
+          }
+
+          if (!selectedVoice) selectedVoice = voices.find(v => v.lang.startsWith('en'));
+          if (selectedVoice) utterance.voice = selectedVoice;
+
+          // AI System Calibration: Crisp, Efficient, Intelligent
+          utterance.pitch = 1.05; // Slightly "sharper" for an alert, high-tech feel
+          utterance.rate = 1.0;   // Standard efficient speed
+          utterance.volume = 0.95;
+
+          window.speechSynthesis.speak(utterance);
+        };
+
+        if (window.speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          window.speechSynthesis.onvoiceschanged = () => {
+            speak();
+            window.speechSynthesis.onvoiceschanged = null;
+          };
+        }
+      }, 1200); // Shorter delay for a more responsive "System Ready" feel
+    }
   } catch (e) {
     console.error('Audio playback failed', e);
   }
@@ -105,7 +165,7 @@ export default function Dashboard() {
   const [vaultAuthInput, setVaultAuthInput] = useState('');
   const [isVaultAuthed, setIsVaultAuthed] = useState(false);
   const [vaultError, setVaultError] = useState<string | null>(null);
-  const [activeDoc, setActiveDoc] = useState<{url: string, title: string} | null>(null);
+  const [activeDoc, setActiveDoc] = useState<{ url: string, title: string } | null>(null);
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState('All Entities');
   const [showReminderPopup, setShowReminderPopup] = useState(false);
@@ -118,7 +178,7 @@ export default function Dashboard() {
     const userData = JSON.parse(savedUser);
     setUser(userData);
     setUserRole(userData.role as UserRole);
-    
+
     const savedBusiness = localStorage.getItem('selectedBusiness');
     if (userData.role !== UserRole.SUPER_ADMIN && userData.assigned_business) {
       setSelectedBusiness(userData.assigned_business);
@@ -127,10 +187,10 @@ export default function Dashboard() {
     }
 
     const token = localStorage.getItem('token');
-    
+
     // Fetch businesses for selector
-    fetch(API_ENDPOINTS.BUSINESS, { 
-      headers: { 'Authorization': `Bearer ${token}` } 
+    fetch(API_ENDPOINTS.BUSINESS, {
+      headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => {
         if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
@@ -139,7 +199,7 @@ export default function Dashboard() {
       .then(data => {
         if (data) setBusinesses(data.entities || []);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     fetch(API_ENDPOINTS.DASHBOARD, {
       headers: {
@@ -147,21 +207,21 @@ export default function Dashboard() {
         'Content-Type': 'application/json'
       }
     })
-    .then(res => {
-      if (res.status === 401) {
-        localStorage.removeItem('token');
-        router.push('/login');
-        return;
-      }
-      if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
-      return res.json();
-    })
-    .then(data => {
-      if (data) {
-        setDash((prev: any) => ({ ...prev, ...data }));
-      }
-    })
-    .catch(err => console.error('Dashboard fetch error:', err));
+      .then(res => {
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          router.push('/login');
+          return;
+        }
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
+        return res.json();
+      })
+      .then(data => {
+        if (data) {
+          setDash((prev: any) => ({ ...prev, ...data }));
+        }
+      })
+      .catch(err => console.error('Dashboard fetch error:', err));
 
     // Fetch comprehensive reminders for the popup (includes auto-generated Fleet/Legal/etc)
     const hasSeen = sessionStorage.getItem('hasSeenReminderPopup');
@@ -169,24 +229,25 @@ export default function Dashboard() {
       fetch(API_ENDPOINTS.REMINDERS, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      .then(res => {
-        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
-        return res.json();
-      })
-      .then(responseData => {
+        .then(res => {
+          if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return null;
+          return res.json();
+        })
+        .then(responseData => {
           const rawReminders = responseData?.reminders || [];
           if (Array.isArray(rawReminders)) {
             const filteredReminders = rawReminders.filter((r: any) => selectedBusiness === 'All Entities' || r.business === selectedBusiness);
-            const urgent = filteredReminders.filter((r: any) => r.priority === 'High' || r.is_overdue).slice(0, 5);
+            const urgentAll = filteredReminders.filter((r: any) => r.priority === 'High' || r.is_overdue);
+            const urgent = urgentAll.slice(0, 5);
             if (urgent.length > 0) {
               setUrgentReminders(urgent);
               setShowReminderPopup(true);
               sessionStorage.setItem('hasSeenReminderPopup', 'true');
-              playNotificationSound();
+              playNotificationSound(urgentAll.length);
             }
           }
-      })
-      .catch(err => console.error('Reminders fetch error:', err));
+        })
+        .catch(err => console.error('Reminders fetch error:', err));
     }
   }, [router]);
 
@@ -252,11 +313,11 @@ export default function Dashboard() {
     fetch(API_ENDPOINTS.NOTES, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ 
-        text: noteInput, 
-        is_pinned: false, 
+      body: JSON.stringify({
+        text: noteInput,
+        is_pinned: false,
         color: 'yellow',
-        biz: selectedBusiness !== 'All Entities' ? selectedBusiness : '' 
+        biz: selectedBusiness !== 'All Entities' ? selectedBusiness : ''
       }),
     })
       .then(res => {
@@ -352,7 +413,7 @@ export default function Dashboard() {
         perms = JSON.parse(clean);
         if (typeof perms === 'string') perms = JSON.parse(perms);
       }
-      
+
       const dashCards = perms['Dashboard'];
       return Array.isArray(dashCards) && dashCards.includes(cardName);
     } catch (err) {
@@ -366,16 +427,16 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-[#f8fafc]">
       <Sidebar userRole={userRole} />
-      
-      <ProfileDrawer 
-        isOpen={isProfileOpen} 
-        onClose={() => setIsProfileOpen(false)} 
+
+      <ProfileDrawer
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
         user={user}
         onUpdateUser={(updatedUser: any) => setUser(updatedUser)}
       />
-      
+
       <main className="ml-[70px] flex-1 flex flex-col h-screen overflow-hidden">
-        <TopBar 
+        <TopBar
           title={userRole === UserRole.SUPER_ADMIN ? 'Super Admin Dashboard' : 'Admin Dashboard'}
           userRole={userRole}
           user={user}
@@ -388,7 +449,7 @@ export default function Dashboard() {
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-[0.75rem_0.75rem_1.5rem] no-scrollbar bg-[#f1f5f9]/30">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            
+
             {/* 1. BUSINESS DETAILS */}
             {canShowCard('Business Details') && (
               <Widget title="Business Details" icon={Briefcase} color="bg-[#3b82f6]">
@@ -407,24 +468,24 @@ export default function Dashboard() {
                       .filter((row: any) => selectedBusiness === 'All Entities' || row.name === selectedBusiness)
                       .slice(0, 5)
                       .map((row: any) => (
-                      <tr 
-                        key={row.id} 
-                        onClick={() => router.push(`/business/${row.slug}`)} 
-                        className="cursor-pointer group"
-                      >
-                        <td className="truncate">
-                          <strong className="group-hover:text-[#3b82f6] transition-colors">{row.name}</strong>
-                        </td>
-                        <td className="truncate text-[10px] text-slate-500">{row.admin || 'Not Assigned'}</td>
-                        <td className="text-right text-[#198754] font-bold">{row.inc}</td>
-                        <td className="text-right text-[#dc3545]">{row.exp}</td>
-                        <td className="text-center">
-                          <span className={`status-pill ${row.st === 'Active' ? 'bg-[#198754]' : row.st === 'Pending' ? 'bg-[#ffc107]' : 'bg-[#dc3545]'}`}>
-                            {row.st}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                        <tr
+                          key={row.id}
+                          onClick={() => router.push(`/business/${row.slug}`)}
+                          className="cursor-pointer group"
+                        >
+                          <td className="truncate">
+                            <strong className="group-hover:text-[#3b82f6] transition-colors">{row.name}</strong>
+                          </td>
+                          <td className="truncate text-[10px] text-slate-500">{row.admin || 'Not Assigned'}</td>
+                          <td className="text-right text-[#198754] font-bold">{row.inc}</td>
+                          <td className="text-right text-[#dc3545]">{row.exp}</td>
+                          <td className="text-center">
+                            <span className={`status-pill ${row.st === 'Active' ? 'bg-[#198754]' : row.st === 'Pending' ? 'bg-[#ffc107]' : 'bg-[#dc3545]'}`}>
+                              {row.st}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </Widget>
@@ -432,134 +493,132 @@ export default function Dashboard() {
 
             {/* 2. FLEET MANAGEMENT */}
             {canShowCard('Fleet Management') && (
-            <Widget 
-              title={selectedFleet ? "Vehicle Details" : "Fleet Management"} 
-              icon={Truck} 
-              color="bg-[#14b8a6]"
-              headerAction={selectedFleet && (
-                <button 
-                  onClick={() => setSelectedFleet(null)}
-                  className="text-[10px] bg-white text-[#14b8a6] border border-[#14b8a6] px-2 py-0.5 rounded font-bold hover:bg-[#f0fdfa]"
-                >
-                  ← Back
-                </button>
-              )}
-            >
-              {selectedFleet ? (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
-                    <div>
-                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedFleet.v}</h4>
-                      <p className="text-[11px] text-[#64748b] m-0">{selectedFleet.p}</p>
-                    </div>
-                    <span className={`status-pill ${
-                      selectedFleet.s === 'Active' ? 'bg-[#198754]' :
-                      selectedFleet.s === 'Maint' ? 'bg-[#f59e0b]' :
-                      selectedFleet.s === 'Repair' ? 'bg-[#ffc107]' :
-                      'bg-[#dc3545]'
-                    }`}>
-                      {selectedFleet.s}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div 
-                      className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.ins ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
-                      onClick={() => selectedFleet.docs?.ins && setActiveDoc({url: selectedFleet.docs.ins, title: `${selectedFleet.v} - Insurance`})}
-                    >
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        Insurance Expiry
-                        {selectedFleet.docs?.ins && <FileText size={10} className="text-[#14b8a6]" />}
-                      </label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.i}</p>
-                    </div>
-
-                    <div 
-                      className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.mot ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
-                      onClick={() => selectedFleet.docs?.mot && setActiveDoc({url: selectedFleet.docs.mot, title: `${selectedFleet.v} - MOT Certificate`})}
-                    >
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        MOT Expiry
-                        {selectedFleet.docs?.mot && <FileText size={10} className="text-[#14b8a6]" />}
-                      </label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.mot}</p>
-                    </div>
-
-                    <div 
-                      className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.tax ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
-                      onClick={() => selectedFleet.docs?.tax && setActiveDoc({url: selectedFleet.docs.tax, title: `${selectedFleet.v} - Road Tax`})}
-                    >
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        Road Tax Due
-                        {selectedFleet.docs?.tax && <FileText size={10} className="text-[#14b8a6]" />}
-                      </label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.tax}</p>
-                    </div>
-
-                    <div className="space-y-1 p-2">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.biz}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Internal Notes</label>
-                    <div className="bg-slate-50 p-2 rounded-lg min-h-[40px]">
-                      {selectedFleet.notes ? (
-                        <p className="text-[10px] text-slate-600 leading-relaxed m-0 italic">
-                          "{selectedFleet.notes}"
-                        </p>
-                      ) : (
-                        <p className="text-[10px] text-slate-400 m-0">No internal notes recorded for this asset.</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <Link 
-                      href="/fleet"
-                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#14b8a6] text-white text-[10px] font-bold rounded-lg hover:bg-[#0d9488] transition-all"
-                    >
-                      View Full Asset Profile <ArrowRight size={12} />
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <table className="wt">
-                  <thead>
-                    <tr>
-                      <th className="text-left">VEHICLE</th>
-                      <th className="text-left">BUSINESS</th>
-                      <th className="text-left">PLATE</th>
-                      <th className="text-left">INS. EXPIRY</th>
-                      <th className="text-center">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dash.fleet
-                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
-                      .map((row: any, i: number) => (
-                      <tr key={i} onClick={() => setSelectedFleet(row)} className="cursor-pointer group">
-                        <td><strong className="group-hover:text-[#14b8a6] transition-colors">{row.v}</strong></td>
-                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
-                        <td className="truncate">{row.p}</td>
-                        <td>{row.i}</td>
-                        <td className="text-center">
-                          <span className={`status-pill ${
-                            row.s === 'Active' ? 'bg-[#198754]' :
-                            row.s === 'Maint' ? 'bg-[#f59e0b]' :
-                            row.s === 'Repair' ? 'bg-[#ffc107]' :
+              <Widget
+                title={selectedFleet ? "Vehicle Details" : "Fleet Management"}
+                icon={Truck}
+                color="bg-[#14b8a6]"
+                headerAction={selectedFleet && (
+                  <button
+                    onClick={() => setSelectedFleet(null)}
+                    className="text-[10px] bg-white text-[#14b8a6] border border-[#14b8a6] px-2 py-0.5 rounded font-bold hover:bg-[#f0fdfa]"
+                  >
+                    ← Back
+                  </button>
+                )}
+              >
+                {selectedFleet ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                      <div>
+                        <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedFleet.v}</h4>
+                        <p className="text-[11px] text-[#64748b] m-0">{selectedFleet.p}</p>
+                      </div>
+                      <span className={`status-pill ${selectedFleet.s === 'Active' ? 'bg-[#198754]' :
+                        selectedFleet.s === 'Maint' ? 'bg-[#f59e0b]' :
+                          selectedFleet.s === 'Repair' ? 'bg-[#ffc107]' :
                             'bg-[#dc3545]'
-                          }`}>
-                            {row.s}
-                          </span>
-                        </td>
+                        }`}>
+                        {selectedFleet.s}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div
+                        className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.ins ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
+                        onClick={() => selectedFleet.docs?.ins && setActiveDoc({ url: selectedFleet.docs.ins, title: `${selectedFleet.v} - Insurance` })}
+                      >
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                          Insurance Expiry
+                          {selectedFleet.docs?.ins && <FileText size={10} className="text-[#14b8a6]" />}
+                        </label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.i}</p>
+                      </div>
+
+                      <div
+                        className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.mot ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
+                        onClick={() => selectedFleet.docs?.mot && setActiveDoc({ url: selectedFleet.docs.mot, title: `${selectedFleet.v} - MOT Certificate` })}
+                      >
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                          MOT Expiry
+                          {selectedFleet.docs?.mot && <FileText size={10} className="text-[#14b8a6]" />}
+                        </label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.mot}</p>
+                      </div>
+
+                      <div
+                        className={`space-y-1 p-2 rounded-lg border border-transparent transition-all ${selectedFleet.docs?.tax ? 'hover:border-[#14b8a6] hover:bg-[#f0fdfa] cursor-pointer' : 'opacity-80'}`}
+                        onClick={() => selectedFleet.docs?.tax && setActiveDoc({ url: selectedFleet.docs.tax, title: `${selectedFleet.v} - Road Tax` })}
+                      >
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                          Road Tax Due
+                          {selectedFleet.docs?.tax && <FileText size={10} className="text-[#14b8a6]" />}
+                        </label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.tax}</p>
+                      </div>
+
+                      <div className="space-y-1 p-2">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedFleet.biz}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Internal Notes</label>
+                      <div className="bg-slate-50 p-2 rounded-lg min-h-[40px]">
+                        {selectedFleet.notes ? (
+                          <p className="text-[10px] text-slate-600 leading-relaxed m-0 italic">
+                            "{selectedFleet.notes}"
+                          </p>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 m-0">No internal notes recorded for this asset.</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <Link
+                        href="/fleet"
+                        className="flex items-center justify-center gap-2 w-full py-2 bg-[#14b8a6] text-white text-[10px] font-bold rounded-lg hover:bg-[#0d9488] transition-all"
+                      >
+                        View Full Asset Profile <ArrowRight size={12} />
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <table className="wt">
+                    <thead>
+                      <tr>
+                        <th className="text-left">VEHICLE</th>
+                        <th className="text-left">BUSINESS</th>
+                        <th className="text-left">PLATE</th>
+                        <th className="text-left">INS. EXPIRY</th>
+                        <th className="text-center">STATUS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </Widget>
+                    </thead>
+                    <tbody>
+                      {dash.fleet
+                        .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                        .map((row: any, i: number) => (
+                          <tr key={i} onClick={() => setSelectedFleet(row)} className="cursor-pointer group">
+                            <td><strong className="group-hover:text-[#14b8a6] transition-colors">{row.v}</strong></td>
+                            <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
+                            <td className="truncate">{row.p}</td>
+                            <td>{row.i}</td>
+                            <td className="text-center">
+                              <span className={`status-pill ${row.s === 'Active' ? 'bg-[#198754]' :
+                                row.s === 'Maint' ? 'bg-[#f59e0b]' :
+                                  row.s === 'Repair' ? 'bg-[#ffc107]' :
+                                    'bg-[#dc3545]'
+                                }`}>
+                                {row.s}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </Widget>
             )}
 
             {/* 3. NOTES */}
@@ -574,77 +633,77 @@ export default function Dashboard() {
                         return b.id > a.id ? 1 : -1; // Fallback to id for latest first
                       })
                       .map((note: any) => (
-                      <div 
-                        key={note.id} 
-                        className={cn(
-                          "rounded-lg p-2 relative group shadow-sm transition-all border",
-                          note.color === 'blue' ? "bg-blue-50 border-blue-100" :
-                          note.color === 'green' ? "bg-emerald-50 border-emerald-100" :
-                          note.color === 'red' ? "bg-red-50 border-red-100" :
-                          "bg-[#fffbeb] border-[#fef3c7]"
-                        )}
-                      >
-                        <p className={cn(
-                          "text-[11px] leading-[1.3] m-0 pr-10",
-                          note.color === 'blue' ? "text-blue-900" :
-                          note.color === 'green' ? "text-emerald-900" :
-                          note.color === 'red' ? "text-red-900" :
-                          "text-[#1e293b]"
-                        )}>
-                          {note.text}
-                        </p>
-                        {selectedBusiness === 'All Entities' && note.biz && (
-                          <span className="inline-block mt-1 text-[8px] font-black px-1.5 py-0.5 rounded-lg bg-white/50 border border-black/5 text-slate-500 uppercase tracking-tighter">
-                            {note.biz}
-                          </span>
-                        )}
-    
-                        {note.created_at && (
-                          <div className={cn(
-                            "text-[8px] font-bold mt-1.5 opacity-60 flex items-center gap-1",
-                            note.color === 'blue' ? "text-blue-700" :
-                            note.color === 'green' ? "text-emerald-700" :
-                            note.color === 'red' ? "text-red-700" :
-                            "text-slate-400"
+                        <div
+                          key={note.id}
+                          className={cn(
+                            "rounded-lg p-2 relative group shadow-sm transition-all border",
+                            note.color === 'blue' ? "bg-blue-50 border-blue-100" :
+                              note.color === 'green' ? "bg-emerald-50 border-emerald-100" :
+                                note.color === 'red' ? "bg-red-50 border-red-100" :
+                                  "bg-[#fffbeb] border-[#fef3c7]"
+                          )}
+                        >
+                          <p className={cn(
+                            "text-[11px] leading-[1.3] m-0 pr-10",
+                            note.color === 'blue' ? "text-blue-900" :
+                              note.color === 'green' ? "text-emerald-900" :
+                                note.color === 'red' ? "text-red-900" :
+                                  "text-[#1e293b]"
                           )}>
-                            <Clock size={8} /> {new Date(note.created_at).toLocaleDateString()} — {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </div>
-                        )}
-                        
-                        <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                          <button
-                            onClick={() => handleCycleNoteColor(note.id, note.color || 'yellow')}
-                            className="p-1 hover:bg-black/5 rounded transition-colors"
-                            title="Highlight"
-                          >
+                            {note.text}
+                          </p>
+                          {selectedBusiness === 'All Entities' && note.biz && (
+                            <span className="inline-block mt-1 text-[8px] font-black px-1.5 py-0.5 rounded-lg bg-white/50 border border-black/5 text-slate-500 uppercase tracking-tighter">
+                              {note.biz}
+                            </span>
+                          )}
+
+                          {note.created_at && (
                             <div className={cn(
-                              "w-2.5 h-2.5 rounded-full border border-black/10",
-                              note.color === 'blue' ? "bg-blue-400" :
-                              note.color === 'green' ? "bg-emerald-400" :
-                              note.color === 'red' ? "bg-red-400" :
-                              "bg-yellow-400"
-                            )} />
-                          </button>
-                          <button
-                            onClick={() => handleTogglePinNote(note.id, note.is_pinned)}
-                            className={cn(
-                              "p-1 rounded transition-colors",
-                              note.is_pinned ? "text-indigo-600 opacity-100" : "text-slate-400 hover:bg-black/5"
-                            )}
-                            title={note.is_pinned ? "Unpin" : "Pin to top"}
-                          >
-                            <Pin className={cn("w-3 h-3", note.is_pinned && "fill-current")} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteNote(note.id)}
-                            className="p-1 text-[#ef4444] hover:bg-red-50 rounded transition-all"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                              "text-[8px] font-bold mt-1.5 opacity-60 flex items-center gap-1",
+                              note.color === 'blue' ? "text-blue-700" :
+                                note.color === 'green' ? "text-emerald-700" :
+                                  note.color === 'red' ? "text-red-700" :
+                                    "text-slate-400"
+                            )}>
+                              <Clock size={8} /> {new Date(note.created_at).toLocaleDateString()} — {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          )}
+
+                          <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <button
+                              onClick={() => handleCycleNoteColor(note.id, note.color || 'yellow')}
+                              className="p-1 hover:bg-black/5 rounded transition-colors"
+                              title="Highlight"
+                            >
+                              <div className={cn(
+                                "w-2.5 h-2.5 rounded-full border border-black/10",
+                                note.color === 'blue' ? "bg-blue-400" :
+                                  note.color === 'green' ? "bg-emerald-400" :
+                                    note.color === 'red' ? "bg-red-400" :
+                                      "bg-yellow-400"
+                              )} />
+                            </button>
+                            <button
+                              onClick={() => handleTogglePinNote(note.id, note.is_pinned)}
+                              className={cn(
+                                "p-1 rounded transition-colors",
+                                note.is_pinned ? "text-indigo-600 opacity-100" : "text-slate-400 hover:bg-black/5"
+                              )}
+                              title={note.is_pinned ? "Unpin" : "Pin to top"}
+                            >
+                              <Pin className={cn("w-3 h-3", note.is_pinned && "fill-current")} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteNote(note.id)}
+                              className="p-1 text-[#ef4444] hover:bg-red-50 rounded transition-all"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                     {dash.notes.filter((note: any) => selectedBusiness === 'All Entities' || note.biz === selectedBusiness).length === 0 && (
                       <div className="h-full flex flex-col items-center justify-center py-10 opacity-30">
                         <FileText size={24} className="mb-2" />
@@ -653,13 +712,13 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div className="space-y-2 pt-1">
-                    <textarea 
+                    <textarea
                       value={noteInput}
                       onChange={e => setNoteInput(e.target.value)}
-                      placeholder="Write a note..." 
-                      className="w-full text-[11px] p-2 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5] min-h-[40px] resize-none" 
+                      placeholder="Write a note..."
+                      className="w-full text-[11px] p-2 border border-[#e2e8f0] rounded-lg outline-none focus:border-[#4f46e5] min-h-[40px] resize-none"
                     />
-                    <button 
+                    <button
                       onClick={handleAddNote}
                       className="w-full bg-[#ffc107] text-[#212529] py-1.5 rounded-lg text-[11px] font-bold shadow-sm hover:bg-[#eab308]"
                     >
@@ -672,13 +731,13 @@ export default function Dashboard() {
 
             {/* 4. EMAILS */}
             {canShowCard('Gmail / Email') && (
-              <Widget 
-                title="Gmails / Emails" 
-                icon={Mail} 
-                color="bg-[#ef4444]" 
+              <Widget
+                title="Gmails / Emails"
+                icon={Mail}
+                color="bg-[#ef4444]"
                 headerAction={
                   !showEmailModal && (
-                    <button 
+                    <button
                       onClick={() => setShowEmailModal(true)}
                       className="text-[10px] bg-[#eff6ff] text-[#2563eb] border border-[#bfdbfe] px-2 py-0.5 rounded font-bold hover:bg-[#bfdbfe]"
                     >
@@ -693,36 +752,36 @@ export default function Dashboard() {
                       <div className="space-y-2.5">
                         <div className="space-y-1">
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">{editingEmailId ? 'Edit Inbox Connection' : 'Connect New Inbox'}</label>
-                          <input 
-                            type="email" 
+                          <input
+                            type="email"
                             placeholder="Email Address"
                             className="w-full p-2 bg-white border border-slate-200 rounded-xl text-[10px] outline-none focus:border-[#ef4444] transition-all"
                             value={newEmail.email}
-                            onChange={e => setNewEmail({...newEmail, email: e.target.value})}
+                            onChange={e => setNewEmail({ ...newEmail, email: e.target.value })}
                           />
                         </div>
-                        <input 
-                          type="password" 
+                        <input
+                          type="password"
                           placeholder="App Password / SMTP Password"
                           className="w-full p-2 bg-white border border-slate-200 rounded-xl text-[10px] outline-none focus:border-[#ef4444] transition-all"
                           value={newEmail.password}
-                          onChange={e => setNewEmail({...newEmail, password: e.target.value})}
+                          onChange={e => setNewEmail({ ...newEmail, password: e.target.value })}
                         />
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           placeholder="Account Label (e.g. Primary)"
                           className="w-full p-2 bg-white border border-slate-200 rounded-xl text-[10px] outline-none focus:border-[#ef4444] transition-all"
                           value={newEmail.label}
-                          onChange={e => setNewEmail({...newEmail, label: e.target.value})}
+                          onChange={e => setNewEmail({ ...newEmail, label: e.target.value })}
                         />
                         <div className="flex gap-2 pt-1">
-                          <button 
+                          <button
                             onClick={handleAddEmail}
                             className="flex-[2] bg-[#ef4444] text-white py-2 rounded-xl text-[10px] font-bold shadow-lg shadow-red-100 hover:bg-[#dc2626] transition-all active:scale-95"
                           >
                             {editingEmailId ? 'Update Account' : 'Save Account'}
                           </button>
-                          <button 
+                          <button
                             onClick={() => {
                               setShowEmailModal(false);
                               setEditingEmailId(null);
@@ -741,9 +800,9 @@ export default function Dashboard() {
                         <div key={email.id} className="flex items-center gap-3 p-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg group">
                           <div className={`w-8 h-8 rounded-full ${email.type === 'primary' ? 'bg-[#4f46e5]' : 'bg-[#ea4335]'} text-white flex items-center justify-center text-[12px] font-bold shrink-0`}><Mail size={14} /></div>
                           <div className="flex-1 min-w-0">
-                            <a 
-                              href={`https://mail.google.com/mail/u/0/#search/to:${email.email}`} 
-                              target="_blank" 
+                            <a
+                              href={`https://mail.google.com/mail/u/0/#search/to:${email.email}`}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="text-[11px] font-bold text-[#1e293b] truncate block hover:text-[#ef4444] transition-colors"
                             >
@@ -766,171 +825,169 @@ export default function Dashboard() {
 
             {/* 5. VAT / TAX */}
             {canShowCard('VAT / Tax') && (
-            <Widget 
-              title={selectedVAT ? "Tax Record Details" : "VAT / Tax"} 
-              icon={Receipt} 
-              color="bg-[#f59e0b]"
-              headerAction={selectedVAT && (
-                <button 
-                  onClick={() => setSelectedVAT(null)}
-                  className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
-                >
-                  ← Back
-                </button>
-              )}
-            >
-              {selectedVAT ? (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
-                    <div>
-                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedVAT.type}</h4>
-                      <p className="text-[11px] text-[#64748b] m-0">{selectedVAT.period}</p>
+              <Widget
+                title={selectedVAT ? "Tax Record Details" : "VAT / Tax"}
+                icon={Receipt}
+                color="bg-[#f59e0b]"
+                headerAction={selectedVAT && (
+                  <button
+                    onClick={() => setSelectedVAT(null)}
+                    className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
+                  >
+                    ← Back
+                  </button>
+                )}
+              >
+                {selectedVAT ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                      <div>
+                        <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedVAT.type}</h4>
+                        <p className="text-[11px] text-[#64748b] m-0">{selectedVAT.period}</p>
+                      </div>
+                      <span className={`status-pill ${selectedVAT.status === 'Paid' ? 'bg-[#198754]' :
+                        selectedVAT.status === 'Filed' ? 'bg-[#f59e0b]' :
+                          'bg-[#6c757d]'
+                        }`}>
+                        {selectedVAT.status}
+                      </span>
                     </div>
-                    <span className={`status-pill ${
-                      selectedVAT.status === 'Paid' ? 'bg-[#198754]' : 
-                      selectedVAT.status === 'Filed' ? 'bg-[#f59e0b]' : 
-                      'bg-[#6c757d]'
-                    }`}>
-                      {selectedVAT.status}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Amount</label>
-                      <p className="text-[12px] font-bold text-[#1e293b] m-0">{selectedVAT.amount}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Amount</label>
+                        <p className="text-[12px] font-bold text-[#1e293b] m-0">{selectedVAT.amount}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reference #</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.ref}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Filing Date</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.date}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Entity</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.biz}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reference #</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.ref}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Filing Date</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.date}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Entity</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedVAT.biz}</p>
-                    </div>
-                  </div>
 
-                  {selectedVAT.doc && (
-                    <div className="pt-2 border-t border-[#f1f5f9]">
-                      <button 
-                        onClick={() => setActiveDoc({url: selectedVAT.doc, title: `Tax Record - ${selectedVAT.ref}`})}
-                        className="w-full flex items-center justify-center gap-2 py-2 bg-[#fef3c7] text-[#92400e] border border-[#fde68a] text-[10px] font-bold rounded-lg hover:bg-[#fde68a] transition-all"
+                    {selectedVAT.doc && (
+                      <div className="pt-2 border-t border-[#f1f5f9]">
+                        <button
+                          onClick={() => setActiveDoc({ url: selectedVAT.doc, title: `Tax Record - ${selectedVAT.ref}` })}
+                          className="w-full flex items-center justify-center gap-2 py-2 bg-[#fef3c7] text-[#92400e] border border-[#fde68a] text-[10px] font-bold rounded-lg hover:bg-[#fde68a] transition-all"
+                        >
+                          <FileText size={12} /> Preview Tax Document
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="pt-1">
+                      <Link
+                        href="/accounting"
+                        className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
                       >
-                        <FileText size={12} /> Preview Tax Document
-                      </button>
+                        View Full Tax Ledger <ArrowRight size={12} />
+                      </Link>
                     </div>
-                  )}
-
-                  <div className="pt-1">
-                    <Link 
-                      href="/accounting"
-                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
-                    >
-                      View Full Tax Ledger <ArrowRight size={12} />
-                    </Link>
                   </div>
-                </div>
-              ) : (
-                <table className="wt">
-                  <thead>
-                    <tr>
-                      <th className="text-left">TYPE</th>
-                      <th className="text-left">BUSINESS</th>
-                      <th className="text-left">PERIOD</th>
-                      <th className="text-left">AMOUNT</th>
-                      <th className="text-center">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dash.vat
-                      .filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
-                      .map((r: any, i: number) => (
-                      <tr key={i} onClick={() => setSelectedVAT(r)} className="cursor-pointer group">
-                        <td><strong className="group-hover:text-[#f59e0b] transition-colors">{r.type}</strong></td>
-                        <td className="truncate text-[10px] text-slate-500">{r.biz}</td>
-                        <td>{r.period}</td>
-                        <td><strong>{r.amount}</strong></td>
-                        <td className="text-center">
-                          <span className={`status-pill ${
-                            r.status === 'Paid' ? 'bg-[#198754]' : 
-                            r.status === 'Filed' ? 'bg-[#f59e0b]' : 
-                            'bg-[#6c757d]'
-                          }`}>
-                            {r.status}
-                          </span>
-                        </td>
+                ) : (
+                  <table className="wt">
+                    <thead>
+                      <tr>
+                        <th className="text-left">TYPE</th>
+                        <th className="text-left">BUSINESS</th>
+                        <th className="text-left">PERIOD</th>
+                        <th className="text-left">AMOUNT</th>
+                        <th className="text-center">STATUS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </Widget>
+                    </thead>
+                    <tbody>
+                      {dash.vat
+                        .filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .map((r: any, i: number) => (
+                          <tr key={i} onClick={() => setSelectedVAT(r)} className="cursor-pointer group">
+                            <td><strong className="group-hover:text-[#f59e0b] transition-colors">{r.type}</strong></td>
+                            <td className="truncate text-[10px] text-slate-500">{r.biz}</td>
+                            <td>{r.period}</td>
+                            <td><strong>{r.amount}</strong></td>
+                            <td className="text-center">
+                              <span className={`status-pill ${r.status === 'Paid' ? 'bg-[#198754]' :
+                                r.status === 'Filed' ? 'bg-[#f59e0b]' :
+                                  'bg-[#6c757d]'
+                                }`}>
+                                {r.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </Widget>
             )}
 
             {/* 6. SYSTEM REMINDERS */}
             {canShowCard('System Reminders') && (
-            <Widget
-              title="System Reminders"
-              icon={Bell}
-              color="bg-[#8b5cf6]"
-              headerAction={
-                <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
-                  Manage All <ArrowRight className="w-2.5 h-2.5" />
-                </Link>
-              }
-            >
-              <div className="space-y-2">
-                {(dash.reminders || [])
-                  .filter((reminder: any) => selectedBusiness === 'All Entities' || reminder.business === selectedBusiness)
-                  .slice(0, 4)
-                  .map((reminder: any) => (
-                  <Link key={reminder.id} href="/reminders" className="p-2.5 bg-[#f8fafc] border border-slate-100 rounded-xl flex items-center gap-3 group hover:border-indigo-100 hover:shadow-sm transition-all block cursor-pointer">
-                    <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                      reminder.priority === 'High' ? 'bg-red-50 text-red-500' : 
-                      reminder.priority === 'Medium' ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'
-                    )}>
-                      {reminder.type === 'Fleet' ? <Truck className="w-4 h-4" /> : 
-                       reminder.type === 'Legal' ? <FileText className="w-4 h-4" /> :
-                       reminder.type === 'Property' ? <Building2 className="w-4 h-4" /> :
-                       reminder.type === 'Accounting' ? <ShieldAlert className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h6 className="text-[11px] font-bold text-slate-800 truncate m-0">{reminder.title}</h6>
-                      <p className="text-[9px] text-slate-500 font-medium truncate m-0">{reminder.business}</p>
-                    </div>
-                    <span className={cn(
-                      "text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter",
-                      reminder.priority === 'High' ? 'bg-red-100 text-red-700' : 
-                      reminder.priority === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
-                    )}>
-                      {reminder.priority}
-                    </span>
+              <Widget
+                title="System Reminders"
+                icon={Bell}
+                color="bg-[#8b5cf6]"
+                headerAction={
+                  <Link href="/reminders" className="text-[9px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
+                    Manage All <ArrowRight className="w-2.5 h-2.5" />
                   </Link>
-                ))}
-                {(!dash.reminders || dash.reminders.length === 0) && (
-                  <div className="py-8 text-center">
-                    <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                    <p className="text-[10px] text-slate-400 font-medium">No active reminders</p>
-                  </div>
-                )}
-              </div>
-            </Widget>
+                }
+              >
+                <div className="space-y-2">
+                  {(dash.reminders || [])
+                    .filter((reminder: any) => selectedBusiness === 'All Entities' || reminder.business === selectedBusiness)
+                    .slice(0, 4)
+                    .map((reminder: any) => (
+                      <Link key={reminder.id} href="/reminders" className="p-2.5 bg-[#f8fafc] border border-slate-100 rounded-xl flex items-center gap-3 group hover:border-indigo-100 hover:shadow-sm transition-all block cursor-pointer">
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                          reminder.priority === 'High' ? 'bg-red-50 text-red-500' :
+                            reminder.priority === 'Medium' ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'
+                        )}>
+                          {reminder.type === 'Fleet' ? <Truck className="w-4 h-4" /> :
+                            reminder.type === 'Legal' ? <FileText className="w-4 h-4" /> :
+                              reminder.type === 'Property' ? <Building2 className="w-4 h-4" /> :
+                                reminder.type === 'Accounting' ? <ShieldAlert className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h6 className="text-[11px] font-bold text-slate-800 truncate m-0">{reminder.title}</h6>
+                          <p className="text-[9px] text-slate-500 font-medium truncate m-0">{reminder.business}</p>
+                        </div>
+                        <span className={cn(
+                          "text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter",
+                          reminder.priority === 'High' ? 'bg-red-100 text-red-700' :
+                            reminder.priority === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                        )}>
+                          {reminder.priority}
+                        </span>
+                      </Link>
+                    ))}
+                  {(!dash.reminders || dash.reminders.length === 0) && (
+                    <div className="py-8 text-center">
+                      <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                      <p className="text-[10px] text-slate-400 font-medium">No active reminders</p>
+                    </div>
+                  )}
+                </div>
+              </Widget>
             )}
 
             {/* 7. SYSTEM PASSWORDS */}
             {canShowCard('System Passwords') && (
-              <Widget 
-                title={selectedPassword ? "Credential Details" : "System Passwords"} 
-                icon={Lock} 
+              <Widget
+                title={selectedPassword ? "Credential Details" : "System Passwords"}
+                icon={Lock}
                 color="bg-slate-800"
                 headerAction={
                   selectedPassword ? (
-                    <button 
+                    <button
                       onClick={() => { setSelectedPassword(null); setIsVaultAuthed(false); setVaultAuthInput(''); }}
                       className="text-[10px] bg-white text-slate-800 border border-slate-800 px-2 py-0.5 rounded font-bold hover:bg-slate-50"
                     >
@@ -962,26 +1019,28 @@ export default function Dashboard() {
                           <p className="text-[11px] font-bold text-slate-700 m-0">Vault Authentication Required</p>
                           <p className="text-[9px] text-slate-500 m-0">Enter your login password to reveal credentials.</p>
                         </div>
-                        <input 
+                        <input
                           type="password"
                           value={vaultAuthInput}
                           onChange={(e) => setVaultAuthInput(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === 'Enter') {
-                            const loginPw = localStorage.getItem('user_pw');
-                            if (!loginPw) {
-                              setVaultError('Security session not synced. Please log out and log in again.');
-                            } else if (vaultAuthInput === loginPw) {
-                              setIsVaultAuthed(true);
-                              setVaultAuthInput('');
-                            } else {
-                              setVaultError('The password you entered is incorrect.');
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              const loginPw = localStorage.getItem('user_pw');
+                              if (!loginPw) {
+                                setVaultError('Security session not synced. Please log out and log in again.');
+                              } else if (vaultAuthInput === loginPw) {
+                                setIsVaultAuthed(true);
+                                setVaultAuthInput('');
+                              } else {
+                                setVaultError('The password you entered is incorrect.');
+                              }
                             }
-                          }}}
+                          }}
                           placeholder="Enter password..."
                           className="w-full text-center px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:border-slate-800 font-bold tracking-widest"
                           autoFocus
                         />
-                        <button 
+                        <button
                           onClick={() => {
                             const loginPw = localStorage.getItem('user_pw');
                             if (!loginPw) {
@@ -1030,26 +1089,26 @@ export default function Dashboard() {
                     {dash.passwords
                       .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
                       .map((row: any, i: number) => (
-                      <div 
-                        key={i} 
-                        onClick={() => { setSelectedPassword(row); setIsVaultAuthed(false); setVaultAuthInput(''); }} 
-                        className="flex items-center gap-3 p-2 bg-slate-50 border border-slate-200 rounded-lg group cursor-pointer hover:border-slate-400 hover:shadow-sm transition-all"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                          <Lock className="w-4 h-4" />
+                        <div
+                          key={i}
+                          onClick={() => { setSelectedPassword(row); setIsVaultAuthed(false); setVaultAuthInput(''); }}
+                          className="flex items-center gap-3 p-2 bg-slate-50 border border-slate-200 rounded-lg group cursor-pointer hover:border-slate-400 hover:shadow-sm transition-all"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                            <Lock className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h6 className="text-[11px] font-bold text-slate-800 truncate m-0 group-hover:text-indigo-600 transition-colors">{row.s}</h6>
+                            <p className="text-[9px] text-slate-500 truncate m-0 font-medium">{row.u}</p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <span className={`status-pill ${row.st === 'Active' ? 'bg-[#198754]' : 'bg-[#dc3545]'} !text-[8px] !px-1.5 !py-0.5`}>
+                              {row.st}
+                            </span>
+                            <span className="text-[8px] text-slate-400 font-mono tracking-widest">••••••</span>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h6 className="text-[11px] font-bold text-slate-800 truncate m-0 group-hover:text-indigo-600 transition-colors">{row.s}</h6>
-                          <p className="text-[9px] text-slate-500 truncate m-0 font-medium">{row.u}</p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <span className={`status-pill ${row.st === 'Active' ? 'bg-[#198754]' : 'bg-[#dc3545]'} !text-[8px] !px-1.5 !py-0.5`}>
-                            {row.st}
-                          </span>
-                          <span className="text-[8px] text-slate-400 font-mono tracking-widest">••••••</span>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                     {(!dash.passwords || dash.passwords.length === 0) && (
                       <div className="py-8 text-center">
                         <Lock className="w-8 h-8 text-slate-200 mx-auto mb-2" />
@@ -1063,414 +1122,412 @@ export default function Dashboard() {
 
             {/* 8. PROFIT & LOSS */}
             {canShowCard('Profit & Loss') && (
-            <Widget title="Profit & Loss Statement" icon={PieChart} color="bg-[#10b981]">
-              <div className="space-y-1">
-                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{dash.pl.income}</strong></div>
-                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">{dash.pl.expenses}</strong></div>
-                <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>{dash.pl.grossProfit}</strong></div>
-                <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">{dash.pl.tax}</strong></div>
-                <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{dash.pl.netProfit}</strong></div>
-              </div>
-            </Widget>
+              <Widget title="Profit & Loss Statement" icon={PieChart} color="bg-[#10b981]">
+                <div className="space-y-1">
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{dash.pl.income}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">{dash.pl.expenses}</strong></div>
+                  <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>{dash.pl.grossProfit}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">{dash.pl.tax}</strong></div>
+                  <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{dash.pl.netProfit}</strong></div>
+                </div>
+              </Widget>
             )}
 
             {/* 9. SUPPLIER PAYMENTS */}
             {canShowCard('Supplier Payments') && (
-            <Widget 
-              title={selectedSupplierPayment ? "Payment Details" : "Supplier Payments"} 
-              icon={ShoppingCart} 
-              color="bg-[#f59e0b]"
-              headerAction={selectedSupplierPayment && (
-                <button 
-                  onClick={() => setSelectedSupplierPayment(null)}
-                  className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
-                >
-                  ← Back
-                </button>
-              )}
-            >
-              {selectedSupplierPayment ? (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
-                    <div>
-                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedSupplierPayment.p}</h4>
-                      <p className="text-[11px] text-[#64748b] m-0">{selectedSupplierPayment.s}</p>
+              <Widget
+                title={selectedSupplierPayment ? "Payment Details" : "Supplier Payments"}
+                icon={ShoppingCart}
+                color="bg-[#f59e0b]"
+                headerAction={selectedSupplierPayment && (
+                  <button
+                    onClick={() => setSelectedSupplierPayment(null)}
+                    className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
+                  >
+                    ← Back
+                  </button>
+                )}
+              >
+                {selectedSupplierPayment ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                      <div>
+                        <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedSupplierPayment.p}</h4>
+                        <p className="text-[11px] text-[#64748b] m-0">{selectedSupplierPayment.s}</p>
+                      </div>
+                      <span className={`status-pill ${selectedSupplierPayment.st === 'Paid' ? 'bg-[#198754]' :
+                        selectedSupplierPayment.st === 'Overdue' ? 'bg-[#dc3545]' :
+                          'bg-[#ffc107]'
+                        }`}>
+                        {selectedSupplierPayment.st}
+                      </span>
                     </div>
-                    <span className={`status-pill ${
-                      selectedSupplierPayment.st === 'Paid' ? 'bg-[#198754]' : 
-                      selectedSupplierPayment.st === 'Overdue' ? 'bg-[#dc3545]' : 
-                      'bg-[#ffc107]'
-                    }`}>
-                      {selectedSupplierPayment.st}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Amount</label>
-                      <p className="text-[12px] font-bold text-[#1e293b] m-0">{selectedSupplierPayment.a}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Amount</label>
+                        <p className="text-[12px] font-bold text-[#1e293b] m-0">{selectedSupplierPayment.a}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.date}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Product / Service</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.prod}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Quantity</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.qty}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.date}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Product / Service</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.prod}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Quantity</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedSupplierPayment.qty}</p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Contact Details</label>
-                    <p className="text-[10px] text-slate-600 m-0 truncate">{selectedSupplierPayment.email}</p>
-                    <p className="text-[10px] text-slate-400 m-0">{selectedSupplierPayment.biz}</p>
-                  </div>
+                    <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Contact Details</label>
+                      <p className="text-[10px] text-slate-600 m-0 truncate">{selectedSupplierPayment.email}</p>
+                      <p className="text-[10px] text-slate-400 m-0">{selectedSupplierPayment.biz}</p>
+                    </div>
 
-                  <div className="pt-1">
-                    <Link 
-                      href="/suppliers"
-                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
-                    >
-                      Manage Supplier Orders <ArrowRight size={12} />
-                    </Link>
+                    <div className="pt-1">
+                      <Link
+                        href="/suppliers"
+                        className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
+                      >
+                        Manage Supplier Orders <ArrowRight size={12} />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ) : (
+                ) : (
+                  <table className="wt">
+                    <thead>
+                      <tr>
+                        <th className="text-left">PO #</th>
+                        <th className="text-left">BUSINESS</th>
+                        <th className="text-left">SUPPLIER</th>
+                        <th className="text-right">AMOUNT</th>
+                        <th className="text-center">STATUS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dash.supplierPayments
+                        .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                        .map((row: any, i: number) => (
+                          <tr key={i} onClick={() => setSelectedSupplierPayment(row)} className="cursor-pointer group">
+                            <td><strong className="group-hover:text-[#f59e0b] transition-colors">{row.p}</strong></td>
+                            <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
+                            <td className="truncate">{row.s}</td>
+                            <td className="text-right"><strong>{row.a}</strong></td>
+                            <td className="text-center">
+                              <span className={`status-pill ${row.st === 'Paid' ? 'bg-[#198754]' :
+                                row.st === 'Overdue' ? 'bg-[#dc3545]' :
+                                  'bg-[#ffc107]'
+                                }`}>
+                                {row.st}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </Widget>
+            )}
+
+            {/* 10. SALES REPORT */}
+            {canShowCard('Sales Report') && (
+              <Widget title="Sales Report" icon={TrendingUp} color="bg-[#3b82f6]">
                 <table className="wt">
                   <thead>
                     <tr>
-                      <th className="text-left">PO #</th>
-                      <th className="text-left">BUSINESS</th>
-                      <th className="text-left">SUPPLIER</th>
+                      <th className="text-left">INV #</th>
+                      <th className="text-left">CLIENT</th>
                       <th className="text-right">AMOUNT</th>
                       <th className="text-center">STATUS</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.supplierPayments
+                    {dash.sales
                       .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
                       .map((row: any, i: number) => (
-                      <tr key={i} onClick={() => setSelectedSupplierPayment(row)} className="cursor-pointer group">
-                        <td><strong className="group-hover:text-[#f59e0b] transition-colors">{row.p}</strong></td>
-                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
-                        <td className="truncate">{row.s}</td>
-                        <td className="text-right"><strong>{row.a}</strong></td>
-                        <td className="text-center">
-                          <span className={`status-pill ${
-                            row.st === 'Paid' ? 'bg-[#198754]' : 
-                            row.st === 'Overdue' ? 'bg-[#dc3545]' : 
-                            'bg-[#ffc107]'
-                          }`}>
-                            {row.st}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                        <tr key={i}>
+                          <td><strong>{row.i}</strong></td>
+                          <td className="truncate">{row.c}</td>
+                          <td className="text-right"><strong>{row.a}</strong></td>
+                          <td className="text-center">
+                            <span className={`status-pill ${row.s === 'Paid' ? 'bg-[#198754]' : row.s === 'Overdue' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>
+                              {row.s}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
-              )}
-            </Widget>
-            )}
-
-            {/* 10. SALES REPORT */}
-            {canShowCard('Sales Report') && (
-            <Widget title="Sales Report" icon={TrendingUp} color="bg-[#3b82f6]">
-               <table className="wt">
-                <thead>
-                  <tr>
-                    <th className="text-left">INV #</th>
-                    <th className="text-left">CLIENT</th>
-                    <th className="text-right">AMOUNT</th>
-                    <th className="text-center">STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dash.sales
-                    .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
-                    .map((row: any, i: number) => (
-                    <tr key={i}>
-                      <td><strong>{row.i}</strong></td>
-                      <td className="truncate">{row.c}</td>
-                      <td className="text-right"><strong>{row.a}</strong></td>
-                      <td className="text-center">
-                        <span className={`status-pill ${row.s === 'Paid' ? 'bg-[#198754]' : row.s === 'Overdue' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>
-                          {row.s}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Widget>
+              </Widget>
             )}
 
             {/* 11. BANK ACCOUNTS */}
             {canShowCard('Bank Accounts') && (
-            <Widget 
-              title={selectedBank ? "Account Details" : "Bank Accounts"} 
-              icon={Building2} 
-              color="bg-[#10b981]"
-              headerAction={selectedBank && (
-                <button 
-                  onClick={() => setSelectedBank(null)}
-                  className="text-[10px] bg-white text-[#10b981] border border-[#10b981] px-2 py-0.5 rounded font-bold hover:bg-[#f0fdf4]"
-                >
-                  ← Back
-                </button>
-              )}
-            >
-              {selectedBank ? (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
-                    <div>
-                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedBank.b}</h4>
-                      <p className="text-[11px] text-[#64748b] m-0">{selectedBank.n}</p>
+              <Widget
+                title={selectedBank ? "Account Details" : "Bank Accounts"}
+                icon={Building2}
+                color="bg-[#10b981]"
+                headerAction={selectedBank && (
+                  <button
+                    onClick={() => setSelectedBank(null)}
+                    className="text-[10px] bg-white text-[#10b981] border border-[#10b981] px-2 py-0.5 rounded font-bold hover:bg-[#f0fdf4]"
+                  >
+                    ← Back
+                  </button>
+                )}
+              >
+                {selectedBank ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                      <div>
+                        <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedBank.b}</h4>
+                        <p className="text-[11px] text-[#64748b] m-0">{selectedBank.n}</p>
+                      </div>
+                      <span className="px-2 py-0.5 bg-[#10b981] text-white text-[9px] font-bold rounded-full">
+                        {selectedBank.st}
+                      </span>
                     </div>
-                    <span className="px-2 py-0.5 bg-[#10b981] text-white text-[9px] font-bold rounded-full">
-                      {selectedBank.st}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Account Type</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedBank.bl}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Account Type</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedBank.bl}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Account Number</label>
+                        <p className="text-[11px] font-mono font-semibold text-slate-700 m-0">{selectedBank.num}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Sort Code</label>
+                        <p className="text-[11px] font-mono font-semibold text-slate-700 m-0">{selectedBank.sort}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedBank.biz}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Account Number</label>
-                      <p className="text-[11px] font-mono font-semibold text-slate-700 m-0">{selectedBank.num}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Sort Code</label>
-                      <p className="text-[11px] font-mono font-semibold text-slate-700 m-0">{selectedBank.sort}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedBank.biz}</p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">IBAN / International</label>
-                    <p className="text-[10px] text-slate-600 font-mono m-0 truncate">{selectedBank.iban}</p>
-                  </div>
+                    <div className="space-y-1 pt-2 border-t border-[#f1f5f9]">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">IBAN / International</label>
+                      <p className="text-[10px] text-slate-600 font-mono m-0 truncate">{selectedBank.iban}</p>
+                    </div>
 
-                  <div className="pt-1">
-                    <Link 
-                      href="/accounting"
-                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#10b981] text-white text-[10px] font-bold rounded-lg hover:bg-[#059669] transition-all"
-                    >
-                      View All Accounts <ArrowRight size={12} />
-                    </Link>
+                    <div className="pt-1">
+                      <Link
+                        href="/accounting"
+                        className="flex items-center justify-center gap-2 w-full py-2 bg-[#10b981] text-white text-[10px] font-bold rounded-lg hover:bg-[#059669] transition-all"
+                      >
+                        View All Accounts <ArrowRight size={12} />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <table className="wt">
-                  <thead>
-                    <tr>
-                      <th className="text-left">BANK</th>
-                      <th className="text-left">ACCOUNT NAME</th>
-                      <th className="text-left">BALANCE</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dash.banks
-                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
-                      .map((row: any, i: number) => (
-                      <tr key={i} onClick={() => setSelectedBank(row)} className="cursor-pointer group">
-                        <td><strong className="group-hover:text-[#10b981] transition-colors">{row.b}</strong></td>
-                        <td className="truncate">{row.n}</td>
-                        <td><strong className="text-[#198754]">{row.bl}</strong></td>
+                ) : (
+                  <table className="wt">
+                    <thead>
+                      <tr>
+                        <th className="text-left">BANK</th>
+                        <th className="text-left">ACCOUNT NAME</th>
+                        <th className="text-left">BALANCE</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </Widget>
+                    </thead>
+                    <tbody>
+                      {dash.banks
+                        .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                        .map((row: any, i: number) => (
+                          <tr key={i} onClick={() => setSelectedBank(row)} className="cursor-pointer group">
+                            <td><strong className="group-hover:text-[#10b981] transition-colors">{row.b}</strong></td>
+                            <td className="truncate">{row.n}</td>
+                            <td><strong className="text-[#198754]">{row.bl}</strong></td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </Widget>
             )}
 
             {/* 12. MAINTENANCE REQUESTS */}
             {canShowCard('Maintenance') && (
-            <Widget 
-              title={selectedMaintenance ? "Ticket Details" : "Maintenance"} 
-              icon={Hammer} 
-              color="bg-[#ef4444]"
-              headerAction={selectedMaintenance && (
-                <button 
-                  onClick={() => setSelectedMaintenance(null)}
-                  className="text-[10px] bg-white text-[#ef4444] border border-[#ef4444] px-2 py-0.5 rounded font-bold hover:bg-[#fef2f2]"
-                >
-                  ← Back
-                </button>
-              )}
-            >
-              {selectedMaintenance ? (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
-                    <div className="min-w-0">
-                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0 truncate">{selectedMaintenance.a}</h4>
-                      <p className="text-[11px] text-[#64748b] m-0">{selectedMaintenance.loc}</p>
+              <Widget
+                title={selectedMaintenance ? "Ticket Details" : "Maintenance"}
+                icon={Hammer}
+                color="bg-[#ef4444]"
+                headerAction={selectedMaintenance && (
+                  <button
+                    onClick={() => setSelectedMaintenance(null)}
+                    className="text-[10px] bg-white text-[#ef4444] border border-[#ef4444] px-2 py-0.5 rounded font-bold hover:bg-[#fef2f2]"
+                  >
+                    ← Back
+                  </button>
+                )}
+              >
+                {selectedMaintenance ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                      <div className="min-w-0">
+                        <h4 className="text-[13px] font-bold text-[#1e293b] m-0 truncate">{selectedMaintenance.a}</h4>
+                        <p className="text-[11px] text-[#64748b] m-0">{selectedMaintenance.loc}</p>
+                      </div>
+                      <span className={`status-pill ${selectedMaintenance.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>
+                        {selectedMaintenance.p}
+                      </span>
                     </div>
-                    <span className={`status-pill ${selectedMaintenance.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>
-                      {selectedMaintenance.p}
-                    </span>
-                  </div>
 
-                  <div className="bg-red-50/50 p-2.5 rounded-xl border border-red-100/50">
-                    <label className="text-[9px] font-bold text-red-400 uppercase tracking-wider mb-1 block">Reported Issue</label>
-                    <p className="text-[11px] text-slate-700 m-0 font-medium leading-relaxed italic">"{selectedMaintenance.issue}"</p>
-                  </div>
+                    <div className="bg-red-50/50 p-2.5 rounded-xl border border-red-100/50">
+                      <label className="text-[9px] font-bold text-red-400 uppercase tracking-wider mb-1 block">Reported Issue</label>
+                      <p className="text-[11px] text-slate-700 m-0 font-medium leading-relaxed italic">"{selectedMaintenance.issue}"</p>
+                    </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Technician</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.tech}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Technician</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.tech}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Current Status</label>
+                        <p className="text-[11px] font-semibold text-[#ef4444] m-0">{selectedMaintenance.s}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Requested On</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.date}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.biz}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Current Status</label>
-                      <p className="text-[11px] font-semibold text-[#ef4444] m-0">{selectedMaintenance.s}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Requested On</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.date}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Business Unit</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedMaintenance.biz}</p>
-                    </div>
-                  </div>
 
-                  <div className="pt-1">
-                    <Link 
-                      href="/property"
-                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#ef4444] text-white text-[10px] font-bold rounded-lg hover:bg-[#dc2626] transition-all"
-                    >
-                      Open Maintenance Board <ArrowRight size={12} />
-                    </Link>
+                    <div className="pt-1">
+                      <Link
+                        href="/property"
+                        className="flex items-center justify-center gap-2 w-full py-2 bg-[#ef4444] text-white text-[10px] font-bold rounded-lg hover:bg-[#dc2626] transition-all"
+                      >
+                        Open Maintenance Board <ArrowRight size={12} />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <table className="wt">
-                  <thead>
-                    <tr>
-                      <th className="text-left">ASSET</th>
-                      <th className="text-left">BUSINESS</th>
-                      <th className="text-left">PRIORITY</th>
-                      <th className="text-center">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dash.maintenance
-                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
-                      .map((row: any, i: number) => (
-                      <tr key={i} onClick={() => setSelectedMaintenance(row)} className="cursor-pointer group">
-                        <td className="truncate"><strong className="group-hover:text-[#ef4444] transition-colors">{row.a}</strong></td>
-                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
-                        <td><span className={`status-pill ${row.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>{row.p}</span></td>
-                        <td className="text-center text-slate-500">{row.s}</td>
+                ) : (
+                  <table className="wt">
+                    <thead>
+                      <tr>
+                        <th className="text-left">ASSET</th>
+                        <th className="text-left">BUSINESS</th>
+                        <th className="text-left">PRIORITY</th>
+                        <th className="text-center">STATUS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </Widget>
+                    </thead>
+                    <tbody>
+                      {dash.maintenance
+                        .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                        .map((row: any, i: number) => (
+                          <tr key={i} onClick={() => setSelectedMaintenance(row)} className="cursor-pointer group">
+                            <td className="truncate"><strong className="group-hover:text-[#ef4444] transition-colors">{row.a}</strong></td>
+                            <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
+                            <td><span className={`status-pill ${row.p === 'Urgent' ? 'bg-[#dc3545]' : 'bg-[#f59e0b]'}`}>{row.p}</span></td>
+                            <td className="text-center text-slate-500">{row.s}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </Widget>
             )}
 
             {/* 13. LOW STOCK ALERTS */}
             {canShowCard('Low Stock') && (
-            <Widget 
-              title={selectedStock ? "Inventory Stats" : "Low Stock"} 
-              icon={AlertTriangle} 
-              color="bg-[#f59e0b]"
-              headerAction={selectedStock && (
-                <button 
-                  onClick={() => setSelectedStock(null)}
-                  className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
-                >
-                  ← Back
-                </button>
-              )}
-            >
-              {selectedStock ? (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
-                    <div>
-                      <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedStock.i}</h4>
-                      <p className="text-[11px] text-[#64748b] m-0">SKU: {selectedStock.sku}</p>
+              <Widget
+                title={selectedStock ? "Inventory Stats" : "Low Stock"}
+                icon={AlertTriangle}
+                color="bg-[#f59e0b]"
+                headerAction={selectedStock && (
+                  <button
+                    onClick={() => setSelectedStock(null)}
+                    className="text-[10px] bg-white text-[#f59e0b] border border-[#f59e0b] px-2 py-0.5 rounded font-bold hover:bg-[#fffbeb]"
+                  >
+                    ← Back
+                  </button>
+                )}
+              >
+                {selectedStock ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-2">
+                      <div>
+                        <h4 className="text-[13px] font-bold text-[#1e293b] m-0">{selectedStock.i}</h4>
+                        <p className="text-[11px] text-[#64748b] m-0">SKU: {selectedStock.sku}</p>
+                      </div>
+                      <span className={`status-pill ${selectedStock.c === 0 ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
+                        {selectedStock.s}
+                      </span>
                     </div>
-                    <span className={`status-pill ${selectedStock.c === 0 ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
-                      {selectedStock.s}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Current Stock</label>
-                      <p className={`text-[14px] font-bold m-0 ${selectedStock.c === 0 ? 'text-red-600' : 'text-amber-600'}`}>{selectedStock.c} Units</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Current Stock</label>
+                        <p className={`text-[14px] font-bold m-0 ${selectedStock.c === 0 ? 'text-red-600' : 'text-amber-600'}`}>{selectedStock.c} Units</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Min. Required</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedStock.min} Units</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Unit Price</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedStock.pr}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0 truncate">{selectedStock.cat}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Min. Required</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedStock.min} Units</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Unit Price</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0">{selectedStock.pr}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
-                      <p className="text-[11px] font-semibold text-slate-700 m-0 truncate">{selectedStock.cat}</p>
-                    </div>
-                  </div>
 
-                  <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl">
-                    <p className="text-[10px] text-amber-800 font-medium m-0 flex items-center gap-2">
-                      <AlertTriangle size={12} className="shrink-0" />
-                      Critical stock level reached. Restock recommended.
-                    </p>
-                  </div>
+                    <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                      <p className="text-[10px] text-amber-800 font-medium m-0 flex items-center gap-2">
+                        <AlertTriangle size={12} className="shrink-0" />
+                        Critical stock level reached. Restock recommended.
+                      </p>
+                    </div>
 
-                  <div className="pt-1">
-                    <Link 
-                      href="/inventory"
-                      className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
-                    >
-                      Inventory Manager <ArrowRight size={12} />
-                    </Link>
+                    <div className="pt-1">
+                      <Link
+                        href="/inventory"
+                        className="flex items-center justify-center gap-2 w-full py-2 bg-[#f59e0b] text-white text-[10px] font-bold rounded-lg hover:bg-[#d97706] transition-all"
+                      >
+                        Inventory Manager <ArrowRight size={12} />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <table className="wt">
-                  <thead>
-                    <tr>
-                      <th className="text-left">ITEM</th>
-                      <th className="text-left">BUSINESS</th>
-                      <th className="text-left">CUR.</th>
-                      <th className="text-center">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dash.lowStock
-                      .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
-                      .map((row: any, i: number) => (
-                      <tr key={i} onClick={() => setSelectedStock(row)} className="cursor-pointer group">
-                        <td className="truncate"><strong className="group-hover:text-[#f59e0b] transition-colors">{row.i}</strong></td>
-                        <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
-                        <td>{row.c}</td>
-                        <td className="text-center">
-                          <span className={`status-pill ${row.s === 'Good' ? 'bg-[#198754]' : row.s === 'Out of Stock' ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
-                            {row.s}
-                          </span>
-                        </td>
+                ) : (
+                  <table className="wt">
+                    <thead>
+                      <tr>
+                        <th className="text-left">ITEM</th>
+                        <th className="text-left">BUSINESS</th>
+                        <th className="text-left">CUR.</th>
+                        <th className="text-center">STATUS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </Widget>
+                    </thead>
+                    <tbody>
+                      {dash.lowStock
+                        .filter((row: any) => selectedBusiness === 'All Entities' || row.biz === selectedBusiness)
+                        .map((row: any, i: number) => (
+                          <tr key={i} onClick={() => setSelectedStock(row)} className="cursor-pointer group">
+                            <td className="truncate"><strong className="group-hover:text-[#f59e0b] transition-colors">{row.i}</strong></td>
+                            <td className="truncate text-[10px] text-slate-500">{row.biz}</td>
+                            <td>{row.c}</td>
+                            <td className="text-center">
+                              <span className={`status-pill ${row.s === 'Good' ? 'bg-[#198754]' : row.s === 'Out of Stock' ? 'bg-[#dc3545]' : 'bg-[#ffc107]'}`}>
+                                {row.s}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+              </Widget>
             )}
 
             {/* 14. RECENT SYSTEM ACTIVITY */}
@@ -1489,58 +1546,58 @@ export default function Dashboard() {
 
             {/* 15. QUICKBOOKS INTEGRATION */}
             {canShowCard('QuickBooks') && (
-            <Widget
-              title="QuickBooks Online"
-              icon={Cloud}
-              color="bg-[#2ca01c]"
-              headerAction={
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse"></span>
-                  <span className="text-[9px] font-bold text-[#16a34a] uppercase">Live</span>
-                </div>
-              }
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Cloud size={40} className="text-[#2ca01c]" />
+              <Widget
+                title="QuickBooks Online"
+                icon={Cloud}
+                color="bg-[#2ca01c]"
+                headerAction={
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse"></span>
+                    <span className="text-[9px] font-bold text-[#16a34a] uppercase">Live</span>
                   </div>
-                  <div className="relative z-10">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Company Balance</p>
-                    <h3 className="text-xl font-extrabold text-slate-800 m-0">{dash.quickbooks?.balance || '$0.00'}</h3>
+                }
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Cloud size={40} className="text-[#2ca01c]" />
+                    </div>
+                    <div className="relative z-10">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Company Balance</p>
+                      <h3 className="text-xl font-extrabold text-slate-800 m-0">{dash.quickbooks?.balance || '$0.00'}</h3>
+                    </div>
+                    <div className="relative z-10 text-right">
+                      <button className="p-2 bg-white border border-slate-200 rounded-lg hover:border-[#2ca01c] hover:text-[#2ca01c] transition-all shadow-sm">
+                        <RefreshCcw size={14} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="relative z-10 text-right">
-                    <button className="p-2 bg-white border border-slate-200 rounded-lg hover:border-[#2ca01c] hover:text-[#2ca01c] transition-all shadow-sm">
-                      <RefreshCcw size={14} />
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">Bank Feed</span>
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 size={12} className="text-[#16a34a]" />
+                        <span className="text-[11px] font-bold text-slate-700">{dash.quickbooks?.bankFeed}</span>
+                      </div>
+                    </div>
+                    <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">Pending Review</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-4 bg-amber-100 text-amber-600 rounded flex items-center justify-center text-[10px] font-bold">{dash.quickbooks?.pending}</div>
+                        <span className="text-[11px] font-bold text-slate-700">Transactions</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button className="w-full py-2 bg-[#2ca01c] text-white text-[10px] font-bold rounded-lg hover:bg-[#238016] transition-all shadow-lg shadow-green-100 flex items-center justify-center gap-2">
+                      Open QuickBooks Center <ArrowUpRight size={12} />
                     </button>
+                    <p className="text-center text-[9px] text-slate-400 mt-2 font-medium">Last synced: {dash.quickbooks?.lastSync}</p>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase">Bank Feed</span>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 size={12} className="text-[#16a34a]" />
-                      <span className="text-[11px] font-bold text-slate-700">{dash.quickbooks?.bankFeed}</span>
-                    </div>
-                  </div>
-                  <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase">Pending Review</span>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 bg-amber-100 text-amber-600 rounded flex items-center justify-center text-[10px] font-bold">{dash.quickbooks?.pending}</div>
-                      <span className="text-[11px] font-bold text-slate-700">Transactions</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <button className="w-full py-2 bg-[#2ca01c] text-white text-[10px] font-bold rounded-lg hover:bg-[#238016] transition-all shadow-lg shadow-green-100 flex items-center justify-center gap-2">
-                    Open QuickBooks Center <ArrowUpRight size={12} />
-                  </button>
-                  <p className="text-center text-[9px] text-slate-400 mt-2 font-medium">Last synced: {dash.quickbooks?.lastSync}</p>
-                </div>
-              </div>
-            </Widget>
+              </Widget>
             )}
 
           </div>
@@ -1562,7 +1619,7 @@ export default function Dashboard() {
                   {vaultError}
                 </p>
               </div>
-              <button 
+              <button
                 onClick={() => setVaultError(null)}
                 className="w-full py-3 bg-slate-900 text-white text-[11px] font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg active:scale-95"
               >
@@ -1595,10 +1652,10 @@ export default function Dashboard() {
               </div>
               <div className="space-y-3">
                 {urgentReminders.map((r, i) => (
-                  <Link 
+                  <Link
                     href="/reminders"
                     onClick={() => setShowReminderPopup(false)}
-                    key={i} 
+                    key={i}
                     className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-start gap-3 cursor-pointer hover:bg-slate-100 hover:border-indigo-200 transition-all block group"
                   >
                     <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0 group-hover:bg-indigo-100 transition-colors">
@@ -1616,13 +1673,13 @@ export default function Dashboard() {
                 ))}
               </div>
               <div className="mt-6 flex gap-2">
-                <Link 
+                <Link
                   href="/reminders"
                   className="flex-1 flex items-center justify-center py-3 bg-red-600 text-white text-[12px] font-bold rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-100"
                 >
                   View All Reminders
                 </Link>
-                <button 
+                <button
                   onClick={() => setShowReminderPopup(false)}
                   className="px-6 py-3 bg-slate-100 text-slate-600 text-[12px] font-bold rounded-xl hover:bg-slate-200 transition-all"
                 >
@@ -1644,7 +1701,7 @@ export default function Dashboard() {
                 <h3 className="text-sm font-bold text-slate-800 m-0">{activeDoc.title}</h3>
                 <p className="text-[10px] text-slate-500 m-0">Document Preview</p>
               </div>
-              <button 
+              <button
                 onClick={() => setActiveDoc(null)}
                 className="p-2 hover:bg-slate-200 rounded-full transition-colors"
               >
@@ -1653,10 +1710,10 @@ export default function Dashboard() {
             </div>
             <div className="flex-1 bg-slate-100 overflow-hidden relative">
               {activeDoc.url.toLowerCase().includes('.pdf') ? (
-                <iframe 
-                  src={`${activeDoc.url}#toolbar=0&navpanes=0`} 
-                  className="w-full h-full border-none bg-white" 
-                  title="Document Viewer" 
+                <iframe
+                  src={`${activeDoc.url}#toolbar=0&navpanes=0`}
+                  className="w-full h-full border-none bg-white"
+                  title="Document Viewer"
                 />
               ) : activeDoc.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ? (
                 <div className="w-full h-full flex items-center justify-center p-8 overflow-auto">
@@ -1672,9 +1729,9 @@ export default function Dashboard() {
                     <p className="text-slate-500 text-[11px] leading-relaxed mb-6">
                       This file format does not support direct browser preview. Please download the document to view it on your device.
                     </p>
-                    <a 
-                      href={activeDoc.url} 
-                      download 
+                    <a
+                      href={activeDoc.url}
+                      download
                       className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#4f46e5] text-white text-[11px] font-bold rounded-xl hover:bg-[#4338ca] transition-all shadow-lg shadow-indigo-100"
                     >
                       Download Document <ArrowRight size={14} />
@@ -1685,9 +1742,9 @@ export default function Dashboard() {
             </div>
             <div className="p-4 border-t bg-white flex justify-between items-center">
               <span className="text-[10px] text-slate-400 italic">Secure ERP Document Viewer</span>
-              <a 
-                href={activeDoc.url} 
-                download 
+              <a
+                href={activeDoc.url}
+                download
                 className="px-4 py-2 bg-[#4f46e5] text-white text-[11px] font-bold rounded-lg hover:bg-[#4338ca] transition-all flex items-center gap-2"
               >
                 Download File <ArrowRight size={14} />
