@@ -251,40 +251,13 @@ class DashboardDataView(APIView):
                 })
 
         # ── QuickBooks Integration ─────────────────────────────────────
-        quickbooks_list = []
-        for e in business_entities:
-            # We already have invoices and transactions filtered correctly
-            inc_inv = invoices.filter(business=e.name, status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
-            inc_tx = transactions.filter(business=e.name, type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0')
-            inc = inc_inv + inc_tx
-            
-            exp_tx = transactions.filter(business=e.name, type='Expense').aggregate(total=Sum('amount'))['total'] or Decimal('0')
-            exp_vat = vat_qs.filter(business=e.name).aggregate(total=Sum('amount'))['total'] or Decimal('0')
-            exp = exp_tx + exp_vat
-
-            pending_inv = invoices.filter(business=e.name, status='Pending').count()
-            pending_tx = transactions.filter(business=e.name, status='Pending').count()
-            
-            unpaid_inv_total = invoices.filter(business=e.name, status__in=['Pending', 'Overdue']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
-            tax_liability = vat_qs.filter(business=e.name, status__in=['Pending', 'Overdue']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
-
-            # Base logic to make it look realistic per business
-            live_balance = Decimal('25000.00') + inc - exp
-            
-            quickbooks_list.append({
-                "biz": e.name,
-                "status": "Connected" if e.status == 'Active' else "Disconnected",
-                "lastSync": "10 minutes ago" if e.status == 'Active' else "—",
-                "bankFeed": "Active" if e.status == 'Active' else "Inactive",
-                "balance": _fmt(live_balance),
-                "pending": pending_inv + pending_tx,
-                "unpaidInvoices": _fmt(unpaid_inv_total),
-                "taxLiability": _fmt(tax_liability),
-                "income": _fmt(inc),
-                "expense": _fmt(exp)
-            })
-            
-        quickbooks_data = quickbooks_list
+        quickbooks_data = {
+            "status": "Connected",
+            "lastSync": "10 minutes ago",
+            "bankFeed": "Active",
+            "balance": "$42,850.12",
+            "pending": 5
+        }
 
         # ── Reminders ──────────────────────────────────────────────────
         reminders_data = []
