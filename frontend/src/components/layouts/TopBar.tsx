@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, Bell, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Bell, AlertTriangle, Settings } from 'lucide-react';
 import { UserRole } from '@/constants/roles';
 import { cn } from '@/lib/utils';
 import { API_ENDPOINTS } from '@/lib/api';
@@ -12,6 +12,7 @@ interface TopBarProps {
   userRole: UserRole;
   user: any;
   onProfileClick: () => void;
+  onSettingsClick: () => void;
   businesses?: any[];
   selectedBusiness?: string;
   onBusinessChange?: (business: string) => void;
@@ -22,6 +23,7 @@ export default function TopBar({
   userRole, 
   user, 
   onProfileClick, 
+  onSettingsClick,
   businesses = [],
   selectedBusiness = 'All Entities',
   onBusinessChange
@@ -91,6 +93,15 @@ export default function TopBar({
           </div>
         )}
         
+        {/* Settings */}
+        <button 
+          onClick={onSettingsClick}
+          className="w-9 h-9 rounded-full bg-[#f8fafc] border border-[#e2e8f0] flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+          title="System Settings"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
+
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button 

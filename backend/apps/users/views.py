@@ -131,9 +131,24 @@ class StaffView(APIView):
                             viewable.add(MODULE_MAPPING[mod])
                 
                 profile.access = ', '.join(sorted(list(viewable)))
+            
+            if 'settings' in data:
+                settings_data = data['settings']
+                if isinstance(settings_data, str):
+                    settings_data = json.loads(settings_data)
+                profile.settings = json.dumps(settings_data)
 
             profile.save()
             return Response(StaffProfileSerializer(profile).data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, pk):
+        try:
+            profile = StaffProfile.objects.get(pk=pk)
+            return Response(StaffProfileSerializer(profile).data)
+        except StaffProfile.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -187,6 +202,7 @@ class LoginView(APIView):
                         "business": profile.assigned_business,
                         "access": profile.access,
                         "permissions": profile.permissions,
+                        "settings": profile.settings,
                     })
                 else:
                     print("DEBUG: Password check FAILED")

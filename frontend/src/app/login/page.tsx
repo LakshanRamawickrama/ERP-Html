@@ -60,6 +60,7 @@ export default function LoginPage() {
           business: data.business,
           access: data.access,
           permissions: data.permissions,
+          settings: data.settings,
         }));
         router.push('/dashboard');
       } else {

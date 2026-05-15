@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layouts/Sidebar';
 import ProfileDrawer from '@/components/layouts/ProfileDrawer';
+import SettingsDrawer from '@/components/layouts/SettingsDrawer';
 import TopBar from '@/components/layouts/TopBar';
 import { API_ENDPOINTS } from '@/lib/api';
 import Link from 'next/link';
@@ -83,7 +84,22 @@ const playNotificationSound = (count?: number) => {
     playModernTone(1320, 0.15, 0.4, 0.1); // Crystal peak
 
     // Voice Announcement (High-Tech AI Intelligence Persona)
-    if (count !== undefined && count > 0 && 'speechSynthesis' in window) {
+    let isVoiceDisabled = typeof window !== 'undefined' && localStorage.getItem('disableVoiceAnnouncement') === 'true';
+    
+    // Check if we have a preference saved in the user profile (Database)
+    const savedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        let settings = userData.settings || {};
+        if (typeof settings === 'string') settings = JSON.parse(settings);
+        if (settings.disableVoiceAnnouncement !== undefined) {
+          isVoiceDisabled = settings.disableVoiceAnnouncement === true;
+        }
+      } catch (e) {}
+    }
+
+    if (!isVoiceDisabled && count !== undefined && count > 0 && 'speechSynthesis' in window) {
       setTimeout(() => {
         const speak = () => {
           window.speechSynthesis.cancel();
@@ -142,6 +158,7 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [dash, setDash] = useState<any>({
     businesses: [], fleet: [], notes: [], vat: [], todos: [],
     passwords: [], supplierPayments: [], sales: [], banks: [],
@@ -179,14 +196,27 @@ export default function Dashboard() {
     setUser(userData);
     setUserRole(userData.role as UserRole);
 
+    // Sync user data from server on load to get latest settings
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch(`${API_ENDPOINTS.USERS}staff/${userData.id || userData.user_id}/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(freshData => {
+        const mergedUser = { ...userData, ...freshData };
+        localStorage.setItem('user', JSON.stringify(mergedUser));
+        setUser(mergedUser);
+      })
+      .catch(() => {});
+    }
+
     const savedBusiness = localStorage.getItem('selectedBusiness');
     if (userData.role !== UserRole.SUPER_ADMIN && userData.assigned_business) {
       setSelectedBusiness(userData.assigned_business);
     } else if (savedBusiness) {
       setSelectedBusiness(savedBusiness);
     }
-
-    const token = localStorage.getItem('token');
 
     // Fetch businesses for selector
     fetch(API_ENDPOINTS.BUSINESS, {
@@ -441,9 +471,15 @@ export default function Dashboard() {
           userRole={userRole}
           user={user}
           onProfileClick={() => setIsProfileOpen(true)}
+          onSettingsClick={() => setIsSettingsOpen(true)}
           businesses={businesses}
           selectedBusiness={selectedBusiness}
           onBusinessChange={handleBusinessChange}
+        />
+
+        <SettingsDrawer 
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
         />
 
         {/* Content Area */}

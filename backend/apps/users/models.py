@@ -10,6 +10,7 @@ class StaffProfile(models.Model):
     permissions = models.TextField(default='{}')
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128, default='')
+    settings = models.TextField(default='{"disableVoiceAnnouncement": false}')
     status = models.CharField(max_length=50, default='Active')
 
     USERNAME_FIELD = 'email'
