@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layouts/Sidebar';
 import TopBar from '@/components/layouts/TopBar';
 import ProfileDrawer from '@/components/layouts/ProfileDrawer';
+import SettingsDrawer from '@/components/layouts/SettingsDrawer';
 import { UserRole } from '@/constants/roles';
 import { API_ENDPOINTS } from '@/lib/api';
 
@@ -17,6 +18,7 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
   const [user, setUser] = useState<any>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState('All Entities');
   const router = useRouter();
@@ -73,18 +75,27 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
           userRole={userRole}
           user={user}
           onProfileClick={() => setIsProfileOpen(true)}
+          onSettingsClick={() => setIsSettingsOpen(true)}
           businesses={businesses}
           selectedBusiness={selectedBusiness}
           onBusinessChange={handleBusinessChange}
+        />
+
+        <SettingsDrawer 
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
         />
         
         <div className="flex-1 overflow-y-auto">
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
-              return React.cloneElement(child as React.ReactElement<any>, { 
-                selectedBusiness,
-                businesses: businesses.map(b => b.name || b)
-              });
+              // Only inject props into custom components, not DOM elements like 'div'
+              if (typeof child.type !== 'string') {
+                return React.cloneElement(child as React.ReactElement<any>, { 
+                  selectedBusiness,
+                  businesses: businesses.map(b => b.name || b)
+                });
+              }
             }
             return child;
           })}

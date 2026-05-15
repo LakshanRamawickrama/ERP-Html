@@ -16,7 +16,7 @@ from apps.suppliers.models import PurchaseOrder, Supplier
 from apps.reminders.models import Reminder
 from apps.system.models import SystemCredential, ConnectedEmail, Note
 from apps.users.models import StaffProfile
-from apps.users.utils import get_filtered_queryset
+from apps.users.utils import get_filtered_queryset, slugify_name
 
 
 def _fmt(amount):
@@ -26,8 +26,7 @@ def _fmt(amount):
         return "$0.00"
 
 
-def _slugify(name):
-    return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+
 
 
 class DashboardDataView(APIView):
@@ -79,7 +78,7 @@ class DashboardDataView(APIView):
 
                 businesses_data.append({
                     "id":   str(e.id),
-                    "slug": _slugify(e.name),
+                    "slug": slugify_name(e.name),
                     "name": e.name,
                     "category": e.category or "Retail",
                     "admin": admin_name,
@@ -431,7 +430,7 @@ class ReportsDataView(APIView):
             
             businesses_data.append({
                 "id": str(e.id),
-                "slug": _slugify(e.name),
+                "slug": slugify_name(e.name),
                 "name": e.name,
                 "category": e.category or "Retail",
                 "admin": admin_name,

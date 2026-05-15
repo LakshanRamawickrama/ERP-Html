@@ -1,4 +1,13 @@
+import re
 from rest_framework.permissions import IsAuthenticated
+
+def slugify_name(name):
+    """
+    Standardizes how names are converted to slugs for URLs.
+    Replaces non-alphanumeric characters with dashes.
+    """
+    if not name: return ""
+    return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
 
 def get_filtered_queryset(request, model_class, business_field='business'):
     """

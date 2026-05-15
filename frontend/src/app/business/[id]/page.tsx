@@ -6,7 +6,7 @@ import PageWrapper from '@/components/layouts/PageWrapper';
 import { API_ENDPOINTS } from '@/lib/api';
 import {
   ArrowLeft, Building2, Truck, Package, Calculator, Boxes, Scale, Home, Eye,
-  Globe, Phone, Mail, Clock, CreditCard, CalendarDays, Shield, MapPin
+  Globe, Phone, Mail, Clock, CreditCard, CalendarDays, Shield, MapPin, X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -354,6 +354,8 @@ export default function BusinessDetailPage() {
   const router = useRouter();
   const slug = id as string;
   const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -369,18 +371,66 @@ export default function BusinessDetailPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    setLoading(true);
+    setError(null);
+
     fetch(`${API_ENDPOINTS.BUSINESS}${slug}/`, {
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     })
-      .then(res => {
-        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) throw new Error('Fetch failed');
+      .then(async res => {
+        if (!res.ok) {
+          if (res.status === 404) throw new Error('Business not found');
+          throw new Error(`Server responded with ${res.status}`);
+        }
+        
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Invalid server response (not JSON)');
+        }
+
         return res.json();
       })
-      .then(d => setData(d))
-      .catch(err => console.error(err));
+      .then(d => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Fetch Error:", err);
+        setError(err.message);
+        setLoading(false);
+      });
   }, [slug]);
 
-  if (!data) return null;
+  if (loading) return (
+    <PageWrapper title="Loading...">
+      <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-xs font-bold text-slate-500">Synchronizing records...</p>
+        </div>
+      </div>
+    </PageWrapper>
+  );
+
+  if (error || !data) return (
+    <PageWrapper title="Error">
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto">
+            <X size={32} />
+          </div>
+          <h2 className="text-xl font-black text-slate-800">Oops! {error || 'Business not found'}</h2>
+          <p className="text-sm text-slate-500 max-w-xs mx-auto">We couldn't retrieve the details for this business. It might have been deleted or renamed.</p>
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="px-6 py-2 bg-[#2c3e50] text-white rounded-xl font-bold text-xs"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    </PageWrapper>
+  );
 
   const business = data.business ?? {};
   const logo = business.logo_url;

@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import BusinessEntity, CompanyStructure
 from .serializers import BusinessEntitySerializer, CompanyStructureSerializer
 from apps.users.models import StaffProfile
+from apps.users.utils import slugify_name
 
 class BusinessDataView(APIView):
     permission_classes = [IsAuthenticated]
@@ -44,99 +45,124 @@ class BusinessDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, slug):
-        entity = None
-        for b in BusinessEntity.objects.all():
-            if b.name.lower().replace(' ', '-') == slug:
-                entity = b
-                break
+        try:
+            entity = None
+            for b in BusinessEntity.objects.all():
+                if slugify_name(b.name) == slug:
+                    entity = b
+                    break
 
-        if not entity:
-            return Response({"error": "Business not found"}, status=404)
+            if not entity:
+                return Response({"error": "Business not found"}, status=404)
 
-        business_name = entity.name
+            business_name = entity.name
 
-        def fmt(amount):
-            return f"${amount:,.2f}" if amount is not None else "$0.00"
+            def fmt(amount):
+                try:
+                    if amount is None: return "$0.00"
+                    return f"${float(amount):,.2f}"
+                except (ValueError, TypeError):
+                    return str(amount)
 
-        # ── Fleet ──
-        fleet_records = []
-        for v in Vehicle.objects.filter(business=business_name):
-            delivery = Delivery.objects.filter(vehicle=v).order_by('-delivery_date').first()
-            fleet_records.append({
-                "_kind": "vehicle",
-                "vehicleName": v.name, "vehicleNumber": v.plate_number,
-                "insuranceExpiry": str(v.insurance_date) if v.insurance_date else "",
-                "motDate": str(v.mot_date) if v.mot_date else "",
-                "roadTaxDate": str(v.road_tax_date) if v.road_tax_date else "",
-                "deliveryDate": str(delivery.delivery_date) if delivery else "",
-                "status": v.status,
+            # ── Fleet ──
+            fleet_records = []
+            for v in Vehicle.objects.filter(business=business_name):
+                delivery = Delivery.objects.filter(vehicle=v).order_by('-delivery_date').first()
+                fleet_records.append({
+                    "_kind": "vehicle",
+                    "vehicleName": v.name, "vehicleNumber": v.plate_number,
+                    "insuranceExpiry": str(v.insurance_date) if v.insurance_date else "",
+                    "motDate": str(v.mot_date) if v.mot_date else "",
+                    "roadTaxDate": str(v.road_tax_date) if v.road_tax_date else "",
+                    "deliveryDate": str(delivery.delivery_date) if delivery else "",
+                    "status": v.status,
+                })
+            for pp in ParcelPartner.objects.filter(business=business_name):
+                fleet_records.append({
+                    "_kind": "parcel", "provider": pp.provider, "area": pp.area, "status": pp.status,
+                    "contact": pp.contact_name, "phone": pp.contact_number, "serviceDate": str(pp.service_date)
+                })
+
+            # ── Accounting ──
+            accounting = []
+            for i in Invoice.objects.filter(business=business_name):
+                accounting.append({"_kind": "invoice", "name": i.number, "title": i.client, "amount": fmt(i.amount), "dueDate": str(i.due_date), "status": i.status})
+            for t in Transaction.objects.filter(business=business_name):
+                accounting.append({"_kind": "transaction", "name": t.title, "category": t.category, "type": t.type, "amount": fmt(t.amount), "dueDate": str(t.date), "status": t.status, "notes": t.notes})
+            for b in BankAccount.objects.filter(business=business_name):
+                accounting.append({"_kind": "bank", "name": b.bank_name, "accountName": b.account_name, "accountNumber": b.account_number, "sortCode": b.sort_code, "accountType": b.account_type, "status": b.status})
+            for ln in Loan.objects.filter(business=business_name):
+                accounting.append({"_kind": "loan", "name": ln.name, "lender": ln.lender, "totalAmount": fmt(ln.total_amount), "outstanding": fmt(ln.outstanding_amount), "monthly": fmt(ln.monthly_payment), "rate": f"{ln.interest_rate}%", "status": ln.status})
+            for ip in InsurancePolicy.objects.filter(business=business_name):
+                accounting.append({"_kind": "insurance", "name": ip.type, "provider": ip.provider, "policyNumber": ip.policy_number, "premium": fmt(ip.premium), "expiry": str(ip.expiry_date), "status": ip.status})
+            for vr in VATRecord.objects.filter(business=business_name):
+                period_str = f"{vr.period_start} to {vr.period_end}" if (vr.period_start and vr.period_end) else "—"
+                accounting.append({"_kind": "vat", "name": vr.type, "period": period_str, "amount": fmt(vr.amount), "date": str(vr.filing_deadline or "—"), "status": vr.status})
+            for ds in PaymentServiceRecord.objects.filter(biz=business_name):
+                accounting.append({"_kind": "payment", "date": str(ds.date), "method": ds.method, "amount": fmt(ds.gross_amount), "fee": fmt(ds.fee_amount), "net": fmt(ds.net_amount), "status": ds.status, "provider": ds.provider})
+
+            # ── Inventory ──
+            inventory = []
+            for p in Product.objects.filter(business=business_name):
+                inventory.append({"_kind": "product", "item": p.name, "category": p.category, "sku": p.sku, "stockLevel": p.quantity, "price": fmt(p.price), "status": "In Stock" if p.quantity > p.min_stock else "Low Stock"})
+            for m in StockMovement.objects.filter(business=business_name):
+                inventory.append({"_kind": "movement", "item": m.product.name if m.product else "Item", "date": str(m.date), "type": m.type, "quantity": m.quantity, "notes": m.notes})
+            
+            # ── Suppliers ──
+            supplier_records = []
+            for s in Supplier.objects.filter(business=business_name):
+                supplier_records.append({"_kind": "supplier", "supplierName": s.name, "category": s.category, "contact": s.contact_person, "phone": s.phone, "email": s.email, "status": s.status})
+            for po in PurchaseOrder.objects.filter(business=business_name):
+                supplier_records.append({"_kind": "po", "number": po.number, "supplierName": po.supplier.name if po.supplier else "N/A", "product": po.product, "quantity": po.quantity, "amount": fmt(po.amount), "date": str(po.date), "status": po.status})
+
+            # ── Legal ──
+            legal = []
+            for d in LegalDocument.objects.filter(business=business_name):
+                legal.append({"_kind": "document", "title": d.title, "type": d.type, "expiryDate": str(d.expiry_date), "status": d.status, "business": d.business})
+            for s in CompanyStructure.objects.filter(business=business_name):
+                legal.append({"_kind": "registration", "title": "Companies House", "crn": s.crn, "manager": s.manager, "sicCode": s.sic_code, "filingDue": str(s.filing_due), "address": s.address, "status": "Active"})
+
+            # ── Property ──
+            property_data = []
+            for m in MaintenanceRequest.objects.filter(business=business_name):
+                property_data.append({"_kind": "maintenance", "asset": m.asset.name if m.asset else "General", "priority": m.priority, "issue": m.issue, "technician": m.technician, "date": str(m.date), "status": m.status})
+            for a in Asset.objects.filter(business=business_name):
+                property_data.append({"_kind": "asset", "name": a.name, "assetType": a.asset_type, "location": a.location, "assignedPerson": a.assigned_person, "contact": a.contact, "status": a.status})
+            for wc in WasteCollection.objects.filter(business=business_name):
+                property_data.append({"_kind": "waste", "date": str(wc.date), "contact_person": wc.contact_person, "phone": wc.phone, "address": wc.address, "notes": wc.notes, "status": wc.status})
+            for pl in PropertyLicence.objects.filter(business=business_name):
+                property_data.append({"_kind": "licence", "type": pl.type, "authority": pl.authority, "issueDate": str(pl.issue_date), "expiryDate": str(pl.expiry_date), "business": pl.business, "status": pl.status})
+            for rem in Reminder.objects.filter(business=business_name):
+                due_val = rem.due_date
+                if due_val and hasattr(due_val, 'date'):
+                    due_val = str(due_val.date())
+                elif due_val:
+                    due_val = str(due_val)
+                else:
+                    due_val = "—"
+                    
+                property_data.append({
+                    "_kind": "reminder", 
+                    "title": rem.title, 
+                    "priority": rem.priority, 
+                    "dueDate": due_val,
+                    "description": rem.description, 
+                    "status": "Pending"
+                })
+
+            return Response({
+                "business": BusinessEntitySerializer(entity, context={'request': request}).data,
+                "fleet": fleet_records,
+                "accounting": accounting,
+                "inventory": inventory,
+                "supplier": supplier_records,
+                "legal": legal,
+                "property": property_data,
             })
-        for pp in ParcelPartner.objects.filter(business=business_name):
-            fleet_records.append({
-                "_kind": "parcel", "provider": pp.provider, "area": pp.area, "status": pp.status,
-                "contact": pp.contact_name, "phone": pp.contact_number, "serviceDate": str(pp.service_date)
-            })
-
-        # ── Accounting ──
-        accounting = []
-        for i in Invoice.objects.filter(business=business_name):
-            accounting.append({"_kind": "invoice", "name": i.number, "title": i.client, "amount": fmt(i.amount), "dueDate": str(i.due_date), "status": i.status})
-        for t in Transaction.objects.filter(business=business_name):
-            accounting.append({"_kind": "transaction", "name": t.title, "category": t.category, "type": t.type, "amount": fmt(t.amount), "dueDate": str(t.date), "status": t.status, "notes": t.notes})
-        for b in BankAccount.objects.filter(business=business_name):
-            accounting.append({"_kind": "bank", "name": b.bank_name, "accountName": b.account_name, "accountNumber": b.account_number, "sortCode": b.sort_code, "accountType": b.account_type, "status": b.status})
-        for ln in Loan.objects.filter(business=business_name):
-            accounting.append({"_kind": "loan", "name": ln.name, "lender": ln.lender, "totalAmount": fmt(ln.total_amount), "outstanding": fmt(ln.outstanding_amount), "monthly": fmt(ln.monthly_payment), "rate": f"{ln.interest_rate}%", "status": ln.status})
-        for ip in InsurancePolicy.objects.filter(business=business_name):
-            accounting.append({"_kind": "insurance", "name": ip.type, "provider": ip.provider, "policyNumber": ip.policy_number, "premium": fmt(ip.premium), "expiry": str(ip.expiry_date), "status": ip.status})
-        for vr in VATRecord.objects.filter(business=business_name):
-            accounting.append({"_kind": "vat", "name": vr.type, "period": vr.period, "amount": fmt(vr.amount), "date": str(vr.date), "status": vr.status})
-        for ds in PaymentServiceRecord.objects.filter(biz=business_name):
-            accounting.append({"_kind": "payment", "date": str(ds.date), "method": ds.method, "amount": fmt(ds.gross_amount), "fee": fmt(ds.fee_amount), "net": fmt(ds.net_amount), "status": ds.status, "provider": ds.provider})
-
-        # ── Inventory ──
-        inventory = []
-        for p in Product.objects.filter(business=business_name):
-            inventory.append({"_kind": "product", "item": p.name, "category": p.category, "sku": p.sku, "stockLevel": p.quantity, "price": fmt(p.price), "status": "In Stock" if p.quantity > p.min_stock else "Low Stock"})
-        for m in StockMovement.objects.filter(business=business_name):
-            inventory.append({"_kind": "movement", "item": m.product.name if m.product else "Item", "date": str(m.date), "type": m.type, "quantity": m.quantity, "notes": m.notes})
-        
-        # ── Suppliers ──
-        supplier_records = []
-        for s in Supplier.objects.filter(business=business_name):
-            supplier_records.append({"_kind": "supplier", "supplierName": s.name, "category": s.category, "contact": s.contact_person, "phone": s.phone, "email": s.email, "status": s.status})
-        for po in PurchaseOrder.objects.filter(business=business_name):
-            supplier_records.append({"_kind": "po", "number": po.number, "supplierName": po.supplier.name if po.supplier else "N/A", "product": po.product, "quantity": po.quantity, "amount": fmt(po.amount), "date": str(po.date), "status": po.status})
-
-        # ── Legal ──
-        legal = []
-        for d in LegalDocument.objects.filter(business=business_name):
-            legal.append({"_kind": "document", "title": d.title, "type": d.type, "expiryDate": str(d.expiry_date), "status": d.status, "business": d.business})
-        for s in CompanyStructure.objects.filter(name=business_name):
-            legal.append({"_kind": "registration", "title": "Companies House", "crn": s.crn, "manager": s.manager, "sicCode": s.sic_code, "filingDue": str(s.filing_due), "address": s.address, "status": "Active"})
-
-        # ── Property ──
-        property_data = []
-        for m in MaintenanceRequest.objects.filter(business=business_name):
-            property_data.append({"_kind": "maintenance", "asset": m.asset.name if m.asset else "General", "priority": m.priority, "issue": m.issue, "technician": m.technician, "date": str(m.date), "status": m.status})
-        for a in Asset.objects.filter(business=business_name):
-            property_data.append({"_kind": "asset", "name": a.name, "assetType": a.asset_type, "location": a.location, "assignedPerson": a.assigned_person, "contact": a.contact, "status": a.status})
-        for wc in WasteCollection.objects.filter(business=business_name):
-            property_data.append({"_kind": "waste", "date": str(wc.date), "contactPerson": wc.contact_person, "phone": wc.phone, "address": wc.address, "notes": wc.notes, "status": wc.status})
-        for pl in PropertyLicence.objects.filter(business=business_name):
-            property_data.append({"_kind": "licence", "type": pl.type, "authority": pl.authority, "issueDate": str(pl.issue_date), "expiryDate": str(pl.expiry_date), "business": pl.business, "status": pl.status})
-        for rem in Reminder.objects.filter(business=business_name):
-            property_data.append({"_kind": "reminder", "title": rem.title, "priority": rem.priority, "dueDate": str(rem.due_date.date() if hasattr(rem.due_date, 'date') else rem.due_date), "description": rem.description, "status": "Pending"})
-
-        return Response({
-            "business": BusinessEntitySerializer(entity, context={'request': request}).data,
-            "fleet": fleet_records,
-            "accounting": accounting,
-            "inventory": inventory,
-            "supplier": supplier_records,
-            "legal": legal,
-            "property": property_data,
-        })
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            return Response({"error": str(e)}, status=500)
 
 from rest_framework import status as http_status
 class BusinessEntityView(APIView):
