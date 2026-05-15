@@ -212,25 +212,28 @@ class DashboardDataView(APIView):
             })
 
         # ── Profit & Loss ──────────────────────────────────────────────
-        inc_tx = transactions.filter(type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        inc_inv = invoices.filter(status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        total_income = inc_tx + inc_inv
-        
-        exp_tx = transactions.filter(type='Expense').aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        exp_vat = vat_qs.aggregate(total=Sum('amount'))['total'] or Decimal('0')
-        total_expense = exp_tx + exp_vat
-        
-        gross_profit  = total_income - total_expense
-        tax_amount    = (gross_profit * Decimal('0.20')) if gross_profit > 0 else Decimal('0')
-        net_profit    = gross_profit - tax_amount
+        pl_data = []
+        for e in business_entities:
+            inc_tx = transactions.filter(business=e.name, type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            inc_inv = invoices.filter(business=e.name, status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            total_income = inc_tx + inc_inv
+            
+            exp_tx = transactions.filter(business=e.name, type='Expense').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            exp_vat = vat_qs.filter(business=e.name).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            total_expense = exp_tx + exp_vat
+            
+            gross_profit  = total_income - total_expense
+            tax_amount    = (gross_profit * Decimal('0.20')) if gross_profit > 0 else Decimal('0')
+            net_profit    = gross_profit - tax_amount
 
-        pl_data = {
-            "income":      _fmt(total_income),
-            "expenses":    _fmt(total_expense),
-            "grossProfit": _fmt(gross_profit),
-            "tax":         _fmt(tax_amount),
-            "netProfit":   _fmt(net_profit),
-        }
+            pl_data.append({
+                "biz":         e.name,
+                "income":      _fmt(total_income),
+                "expenses":    _fmt(total_expense),
+                "grossProfit": _fmt(gross_profit),
+                "tax":         _fmt(tax_amount),
+                "netProfit":   _fmt(net_profit),
+            })
 
         # ── Recent Activity (super admin only) ─────────────────────────
         activity_data = []
@@ -251,13 +254,32 @@ class DashboardDataView(APIView):
                 })
 
         # ── QuickBooks Integration ─────────────────────────────────────
-        quickbooks_data = {
-            "status": "Connected",
-            "lastSync": "10 minutes ago",
-            "bankFeed": "Active",
-            "balance": "$42,850.12",
-            "pending": 5
-        }
+        quickbooks_data = []
+        for e in business_entities:
+            inc = transactions.filter(business=e.name, type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            inc += invoices.filter(business=e.name, status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            exp = transactions.filter(business=e.name, type='Expense').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            
+            live_balance = Decimal('25000.00') + inc - exp
+            
+            pending_inv = invoices.filter(business=e.name, status='Pending').count()
+            pending_tx = transactions.filter(business=e.name, status='Pending').count()
+            
+            unpaid_inv_total = invoices.filter(business=e.name).exclude(status='Paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            tax_liability = vat_qs.filter(business=e.name, status='Pending').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            
+            quickbooks_data.append({
+                "biz": e.name,
+                "status": "Connected" if e.status == 'Active' else "Disconnected",
+                "lastSync": "10 minutes ago" if e.status == 'Active' else "—",
+                "bankFeed": "Active" if e.status == 'Active' else "Inactive",
+                "balance": _fmt(live_balance),
+                "pending": pending_inv + pending_tx,
+                "unpaidInvoices": _fmt(unpaid_inv_total),
+                "taxLiability": _fmt(tax_liability),
+                "income": _fmt(inc),
+                "expense": _fmt(exp)
+            })
 
         # ── Reminders ──────────────────────────────────────────────────
         reminders_data = []

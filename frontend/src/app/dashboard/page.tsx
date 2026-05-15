@@ -1121,17 +1121,32 @@ export default function Dashboard() {
             )}
 
             {/* 8. PROFIT & LOSS */}
-            {canShowCard('Profit & Loss') && (
+            {canShowCard('Profit & Loss') && (() => {
+              const plData = Array.isArray(dash.pl)
+                ? (selectedBusiness === 'All Entities'
+                  ? {
+                      income: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.income || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      expenses: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.expenses || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      grossProfit: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.grossProfit || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      tax: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.tax || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                      netProfit: '$' + dash.pl.reduce((acc: number, pl: any) => acc + parseFloat((pl.netProfit || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                    }
+                  : dash.pl.find((pl: any) => pl.biz === selectedBusiness) || { income: '$0.00', expenses: '$0.00', grossProfit: '$0.00', tax: '$0.00', netProfit: '$0.00' }
+                )
+                : (dash.pl || { income: '$0.00', expenses: '$0.00', grossProfit: '$0.00', tax: '$0.00', netProfit: '$0.00' });
+
+              return (
               <Widget title="Profit & Loss Statement" icon={PieChart} color="bg-[#10b981]">
                 <div className="space-y-1">
-                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{dash.pl.income}</strong></div>
-                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">{dash.pl.expenses}</strong></div>
-                  <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>{dash.pl.grossProfit}</strong></div>
-                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">{dash.pl.tax}</strong></div>
-                  <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{dash.pl.netProfit}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#198754] text-[#198754]" /> Total Income</span><strong className="text-[#198754]">{plData.income}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#dc3545] text-[#dc3545]" /> Total Expenses</span><strong className="text-[#dc3545]">{plData.expenses}</strong></div>
+                  <div className="pl-row divider font-bold"><span>Gross Profit</span><strong>{plData.grossProfit}</strong></div>
+                  <div className="pl-row"><span className="flex items-center gap-2"><Circle className="w-1.5 h-1.5 fill-[#f59e0b] text-[#f59e0b]" /> Tax (20%)</span><strong className="text-[#f59e0b]">{plData.tax}</strong></div>
+                  <div className="pl-row total"><span className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#059669]" /> Net Profit</span><strong>{plData.netProfit}</strong></div>
                 </div>
               </Widget>
-            )}
+              );
+            })()}
 
             {/* 9. SUPPLIER PAYMENTS */}
             {canShowCard('Supplier Payments') && (
@@ -1545,7 +1560,23 @@ export default function Dashboard() {
             )}
 
             {/* 15. QUICKBOOKS INTEGRATION */}
-            {canShowCard('QuickBooks') && (
+            {canShowCard('QuickBooks') && (() => {
+              const qbData = Array.isArray(dash.quickbooks) 
+                ? (selectedBusiness === 'All Entities' 
+                    ? {
+                        status: 'Connected', 
+                        lastSync: '10 minutes ago', 
+                        bankFeed: 'Active', 
+                        balance: '$' + dash.quickbooks.reduce((acc: number, qb: any) => acc + parseFloat((qb.balance || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}), 
+                        pending: dash.quickbooks.reduce((acc: number, qb: any) => acc + (qb.pending || 0), 0),
+                        unpaidInvoices: '$' + dash.quickbooks.reduce((acc: number, qb: any) => acc + parseFloat((qb.unpaidInvoices || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2}),
+                        taxLiability: '$' + dash.quickbooks.reduce((acc: number, qb: any) => acc + parseFloat((qb.taxLiability || "$0").replace(/[^0-9.-]+/g,"")), 0).toLocaleString('en-US', {minimumFractionDigits: 2})
+                      } 
+                    : dash.quickbooks.find((qb: any) => qb.biz === selectedBusiness) || { status: 'Disconnected', lastSync: '—', bankFeed: 'Inactive', balance: '$0.00', pending: 0, unpaidInvoices: '$0.00', taxLiability: '$0.00' }
+                  )
+                : (dash.quickbooks || { status: 'Disconnected', lastSync: '—', bankFeed: 'Inactive', balance: '$0.00', pending: 0, unpaidInvoices: '$0.00', taxLiability: '$0.00' });
+
+              return (
               <Widget
                 title="QuickBooks Online"
                 icon={Cloud}
@@ -1553,7 +1584,7 @@ export default function Dashboard() {
                 headerAction={
                   <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse"></span>
-                    <span className="text-[9px] font-bold text-[#16a34a] uppercase">Live</span>
+                    <span className="text-[9px] font-bold text-[#16a34a] uppercase">{qbData.status === 'Connected' ? 'Live' : 'Disconnected'}</span>
                   </div>
                 }
               >
@@ -1562,43 +1593,64 @@ export default function Dashboard() {
                     <div className="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
                       <Cloud size={40} className="text-[#2ca01c]" />
                     </div>
-                    <div className="relative z-10">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Company Balance</p>
-                      <h3 className="text-xl font-extrabold text-slate-800 m-0">{dash.quickbooks?.balance || '$0.00'}</h3>
-                    </div>
-                    <div className="relative z-10 text-right">
-                      <button className="p-2 bg-white border border-slate-200 rounded-lg hover:border-[#2ca01c] hover:text-[#2ca01c] transition-all shadow-sm">
-                        <RefreshCcw size={14} />
-                      </button>
+                    <div className="relative z-10 w-full flex justify-between items-center">
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Company Balance</p>
+                        <h3 className="text-xl font-extrabold text-slate-800 m-0">{qbData.balance || '$0.00'}</h3>
+                      </div>
+                      <div className="text-right pl-2">
+                        <button className="p-2 bg-white border border-slate-200 rounded-lg hover:border-[#2ca01c] hover:text-[#2ca01c] transition-all shadow-sm">
+                          <RefreshCcw size={14} />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-2 bg-white border border-slate-100 rounded-xl flex flex-col gap-0.5 shadow-sm hover:border-[#16a34a] hover:shadow-md transition-all cursor-pointer">
                       <span className="text-[9px] font-bold text-slate-400 uppercase">Bank Feed</span>
                       <div className="flex items-center gap-1.5">
-                        <CheckCircle2 size={12} className="text-[#16a34a]" />
-                        <span className="text-[11px] font-bold text-slate-700">{dash.quickbooks?.bankFeed}</span>
+                        {qbData.bankFeed === 'Active' ? (
+                          <CheckCircle2 size={12} className="text-[#16a34a]" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border-2 border-slate-300"></div>
+                        )}
+                        <span className="text-[11px] font-bold text-slate-700">{qbData.bankFeed || 'Inactive'}</span>
                       </div>
                     </div>
-                    <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 shadow-sm">
+                    <div className="p-2 bg-white border border-slate-100 rounded-xl flex flex-col gap-0.5 shadow-sm hover:border-amber-400 hover:shadow-md transition-all cursor-pointer">
                       <span className="text-[9px] font-bold text-slate-400 uppercase">Pending Review</span>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-4 h-4 bg-amber-100 text-amber-600 rounded flex items-center justify-center text-[10px] font-bold">{dash.quickbooks?.pending}</div>
+                        <div className="w-4 h-4 bg-amber-100 text-amber-600 rounded flex items-center justify-center text-[10px] font-bold">{qbData.pending || 0}</div>
                         <span className="text-[11px] font-bold text-slate-700">Transactions</span>
                       </div>
                     </div>
+                    <div className="p-2 bg-white border border-slate-100 rounded-xl flex flex-col gap-0.5 shadow-sm hover:border-blue-400 hover:shadow-md transition-all cursor-pointer">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">Unpaid Invoices</span>
+                      <div className="flex items-center gap-1.5">
+                        <Receipt size={12} className="text-blue-500" />
+                        <span className="text-[11px] font-bold text-slate-700">{qbData.unpaidInvoices || '$0.00'}</span>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-white border border-slate-100 rounded-xl flex flex-col gap-0.5 shadow-sm hover:border-red-400 hover:shadow-md transition-all cursor-pointer">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">Tax Liability</span>
+                      <div className="flex items-center gap-1.5">
+                        <AlertTriangle size={12} className="text-red-500" />
+                        <span className="text-[11px] font-bold text-red-600">{qbData.taxLiability || '$0.00'}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <button className="w-full py-2 bg-[#2ca01c] text-white text-[10px] font-bold rounded-lg hover:bg-[#238016] transition-all shadow-lg shadow-green-100 flex items-center justify-center gap-2">
                       Open QuickBooks Center <ArrowUpRight size={12} />
                     </button>
-                    <p className="text-center text-[9px] text-slate-400 mt-2 font-medium">Last synced: {dash.quickbooks?.lastSync}</p>
+                    <p className="text-center text-[9px] text-slate-400 mt-2 font-medium">Last synced: {qbData.lastSync || '—'}</p>
                   </div>
                 </div>
               </Widget>
-            )}
+              );
+            })()}
 
           </div>
         </div>
