@@ -144,6 +144,10 @@ function Card({ kind, title, subtitle, fields, status, onView, href }: {
   const handleClick = (e: React.MouseEvent) => {
     // If the click was on the "View" button, let it handle the event
     if ((e.target as HTMLElement).closest('button')) return;
+    if (onView) {
+      onView();
+      return;
+    }
     if (href) router.push(href);
   };
 
@@ -192,7 +196,7 @@ function Card({ kind, title, subtitle, fields, status, onView, href }: {
 
 // ─── Record Table ─────────────────────────────────────────────────────────────
 
-function RecordTable({ data, type }: { data: any[]; type: string }) {
+function RecordTable({ data, type, onSelect }: { data: any[]; type: string; onSelect?: (item: any) => void }) {
   if (!data || data.length === 0) return (
     <div className="py-10 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
       No records found
@@ -251,7 +255,7 @@ function RecordTable({ data, type }: { data: any[]; type: string }) {
       </thead>
       <tbody>
         {data.map((r, i) => (
-          <tr key={i}>
+          <tr key={i} onClick={() => onSelect?.(r)} className={cn("transition-colors", onSelect ? "cursor-pointer hover:bg-slate-50" : "")}>
             {type === 'accounting' && (
               <>
                 <td><strong className="text-slate-800">{r.name || r.title || 'Record'}</strong></td>
@@ -305,9 +309,12 @@ function RecordTable({ data, type }: { data: any[]; type: string }) {
 
 // ─── Accounting Records ───────────────────────────────────────────────────────
 
-function AccountingRecord({ r }: { r: any }) {
+// ─── Accounting Records ───────────────────────────────────────────────────────
+
+function AccountingRecord({ r, onSelect }: { r: any; onSelect?: (item: any) => void }) {
+  const common = { status: r.status, onView: onSelect ? () => onSelect(r) : undefined, href: "/accounting" };
   if (r._kind === 'bank') return (
-    <Card kind="bank" title={r.name} subtitle={r.accountName} status={r.status} href="/accounting"
+    <Card kind="bank" title={r.name} subtitle={r.accountName} {...common}
       fields={[
         { label: 'Account No', value: r.accountNumber },
         { label: 'Sort Code',  value: r.sortCode },
@@ -315,7 +322,7 @@ function AccountingRecord({ r }: { r: any }) {
       ]} />
   );
   if (r._kind === 'loan') return (
-    <Card kind="loan" title={r.name} subtitle={r.lender} status={r.status} href="/accounting"
+    <Card kind="loan" title={r.name} subtitle={r.lender} {...common}
       fields={[
         { label: 'Total',       value: r.totalAmount },
         { label: 'Outstanding', value: r.outstanding },
@@ -324,7 +331,7 @@ function AccountingRecord({ r }: { r: any }) {
       ]} />
   );
   if (r._kind === 'insurance') return (
-    <Card kind="insurance" title={r.name} subtitle={r.provider} status={r.status} href="/accounting"
+    <Card kind="insurance" title={r.name} subtitle={r.provider} {...common}
       fields={[
         { label: 'Policy No', value: r.policyNumber },
         { label: 'Premium',   value: r.premium },
@@ -332,14 +339,14 @@ function AccountingRecord({ r }: { r: any }) {
       ]} />
   );
   if (r._kind === 'vat') return (
-    <Card kind="vat" title={r.name} subtitle={r.period} status={r.status} href="/accounting"
+    <Card kind="vat" title={r.name} subtitle={r.period} {...common}
       fields={[
         { label: 'Amount', value: r.amount },
         { label: 'Date',   value: r.date },
       ]} />
   );
   if (r._kind === 'dojo') return (
-    <Card kind="dojo" title={`Dojo · ${r.date}`} subtitle={r.method} status={r.status} href="/payments"
+    <Card kind="dojo" title={`Dojo · ${r.date}`} subtitle={r.method} {...common} href="/payments"
       fields={[
         { label: 'Amount', value: r.amount },
         { label: 'Fee',    value: r.fee },
@@ -347,14 +354,14 @@ function AccountingRecord({ r }: { r: any }) {
       ]} />
   );
   if (r._kind === 'invoice') return (
-    <Card kind="invoice" title={r.name} subtitle={r.title} status={r.status} href="/accounting"
+    <Card kind="invoice" title={r.name} subtitle={r.title} {...common}
       fields={[
         { label: 'Amount',   value: r.amount },
         { label: 'Due Date', value: r.dueDate },
       ]} />
   );
   return (
-    <Card kind="transaction" title={r.name} subtitle={r.category} status={r.status} href="/accounting"
+    <Card kind="transaction" title={r.name} subtitle={r.category} {...common}
       fields={[
         { label: 'Type',   value: r.type },
         { label: 'Amount', value: r.amount },
@@ -366,9 +373,10 @@ function AccountingRecord({ r }: { r: any }) {
 
 // ─── Fleet Records ────────────────────────────────────────────────────────────
 
-function FleetRecord({ r }: { r: any }) {
+function FleetRecord({ r, onSelect }: { r: any; onSelect?: (item: any) => void }) {
+  const common = { status: r.status, onView: onSelect ? () => onSelect(r) : undefined, href: "/fleet" };
   if (r._kind === 'parcel') return (
-    <Card kind="parcel" title={r.provider} subtitle={r.area} status={r.status} href="/fleet"
+    <Card kind="parcel" title={r.provider} subtitle={r.area} {...common}
       fields={[
         { label: 'Vehicle',  value: r.vehicle },
         { label: 'Contact',  value: r.contact },
@@ -377,7 +385,7 @@ function FleetRecord({ r }: { r: any }) {
       ]} />
   );
   return (
-    <Card kind="vehicle" title={r.vehicleName} subtitle={r.vehicleNumber} status={r.status} href="/fleet"
+    <Card kind="vehicle" title={r.vehicleName} subtitle={r.vehicleNumber} {...common}
       fields={[
         { label: 'Insurance', value: r.insuranceExpiry },
         { label: 'MOT',       value: r.motDate },
@@ -390,16 +398,17 @@ function FleetRecord({ r }: { r: any }) {
 
 // ─── Inventory Records ────────────────────────────────────────────────────────
 
-function InventoryRecord({ r }: { r: any }) {
+function InventoryRecord({ r, onSelect }: { r: any; onSelect?: (item: any) => void }) {
+  const common = { onView: onSelect ? () => onSelect(r) : undefined, href: "/inventory" };
   if (r._kind === 'movement') return (
-    <Card kind="movement" title={r.item} subtitle={r.date} status={r.type} href="/inventory"
+    <Card kind="movement" title={r.item} subtitle={r.date} status={r.type} {...common}
       fields={[
         { label: 'Qty',   value: r.quantity },
         { label: 'Notes', value: r.notes },
       ]} />
   );
   return (
-    <Card kind="product" title={r.item} subtitle={r.category} status={r.status} href="/inventory"
+    <Card kind="product" title={r.item} subtitle={r.category} status={r.status} {...common}
       fields={[
         { label: 'SKU',   value: r.sku },
         { label: 'Stock', value: r.stockLevel },
@@ -410,9 +419,10 @@ function InventoryRecord({ r }: { r: any }) {
 
 // ─── Supplier Records ─────────────────────────────────────────────────────────
 
-function SupplierRecord({ r }: { r: any }) {
+function SupplierRecord({ r, onSelect }: { r: any; onSelect?: (item: any) => void }) {
+  const common = { status: r.status, onView: onSelect ? () => onSelect(r) : undefined, href: "/suppliers" };
   if (r._kind === 'po') return (
-    <Card kind="po" title={r.number} subtitle={r.supplierName} status={r.status} href="/suppliers"
+    <Card kind="po" title={r.number} subtitle={r.supplierName} {...common}
       fields={[
         { label: 'Product', value: r.product },
         { label: 'Qty',     value: r.quantity },
@@ -421,7 +431,7 @@ function SupplierRecord({ r }: { r: any }) {
       ]} />
   );
   return (
-    <Card kind="supplier" title={r.supplierName} subtitle={r.category} status={r.status} href="/suppliers"
+    <Card kind="supplier" title={r.supplierName} subtitle={r.category} {...common}
       fields={[
         { label: 'Contact', value: r.contact },
         { label: 'Phone',   value: r.phone },
@@ -432,10 +442,19 @@ function SupplierRecord({ r }: { r: any }) {
 
 // ─── Legal Records ────────────────────────────────────────────────────────────
 
-function LegalRecord({ r, onView }: { r: any; onView: (doc: any) => void }) {
+function LegalRecord({ r, onView, onSelect }: { r: any; onView: (doc: any) => void; onSelect?: (item: any) => void }) {
+  const common = { status: r.status, href: "/legal" };
+  
+  const handleSelect = () => {
+    if (onSelect) onSelect(r);
+  };
+
   if (r._kind === 'registration') return (
-    <Card kind="registration" title={r.title} subtitle={`CRN: ${r.crn}`} status={r.status} href="/legal"
-      onView={() => onView({ title: r.title, type: 'Companies House Registration', status: r.status, date: r.filingDue })}
+    <Card kind="registration" title={r.title} subtitle={`CRN: ${r.crn}`} {...common}
+      onView={() => {
+        onView({ title: r.title, type: 'Companies House Registration', status: r.status, date: r.filingDue });
+        if (onSelect) onSelect(r);
+      }}
       fields={[
         { label: 'Manager',     value: r.manager },
         { label: 'SIC Code',    value: r.sicCode },
@@ -444,8 +463,11 @@ function LegalRecord({ r, onView }: { r: any; onView: (doc: any) => void }) {
       ]} />
   );
   return (
-    <Card kind="document" title={r.title} subtitle={r.type} status={r.status} href="/legal"
-      onView={() => onView(r)}
+    <Card kind="document" title={r.title} subtitle={r.type} {...common}
+      onView={() => {
+        onView(r);
+        if (onSelect) onSelect(r);
+      }}
       fields={[
         { label: 'Business', value: r.business },
         { label: 'Expiry',   value: r.expiryDate },
@@ -455,9 +477,10 @@ function LegalRecord({ r, onView }: { r: any; onView: (doc: any) => void }) {
 
 // ─── Property Records ─────────────────────────────────────────────────────────
 
-function PropertyRecord({ r }: { r: any }) {
+function PropertyRecord({ r, onSelect }: { r: any; onSelect?: (item: any) => void }) {
+  const common = { status: r.status, onView: onSelect ? () => onSelect(r) : undefined, href: "/property" };
   if (r._kind === 'asset') return (
-    <Card kind="asset" title={r.name} subtitle={r.assetType} status={r.status} href="/property"
+    <Card kind="asset" title={r.name} subtitle={r.assetType} {...common}
       fields={[
         { label: 'Location',    value: r.location },
         { label: 'Assigned To', value: r.assignedPerson },
@@ -465,7 +488,7 @@ function PropertyRecord({ r }: { r: any }) {
       ]} />
   );
   if (r._kind === 'waste') return (
-    <Card kind="waste" title="Waste Collection" subtitle={r.date} status={r.status} href="/property"
+    <Card kind="waste" title="Waste Collection" subtitle={r.date} {...common}
       fields={[
         { label: 'Contact', value: r.contactPerson },
         { label: 'Phone',   value: r.phone },
@@ -474,7 +497,7 @@ function PropertyRecord({ r }: { r: any }) {
       ]} />
   );
   if (r._kind === 'licence') return (
-    <Card kind="licence" title={r.type} subtitle={r.authority} status={r.status} href="/property"
+    <Card kind="licence" title={r.type} subtitle={r.authority} {...common}
       fields={[
         { label: 'Business', value: r.business },
         { label: 'Issued',   value: r.issueDate },
@@ -482,14 +505,14 @@ function PropertyRecord({ r }: { r: any }) {
       ]} />
   );
   if (r._kind === 'reminder') return (
-    <Card kind="reminder" title={r.title} subtitle={r.priority} status={r.status} href="/reminders"
+    <Card kind="reminder" title={r.title} subtitle={r.priority} {...common} href="/reminders"
       fields={[
         { label: 'Due',         value: r.dueDate },
         { label: 'Description', value: r.description },
       ]} />
   );
   return (
-    <Card kind="maintenance" title={r.asset || 'Maintenance'} subtitle={r.priority} status={r.status} href="/property"
+    <Card kind="maintenance" title={r.asset || 'Maintenance'} subtitle={r.priority} {...common}
       fields={[
         { label: 'Issue',      value: r.issue },
         { label: 'Location',   value: r.location },
@@ -521,6 +544,33 @@ export default function BusinessDetailPage() {
       date: doc.expiryDate,
     });
     setDrawerOpen(true);
+  };
+
+  const handleRecordSelect = (r: any) => {
+    const modules: Record<string, string> = {
+      bank: '/accounting', loan: '/accounting', insurance: '/accounting', vat: '/accounting', 
+      invoice: '/accounting', transaction: '/accounting', vehicle: '/fleet', parcel: '/fleet',
+      product: '/inventory', movement: '/inventory', supplier: '/suppliers', po: '/suppliers',
+      registration: '/legal', document: '/legal', asset: '/property', waste: '/property',
+      licence: '/property', reminder: '/reminders', maintenance: '/property'
+    };
+
+    const tabMap: Record<string, string> = {
+      invoice: 'invoices', bank: 'bank', loan: 'loans', insurance: 'insurance', vat: 'tax', transaction: 'records',
+      vehicle: 'vehicles', parcel: 'parcels',
+      product: 'products', movement: 'movements',
+      supplier: 'suppliers', po: 'orders',
+      asset: 'assets', licence: 'licences', waste: 'waste', maintenance: 'maintenance'
+    };
+
+    const target = modules[r._kind] || '/dashboard';
+    const tab = tabMap[r._kind] || '';
+    const searchParam = r.name || r.title || r.item || r.vehicleName || r.plate || '';
+    
+    let url = `${target}?search=${encodeURIComponent(searchParam)}&view=wide`;
+    if (tab) url += `&tab=${tab}`;
+    
+    router.push(url);
   };
 
   useEffect(() => {
@@ -641,231 +691,235 @@ export default function BusinessDetailPage() {
 
   return (
     <PageWrapper title="Business Hub">
-      <div className="flex flex-col h-full bg-[#f8fafc] overflow-hidden">
-        <div className="bg-white border-b border-slate-200 px-8 py-5 shrink-0 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-slate-50">
-                {logo ? (
-                  <img src={logo} alt={business.name} className="w-full h-full object-contain p-2" />
-                ) : (
-                  <Building2 size={24} className="text-slate-300" />
-                )}
+      <>
+        <div className="flex flex-col h-full bg-[#f8fafc] overflow-hidden">
+          <div className="bg-white border-b border-slate-200 px-8 py-5 shrink-0 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-slate-50">
+                  {logo ? (
+                    <img src={logo} alt={business.name} className="w-full h-full object-contain p-2" />
+                  ) : (
+                    <Building2 size={24} className="text-slate-300" />
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">{business.name || slug}</h2>
+                    <span className="px-2 py-0.5 bg-emerald-500 text-white text-[9px] font-black rounded-full shadow-sm uppercase tracking-widest">
+                      {business.status || 'Active'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    {infoParts.map((p, i) => (
+                      <div key={i} className="flex items-center gap-1 text-[10px] font-bold text-slate-500">
+                        <p.icon size={10} className="text-slate-400" />
+                        <span>{p.value}</span>
+                      </div>
+                    ))}
+                    <div className="h-3 w-[1px] bg-slate-200 mx-1 hidden md:block" />
+                    {contactParts.map((p, i) => (
+                      <div key={i} className="flex items-center gap-1 text-[10px] font-bold text-teal-600">
+                        {p.isLink ? (
+                          <a href={p.value.startsWith('http') ? p.value : `https://${p.value}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-teal-700 transition-colors">
+                            <p.icon size={10} className="text-teal-400" />
+                            <span className="underline decoration-teal-200 underline-offset-2">{p.value.replace(/^https?:\/\//, '')}</span>
+                          </a>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <p.icon size={10} className="text-teal-400" />
+                            <span>{p.value}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5">
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight">{business.name || slug}</h2>
-                  <span className="px-2 py-0.5 bg-emerald-500 text-white text-[9px] font-black rounded-full shadow-sm uppercase tracking-widest">
-                    {business.status || 'Active'}
-                  </span>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  {infoParts.map((p, i) => (
-                    <div key={i} className="flex items-center gap-1 text-[10px] font-bold text-slate-500">
-                      <p.icon size={10} className="text-slate-400" />
-                      <span>{p.value}</span>
-                    </div>
-                  ))}
-                  <div className="h-3 w-[1px] bg-slate-200 mx-1 hidden md:block" />
-                  {contactParts.map((p, i) => (
-                    <div key={i} className="flex items-center gap-1 text-[10px] font-bold text-teal-600">
-                      {p.isLink ? (
-                        <a href={p.value.startsWith('http') ? p.value : `https://${p.value}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-teal-700 transition-colors">
-                          <p.icon size={10} className="text-teal-400" />
-                          <span className="underline decoration-teal-200 underline-offset-2">{p.value.replace(/^https?:\/\//, '')}</span>
-                        </a>
-                      ) : (
-                        <div className="flex items-center gap-1">
-                          <p.icon size={10} className="text-teal-400" />
-                          <span>{p.value}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+              <div className="flex items-center gap-3 lg:self-start">
+                <button
+                  onClick={() => router.push('/business')}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-600 text-xs font-black rounded-2xl transition-all border border-slate-200 shadow-sm hover:shadow active:scale-95"
+                >
+                  <Building2 size={14} /> View All Entities
+                </button>
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 ring-2 ring-slate-100"
+                >
+                  <ArrowLeft size={14} /> Back to Dashboard
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-3 lg:self-start">
+          </div>
+          <div className="bg-white border-b border-slate-200 px-8 flex items-center gap-6 shrink-0">
+            {tabs.map(tab => (
               <button
-                onClick={() => router.push('/business')}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-600 text-xs font-black rounded-2xl transition-all border border-slate-200 shadow-sm hover:shadow active:scale-95"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={cn(
+                  "flex items-center gap-2 py-3 text-[10px] font-black uppercase tracking-wider transition-all relative",
+                  activeTab === tab.id 
+                    ? "text-indigo-600" 
+                    : "text-slate-400 hover:text-slate-600"
+                )}
               >
-                <Building2 size={14} /> View All Entities
+                <tab.icon size={12} />
+                {tab.label}
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full shadow-[0_-2px_10px_rgba(79,70,229,0.4)]" />
+                )}
               </button>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 ring-2 ring-slate-100"
-              >
-                <ArrowLeft size={14} /> Back to Dashboard
-              </button>
+            ))}
+          </div>
+          <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 overflow-y-auto p-[0.75rem_0.75rem_1.5rem] no-scrollbar bg-[#f1f5f9]/30">
+              <div className="mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 transition-all max-w-[1600px]">
+                {activeTab === 'overview' && (
+                  <div className="space-y-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                       <div className="lg:col-span-2 space-y-8">
+                          {hasPermission('Accounting') && (
+                            <SectionCard icon={Calculator} iconBg="bg-[#3b82f6]" title="Recent Transactions" count={data.accounting?.length || 0} gridCols="grid-cols-3"
+                              tableContent={<RecordTable data={data.accounting || []} type="accounting" onSelect={handleRecordSelect} />}
+                            >
+                              {data.accounting?.slice(0, 9).map((r: any, i: number) => <AccountingRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                            </SectionCard>
+                          )}
+                          {hasPermission('Vehicle Fleet') && (
+                            <SectionCard icon={Truck} iconBg="bg-[#14b8a6]" title="Fleet Status" count={data.fleet?.length || 0} gridCols="grid-cols-3"
+                              tableContent={<RecordTable data={data.fleet || []} type="fleet" onSelect={handleRecordSelect} />}
+                            >
+                              {data.fleet?.slice(0, 9).map((r: any, i: number) => <FleetRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                            </SectionCard>
+                          )}
+                       </div>
+                       <div className="space-y-8">
+                          {hasPermission('Reminders') && (
+                            <SectionCard icon={Clock} iconBg="bg-[#ef4444]" title="Critical Reminders" count={data.property?.filter((p: any) => p._kind === 'reminder')?.length || 0}
+                              tableContent={<RecordTable data={data.property?.filter((p: any) => p._kind === 'reminder') || []} type="property" onSelect={handleRecordSelect} />}
+                            >
+                              {data.property?.filter((p: any) => p._kind === 'reminder').slice(0, 5).map((r: any, i: number) => <PropertyRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                            </SectionCard>
+                          )}
+                          {hasPermission('Legal & Compliance') && (
+                            <SectionCard icon={Shield} iconBg="bg-[#f59e0b]" title="Compliance Snapshot" count={data.legal?.length || 0}
+                              tableContent={<RecordTable data={data.legal || []} type="legal" onSelect={handleRecordSelect} />}
+                            >
+                              {data.legal?.slice(0, 3).map((r: any, i: number) => <LegalRecord key={i} r={r} onView={handleViewDoc} onSelect={handleRecordSelect} />)}
+                            </SectionCard>
+                          )}
+                       </div>
+                    </div>
+                  </div>
+                )}
+                {activeTab === 'finance' && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {hasPermission('Invoices') && (
+                      <SectionCard icon={Calculator} iconBg="bg-[#3b82f6]" title="Invoices & Statements" count={data.accounting?.filter((r: any) => r._kind === 'invoice').length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.accounting?.filter((r: any) => r._kind === 'invoice') || []} type="accounting" onSelect={handleRecordSelect} />}
+                      >
+                        {data.accounting?.filter((r: any) => r._kind === 'invoice').map((r: any, i: number) => <AccountingRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                    {hasPermission('Merchant Services') && (
+                      <SectionCard icon={CreditCard} iconBg="bg-purple-600" title="Payment Service Records (Dojo/etc)" count={data.accounting?.filter((r: any) => r._kind === 'payment').length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.accounting?.filter((r: any) => r._kind === 'payment') || []} type="accounting" onSelect={handleRecordSelect} />}
+                      >
+                        {data.accounting?.filter((r: any) => r._kind === 'payment').map((r: any, i: number) => <AccountingRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                    {hasPermission('Tax Records') && (
+                      <SectionCard icon={Clock} iconBg="bg-[#ef4444]" title="VAT & Tax Records" count={data.accounting?.filter((r: any) => r._kind === 'vat').length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.accounting?.filter((r: any) => r._kind === 'vat') || []} type="accounting" onSelect={handleRecordSelect} />}
+                      >
+                        {data.accounting?.filter((r: any) => r._kind === 'vat').map((r: any, i: number) => <AccountingRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                    {(hasPermission('Bank Accounts') || hasPermission('Loans & Insurance')) && (
+                      <SectionCard icon={Building2} iconBg="bg-[#3b82f6]" title="Banking & Finance" count={data.accounting?.filter((r: any) => ['bank', 'loan', 'insurance'].includes(r._kind)).length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.accounting?.filter((r: any) => ['bank', 'loan', 'insurance'].includes(r._kind)) || []} type="accounting" onSelect={handleRecordSelect} />}
+                      >
+                        {data.accounting?.filter((r: any) => ['bank', 'loan', 'insurance'].includes(r._kind)).map((r: any, i: number) => <AccountingRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                  </div>
+                )}
+                {activeTab === 'ops' && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {hasPermission('Vehicle Fleet') && (
+                      <SectionCard icon={Truck} iconBg="bg-[#14b8a6]" title="Active Fleet Management" count={data.fleet?.filter((r: any) => r._kind === 'vehicle').length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.fleet?.filter((r: any) => r._kind === 'vehicle') || []} type="fleet" onSelect={handleRecordSelect} />}
+                      >
+                        {data.fleet?.filter((r: any) => r._kind === 'vehicle').map((r: any, i: number) => <FleetRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                    {(hasPermission('Parcel Services') || hasPermission('Delivery Tracking')) && (
+                      <SectionCard icon={Package} iconBg="bg-[#14b8a6]" title="Parcel & Delivery Partners" count={data.fleet?.filter((r: any) => r._kind === 'parcel').length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.fleet?.filter((r: any) => r._kind === 'parcel') || []} type="fleet" onSelect={handleRecordSelect} />}
+                      >
+                        {data.fleet?.filter((r: any) => r._kind === 'parcel').map((r: any, i: number) => <FleetRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                    {hasPermission('Inventory Management') && (
+                      <SectionCard icon={Boxes} iconBg="bg-[#f59e0b]" title="Inventory Matrix" count={data.inventory?.filter((r: any) => r._kind === 'product').length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.inventory?.filter((r: any) => r._kind === 'product') || []} type="inventory" onSelect={handleRecordSelect} />}
+                      >
+                        {data.inventory?.filter((r: any) => r._kind === 'product').map((r: any, i: number) => <InventoryRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                    {hasPermission('Suppliers') && (
+                      <SectionCard icon={Package} iconBg="bg-[#f59e0b]" title="Supplier & Purchase Orders" count={data.supplier?.length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.supplier || []} type="inventory" onSelect={handleRecordSelect} />}
+                      >
+                        {data.supplier?.map((r: any, i: number) => <SupplierRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                  </div>
+                )}
+                {activeTab === 'legal' && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {hasPermission('Legal & Compliance') && (
+                      <SectionCard icon={Scale} iconBg="bg-[#f59e0b]" title="Legal Documentation" count={data.legal?.length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.legal || []} type="legal" onSelect={handleRecordSelect} />}
+                      >
+                        {data.legal?.map((r: any, i: number) => <LegalRecord key={i} r={r} onView={handleViewDoc} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                    {hasPermission('Property Inventory') && (
+                      <SectionCard icon={Home} iconBg="bg-[#3b82f6]" title="Property & Assets" count={data.property?.filter((r: any) => r._kind !== 'reminder').length || 0} gridCols="grid-cols-2"
+                        tableContent={<RecordTable data={data.property?.filter((r: any) => r._kind !== 'reminder') || []} type="property" onSelect={handleRecordSelect} />}
+                      >
+                        {data.property?.filter((r: any) => r._kind !== 'reminder').map((r: any, i: number) => <PropertyRecord key={i} r={r} onSelect={handleRecordSelect} />)}
+                      </SectionCard>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-white border-b border-slate-200 px-8 flex items-center gap-6 shrink-0">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={cn(
-                "flex items-center gap-2 py-3 text-[10px] font-black uppercase tracking-wider transition-all relative",
-                activeTab === tab.id 
-                  ? "text-indigo-600" 
-                  : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <tab.icon size={12} />
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full shadow-[0_-2px_10px_rgba(79,70,229,0.4)]" />
-              )}
-            </button>
-          ))}
-        </div>
-        <div className="flex-1 overflow-y-auto p-[0.75rem_0.75rem_1.5rem] no-scrollbar bg-[#f1f5f9]/30">
-          <div className="max-w-[1600px] mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {activeTab === 'overview' && (
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                   <div className="lg:col-span-2 space-y-8">
-                      {hasPermission('Accounting') && (
-                        <SectionCard icon={Calculator} iconBg="bg-[#3b82f6]" title="Recent Transactions" count={data.accounting?.length || 0} gridCols="grid-cols-3"
-                          tableContent={<RecordTable data={data.accounting || []} type="accounting" />}
-                        >
-                          {data.accounting?.slice(0, 9).map((r: any, i: number) => <AccountingRecord key={i} r={r} />)}
-                        </SectionCard>
-                      )}
-                      {hasPermission('Vehicle Fleet') && (
-                        <SectionCard icon={Truck} iconBg="bg-[#14b8a6]" title="Fleet Status" count={data.fleet?.length || 0} gridCols="grid-cols-3"
-                          tableContent={<RecordTable data={data.fleet || []} type="fleet" />}
-                        >
-                          {data.fleet?.slice(0, 9).map((r: any, i: number) => <FleetRecord key={i} r={r} />)}
-                        </SectionCard>
-                      )}
-                   </div>
-                   <div className="space-y-8">
-                      {hasPermission('Reminders') && (
-                        <SectionCard icon={Clock} iconBg="bg-[#ef4444]" title="Critical Reminders" count={data.property?.filter((p: any) => p._kind === 'reminder')?.length || 0}
-                          tableContent={<RecordTable data={data.property?.filter((p: any) => p._kind === 'reminder') || []} type="property" />}
-                        >
-                          {data.property?.filter((p: any) => p._kind === 'reminder').slice(0, 5).map((r: any, i: number) => <PropertyRecord key={i} r={r} />)}
-                        </SectionCard>
-                      )}
-                      {hasPermission('Legal & Compliance') && (
-                        <SectionCard icon={Shield} iconBg="bg-[#f59e0b]" title="Compliance Snapshot" count={data.legal?.length || 0}
-                          tableContent={<RecordTable data={data.legal || []} type="legal" />}
-                        >
-                          {data.legal?.slice(0, 3).map((r: any, i: number) => <LegalRecord key={i} r={r} onView={handleViewDoc} />)}
-                        </SectionCard>
-                      )}
-                   </div>
-                </div>
-              </div>
-            )}
-            {activeTab === 'finance' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {hasPermission('Invoices') && (
-                  <SectionCard icon={Calculator} iconBg="bg-[#3b82f6]" title="Invoices & Statements" count={data.accounting?.filter((r: any) => r._kind === 'invoice').length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.accounting?.filter((r: any) => r._kind === 'invoice') || []} type="accounting" />}
-                  >
-                    {data.accounting?.filter((r: any) => r._kind === 'invoice').map((r: any, i: number) => <AccountingRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-                {hasPermission('Merchant Services') && (
-                  <SectionCard icon={CreditCard} iconBg="bg-purple-600" title="Payment Service Records (Dojo/etc)" count={data.accounting?.filter((r: any) => r._kind === 'payment').length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.accounting?.filter((r: any) => r._kind === 'payment') || []} type="accounting" />}
-                  >
-                    {data.accounting?.filter((r: any) => r._kind === 'payment').map((r: any, i: number) => <AccountingRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-                {hasPermission('Tax Records') && (
-                  <SectionCard icon={Clock} iconBg="bg-[#ef4444]" title="VAT & Tax Records" count={data.accounting?.filter((r: any) => r._kind === 'vat').length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.accounting?.filter((r: any) => r._kind === 'vat') || []} type="accounting" />}
-                  >
-                    {data.accounting?.filter((r: any) => r._kind === 'vat').map((r: any, i: number) => <AccountingRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-                {(hasPermission('Bank Accounts') || hasPermission('Loans & Insurance')) && (
-                  <SectionCard icon={Building2} iconBg="bg-[#3b82f6]" title="Banking & Finance" count={data.accounting?.filter((r: any) => ['bank', 'loan', 'insurance'].includes(r._kind)).length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.accounting?.filter((r: any) => ['bank', 'loan', 'insurance'].includes(r._kind)) || []} type="accounting" />}
-                  >
-                    {data.accounting?.filter((r: any) => ['bank', 'loan', 'insurance'].includes(r._kind)).map((r: any, i: number) => <AccountingRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-              </div>
-            )}
-            {activeTab === 'ops' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {hasPermission('Vehicle Fleet') && (
-                  <SectionCard icon={Truck} iconBg="bg-[#14b8a6]" title="Active Fleet Management" count={data.fleet?.filter((r: any) => r._kind === 'vehicle').length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.fleet?.filter((r: any) => r._kind === 'vehicle') || []} type="fleet" />}
-                  >
-                    {data.fleet?.filter((r: any) => r._kind === 'vehicle').map((r: any, i: number) => <FleetRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-                {(hasPermission('Parcel Services') || hasPermission('Delivery Tracking')) && (
-                  <SectionCard icon={Package} iconBg="bg-[#14b8a6]" title="Parcel & Delivery Partners" count={data.fleet?.filter((r: any) => r._kind === 'parcel').length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.fleet?.filter((r: any) => r._kind === 'parcel') || []} type="fleet" />}
-                  >
-                    {data.fleet?.filter((r: any) => r._kind === 'parcel').map((r: any, i: number) => <FleetRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-                {hasPermission('Inventory Management') && (
-                  <SectionCard icon={Boxes} iconBg="bg-[#f59e0b]" title="Inventory Matrix" count={data.inventory?.filter((r: any) => r._kind === 'product').length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.inventory?.filter((r: any) => r._kind === 'product') || []} type="inventory" />}
-                  >
-                    {data.inventory?.filter((r: any) => r._kind === 'product').map((r: any, i: number) => <InventoryRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-                {hasPermission('Suppliers') && (
-                  <SectionCard icon={Package} iconBg="bg-[#f59e0b]" title="Supplier & Purchase Orders" count={data.supplier?.length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.supplier || []} type="inventory" />}
-                  >
-                    {data.supplier?.map((r: any, i: number) => <SupplierRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-              </div>
-            )}
-            {activeTab === 'legal' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {hasPermission('Legal & Compliance') && (
-                  <SectionCard icon={Scale} iconBg="bg-[#f59e0b]" title="Legal Documentation" count={data.legal?.length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.legal || []} type="legal" />}
-                  >
-                    {data.legal?.map((r: any, i: number) => <LegalRecord key={i} r={r} onView={handleViewDoc} />)}
-                  </SectionCard>
-                )}
-                {hasPermission('Property Inventory') && (
-                  <SectionCard icon={Home} iconBg="bg-[#3b82f6]" title="Property & Assets" count={data.property?.filter((r: any) => r._kind !== 'reminder').length || 0} gridCols="grid-cols-2"
-                    tableContent={<RecordTable data={data.property?.filter((r: any) => r._kind !== 'reminder') || []} type="property" />}
-                  >
-                    {data.property?.filter((r: any) => r._kind !== 'reminder').map((r: any, i: number) => <PropertyRecord key={i} r={r} />)}
-                  </SectionCard>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      <DocumentDrawer
-        isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        documentData={selectedDoc}
-      />
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        <DocumentDrawer
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          documentData={selectedDoc}
+        />
+        <style jsx global>{`
+          .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+          .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .wt { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .wt th { font-size: 9px; font-weight: 800; text-transform: uppercase; color: #64748b; padding: 10px 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; text-align: left; background: #fcfcfd; }
-        .wt td { padding: 8px; border-bottom: 1px solid #f8fafc; vertical-align: middle; color: #1e293b; }
-        .wt tr:hover td { background: #f8fafc; }
-      `}</style>
+          .wt { width: 100%; border-collapse: collapse; font-size: 11px; }
+          .wt th { font-size: 9px; font-weight: 800; text-transform: uppercase; color: #64748b; padding: 10px 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; text-align: left; background: #fcfcfd; }
+          .wt td { padding: 8px; border-bottom: 1px solid #f8fafc; vertical-align: middle; color: #1e293b; }
+          .wt tr:hover td { background: #f8fafc; }
+        `}</style>
+      </>
     </PageWrapper>
   );
 }

@@ -50,6 +50,21 @@ export default function PropertyModule({ selectedBusiness = 'All Entities' }: { 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
 
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
+
+  useEffect(() => {
+    if (searchParams?.get('view') === 'wide') {
+      setIsWide(true);
+    }
+    const targetTab = searchParams?.get('tab');
+    if (targetTab && ['inventory', 'requests', 'waste', 'licence'].includes(targetTab)) {
+      setActiveTab(targetTab as TabType);
+    }
+    const s = searchParams?.get('search');
+    if (s) setSearchTerm(s);
+  }, [searchParams]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     fetch(API_ENDPOINTS.PROPERTY, {
@@ -60,6 +75,17 @@ export default function PropertyModule({ selectedBusiness = 'All Entities' }: { 
     }).then(setData)
     .catch(err => console.error('Property fetch error:', err));
   }, []);
+
+  const filterData = (list: any[]) => {
+    if (!list) return [];
+    return list.filter((r: any) => {
+      const bizMatch = selectedBusiness === 'All Entities' || r.biz === selectedBusiness;
+      const searchMatch = !searchTerm || Object.values(r).some(v => 
+        String(v).toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      return bizMatch && searchMatch;
+    });
+  };
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {
     setEditingId(id);
@@ -146,12 +172,29 @@ export default function PropertyModule({ selectedBusiness = 'All Entities' }: { 
 
     <div className="flex flex-col h-full bg-[#f8fafc]">
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6 flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
-        <TabButton active={activeTab === 'inventory'} label="Property Inventory" onClick={() => setActiveTab('inventory')} />
-        <TabButton active={activeTab === 'requests'} label="Maintenance Requests" onClick={() => setActiveTab('requests')} />
-        <TabButton active={activeTab === 'waste'} label="Waste Collection" onClick={() => setActiveTab('waste')} />
-        <TabButton active={activeTab === 'licence'} label="Licences & Permits" onClick={() => setActiveTab('licence')} />
+      {/* Header & Tabs */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <TabButton active={activeTab === 'inventory'} label="Property Inventory" onClick={() => setActiveTab('inventory')} />
+            <TabButton active={activeTab === 'requests'} label="Maintenance Requests" onClick={() => setActiveTab('requests')} />
+            <TabButton active={activeTab === 'waste'} label="Waste Collection" onClick={() => setActiveTab('waste')} />
+            <TabButton active={activeTab === 'licence'} label="Licences & Permits" onClick={() => setActiveTab('licence')} />
+          </div>
+          
+          <div className="relative w-full md:w-64">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <FileSearch className="h-3.5 w-3.5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search registry..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all outline-none"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -492,9 +535,7 @@ export default function PropertyModule({ selectedBusiness = 'All Entities' }: { 
                   </thead>
                    <tbody className="divide-y divide-slate-100">
                     {activeTab === 'inventory' && (
-                      data.assets
-                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
-                        .map((r: any, i: number) => (
+                      filterData(data.assets).map((r: any, i: number) => (
                         <PropertyRow
                           key={i}
                           {...r}
@@ -504,23 +545,17 @@ export default function PropertyModule({ selectedBusiness = 'All Entities' }: { 
                           onView={() => handleViewDoc(r.doc)}
                           canEdit={canEdit} canDelete={canDelete}
                         />
-                      )) || null
+                      ))
                     )}
 
                     {activeTab === 'requests' && (
-                      data.requests
-                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
-                        .map((r: any, i: number) => <RequestRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      filterData(data.requests).map((r: any, i: number) => <RequestRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`request-${i}`, r, 'requests')} onDelete={() => handleDeleteClick(`request-${i}`)} canEdit={canEdit} canDelete={canDelete} />)
                     )}
                     {activeTab === 'waste' && (
-                      data.waste
-                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
-                        .map((r: any, i: number) => <WasteRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      filterData(data.waste).map((r: any, i: number) => <WasteRow key={i} {...r} isWide={isWide} onEdit={() => handleEdit(`waste-${i}`, r, 'waste')} onDelete={() => handleDeleteClick(`waste-${i}`)} canEdit={canEdit} canDelete={canDelete} />)
                     )}
                     {activeTab === 'licence' && (
-                      data.licences
-                        ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
-                        .map((r: any, i: number) => (
+                      filterData(data.licences).map((r: any, i: number) => (
                         <LicenceRow
                           key={i}
                           {...r}
@@ -530,7 +565,7 @@ export default function PropertyModule({ selectedBusiness = 'All Entities' }: { 
                           onView={() => handleViewDoc(r.type + " - " + r.biz)}
                           canEdit={canEdit} canDelete={canDelete}
                         />
-                      )) || null
+                      ))
                     )}
 
                   </tbody>

@@ -26,6 +26,7 @@ import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { usePermissions } from '@/hooks/usePermissions';
 import { BusinessField } from '@/components/ui/BusinessField';
+import { useSearchParams } from 'next/navigation';
 
 
 type TabType = 'vehicles' | 'deliveries' | 'parcels';
@@ -51,6 +52,18 @@ export default function FleetModule({ selectedBusiness = 'All Entities' }: { sel
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
+  const searchParams = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+
+  React.useEffect(() => {
+    if (searchParams.get('view') === 'wide') {
+      setIsWide(true);
+    }
+    const targetTab = searchParams.get('tab');
+    if (targetTab && ['vehicles', 'deliveries', 'parcels'].includes(targetTab)) {
+      setActiveTab(targetTab as TabType);
+    }
+  }, [searchParams]);
 
 
   React.useEffect(() => {
@@ -189,8 +202,15 @@ export default function FleetModule({ selectedBusiness = 'All Entities' }: { sel
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden xl:flex gap-2">
-            {/* Automated reminders moved to central Reminders module */}
+          <div className="relative">
+            <FileSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search records..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 transition-all w-48 lg:w-64"
+            />
           </div>
           <div className="h-6 w-px bg-slate-200 mx-1" />
           <button 
@@ -360,6 +380,7 @@ export default function FleetModule({ selectedBusiness = 'All Entities' }: { sel
                     {activeTab === 'vehicles' && (
                       data.vehicles
                         ?.filter((v: any) => selectedBusiness === 'All Entities' || v.biz === selectedBusiness)
+                        .filter((v: any) => !searchTerm || Object.values(v).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((v: any, i: number) => (
                         <VehicleRow
                           key={i}
@@ -377,11 +398,13 @@ export default function FleetModule({ selectedBusiness = 'All Entities' }: { sel
                     {activeTab === 'deliveries' && (
                       data.deliveries
                         ?.filter((d: any) => selectedBusiness === 'All Entities' || d.biz === selectedBusiness)
+                        .filter((d: any) => !searchTerm || Object.values(d).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((d: any, i: number) => <DeliveryRow key={i} {...d} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(d.id || `delivery-${i}`, d, 'deliveries')} onDelete={() => handleDeleteClick(d.id || `delivery-${i}`)} />) || null
                     )}
                     {activeTab === 'parcels' && (
                       data.parcels
                         ?.filter((p: any) => selectedBusiness === 'All Entities' || p.biz === selectedBusiness)
+                        .filter((p: any) => !searchTerm || Object.values(p).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((p: any, i: number) => <ParcelRow key={i} {...p} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(p.id || `parcel-${i}`, p, 'parcels')} onDelete={() => handleDeleteClick(p.id || `parcel-${i}`)} />) || null
                     )}
                   </tbody>

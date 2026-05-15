@@ -45,6 +45,14 @@ export default function RemindersModule({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showAlert, setShowAlert] = useState(false);
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
+
+  useEffect(() => {
+    const s = searchParams?.get('search');
+    if (s) setSearchTerm(s);
+  }, [searchParams]);
+
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'info' as 'info' | 'warning' | 'error' });
 
   const fetchReminders = async () => {
@@ -193,6 +201,9 @@ export default function RemindersModule({
     // Business Filter
     if (selectedBusiness !== 'All Entities' && r.business !== selectedBusiness) return false;
 
+    // Search Filter
+    if (searchTerm && !Object.values(r).some(v => String(v).toLowerCase().includes(searchTerm.toLowerCase()))) return false;
+
     if (filter === 'all') return true;
     if (filter === 'overdue') return r.is_overdue === true;
     if (filter === 'High' || filter === 'Medium' || filter === 'Low') return r.priority === filter;
@@ -217,7 +228,7 @@ export default function RemindersModule({
     <div className="flex flex-col h-full bg-[#f8fafc]">
       {/* Actions Row */}
       <div className="bg-white/50 backdrop-blur-sm border-b border-slate-200 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 flex-1">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-2">Quick Filters:</span>
           <div className="flex bg-slate-100 p-1 rounded-lg">
             {['all', 'High', 'Medium', 'Low'].map(f => (
@@ -238,16 +249,30 @@ export default function RemindersModule({
               OVERDUE
             </button>
           </div>
-          {canAdd && (
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-lg"
-            >
-              <Plus className="w-4 h-4" />
-              Add Reminder
-            </button>
-          )}
+
+          <div className="relative w-64 ml-4">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Bell className="h-3.5 w-3.5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search reminders..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all outline-none"
+            />
+          </div>
         </div>
+
+        {canAdd && (
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-lg"
+          >
+            <Plus className="w-4 h-4" />
+            Add Reminder
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-hidden p-6">

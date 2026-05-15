@@ -31,6 +31,7 @@ import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { usePermissions } from '@/hooks/usePermissions';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
 import { BusinessField } from '@/components/ui/BusinessField';
+import { useSearchParams } from 'next/navigation';
 
 
 type TabType = 'records' | 'invoices' | 'bank' | 'loans' | 'insurance' | 'tax';
@@ -59,6 +60,18 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [filterSub, setFilterSub] = useState<string>('All');
+  const searchParams = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+
+  React.useEffect(() => {
+    if (searchParams.get('view') === 'wide') {
+      setIsWide(true);
+    }
+    const targetTab = searchParams.get('tab');
+    if (targetTab && ['records', 'invoices', 'bank', 'loans', 'insurance', 'tax'].includes(targetTab)) {
+      setActiveTab(targetTab as TabType);
+    }
+  }, [searchParams]);
 
 
   const [data, setData] = useState<any>({ records: [], invoices: [], banks: [], loans: [], dojo: [], insurance: [], vat: [] });
@@ -556,6 +569,16 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
               icon={FileText}
               headerAction={
                 <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <FileSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Search records..." 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:border-slate-800 transition-all w-48"
+                    />
+                  </div>
                   {activeTab === 'records' && (
                     <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 overflow-x-auto no-scrollbar max-w-[600px]">
                       {['All', 'Supplier Payments', 'Rent', 'Mortgage', 'Insurance', 'VAT / Tax'].map(cat => (
@@ -675,6 +698,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                     {activeTab === 'records' && (
                       data.records
                         ?.filter((r: any) => (selectedBusiness === 'All Entities' || r.biz === selectedBusiness) && (filterSub === 'All' || r.category === filterSub))
+                        .filter((r: any) => !searchTerm || Object.values(r).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((r: any, i: number) => (
                           <RecordRow 
                             key={i} 
@@ -691,26 +715,31 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                     {activeTab === 'invoices' && (
                       data.invoices
                         ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .filter((r: any) => !searchTerm || Object.values(r).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((r: any, i: number) => <InvoiceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'invoices')} onDelete={() => handleDeleteClick(`invoice-${r.id}`)} onView={() => handleViewDoc(`Invoice ${r.num}`, r.pdf_url, 'Invoicing')} />) || null
                     )}
                     {activeTab === 'bank' && (
                       data.banks
                         ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .filter((r: any) => !searchTerm || Object.values(r).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((r: any, i: number) => <BankRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'bank')} onDelete={() => handleDeleteClick(`bank-${r.id}`)} onView={() => handleViewDoc(`${r.bank_name} - ${r.account_name}`, r.document_url, 'Bank Record')} />) || null
                     )}
                     {activeTab === 'loans' && (
                       data.loans
                         ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .filter((r: any) => !searchTerm || Object.values(r).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((r: any, i: number) => <LoanRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'loans')} onDelete={() => handleDeleteClick(`loan-${r.id}`)} onView={() => handleViewDoc(`${r.loan} Agreement`, r.document_url, 'Loan Document')} />) || null
                     )}
                     {activeTab === 'insurance' && (
                       data.insurance
                         ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .filter((r: any) => !searchTerm || Object.values(r).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((r: any, i: number) => <InsuranceRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'insurance')} onDelete={() => handleDeleteClick(`insurance-${r.id}`)} onView={() => handleViewDoc(`${r.type} Policy`, r.document_url, 'Insurance')} />) || null
                     )}
                     {activeTab === 'tax' && (
                       data.vat
                         ?.filter((r: any) => selectedBusiness === 'All Entities' || r.biz === selectedBusiness)
+                        .filter((r: any) => !searchTerm || Object.values(r).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((r: any, i: number) => <TaxRow key={i} {...r} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(r.id, r, 'tax')} onDelete={() => handleDeleteClick(`tax-${r.id}`)} onView={() => handleViewDoc(`${r.type} Filing`, r.document_url, 'Taxation')} />) || null
                     )}
                   </tbody>

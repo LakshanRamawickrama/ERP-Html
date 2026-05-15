@@ -90,7 +90,7 @@ export default function PageWrapper({ children, title }: PageWrapperProps) {
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
               // Only inject props into custom components, not DOM elements like 'div'
-              if (typeof child.type !== 'string') {
+              if (typeof child.type !== 'string' && child.type !== React.Fragment) {
                 return React.cloneElement(child as React.ReactElement<any>, { 
                   selectedBusiness,
                   businesses: businesses.map(b => b.name || b)

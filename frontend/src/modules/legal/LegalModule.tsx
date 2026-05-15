@@ -14,6 +14,7 @@ import {
   UploadCloud,
   ShieldCheck,
   FileBadge,
+  FileSearch,
   Trash2
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
@@ -37,6 +38,17 @@ export default function LegalModule({ selectedBusiness = 'All Entities' }: { sel
   const [customTypeName, setCustomTypeName] = useState('');
 
 
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
+
+  useEffect(() => {
+    if (searchParams?.get('view') === 'wide') {
+      setIsWide(true);
+    }
+    const s = searchParams?.get('search');
+    if (s) setSearchTerm(s);
+  }, [searchParams]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     fetch(API_ENDPOINTS.LEGAL, {
@@ -47,6 +59,17 @@ export default function LegalModule({ selectedBusiness = 'All Entities' }: { sel
     }).then(setData)
     .catch(err => console.error('Legal fetch error:', err));
   }, []);
+
+  const filterDocs = (list: any[]) => {
+    if (!list) return [];
+    return list.filter((doc: any) => {
+      const bizMatch = selectedBusiness === 'All Entities' || doc.biz === selectedBusiness;
+      const searchMatch = !searchTerm || Object.values(doc).some(v => 
+        String(v).toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      return bizMatch && searchMatch;
+    });
+  };
 
   const handleEdit = (id: string, rowData: any) => {
     setEditingId(id);
@@ -142,13 +165,26 @@ export default function LegalModule({ selectedBusiness = 'All Entities' }: { sel
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
 
-      {/* Toolbar / KPI */}
-      <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between overflow-x-auto no-scrollbar whitespace-nowrap">
-        <div className="flex gap-6 py-4">
-          <span className="text-xs font-bold text-[#2c3e50] border-b-2 border-[#2c3e50] pb-1">Document Registry</span>
+      {/* Header & Search */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <span className="text-xs font-bold text-[#2c3e50] border-b-2 border-[#2c3e50] pb-1">Document Registry</span>
+          </div>
+          
+          <div className="relative w-full md:w-64">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <FileSearch className="h-3.5 w-3.5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search legal documents..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all outline-none"
+            />
+          </div>
         </div>
-
-        {/* Automated alerts moved to central Reminders module */}
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -246,9 +282,7 @@ export default function LegalModule({ selectedBusiness = 'All Entities' }: { sel
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {docs
-                      ?.filter((doc: any) => selectedBusiness === 'All Entities' || doc.biz === selectedBusiness)
-                      .map((doc: any, i: number) => (
+                    {filterDocs(docs).map((doc: any, i: number) => (
                       <DocRow
                         key={i}
                         {...doc}

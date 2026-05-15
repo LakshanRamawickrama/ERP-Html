@@ -19,7 +19,8 @@ import {
   Calendar,
   DollarSign,
   Printer,
-  FileText
+  FileText,
+  FileSearch
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -66,9 +67,35 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
       });
   };
 
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
+
+  useEffect(() => {
+    if (searchParams?.get('view') === 'wide') {
+      setIsWide(true);
+    }
+    const targetTab = searchParams?.get('tab');
+    if (targetTab === 'suppliers') setActiveTab('suppliers');
+    if (targetTab === 'orders') setActiveTab('orders');
+    
+    const s = searchParams?.get('search');
+    if (s) setSearchTerm(s);
+  }, [searchParams]);
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  const filterData = (list: any[]) => {
+    if (!list) return [];
+    return list.filter((r: any) => {
+      const bizMatch = selectedBusiness === 'All Entities' || r.biz === selectedBusiness;
+      const searchMatch = !searchTerm || Object.values(r).some(v => 
+        String(v).toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      return bizMatch && searchMatch;
+    });
+  };
 
   const handleEdit = (id: string, rowData: any, tab: TabType) => {
     setEditingId(id);
@@ -156,8 +183,8 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
 
-      {/* Tab Navigation */}
-      <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 sticky top-0 z-10">
+      {/* Tab Navigation & Search */}
+      <div className="bg-white border-b border-slate-200 px-6 py-2 flex items-center justify-between flex-shrink-0 sticky top-0 z-10 gap-4 flex-wrap">
         <div className="flex gap-6 overflow-x-auto no-scrollbar">
           <TabButton 
             active={activeTab === 'suppliers'} 
@@ -172,13 +199,29 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
             onClick={() => setActiveTab('orders')} 
           />
         </div>
-        <button 
-          onClick={() => setIsWide(!isWide)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all uppercase tracking-wider shadow-sm"
-        >
-          {isWide ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-          {isWide ? 'Standard' : 'Wide'} View
-        </button>
+        
+        <div className="flex items-center gap-4 flex-1 justify-end min-w-[300px]">
+          <div className="relative flex-1 max-w-md">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <FileSearch className="h-3.5 w-3.5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search registry..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all outline-none"
+            />
+          </div>
+
+          <button 
+            onClick={() => setIsWide(!isWide)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all uppercase tracking-wider shadow-sm shrink-0"
+          >
+            {isWide ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            {isWide ? 'Standard' : 'Wide'} View
+          </button>
+        </div>
       </div>
 
       {/* Content Area */}
@@ -298,14 +341,10 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'suppliers' && (
-                      data.suppliers
-                        ?.filter((s: any) => selectedBusiness === 'All Entities' || s.biz === selectedBusiness)
-                        .map((s: any, i: number) => <SupplierRow key={i} {...s} isWide={isWide} onEdit={() => handleEdit(s.id || `supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(s.id || `supplier-${i}`)} canEdit={canEdit} canDelete={canDelete} />) || null
+                      filterData(data.suppliers).map((s: any, i: number) => <SupplierRow key={i} {...s} isWide={isWide} onEdit={() => handleEdit(s.id || `supplier-${i}`, s, 'suppliers')} onDelete={() => handleDeleteClick(s.id || `supplier-${i}`)} canEdit={canEdit} canDelete={canDelete} />)
                     )}
                     {activeTab === 'orders' && (
-                      data.orders
-                        ?.filter((o: any) => selectedBusiness === 'All Entities' || o.biz === selectedBusiness)
-                        .map((o: any, i: number) => (
+                      filterData(data.orders).map((o: any, i: number) => (
                           <OrderRow
                             key={i}
                             {...o}
@@ -314,7 +353,7 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
                             onView={() => handleViewDoc(`Purchase Order ${o.num}`, 'Procurement')}
                             canEdit={canEdit}
                           />
-                        )) || null
+                        ))
                     )}
 
                   </tbody>

@@ -48,9 +48,35 @@ export default function InventoryModule({ selectedBusiness = 'All Entities' }: {
     }
   };
 
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
+
+  React.useEffect(() => {
+    if (searchParams?.get('view') === 'wide') {
+      setIsWide(true);
+    }
+    const targetTab = searchParams?.get('tab');
+    if (targetTab === 'products') setActiveTab('stock');
+    if (targetTab === 'movements') setActiveTab('move');
+    
+    const s = searchParams?.get('search');
+    if (s) setSearchTerm(s);
+  }, [searchParams]);
+
   React.useEffect(() => {
     fetchInventory();
   }, []);
+
+  const filterData = (list: any[]) => {
+    if (!list) return [];
+    return list.filter((r: any) => {
+      const bizMatch = selectedBusiness === 'All Entities' || r.biz === selectedBusiness;
+      const searchMatch = !searchTerm || Object.values(r).some(v => 
+        String(v).toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      return bizMatch && searchMatch;
+    });
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -134,14 +160,27 @@ export default function InventoryModule({ selectedBusiness = 'All Entities' }: {
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6 flex items-center justify-between overflow-x-auto no-scrollbar whitespace-nowrap">
-        <div className="flex gap-6">
-          <TabButton active={activeTab === 'stock'} label="Master Inventory" onClick={() => setActiveTab('stock')} />
-          <TabButton active={activeTab === 'move'} label="Stock Movements (In/Out)" onClick={() => setActiveTab('move')} />
-        </div>
+      {/* Header & Tabs */}
+      <div className="bg-white border-b border-slate-200 px-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+          <div className="flex gap-6 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <TabButton active={activeTab === 'stock'} label="Master Inventory" onClick={() => setActiveTab('stock')} />
+            <TabButton active={activeTab === 'move'} label="Stock Movements (In/Out)" onClick={() => setActiveTab('move')} />
+          </div>
 
-        {/* Automated alerts moved to central Reminders module */}
+          <div className="relative w-full md:w-64 pb-2 md:pb-0">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Boxes className="h-3.5 w-3.5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search inventory..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all outline-none"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -271,17 +310,13 @@ export default function InventoryModule({ selectedBusiness = 'All Entities' }: {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {activeTab === 'stock' ? (
-                      data.stock
-                        ?.filter((item: any) => selectedBusiness === 'All Entities' || item.biz === selectedBusiness)
-                        .map((item: any, i: number) => (
+                      filterData(data.stock).map((item: any, i: number) => (
                           <StockRow key={i} {...item} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(item.id, item, 'stock')} onDelete={() => handleDeleteClick(`stock-${item.id}`)} />
-                        )) || null
+                        ))
                     ) : (
-                      data.moves
-                        ?.filter((move: any) => selectedBusiness === 'All Entities' || move.biz === selectedBusiness)
-                        .map((move: any, i: number) => (
+                      filterData(data.moves).map((move: any, i: number) => (
                           <MoveRow key={i} {...move} isWide={isWide} canEdit={canEdit} canDelete={canDelete} onEdit={() => handleEdit(move.id, move, 'move')} onDelete={() => handleDeleteClick(`move-${move.id}`)} />
-                        )) || null
+                        ))
                     )}
                   </tbody>
                 </table>
