@@ -18,7 +18,8 @@ import {
   Package,
   Calendar,
   DollarSign,
-  FileText
+  FileText,
+  FileSearch
 } from 'lucide-react';
 import { DeleteConfirmModal } from '@/components/ui/DeleteConfirmModal';
 import { DocumentDrawer } from '@/components/ui/DocumentDrawer';
@@ -313,7 +314,7 @@ export default function SupplierModule({ selectedBusiness = 'All Entities' }: { 
           )}
 
           {/* Table Column */}
-          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !(canAdd || canEdit) ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={activeTab === 'suppliers' ? 'Vendor Partner Registry' : 'Purchase Order History'} 
               icon={activeTab === 'suppliers' ? Truck : ShoppingCart}

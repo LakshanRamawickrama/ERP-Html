@@ -530,7 +530,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
             </div>
           )}
 
-          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !(canAdd || canEdit) ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Registry`} 
               icon={FileText}

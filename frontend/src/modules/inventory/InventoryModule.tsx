@@ -271,7 +271,7 @@ export default function InventoryModule({ selectedBusiness = 'All Entities' }: {
           )}
 
           {/* Table Column */}
-          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !(canAdd || canEdit) ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={activeTab === 'stock' ? "Master Inventory List" : "Transaction History"} 
               icon={activeTab === 'stock' ? ClipboardList : ArrowLeftRight}

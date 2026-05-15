@@ -498,7 +498,7 @@ export default function BusinessModule({ userRole, selectedBusiness = 'All Entit
           )}
 
           {/* Table Column */}
-          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !(canAdd || canEdit) ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={activeTab === 'entities' ? "Active Business Entities" : "Companies House Registry"} 
               icon={Briefcase}

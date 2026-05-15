@@ -455,7 +455,7 @@ export default function PropertyModule({ selectedBusiness = 'All Entities' }: { 
           )}
 
           {/* Table Column */}
-          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !(canAdd || canEdit) ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card 
               title={
                 activeTab === 'inventory' ? 'Building Asset Registry' : 

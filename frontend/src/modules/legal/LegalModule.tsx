@@ -260,7 +260,7 @@ export default function LegalModule({ selectedBusiness = 'All Entities' }: { sel
           )}
 
           {/* Table Column */}
-          <div className={isWide || !canAdd ? 'lg:col-span-12' : 'lg:col-span-8'}>
+          <div className={isWide || !(canAdd || canEdit) ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <Card title="Active Legal Documents" icon={FileBadge}
               headerAction={
                 <button onClick={() => setIsWide(!isWide)} className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold text-slate-500 border border-slate-200 rounded-md hover:bg-slate-100 transition-all tracking-wide">
