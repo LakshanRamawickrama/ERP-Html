@@ -288,7 +288,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                         name="category"
                         value={formData.category}
                         isSelect
-                        options={['Supplier Payments', 'Rent', 'Mortgage', 'Accountant Fees', 'Bank Charges', 'Insurance', 'VAT / Tax', 'ADD_NEW']}
+                        options={['Supplier Payments', 'Rent', 'Mortgage', 'Accountant Fees', 'Bank Charges', 'ADD_NEW']}
                         onChange={handleInputChange}
                       />
 
@@ -324,40 +324,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                         </>
                       )}
 
-                      {recordCategory === 'Insurance' && (
-                        <>
-                          <div className="grid grid-cols-2 gap-4">
-                            <Field label="Insurance Type" name="insType" value={formData.insType} onChange={handleInputChange} placeholder="e.g. Liability" />
-                            <Field label="Provider Name" name="insProvider" value={formData.insProvider} onChange={handleInputChange} />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <Field label="Policy Number" name="insPolicy" value={formData.insPolicy} onChange={handleInputChange} />
-                            <Field label="Premium Amount (£)" name="insPremium" value={formData.insPremium} onChange={handleInputChange} type="number" step="0.01" />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <Field label="Start Date" name="insStart" value={formData.insStart} onChange={handleInputChange} type="date" />
-                            <Field label="Expiry Date" name="insExpiry" value={formData.insExpiry} onChange={handleInputChange} type="date" />
-                          </div>
-                          <Field label="Renewal Reminder" name="insReminderDynamic" value={formData.insReminderDynamic} onChange={handleInputChange} isSelect options={['30 Days Before', '15 Days Before', '7 Days Before']} />
-                        </>
-                      )}
 
-                      {recordCategory === 'VAT / Tax' && (
-                        <>
-                          <div className="grid grid-cols-2 gap-4">
-                            <Field label="Tax Type" name="taxType" value={formData.taxType} onChange={handleInputChange} placeholder="e.g. Corporation Tax" />
-                            <Field label="Tax Amount (£)" name="taxAmount" value={formData.taxAmount} onChange={handleInputChange} type="number" step="0.01" />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <Field label="Period Start" name="taxStart" value={formData.taxStart} onChange={handleInputChange} type="date" />
-                            <Field label="Period End" name="taxEnd" value={formData.taxEnd} onChange={handleInputChange} type="date" />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <Field label="Filing Date" name="taxFiling" value={formData.taxFiling} onChange={handleInputChange} type="date" />
-                            <Field label="Payment Due" name="taxDue" value={formData.taxDue} onChange={handleInputChange} type="date" />
-                          </div>
-                        </>
-                      )}
 
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Type" name="type" value={formData.type} onChange={handleInputChange} isSelect options={['Income', 'Expense', 'Asset', 'Equity', 'Liability']} />
@@ -581,7 +548,7 @@ export default function AccountingModule({ selectedBusiness = 'All Entities' }: 
                   </div>
                   {activeTab === 'records' && (
                     <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 overflow-x-auto no-scrollbar max-w-[600px]">
-                      {['All', 'Supplier Payments', 'Rent', 'Mortgage', 'Insurance', 'VAT / Tax'].map(cat => (
+                      {['All', 'Supplier Payments', 'Rent', 'Mortgage'].map(cat => (
                         <button
                           key={cat}
                           onClick={() => setFilterSub(cat)}
