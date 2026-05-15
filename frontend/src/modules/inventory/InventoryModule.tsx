@@ -164,7 +164,11 @@ export default function InventoryModule({ selectedBusiness = 'All Entities' }: {
                         businesses={data.options?.businesses || []}
                       />
                       <Field label="Item Name *" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. Milk Packet 1L" />
-                      <Field label="Category *" name="category" value={formData.category} onChange={handleInputChange} isSelect options={data.options?.categories || []} />
+                      <CategoryField 
+                        value={formData.category || ''} 
+                        options={data.options?.categories || []}
+                        onChange={(v: string) => setFormData((prev: any) => ({ ...prev, category: v }))}
+                      />
                       <div className="grid grid-cols-2 gap-4">
                         <Field label="Initial Stock" name="quantity" value={formData.quantity} onChange={handleInputChange} type="number" />
                         <Field label="Min Stock Level" name="min_stock" value={formData.min_stock} onChange={handleInputChange} type="number" />
@@ -368,6 +372,81 @@ function MoveRow({ date, product_name, type, quantity, reason, reference, biz, i
         </div>
       </td>
     </tr>
+  );
+}
+
+function CategoryField({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
+  const [showCustomInput, setShowCustomInput] = React.useState(false);
+  const [customInput, setCustomInput] = React.useState('');
+
+  // Determine what to show in the dropdown
+  const isValueCustom = value && !options.includes(value);
+  const dropdownValue = showCustomInput ? '__custom__' : (isValueCustom ? '__custom__' : (value || ''));
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value === '__custom__') {
+      setShowCustomInput(true);
+      setCustomInput('');
+    } else {
+      setShowCustomInput(false);
+      onChange(e.target.value);
+    }
+  };
+
+  const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomInput(e.target.value);
+    // Live-update the form value as user types
+    onChange(e.target.value);
+  };
+
+  const handleCustomKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); if (customInput.trim()) setShowCustomInput(false); }
+    if (e.key === 'Escape') { setShowCustomInput(false); }
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Dropdown — always visible */}
+      <div>
+        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Category</label>
+        <div className="relative mt-1.5">
+          <select
+            value={dropdownValue}
+            onChange={handleSelectChange}
+            className="w-full p-2.5 pr-9 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-slate-400 transition-all font-medium text-slate-700 appearance-none shadow-sm"
+          >
+            <option value="">Select Option...</option>
+            {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+            <option value="__custom__">+ Add New Category...</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Specify Category input — appears below when custom is selected */}
+      {showCustomInput && (
+        <div>
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Specify Category</label>
+          <input
+            autoFocus
+            type="text"
+            placeholder="Enter new category name"
+            value={customInput}
+            onChange={handleCustomChange}
+            onKeyDown={handleCustomKeyDown}
+            className="w-full mt-1.5 p-2.5 bg-white border border-slate-300 rounded-xl text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-50 transition-all font-medium text-slate-700 shadow-sm"
+          />
+          <p className="mt-1 text-[10px] text-slate-400">Press Enter to confirm or Escape to cancel</p>
+        </div>
+      )}
+
+      {/* Show confirmation for already-saved custom category */}
+      {isValueCustom && !showCustomInput && (
+        <p className="text-[10px] text-indigo-500 font-semibold -mt-1">Custom category: "{value}" ✓</p>
+      )}
+    </div>
   );
 }
 

@@ -16,12 +16,28 @@ class InventoryDataView(APIView):
         products = get_filtered_queryset(request, Product)
         movements = get_filtered_queryset(request, StockMovement)
         user_business = getattr(request.user, 'assigned_business', 'All')
+        
+        # Default global categories
+        default_categories = ["Cleaning", "Electronics", "Food & Beverages", "Groceries", "Stationery"]
+        
+        # Scope custom categories by business:
+        # - Super admins see all custom categories from all businesses
+        # - Admins only see custom categories from their own assigned business
+        if request.user.is_superuser:
+            db_categories = list(Product.objects.values_list('category', flat=True).distinct())
+        elif user_business and user_business != 'All':
+            db_categories = list(Product.objects.filter(business=user_business).values_list('category', flat=True).distinct())
+        else:
+            db_categories = []
+        
+        all_categories = sorted(set(default_categories + [c for c in db_categories if c]))
+        
         return Response({
             "stock": ProductSerializer(products, many=True).data,
             "moves": StockMovementSerializer(movements, many=True).data,
-            "alerts": [], # Centralized in Reminders module
+            "alerts": [],
             "options": {
-                "categories": ["Food & Beverages", "Groceries", "Stationery", "Electronics", "Cleaning"],
+                "categories": all_categories,
                 "businesses": [user_business] if user_business != 'All' else list(BusinessEntity.objects.values_list('name', flat=True).distinct())
             },
             "inventoryItems": [p.name for p in products],
